@@ -719,7 +719,7 @@ function App(){
       </header>
       <main>
         <section class="hero shell">
-          <motion.div class="hero-card glass" initial=${reduce?false:{opacity:0,y:20}} animate=${reduce?false:{opacity:1,y:0}} transition=${reduce?{duration:0}:{duration:.6,ease:[.22,1,.36,1]}}>
+          <${motion.div} class="hero-card glass" initial=${reduce?false:{opacity:0,y:20}} animate=${reduce?false:{opacity:1,y:0}} transition=${reduce?{duration:0}:{duration:.6,ease:[.22,1,.36,1]}}>
             <div class="hero-grid">
               <div>
                 <div class="eyebrow">${spark()}<span>Luxury-directory treatment</span></div>
@@ -741,7 +741,7 @@ function App(){
                 </div>
               </div>
             </div>
-          </motion.div>
+          </${motion.div}>
         </section>
         <section id="filters" class="section shell">
           <div class="filters-card glass">
@@ -773,13 +773,13 @@ function App(){
             ${summary.map(([label,value])=>html`<div class="summary-pill glass" key=${label}><span class="summary-label">${label}</span><strong>${value}</strong></div>`)}
           </div>
           ${filtered.length?html`
-            <motion.div layout class="list-grid">
-              <AnimatePresence mode="popLayout">
+            <${motion.div} layout class="list-grid">
+              <${AnimatePresence} mode="popLayout">
                 ${filtered.map((apt,index)=>{
                   const tag=tagStyles[apt.tag]||null;
                   const savedNow=saved.includes(apt.id);
                   return html`
-                    <motion.article
+                    <${motion.article}
                       key=${apt.id}
                       layout
                       class="card glass"
@@ -819,11 +819,11 @@ function App(){
                         <span class="brand-copy">${apt.available==="Now"?"Fastest handoff":"Confirm unit-level pricing before applying"}</span>
                         <a class="action-link" href=${apt.url} target="_blank" rel="noopener noreferrer">Open pricing page →</a>
                       </div>
-                    </motion.article>
+                    </${motion.article}>
                   `;
                 })}
-              </AnimatePresence>
-            </motion.div>
+              </${AnimatePresence}>
+            </${motion.div}>
           `:html`
             <div class="empty glass section-card">
               <h3 class="empty-title">No listings match that combination.</h3>
