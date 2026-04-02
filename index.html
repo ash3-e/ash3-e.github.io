@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2BR Apartments — Squirrel Hill, Pittsburgh</title>
+<meta name="description" content="Comprehensive listing of 2-bedroom apartments available in Squirrel Hill, Pittsburgh PA through August 2026." />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0c0c0c; color: #e8e4de; font-family: Georgia, 'Times New Roman', serif; }
+  ::selection { background: #a08c6e; color: #0c0c0c; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0c0c0c; }
+  ::-webkit-scrollbar-thumb { background: #3d362c; border-radius: 4px; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+<script>
+const e = React.createElement;
+const { useState, useMemo } = React;
+
+const apartments = [
+  { id:1, name:"Frick Park Village", address:"208 Rebecca Ave, Pittsburgh, PA 15221", rent:[1151,1400], sqft:700, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["Laundry Facilities","Parking","3D Tour"], phone:"(412) 612-2468", url:"https://www.apartments.com/frick-park-village-pittsburgh-pa/ldrlfyf/", tag:"Best Value" },
+  { id:2, name:"Squirrel Hill Properties", address:"5637 Hobart St, Pittsburgh, PA 15217", rent:[1799,2199], sqft:750, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["In-Unit W/D","Window A/C","Near Murray Ave"], phone:"(412) 663-6690", url:"https://www.apartments.com/squirrel-hill-properties-pittsburgh-pa/qjrl9gz/", tag:"Move-In Special" },
+  { id:3, name:"The Velma Court", address:"Squirrel Hill South, Pittsburgh, PA 15217", rent:[1200,1400], sqft:819, beds:2, baths:1, available:"Now", availSort:0, pets:false, amenities:["Wall-to-Wall Carpet","Garbage Disposal","Near Downtown"], phone:"Contact Property", url:"https://www.homes.com/squirrel-hill-pa/apartments-for-rent/", tag:null },
+  { id:4, name:"Royal Garden Apartments", address:"6236 5th Ave, Pittsburgh, PA 15232", rent:[1189,1500], sqft:850, beds:2, baths:1, available:"Now", availSort:0, pets:false, amenities:["3D Tour","Dishwasher","Near Shadyside"], phone:"(412) 924-5773", url:"https://www.apartments.com/royal-garden-apartments-pittsburgh-pa/969dlj4/", tag:null },
+  { id:5, name:"Regent Square Apartments", address:"535-603 S Trenton Ave, Pittsburgh, PA 15221", rent:[1280,1600], sqft:875, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["3D Tour","Parking","Laundry"], phone:"(412) 871-6306", url:"https://www.apartments.com/regent-square-pittsburgh-pa/gjjsz9x/", tag:null },
+  { id:6, name:"Walnut on the Park", address:"5326 Pocusset St, Pittsburgh, PA 15217", rent:[1307,2044], sqft:900, beds:2, baths:1, available:"May 2026", availSort:1, pets:true, amenities:["Renovated","Hardwood Floors","Near Frick Park"], phone:"(412) 683-3810", url:"https://www.walnutcapital.com/neighborhoods/apartments-squirrel-hill-pittsburgh", tag:null },
+  { id:7, name:"The Wendover Community", address:"5562 Hobart St, Pittsburgh, PA 15217", rent:[1331,1640], sqft:920, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["Historic Gothic Bldg","Courtyard","Garage Parking"], phone:"(412) 467-0395", url:"https://www.apartments.com/the-wendover-community-pittsburgh-pa/l55ygwf/", tag:null },
+  { id:8, name:"Morrowfield", address:"2715 Murray Ave, Pittsburgh, PA 15217", rent:[1411,1800], sqft:940, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["Historic Building","On Murray Ave","Walk to Shops"], phone:"(412) 467-0249", url:"https://www.apartments.com/morrowfield-pittsburgh-pa/34lt28g/", tag:null },
+  { id:9, name:"Hobart Court", address:"5557 Hobart St, Pittsburgh, PA 15217", rent:[1344,2435], sqft:950, beds:2, baths:1, available:"Jun 2026", availSort:2, pets:true, amenities:["Renovated","Near Murray Ave","Walnut Capital"], phone:"(412) 683-3810", url:"https://www.walnutcapital.com/neighborhoods/apartments-squirrel-hill-pittsburgh", tag:null },
+  { id:10, name:"Hempstead Road Apartments", address:"5625 Hempstead Rd, Pittsburgh, PA 15217", rent:[1112,2000], sqft:975, beds:2, baths:2, available:"May 2026", availSort:1, pets:true, amenities:["2 Bathrooms","Renovated","Walnut Capital"], phone:"(412) 683-3810", url:"https://www.walnutcapital.com/neighborhoods/apartments-squirrel-hill-pittsburgh", tag:"2 Bath" },
+  { id:11, name:"The Ell on Ellsworth", address:"5420 Ellsworth Ave, Pittsburgh, PA 15232", rent:[1400,1700], sqft:1000, beds:2, baths:1, available:"Now", availSort:0, pets:false, amenities:["3D Tour","A/C","Near Shadyside"], phone:"(412) 850-4664", url:"https://www.apartments.com/the-ell-on-ellsworth-a-hudson-property-pittsburgh-pa/mx9m19j/", tag:null },
+  { id:12, name:"Walnut Towers at Frick Park", address:"7070 Forward Ave, Pittsburgh, PA 15217", rent:[1399,2800], sqft:1050, beds:2, baths:1.5, available:"Jun 2026", availSort:2, pets:true, amenities:["Near Frick Park","Elevator","Walnut Capital"], phone:"(412) 683-3810", url:"https://www.walnutcapital.com/neighborhoods/apartments-squirrel-hill-pittsburgh", tag:"Popular" },
+  { id:13, name:"Shadyside Properties", address:"5721-5727 Elwood St, Pittsburgh, PA 15232", rent:[1499,1900], sqft:1050, beds:2, baths:1, available:"Now", availSort:0, pets:true, amenities:["Specials Available","Renovated","Near CMU"], phone:"(412) 924-5818", url:"https://www.apartments.com/shadyside-properties-pittsburgh-pa/nx09hbn/", tag:"Specials" },
+  { id:14, name:"The Royal Plaza", address:"5506 5th Ave, Pittsburgh, PA 15232", rent:[1550,1550], sqft:1060, beds:2, baths:1, available:"Aug 2026", availSort:4, pets:false, amenities:["3D Tour","Elevator","Rockwel Realty"], phone:"(412) 754-4579", url:"https://www.apartments.com/the-royal-plaza-rockwel-realty-leasing-pittsburgh-pa/3s5lycg/", tag:null },
+  { id:15, name:"NORMANDY", address:"5530 5th Ave, Pittsburgh, PA 15232", rent:[1700,1700], sqft:1100, beds:2, baths:1, available:"Jul 2026", availSort:3, pets:true, amenities:["Cats OK","Dishwasher","Walk-In Closets"], phone:"(412) 754-3699", url:"https://www.apartments.com/normandy-pittsburgh-pa/0wmbfg3/", tag:null },
+  { id:16, name:"Negley Court", address:"5620 5th Ave, Pittsburgh, PA 15232", rent:[1655,1655], sqft:1100, beds:2, baths:1, available:"Aug 2026", availSort:4, pets:false, amenities:["3D Tour","Elevator","Near CMU"], phone:"(855) 578-8170", url:"https://www.apartments.com/negley-court-pittsburgh-pa/k28meyb/", tag:null },
+  { id:17, name:"Walnut Street Apartments", address:"5614 Walnut St, Pittsburgh, PA 15232", rent:[1855,1855], sqft:1120, beds:2, baths:1, available:"Jul 2026", availSort:3, pets:false, amenities:["3D Tour","Elevator","Near Shops"], phone:"(412) 924-5905", url:"https://www.apartments.com/walnut-street-apartments-pittsburgh-pa/svtrc36/", tag:null },
+  { id:18, name:"Maxon Towers", address:"6315 Forbes Ave, Squirrel Hill, PA 15217", rent:[2037,2037], sqft:1150, beds:2, baths:1, available:"Now", availSort:0, pets:false, amenities:["3D Tour","High-Rise","On Forbes Ave"], phone:"(412) 515-8402", url:"https://www.apartments.com/maxon-towers-squirrel-hill-pa/0l3jt62/", tag:null },
+  { id:19, name:"The Gateway at Summerset", address:"1876 Parkview Blvd, Pittsburgh, PA 15217", rent:[1834,2290], sqft:1200, beds:2, baths:2, available:"Now", availSort:0, pets:true, amenities:["3D Tour","Near Frick Park","2 Bathrooms"], phone:"(412) 566-8709", url:"https://www.apartments.com/the-gateway-at-summerset-pittsburgh-pa/dhw10rh/", tag:"Frick Park" },
+  { id:20, name:"The Rockwel", address:"430 Shady Ave, Pittsburgh, PA 15206", rent:[2095,2095], sqft:1200, beds:2, baths:1, available:"Aug 2026", availSort:4, pets:false, amenities:["3D Tour","Modern Finishes","Rockwel Realty"], phone:"(412) 850-4075", url:"https://www.apartments.com/the-rockwel-rockwel-realty-leasing-pittsburgh-pa/8bj3yk3/", tag:null },
+  { id:21, name:"The Reserve at Summerset", address:"1435 Parkview Blvd, Pittsburgh, PA 15217", rent:[2700,3050], sqft:1400, beds:2, baths:1.5, available:"Now", availSort:0, pets:true, amenities:["Townhome","3D Tour","At Frick Park"], phone:"(412) 816-9172", url:"https://www.apartments.com/the-reserve-at-summerset-at-frick-park-pittsburgh-pa/wm9hrck/", tag:"Luxury" }
+];
+
+const tagColors = {
+  "Best Value": { bg:"#065f46", text:"#d1fae5" },
+  "Move-In Special": { bg:"#92400e", text:"#fef3c7" },
+  "Popular": { bg:"#7c3aed", text:"#ede9fe" },
+  "Luxury": { bg:"#1e1b4b", text:"#e0e7ff" },
+  "Specials": { bg:"#9d174d", text:"#fce7f3" },
+  "Frick Park": { bg:"#155e75", text:"#cffafe" },
+  "2 Bath": { bg:"#3730a3", text:"#e0e7ff" }
+};
+
+function Select(props) {
+  return e("select", {
+    value: props.value,
+    onChange: function(ev) { props.onChange(ev.target.value); },
+    style: { marginLeft:6, background:"#1f1c17", color:"#e8e4de", border:"1px solid #3d362c", borderRadius:4, padding:"5px 8px", fontSize:12, fontFamily:"inherit" }
+  }, props.children);
+}
+
+function App() {
+  const [sortBy, setSortBy] = useState("sqft");
+  const [maxRent, setMaxRent] = useState(3100);
+  const [availFilter, setAvailFilter] = useState("all");
+  const [petsOnly, setPetsOnly] = useState(false);
+  const [hoverId, setHoverId] = useState(null);
+
+  const sorted = useMemo(function() {
+    var filtered = apartments.filter(function(a) { return a.rent[0] <= maxRent; });
+    if (availFilter === "now") filtered = filtered.filter(function(a) { return a.available === "Now"; });
+    if (availFilter === "summer") filtered = filtered.filter(function(a) { return a.availSort >= 2 && a.availSort <= 4; });
+    if (petsOnly) filtered = filtered.filter(function(a) { return a.pets; });
+    return filtered.sort(function(a, b) {
+      if (sortBy === "sqft") return a.sqft - b.sqft;
+      if (sortBy === "sqft_desc") return b.sqft - a.sqft;
+      if (sortBy === "rent") return a.rent[0] - b.rent[0];
+      if (sortBy === "available") return a.availSort - b.availSort;
+      return 0;
+    });
+  }, [sortBy, maxRent, availFilter, petsOnly]);
+
+  var avgRent = sorted.length ? Math.round(sorted.reduce(function(s,a){return s+a.rent[0];},0)/sorted.length) : 0;
+  var avgSqft = sorted.length ? Math.round(sorted.reduce(function(s,a){return s+a.sqft;},0)/sorted.length) : 0;
+
+  return e("div", { style:{ minHeight:"100vh" } },
+    // Header
+    e("div", { style:{ background:"linear-gradient(135deg,#1a1814 0%,#2d261e 50%,#1a1814 100%)", borderBottom:"1px solid #3d362c", padding:"32px 24px 24px" } },
+      e("div", { style:{ maxWidth:900, margin:"0 auto" } },
+        e("div", { style:{ display:"flex", alignItems:"baseline", gap:12, flexWrap:"wrap" } },
+          e("span", { style:{ fontSize:11, letterSpacing:4, textTransform:"uppercase", color:"#a08c6e", fontFamily:"'Helvetica Neue',sans-serif" } }, "Pittsburgh"),
+          e("span", { style:{ color:"#3d362c" } }, "\u2022"),
+          e("span", { style:{ fontSize:11, letterSpacing:4, textTransform:"uppercase", color:"#a08c6e", fontFamily:"'Helvetica Neue',sans-serif" } }, "15217 / 15232")
+        ),
+        e("h1", { style:{ fontSize:"clamp(28px,5vw,42px)", fontWeight:400, margin:"8px 0 4px", letterSpacing:-0.5, color:"#f5f0e8", lineHeight:1.1 } }, "Squirrel Hill"),
+        e("p", { style:{ fontSize:15, color:"#a08c6e", margin:"2px 0 16px", fontStyle:"italic" } }, "2-Bedroom Apartments \u2014 Available through August 2026"),
+        e("div", { style:{ display:"flex", gap:8, fontSize:11, fontFamily:"'Helvetica Neue',sans-serif", color:"#8a7e6e", flexWrap:"wrap" } },
+          e("span", { style:{ background:"#1f1c17", padding:"4px 10px", borderRadius:4, border:"1px solid #2d261e" } }, sorted.length + " listings"),
+          e("span", { style:{ background:"#1f1c17", padding:"4px 10px", borderRadius:4, border:"1px solid #2d261e" } }, "Avg $" + avgRent + "/mo"),
+          e("span", { style:{ background:"#1f1c17", padding:"4px 10px", borderRadius:4, border:"1px solid #2d261e" } }, "Avg " + avgSqft + " sq ft")
+        )
+      )
+    ),
+
+    // Controls
+    e("div", { style:{ background:"#141210", borderBottom:"1px solid #2d261e", padding:"14px 24px", position:"sticky", top:0, zIndex:10 } },
+      e("div", { style:{ maxWidth:900, margin:"0 auto", display:"flex", gap:12, flexWrap:"wrap", alignItems:"center", fontFamily:"'Helvetica Neue',sans-serif", fontSize:12 } },
+        e("label", { style:{ color:"#8a7e6e" } }, "Sort ",
+          e(Select, { value:sortBy, onChange:setSortBy },
+            e("option", { value:"sqft" }, "Sq Ft \u2191"),
+            e("option", { value:"sqft_desc" }, "Sq Ft \u2193"),
+            e("option", { value:"rent" }, "Rent (Low \u2192 High)"),
+            e("option", { value:"available" }, "Move-In Date")
+          )
+        ),
+        e("label", { style:{ color:"#8a7e6e" } }, "Max Rent ",
+          e(Select, { value:maxRent, onChange:function(v){setMaxRent(Number(v));} },
+            e("option", { value:1500 }, "$1,500"),
+            e("option", { value:1800 }, "$1,800"),
+            e("option", { value:2000 }, "$2,000"),
+            e("option", { value:2500 }, "$2,500"),
+            e("option", { value:3100 }, "No Max")
+          )
+        ),
+        e("label", { style:{ color:"#8a7e6e" } }, "Availability ",
+          e(Select, { value:availFilter, onChange:setAvailFilter },
+            e("option", { value:"all" }, "All (through Aug)"),
+            e("option", { value:"now" }, "Available Now"),
+            e("option", { value:"summer" }, "Summer Only")
+          )
+        ),
+        e("label", { style:{ color:"#8a7e6e", display:"flex", alignItems:"center", gap:5, cursor:"pointer" } },
+          e("input", { type:"checkbox", checked:petsOnly, onChange:function(ev){setPetsOnly(ev.target.checked);}, style:{ accentColor:"#a08c6e" } }),
+          "Pet Friendly"
+        )
+      )
+    ),
+
+    // Listings
+    e("div", { style:{ maxWidth:900, margin:"0 auto", padding:"20px 24px 60px" } },
+      sorted.length === 0 && e("div", { style:{ textAlign:"center", padding:60, color:"#5c5449" } }, "No apartments match your filters. Try adjusting your criteria."),
+      sorted.map(function(apt) {
+        var isHover = hoverId === apt.id;
+        return e("div", {
+          key: apt.id,
+          style: { background:"linear-gradient(180deg,#1a1814 0%,#161310 100%)", border:"1px solid " + (isHover ? "#5c4f3a" : "#2d261e"), borderRadius:8, marginBottom:14, overflow:"hidden", transition:"border-color 0.2s" },
+          onMouseEnter: function(){setHoverId(apt.id);},
+          onMouseLeave: function(){setHoverId(null);}
+        },
+          e("div", { style:{ display:"flex", flexWrap:"wrap" } },
+            // Sq ft badge
+            e("div", { style:{ width:90, minHeight:120, background:"linear-gradient(180deg,#2d261e 0%,#1f1c17 100%)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", borderRight:"1px solid #2d261e", flexShrink:0 } },
+              e("span", { style:{ fontSize:26, fontWeight:300, color:"#f5f0e8", lineHeight:1 } }, apt.sqft.toLocaleString()),
+              e("span", { style:{ fontSize:9, letterSpacing:2, textTransform:"uppercase", color:"#8a7e6e", fontFamily:"'Helvetica Neue',sans-serif", marginTop:4 } }, "sq ft")
+            ),
+            // Main content
+            e("div", { style:{ flex:1, padding:"16px 20px", minWidth:0 } },
+              e("div", { style:{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:8, flexWrap:"wrap" } },
+                e("div", null,
+                  e("div", { style:{ display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" } },
+                    e("h2", { style:{ fontSize:18, fontWeight:400, margin:0, color:"#f5f0e8" } }, apt.name),
+                    apt.tag && e("span", { style:{ fontSize:9, letterSpacing:1.5, textTransform:"uppercase", fontFamily:"'Helvetica Neue',sans-serif", padding:"2px 8px", borderRadius:3, background:(tagColors[apt.tag]||{}).bg||"#333", color:(tagColors[apt.tag]||{}).text||"#ccc", fontWeight:600 } }, apt.tag)
+                  ),
+                  e("p", { style:{ fontSize:12, color:"#8a7e6e", margin:"3px 0 0", fontFamily:"'Helvetica Neue',sans-serif" } }, apt.address)
+                ),
+                e("div", { style:{ textAlign:"right", flexShrink:0 } },
+                  e("div", { style:{ fontSize:20, fontWeight:300, color:"#f5f0e8" } },
+                    "$" + apt.rent[0].toLocaleString(),
+                    apt.rent[1] !== apt.rent[0] ? e("span", { style:{ color:"#5c5449", fontSize:14 } }, " \u2013 $" + apt.rent[1].toLocaleString()) : null
+                  ),
+                  e("span", { style:{ fontSize:10, color:"#6b6157", fontFamily:"'Helvetica Neue',sans-serif" } }, "/month")
+                )
+              ),
+              // Details
+              e("div", { style:{ display:"flex", gap:16, marginTop:12, fontSize:11, fontFamily:"'Helvetica Neue',sans-serif", color:"#a08c6e", flexWrap:"wrap", alignItems:"center" } },
+                e("span", { style:{ padding:"3px 9px", background:apt.available==="Now"?"#1a2e1a":"#1f1c17", border:"1px solid "+(apt.available==="Now"?"#2d5a2d":"#2d261e"), borderRadius:4, color:apt.available==="Now"?"#6bcb77":"#a08c6e", fontWeight:600 } },
+                  apt.available === "Now" ? "\u2713 Available Now" : "Move-in: " + apt.available
+                ),
+                e("span", null, apt.beds + " Bed / " + apt.baths + " Bath"),
+                apt.pets && e("span", { style:{ color:"#8a7e6e" } }, "\uD83D\uDC3E Pets OK"),
+                e("span", { style:{ color:"#5c5449" } }, "|"),
+                e("span", { style:{ color:"#6b6157" } }, apt.phone)
+              ),
+              // Amenities
+              e("div", { style:{ display:"flex", gap:6, marginTop:10, flexWrap:"wrap" } },
+                apt.amenities.map(function(a) {
+                  return e("span", { key:a, style:{ fontSize:10, fontFamily:"'Helvetica Neue',sans-serif", color:"#6b6157", background:"#141210", padding:"2px 7px", borderRadius:3, border:"1px solid #23201b" } }, a);
+                })
+              )
+            )
+          ),
+          // Footer
+          e("div", { style:{ borderTop:"1px solid #23201b", padding:"8px 20px", display:"flex", justifyContent:"flex-end" } },
+            e("a", { href:apt.url, target:"_blank", rel:"noopener noreferrer", style:{ fontSize:11, fontFamily:"'Helvetica Neue',sans-serif", color:"#a08c6e", textDecoration:"none", letterSpacing:1, textTransform:"uppercase" } }, "View Listing \u2192")
+          )
+        );
+      }),
+
+      // Disclaimer
+      e("div", { style:{ marginTop:32, padding:"20px 0", borderTop:"1px solid #2d261e", fontSize:11, color:"#5c5449", fontFamily:"'Helvetica Neue',sans-serif", lineHeight:1.6 } },
+        e("p", null, "Listings compiled from Apartments.com, Homes.com, and Walnut Capital as of April 2026. Prices, availability, and square footage are approximate and subject to change. Contact each property directly to confirm current availability and schedule a tour.")
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
