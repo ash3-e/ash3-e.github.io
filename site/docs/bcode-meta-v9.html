@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BCODe.meta - Reader</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/bcode_lang.js"></script>
+  <link rel="stylesheet" href="../assets/hljs-theme.css">
+  <link rel="stylesheet" href="../assets/doc-terminal.css?v=20260401i">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body data-page-type="reader">
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+  <header>
+    <div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png"
+          alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/documentation-tree.html"
+        aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div>
+  </header>
+  <main>
+    <div class="container">
+      <div class="reader-wrap">
+        <div class="reader-grid">
+          <aside class="toc-pane" aria-label="Quick jump">
+            <div class="toc-head">
+              <div class="toc-title">Quick Jump</div><button class="pill-btn" id="tocToggle"
+                type="button">Collapse</button>
+            </div>
+            <div class="toc-jumps"><a id="toTop" href="#">Back to top</a><a id="toBottom" href="#">Go to bottom</a>
+            </div>
+            <ul id="tocList" class="toc-list"></ul>
+          </aside>
+          <section class="reader">
+            <div class="reader-head">
+              <div>
+                <h1 class="reader-title">BCODe.meta</h1>
+                <p class="reader-meta">bcode-meta-v9</p>
+              </div>
+              <div class="links"><a class="pill primary" id="cardLink" href="bcode-meta-v9.html">Card view</a><button
+                  class="pill-btn" id="darkToggle" type="button">Dark mode</button><span class="query-chip"
+                  id="findCount"></span></div>
+            </div>
+            <div class="reader-body" id="readerBody">
+              <article id="content" class="markdown-body"></article>
+            </div>
+          </section>
+          <div class="reader-phantom-col"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script id="md-source" type="text/plain"># BCODe.meta — Convention for Command/Response, Batching, Sequencing, Parser Reset Handling (Draft v9)
+**Document date:** 2026-02-22  
+**Document version:** 9  
+**Status:** Draft convention (built on top of BCODe syntax)
+
+BCODe.meta is a **convention** for stream-friendly command/response messaging:
+- affirmative (`^`) and negative (`\`) responses,
+- unsolicited statements (`^\`),
+- multiline batching (`[`),
+- sequence numbers (`]`),
+- header-prefix delivery (`-N[`),
+- asynchronous followup sessions encoded in `]` fractional parts,
+- and required behavior when the **BCODe parser** reports a parser-level reset event.
+
+## 1. Policy knobs (implementation configuration)
+
+BCODe.meta is normative about **on‑wire meaning**, but allows implementations to choose certain **receiver policies**.
+This document standardizes knob names so behavior is predictable across implementations.
+
+### 1.1 `session_idle_timeout` (Δτ)
+- Type: duration (implementation-defined units)
+- Default: implementation-defined (MAY be disabled)
+
+If enabled, an active session `Ν` MAY be ended locally after `Δτ` of inactivity (see §2.4.6).
+
+### 1.2 `nonexistent_session_policy`
+Controls what happens when an unsolicited statement references an **inactive** session (event `E_NON_EXISTENT_SESSION`).
+
+- Values:
+  - `DROP` (default): the deliverable unit is **not delivered to the application**.
+  - `PASS_THROUGH`: the unit is delivered as **sessionless unsolicited** (still emits `E_NON_EXISTENT_SESSION`).
+
+### 1.3 `drop_sink` (diagnostic tap)
+- Type: callback/hook (or “disabled”)
+
+When a deliverable unit is dropped by policy (e.g., `nonexistent_session_policy=DROP`), the implementation MAY still
+export the decoded unit and/or raw bytes to `drop_sink` for logging, tracing, quarantine storage, or debugging.
+
+**Normative constraint:** dropping MUST prevent the unit from reaching normal application delivery paths, but MUST NOT
+prevent diagnostic capture via `drop_sink`.
+
+### 1.4 `allow_ephemeral_interjection`
+- Type: boolean
+- Default: enabled
+
+Controls whether the receiver accepts **ephemeral interjection requests** (see §4.3).
+
+When disabled:
+
+- Ephemeral interjection **requests** (`?S] … κ`) MUST be refused as described in §4.3.6.
+- Sessionless unsolicited statements marked ephemeral (`?] ^\ … κ`) are handled by `ephemeral_sessionless_policy` (§1.5).
+
+Endpoints configured for or detecting **persistent multi-writer** operation on a channel SHOULD disable this knob.
+
+### 1.5 `ephemeral_sessionless_policy`
+Controls what happens when a **sessionless unsolicited** statement is received that is marked ephemeral (i.e., carries `?` on its `]` field, including `?]`).
+
+- Values:
+  - `DROP` (default): the unit is not delivered to the application (it MAY still be exported to `drop_sink`).
+  - `PASS_THROUGH`: the unit is delivered as a sessionless unsolicited statement.
+
+This knob is primarily relevant when `allow_ephemeral_interjection` is disabled (§1.4).
+
+### 1.6 `seq_mismatch_policy`
+Controls what happens when `E_SEQ_MISMATCH` is triggered (§6.1).
+
+- Values:
+  - `LOG_ONLY` (default): deliver the unit and emit the event.
+  - `DROP`: do not deliver the unit to normal application callbacks/handlers, but the unit is still **observed** for sequence tracking (§6.1) and MAY be exported to `drop_sink` (§1.3).
+
+BCODe.meta does not change BCODe syntax; it assigns conventional meaning to specific parameters and specifies how meta-convention state reacts to parser-level reset events.
+
+---
+
+## 1. Reserved meta parameters
+
+| Token | Meaning (convention) |
+|---|---|
+| `^` | affirmative response tag (optional timestamp value) |
+| `\` | negative response tag (optional error/reason code value) |
+| `^\` | unsolicited statement tag (sent without a request) |
+| `[` | multiline packet/batch tag |
+| `]` | sequence counter |
+| `-N[` | header-prefix lines that attach metadata to the next deliverable unit |
+
+**Note on staleness:** BCODe's `!` **stale qualifier** (a field-level modifier, not a parameter) is used by this convention only when attached to the `]` field **with a fractional session discriminator** (a sequence number pair).
+
+It is reserved for two purposes:
+
+1) **End-of-session marker** on the final in-session followup: `!Π.Ν] ^\ … κ` (see §2.4.4).  
+2) **Ephemeral busy refusal indicator**: `!0.T] \ … κ` (see §4.3.6). The `!` indicates the busy report may be stale by the time it is received.
+
+Using `!` on an integer-only `]` value (`!Π]`) is an invalid session termination (see `E_INVALID_SESSION_TERMINATION` in §6).
+
+---
+
+## 2. Command/response and unsolicited rules
+
+
+
+**Metanotation binding.** In this section, a BCODe line is abstractly denoted as `Φ κ` for a command-terminated line. The symbol `Φ` denotes the complete field value (possibly decomposed as `Γ [ .|, Δ ] [ (*|/) Ξ ]`).
+
+Unless otherwise stated, statements about “the ] value” refer abstractly to `Φ` in the `]` field.
+
+### 2.1 Commands
+A **command** is a line sent by a requester.
+
+Commands **MUST NOT** include `^`, `\`, or `^\`.
+
+If a command carries a sequence counter `]`, its `]` value MUST be an **integer** (no fractional part).
+(The `]` fractional part is reserved for responder-side session labeling; see §2.4.)
+
+If a command is received with a fractional `]` value (i.e., `Π.Ν]`), the BCODe.meta layer MUST emit `E_INVALID_SESSION_DECL` (see §6) and SHOULD ignore the fractional component for session purposes.
+
+### 2.2 Direct response
+A line transmitted **as the direct response** to a command is a **response** and MUST be tagged:
+
+- `^` for affirmative acknowledgement
+- `\` for negative acknowledgement (MAY include an error/reason code)
+
+A direct response MAY also start an asynchronous followup session (§2.4).
+
+If a direct response carries a fractional `]` value, it MUST be either:
+
+1) an affirmative response (`^`) whose fractional component matches the integer sequence number of the command it is directly responding to (see §2.4.2), **or**
+2) the reserved ephemeral busy refusal form `!0.T] \ … κ` (see §4.3.6).
+
+Any other use of a fractional `]` value in a direct response MUST emit `E_INVALID_SESSION_DECL` (see §6).
+
+### 2.3 Unsolicited statements (two kinds)
+A line transmitted without a preceding request **as its direct response** MUST be tagged as unsolicited:
+
+- It MUST contain both `^` and `\` (written as `^\` in examples).
+
+Unsolicited statements are divided into:
+
+1) **Sessionless unsolicited statements**  
+   Unsolicited statements that are **not** asynchronous followups to a command session.
+
+2) **In-session unsolicited statements (asynchronous followups)**  
+   Unsolicited statements that belong to a session started by a command’s affirmative direct response (§2.4).
+
+The distinction is determined by the session rules in §2.4 (and the receiver’s active-session state).
+
+If an unsolicited statement carries a fractional `]` value (`Π.Ν]`), the receiver MUST treat it as an in-session followup only if session `Ν` is currently active; otherwise it MUST emit `E_NON_EXISTENT_SESSION(Ν)` (see §6) and, by default, MUST **drop** the line (do not deliver it to application/user logic).
+
+Receivers MUST apply `nonexistent_session_policy` (§1.2). The default is `DROP`, which prevents delivery to application/user logic but still allows diagnostic capture via `drop_sink` (§1.3).
+
+### 2.4 Asynchronous followup sessions encoded in `]`
+
+
+**Metanotation binding.** The session discriminator is denoted `Ν`. Where multiple lines are discussed, they may be written as `ℓᵢ`, each containing a `]` field whose abstract value is `Φᵢ`. Session consistency constraints apply to `Ν(ℓᵢ)` across all lines in a unit.
+
+This section defines how a responder can emit additional unsolicited followup statements that are *logically tied*
+to a previously acknowledged command.
+
+#### 2.4.1 Abstract notation (Greek letters)
+Let:
+
+- `Ν` be the **integer** sequence number in the requester’s command `Ν] ... κ`
+- `Π` be the responder’s **primary** sequence number (integer part of its outbound `]`)
+- `κ` be a command character (lowercase ASCII; application-defined)
+
+A response uses a **sequence number pair** by writing a fractional part:
+
+- `Π.Ν]`
+
+Here `Π` is the primary sequence number, and the fractional component `Ν` is the **session discriminator**.
+
+#### 2.4.2 Session start (normative)
+A session MAY start only when the **direct response** to a command is affirmative (`^`).
+
+A responder indicates that an affirmative direct response starts a session by:
+
+- including a `]` field whose fractional component equals the command’s integer `]` value.
+
+Concretely:
+
+- Command: `Ν] ... κ` (no fractional part permitted on the command)
+- Direct affirmative response that starts session `Ν`: `Π.Ν] ^ ... κ`
+
+On reception of such a direct affirmative response, the BCODe.meta layer MUST emit **Start of session**
+event `E_SESSION_START(Ν)` and record session `Ν` as **active**.
+
+If the direct response is negative (`\`), or the response does not carry `]` with fractional component `Ν`,
+then **no session starts**.
+
+#### 2.4.3 In-session followups (normative)
+While session `Ν` is active, any subsequent unsolicited statement that:
+
+- is tagged `^\`, and
+- carries a `]` value whose fractional component equals `Ν`
+
+is an **in-session unsolicited followup** for session `Ν`.
+
+In-session followups:
+
+- MUST maintain the same fractional component `Ν` in their `]` field, and
+- SHOULD use a primary sequence number `Π` that increases monotonically.
+
+#### 2.4.4 End of session (normative)
+The **final** in-session unsolicited followup for session `Ν` MUST:
+
+- set the `!` stale flag on its `]` field, and
+- maintain the same fractional component `Ν`.
+
+Concretely: `!Π.Ν] ^\ ... κ`
+
+On reception, the BCODe.meta layer MUST emit **End of session** event `E_SESSION_END(Ν)` and mark
+session `Ν` inactive.
+
+After `E_SESSION_END(Ν)`, any later `^\` line labeled with fractional `Ν` refers to an inactive session and MUST emit `E_NON_EXISTENT_SESSION(Ν)`.
+By default, such lines MUST be **dropped** (not delivered) and MUST NOT be treated as in-session followups.
+Implementations MAY support a non-default “pass-through” policy that delivers the line as a **sessionless** unsolicited statement.
+
+#### 2.4.5 Session error conditions (normative)
+
+BCODe.meta defines the following session-related protocol errors:
+
+- **Invalid session declaration**: a fractional `]` value (`Π.Ν]`) appears on a line that is neither:
+  - the affirmative direct response that starts session `Ν` (§2.4.2), nor
+  - an unsolicited statement (`^\`) (§2.4.3), nor
+  - the reserved ephemeral busy refusal `!0.T] \ … κ` (§4.3.6).
+  On detection, the BCODe.meta layer MUST emit `E_INVALID_SESSION_DECL`.
+
+- **Nonexistent session**: an unsolicited statement (`^\`) carries a fractional `]` value (`Π.Ν]`) but session `Ν` is not active.
+  On detection, the BCODe.meta layer MUST emit `E_NON_EXISTENT_SESSION(Ν)` and, by default, MUST **drop** the line (do not deliver it).
+  Implementations MAY expose a non-default “pass-through” policy that delivers the line as sessionless unsolicited.
+
+- **Invalid session termination**: a `]` field is marked stale (`!`) but has no fractional component (i.e., `!Π]`).
+  On detection, the BCODe.meta layer MUST emit `E_INVALID_SESSION_TERMINATION`.
+
+These events SHOULD notify/log, but MUST NOT automatically reset parser or meta state.
+`E_NON_EXISTENT_SESSION` is additionally a **delivery** condition: by default the associated line is **dropped** (not delivered), per §6.7.
+
+#### 2.4.6 Receiver-side session timeout (optional)
+
+BCODe.meta defines an explicit, on‑wire end-of-session marker (`!Π.Ν]` on the final followup). However, receivers MAY also end sessions locally to bound resource usage.
+
+Let `Δτ` be a receiver-configured **idle timeout**.
+
+- A receiver MAY mark an active session `Ν` inactive if no in-session activity for `Ν` is observed for at least `Δτ`.
+  In-session activity includes the session-starting direct response `Π.Ν] ^ ... κ` and any subsequent in-session followups `Π.Ν] ^\ ... κ`.
+- On timeout, the receiver SHOULD emit `E_SESSION_END(Ν, cause=timeout)` (or `E_SESSION_END(Ν)` if causes are not supported) and mark the session inactive.
+- Once timed out, any later followup labeled with fractional `Ν` MUST be treated as a reference to an inactive session and MUST raise `E_NON_EXISTENT_SESSION(Ν)`; by default it will be dropped.
+
+Because this is a local policy, timeouts have **no on-wire representation**. Senders that require reliable delivery of followups SHOULD send the explicit stale termination marker (`!Π.Ν]`).
+
+---
+
+## 3. Multiline batching with `[`
+
+### 3.0 Header-prefix lines using negative `[` values
+
+The `[` parameter MAY also appear with a **negative integer** value, written as `-N[` where `N ≥ 1`.
+In this form, the line is a **header-prefix line** that modifies *delivery* of the following unit.
+
+**Delivery rule:** a contiguous run of one or more header-prefix lines immediately preceding a deliverable unit
+attaches to that unit. The unit is either:
+
+- the next single (non-header) line, or
+- the next multiline packet/batch formed with `[` (fixed-bound or open-ended), treated atomically.
+
+**Ordering rule (stack form):** if multiple header-prefix lines are present, their `[` values MUST be:
+
+`-K[, -(K-1)[, …, -2[, -1[`
+
+with `-1[` adjacent to the content unit. This yields a stack that higher layers may interpret hop-by-hop
+(e.g., a routing layer may peel one header per hop).
+
+**Meta-layer behavior:**
+
+- Header-prefix lines MUST NOT be delivered to the application as independent statements.
+- Instead, the implementation SHOULD deliver the following unit together with the collected header-prefix lines
+(e.g., as an array of header lines or as an opaque “headers” blob).
+- BCODe.meta does not assign semantics to the header content beyond the attachment and ordering rules above.
+
+### 3.1 Purpose: atomic delivery
+
+### 3.1.1 Multiline consistency (Normative)
+
+
+For a delivered multiline unit `{ℓ₀, ℓ₁, …, ℓₙ}`, each line `ℓᵢ` has an abstract form `Φᵢ κᵢ`. Multiline consistency requires that:
+
+- `kind(ℓᵢ) = kind(ℓ₀)` for all `i`
+- If in-session unsolicited: `Ν(ℓᵢ) = Ν(ℓ₀)` for all `i`
+
+Here `Φᵢ` denotes the complete field value of each line’s relevant field, and `Ν` denotes the session discriminator defined in §2.4.
+
+A completed multiline packet/batch (formed using `[` and delivered atomically as a unit) MUST be internally consistent in its **meta kind**:
+
+- All lines in the delivered unit MUST have the same kind: **command**, **direct response**, or **unsolicited**.
+- If the unit kind is **unsolicited**, then all lines in the unit MUST be either:
+  1) **sessionless unsolicited**, or
+  2) **in-session unsolicited followups** for the **same** session discriminator `Ν`.
+
+This rule prevents ambiguous mixtures such as a packet that combines command semantics with unsolicited semantics, or mixes multiple followup sessions in a single delivered unit.
+
+**Implementation requirement:** once a unit is complete (single-line or multiline), the meta layer MUST classify the kind of each line and enforce:
+
+- `kind(line[i]) == kind(line[0])` for all `i`
+- If `kind == in-session unsolicited`: `session_Ν(line[i]) == session_Ν(line[0])` for all `i`
+
+On violation, the implementation MUST drop the unit and emit an error as defined in §6 (`BC_META_ERR_BATCH_MIXED_KIND` and/or `BC_META_ERR_BATCH_MIXED_SESSION`).
+
+The `[` parameter is reserved for batching multiple lines into a single **atomic group**.
+
+**Requirement:** a receiver SHOULD NOT expose packet lines to the application as independent statements.
+Instead, it SHOULD buffer until the packet completes, then deliver the set as one unit (atomically).
+
+This is the core reason `[` exists: **batching changes delivery**, not field semantics.
+
+### 3.2 Fixed-bound packets (known length)
+In the fixed-bound form, each line carries a `[`
+field whose numeric value is `i.t`:
+
+- `i` = 1-based line index within the packet
+- `t` = total line count
+
+Example (3-line packet):
+```bcode
+1.3[ 10A 1B 0.0a
+2.3[ 11A 2B 3C 0.0a
+3.3[ 1A 2B 3C 0.0a
+```
+
+### 3.3 Open-ended packets (unknown length)
+Open-ended packets are permitted **without an end bound** when:
+
+1) the `[` field carries the **`>` qualifier** on each non-final line,  
+2) the numeric value of the `[` field **monotonically increases**, and  
+3) the final line closes the packet with a fixed-bound `i.t[` terminator exactly as if the bounds had been known initially.
+
+Example (unknown length until end):
+```bcode
+>1[ 10A 1B 0.0a
+>2[ 11A 2B 3C 0.0a
+3.3[ 1A 2B 3C 0.0a
+```
+
+**Notes:**
+- The receiver buffers `>i[` lines until it receives the closing `i.t[` line.
+- Monotonicity SHOULD be interpreted as contiguous increment by 1 (otherwise it is likely an error).
+
+### 3.4 Header/sequence counter coupling (normative)
+
+If a header-prefix line is immediately followed by a line that carries a sequence counter `]`,
+the header-prefix line MUST carry the **same** `]` value.
+
+This rule applies recursively through a header run:
+
+- For a header stack `-K[` … `-1[` preceding a unit, each header line MUST copy the `]`
+  value of the line immediately following it (e.g., `-2[` copies from `-1[`, and `-1[` copies
+  from the first content line of the delivered unit).
+- If the immediately following line has **no** `]`, the header-prefix line MUST NOT invent a
+  `]` value (i.e., omit `]`).
+
+Rationale: this preserves the sequence identity of the delivered unit while allowing intermediate
+layers to strip headers without losing sequence correlation.
+
+---
+
+## 4. Sequence counters with `]`
+
+
+**Metanotation binding.** In this section, the `]` field value is denoted abstractly as `Φ`. When rollover or ordering behavior is discussed, it refers to the numeric component `Γ` of `Φ` unless explicitly stated otherwise.
+
+The `]` parameter is reserved for sequence counters.
+
+### 4.0 Shapes and reserved modifiers
+
+BCODe.meta interprets `]` values as follows:
+
+- The **primary sequence number** is the integer part of the numeric value in the `]` field.
+- The **fractional component** (if present) is reserved for the session discriminator described in §2.4.
+
+Because `]` is a reserved meta parameter, BCODe.meta also assigns special meaning to certain qualifiers on `]`:
+
+- `!` on `]` is reserved (see the staleness note in §1): it MUST only appear when `]` has a fractional component.
+- `?` on `]` is reserved for the optional ephemeral interjection convention (§4.3).
+- `<` on `]` is reserved for the rollover marker (§4.1).
+
+Other qualifier meanings (such as “numeric bounds”) from generic value-interpretation rules do not apply to `]`.
+
+### 4.1 Rollover marker (expected wrap to 0)
+
+Senders that use a bounded sequence space (e.g., 16-bit counters) MAY indicate an expected rollover to 0 by marking the `]` field with the `<` qualifier.
+
+Form:
+
+- `<Π]` or `<Π.Ν]`
+
+Semantics:
+
+- The marked unit carries primary sequence `Π` as normal.
+- The next expected primary sequence number from that peer is **0** (rather than `Π+1`).
+- If a fractional session discriminator `.Ν` is present, it is unchanged; the rollover marker applies to the **primary** sequence only.
+
+Example (16-bit wrap):
+
+```bcode
+<65535] 10A 0.0a
+0] 11A 0.0a
+```
+
+### 4.2 Recommendations for rollover design (informative)
+
+BCODe.meta does not mandate a sequence modulus. However, rollover design impacts interoperability, especially when strict mismatch policies are enabled.
+
+**Unsolicited / telemetry channels (`^\`):**  
+For channels intended to emit long-running unsolicited data, `SEQ_MAX` SHOULD be the maximum representable integer value for the deployed implementation (“INTMAX/UINTMAX”). Rollover then becomes extremely rare in practice.
+
+**Synchronous / control channels (command/response):**  
+For channels intended for synchronous communication or controls, `SEQ_MAX` MAY be much smaller. A useful heuristic is to choose a modulus on the order of:
+
+- `SEQ_MOD ≈ 10 × TX_MAX_UNITS`
+
+where `TX_MAX_UNITS` is the maximum number of deliverable units (direct response + any expected followups) in the longest expected transaction. A smaller rollover interval increases the chance of “natural resync” if strict mismatch policies are configured poorly.
+
+**Session discriminator safety:**  
+If asynchronous followup sessions (§2.4) are used, the requester’s command sequence `Ν` is reused as the session discriminator in `Π.Ν]`. Channels using small moduli SHOULD ensure that a discriminator `Ν` will not be reused (due to rollover) while a prior session `Ν` could still be active (via explicit termination `!Π.Ν]` or local timeout).
+
+### 4.3 Ephemeral interjection stream (`?`-qualified `]`) (optional)
+
+This subsection defines an optional convention that allows an **ephemeral** non-default writer to interject a request/response exchange without consuming or perturbing the receiver’s default-writer outbound sequence stream.
+
+This convention is activated only when a delivered unit carries a `]` field with the `?` qualifier. Units without `?` follow the rules above unchanged.
+
+#### 4.3.1 Meaning of `?` on `]`
+
+When `]` is qualified with `?`, its numeric content is correlation-only and MUST NOT:
+
+- participate in, or advance, the receiver’s default-writer outbound sequence counter, nor
+- modify the receiver’s recorded peer last primary sequence used for `E_SEQ_MISMATCH` (§6.1).
+
+Implementations MAY maintain separate bookkeeping for ephemeral streams if desired.
+
+#### 4.3.2 Sessionless unsolicited from an ephemeral writer
+
+A sessionless unsolicited message from an ephemeral writer MAY carry `?]` (no numeric value).
+
+Example:
+
+```bcode
+?] ^\ 10A 0.0a
+```
+
+If `allow_ephemeral_interjection` is disabled, delivery is controlled by `ephemeral_sessionless_policy` (§1.5).
+
+#### 4.3.3 Ephemeral request and direct response (no session)
+
+An ephemeral writer sending a request MUST include an integer sequence number `S` qualified with `?`:
+
+```bcode
+?10] 10A 0.0a
+```
+
+A single direct response from the receiver MUST respond using sequence number `(S + 1)` also qualified with `?`:
+
+```bcode
+?11] ^ 11A 0.0a
+```
+
+A negative direct response is analogous:
+
+```bcode
+?11] \ 11A 0.0a
+```
+
+This ensures the receiver’s default-writer outbound sequence counter does not advance as a result of the interjection.
+
+#### 4.3.4 Ephemeral request and direct response that starts a session
+
+If the receiver’s direct affirmative response starts an asynchronous followup session (see §2.4), it MUST do so using the existing session rule, but maintaining the `?` qualifier:
+
+```bcode
+?10] 10A 0.0a
+?11.10] ^ 11A 0.0a
+?12.10] ^\ 12A 0.0a
+!?13.10] ^\ 13A 0.0a
+```
+
+#### 4.3.5 Routing responsibility
+
+BCODe.meta does not define how the response reaches the ephemeral writer. Implementations MUST surface enough information (via transport context and/or higher-layer header conventions) for the application to route the receiver’s response back to the appropriate ephemeral writer.
+
+#### 4.3.6 Policy disable, concurrency rule, and refusal forms
+
+**Policy disable:**  
+When `allow_ephemeral_interjection` is disabled, an incoming ephemeral interjection request (`?S] … κ`) MUST be refused with a negative direct response (`\`) that preserves the command field `κ`. The response SHOULD use `?(S+1)]` for correlation.
+
+**Concurrency (recommended):**  
+To keep receiver behavior simple, receivers SHOULD permit at most one pending ephemeral interjection/session at a time.
+
+If a new ephemeral request arrives while an earlier ephemeral request/session with discriminator `T` is pending, the receiver MUST refuse immediately using:
+
+- `!0.T] \ … κ`
+
+The `!` indicates the busy report may be stale by the time it is received. The `!0.T]` form is reserved for this refusal and MUST NOT be interpreted as participating in any sequence stream (and MUST NOT affect `E_SEQ_MISMATCH` bookkeeping).
+
+Example (pending `T=10`):
+
+```bcode
+?20] 10A 0.0a
+!0.10] \ 11A 0.0a
+```
+
+---
+
+## 5. Parser reset event
+
+BCODe.meta does **not** define the on‑wire reset/resynchronization token, receiver acknowledgements, or any transmitter synchronization strategy.
+Those are specified at the **BCODe syntax / parser** level.
+
+This document specifies only how the *BCODe.meta convention state* MUST react when the underlying parser reports a reset-related event.
+
+### 5.1 Required meta-layer reaction
+
+When the parser reports a reset event (including a reset acknowledgement, if the parser distinguishes them), a BCODe.meta endpoint MUST:
+
+- **Discard** any partially buffered packet/batch state started with `[` (both fixed-bound and open-ended forms).
+- **Discard** any partially collected header-prefix state (`-N[` lines) not yet attached to a delivered unit.
+- **Reset** any sequence counters it transmits using `]` back to **0**.
+- **Clear** any internal bookkeeping used to decide whether the next outbound line is a direct response (`^` / `\`) vs an unsolicited statement (`^\`).
+- **Clear** any active-session tracking state (both local and peer-visible) created under §2.4.
+
+### 5.2 Optional exposure to the application
+
+Implementations MAY surface the parser’s reset classification (e.g., “reset request” vs “reset acknowledgement”) to the application layer for diagnostics,
+but BCODe.meta assigns **no additional meaning** beyond the required state reset above.
+
+---
+
+## 6. Meta events emitted during analysis
+
+
+This section defines standard events a BCODe.meta implementation MAY/SHOULD emit while analyzing the stream.
+Events are emitted as a result of analyzing latched BCODe lines and/or completing atomic delivery units (headers + content, packets).
+
+### 6.1 `E_SEQ_MISMATCH` — expected sequence number mismatch
+**Trigger:** A deliverable unit (a single line, or a completed packet, after header-prefix attachment rules) is **observed** carrying a `]` field with primary sequence `Π` that:
+
+- is **not** qualified with `?`, and
+- is **not** the reserved ephemeral-busy refusal form `!0.T] \ … κ` (§4.3.6),
+
+and the implementation previously recorded the peer’s last primary sequence as `Ν`, and `Π ≠ expected_next`, where:
+
+- `expected_next = 0` if the previously observed (tracked) peer `]` carried the rollover marker `<` (§4.1),
+- otherwise `expected_next = Ν + 1`.
+
+**Effect:**
+- Emit `E_SEQ_MISMATCH(expected=expected_next, observed=Π)`.
+- Update the recorded peer last primary sequence to `Π`.
+
+If `seq_mismatch_policy=DROP`, the unit MUST NOT be delivered to normal application callbacks/handlers, but it MAY still be exported to `drop_sink` (§1.3).
+
+This is a **cautionary** event: it SHOULD notify and log, but MUST NOT automatically reset or otherwise modify meta state
+(beyond updating the peer last primary sequence number).
+
+**Notes:**
+- If no prior tracked peer sequence number has been recorded, the first observed tracked `]` establishes it and MUST NOT trigger `E_SEQ_MISMATCH`.
+- Header-prefix lines do not form deliverable units by themselves and SHOULD NOT be sequence-checked independently.
+- Units that are later **dropped** due to meta-level validation (e.g., `E_NON_EXISTENT_SESSION`) are still “observed” for sequence tracking purposes (and update `Ν`) unless excluded by the rules above.
+
+### 6.2 `E_SESSION_START` — start of session detected
+**Trigger:** While processing a direct response to a command with integer sequence `Ν]`, the response is affirmative (`^`)
+and carries a `]` field whose fractional component equals `Ν` (i.e., `Π.Ν]`).
+
+**Effect:**
+- Emit `E_SESSION_START(Ν)`.
+- Record session `Ν` as active.
+
+Session start is an **observation**. Application/user logic decides what “being in a session” means.
+
+### 6.3 `E_SESSION_END` — end of session detected
+**Trigger:**
+- **On‑wire termination:** While session `Ν` is active, an in-session unsolicited followup is received whose `]` field is marked stale (`!Π.Ν]`).
+- **Optional local termination:** The receiver expires session `Ν` due to a local policy such as an idle timeout `Δτ` (§2.4.6).
+
+**Effect:**
+- Emit `E_SESSION_END(Ν, cause=stale)` for on‑wire termination, or `E_SESSION_END(Ν, cause=timeout)` for local termination (implementations MAY omit the `cause` argument if they do not support it).
+- Mark session `Ν` inactive.
+
+### 6.4 `E_HEADER_START` — start of header-prefix run detected
+**Trigger:** A header-prefix line (a line containing a negative `-N[` field with `N ≥ 1`) is received
+while not already collecting a header-prefix run.
+
+**Effect:**
+- Emit `E_HEADER_START`.
+
+### 6.5 `E_HEADER_TO_CONTENT` — transition from header to content
+**Trigger:** A header-prefix line containing `-1[` is received.
+
+**Effect:**
+- Emit `E_HEADER_TO_CONTENT`, indicating that the next delivered unit line (or the next packet start)
+is the content to which the accumulated header-prefix run will attach.
+
+### 6.6 `E_INVALID_SESSION_DECL` — invalid session declaration
+**Trigger:** A latched line carries a fractional sequence number pair `Π.Ν]`, but the line is neither:
+
+- an unsolicited statement (`^\`), nor
+- the affirmative direct response that starts session `Ν` for a command `Ν] ... κ` (see §2.4.2), nor
+- the reserved ephemeral busy refusal `!0.T] \ … κ` (see §4.3.6).
+
+This includes (non-exhaustive), except for the reserved ephemeral-busy refusal `!0.T] \ … κ` (§4.3.6):
+- a **command** line that carries `Π.Ν]`,
+- a **negative** direct response (`\`) that carries `Π.Ν]`,
+- an affirmative direct response (`^`) whose fractional component does not match the command’s integer sequence.
+
+**Effect:**
+- Emit `E_INVALID_SESSION_DECL(observed_primary=Π, observed_session=Ν)`.
+- Do not start or end any session as a result of this line.
+
+`E_INVALID_SESSION_DECL` is **diagnostic**. Implementations SHOULD notify/log, but MUST NOT automatically reset parser or meta state.
+
+### 6.7 `E_NON_EXISTENT_SESSION` — in-session reference to inactive session
+**Trigger:** An unsolicited statement (`^\`) carries a fractional `]` value `Π.Ν]`, but session `Ν` is not currently active
+(never started, already ended, expired by timeout, or otherwise unknown to the receiver).
+
+**Effect:**
+- Emit `E_NON_EXISTENT_SESSION(Ν)`.
+- Apply `nonexistent_session_policy` (§1.2):
+  - `DROP` (default): **do not deliver** the unit to normal application callbacks / handlers. The unit MAY still be exported to `drop_sink` (§1.3).
+  - `PASS_THROUGH`: deliver the unit as a **sessionless unsolicited** statement (it still emits `E_NON_EXISTENT_SESSION` and MUST NOT be treated as in-session).
+- Sequence tracking MUST still observe the unit’s primary sequence number `Π` (if present) and update the recorded peer last primary sequence accordingly (so that subsequent sequence expectations track the peer’s stream).
+
+`E_NON_EXISTENT_SESSION` is diagnostic: it SHOULD notify/log, but MUST NOT automatically reset the parser or meta state.
+
+
+### 6.8 `E_INVALID_SESSION_TERMINATION` — stale `]` without session discriminator
+**Trigger:** A line’s sequence counter field is marked stale (`!`) but does not carry a fractional session discriminator
+(i.e., `!Π]` rather than `!Π.Ν]`).
+
+**Effect:**
+- Emit `E_INVALID_SESSION_TERMINATION(observed_primary=Π)`.
+- The line MUST NOT be interpreted as an end-of-session marker.
+
+`E_INVALID_SESSION_TERMINATION` is **diagnostic**. Implementations SHOULD notify/log, but MUST NOT automatically reset parser or meta state.
+
+
+---
+
+## Appendix A — Concrete BCODe examples (valid, terminated by a command char)
+
+
+### A.1 Session start and followups (command carries integer `]`)
+Command from requester (no `^`, `\`, or `^\`; integer `]`):
+```bcode
+17] 55A 1B a
+```
+
+Direct affirmative response starts a session by labeling `]` with fractional `.17`:
+```bcode
+41.17] ^ a
+```
+
+Asynchronous followups are unsolicited (`^\`) and keep fractional `.17` while primary increases:
+```bcode
+42.17] ^\ 1S (PHASE1) a
+43.17] ^\ 2S (PHASE2) a
+```
+
+Final followup ends the session by setting the stale flag on `]`:
+```bcode
+!44.17] ^\ 9S (DONE) a
+```
+
+### A.2 Sessionless unsolicited statement
+```bcode
+200] ^\ 7T (HEARTBEAT) a
+```
+
+### A.3 Header-prefix run and transition to content
+Header-prefix lines are not delivered alone; they attach to the next unit.
+```bcode
+500] -2[ 1H (HOP2) a
+500] -1[ 2H (HOP1) a
+500] 10A 1B a
+```
+
+### A.4 Session error examples (still syntactically valid BCODe)
+
+#### A.4.1 Invalid session declaration (fractional `]` on a non-allowed line)
+
+Command request (integer `]`):
+```bcode
+18] 55A a
+```
+
+Direct response is affirmative, but the fractional component does **not** match the command’s integer sequence (`.19` vs `18`):
+```bcode
+50.19] ^ a
+```
+This MUST emit `E_INVALID_SESSION_DECL`.
+
+A command line carrying a fractional `]` is also an invalid session declaration:
+```bcode
+71.5] 55A a
+```
+
+#### A.4.2 Nonexistent session (fractional reference to an inactive session)
+
+Session `17` is started and then ended:
+```bcode
+17] 55A a
+41.17] ^ a
+!44.17] ^\ 9S (DONE) a
+```
+
+A later unsolicited line still labeled with `.17` refers to an inactive session:
+```bcode
+45.17] ^\ 1S (LATE) a
+```
+This MUST emit `E_NON_EXISTENT_SESSION(17)` and (by default) the unit MUST be **dropped** (not delivered).
+
+An unsolicited line referencing a session that never started is also nonexistent:
+```bcode
+60.99] ^\ 1S (ORPHAN) a
+```
+This MUST emit `E_NON_EXISTENT_SESSION(99)` and (by default) the unit MUST be **dropped** (not delivered).
+
+
+#### A.4.3 Invalid session termination (`!` on integer-only `]`)
+
+Stale-marked integer-only sequence counters are not valid session terminations:
+```bcode
+!70] ^\ 9S (DONE) a
+```
+This MUST emit `E_INVALID_SESSION_TERMINATION`.
+
+---
+
+*End of document.*
+
+</script>
+  <script src="../assets/site.js?v=20260401i"></script>
+  <footer>
+    <div class="footer-content">
+      <nav aria-label="Docs"><a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a> </nav>
+      <p class="footer-right">BCODe</p>
+    </div>
+  </footer>
+  <script src="../assets/lavalamp.js"></script>
+  <script type="module" src="../assets/doc-terminal.js?v=20260401i"></script>
+</body>
+
+</html>

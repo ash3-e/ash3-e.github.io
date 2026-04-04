@@ -1,0 +1,34 @@
+﻿<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path1" />
+<path transform="scale(0.5)" style="fill:#3b13e0;fill-rule:evenodd;stroke:#3b13e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path2" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path3" />
+<path transform="scale(0.5)" style="fill:#3b13e0;fill-rule:evenodd;stroke:#3b13e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path2-1" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path3-2" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path1-2" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path4" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path5" />
+<path transform="scale(0.5)" style="fill:#6820e0;fill-rule:evenodd;stroke:#6820e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path6" />
+<path transform="scale(0.5)" style="fill:#3b13e0;fill-rule:evenodd;stroke:#3b13e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path7" />
+<path transform="scale(0.5)" style="fill:#3b13e0;fill-rule:evenodd;stroke:#3b13e0;stroke-width:1pt" d="M 5.77,0 -2.88,5 V -5 Z" id="path8" />
+<path d="m 658.55799,497.03776 h 155 c 12,0 12,12 12,12 v 163.40538" stroke="#3b13e0" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke:#3b13e0;stroke-opacity:1;marker-end:url(#Triangle-8-6)" id="path11" {http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd}nodetypes="cscc" />
+<line x1="533.30389" y1="824.98334" x2="533.30389" y2="779.59149" stroke="#6820e0" stroke-width="2.17828" style="marker-end:url(#marker24-4)" id="line11" />
+<line x1="533.30389" y1="622.98334" x2="533.30389" y2="577.48389" stroke="#6820e0" stroke-width="2.18086" style="marker-end:url(#Triangle-3)" id="line12" />
+<line x1="533.30389" y1="420.98334" x2="533.30389" y2="375.58252" stroke="#6820e0" stroke-width="2.1785" style="marker-end:url(#Triangle-3)" id="line13" />
+<line x1="449.72513" y1="218.4115" x2="449.72513" y2="185.58575" stroke="#6820e0" stroke-width="2.15636" style="marker-end:url(#Triangle-3)" id="line14" />
+<line x1="616.88269" y1="218.4115" x2="616.88269" y2="185.58575" stroke="#6820e0" stroke-width="2.15636" style="marker-end:url(#Triangle-3)" id="line15" />
+<path d="m 408.30391,295.18784 h -82.78016 -2.9233 -68.83348 c -10.45571,0 -10.48886,-11.85531 -10.48886,-11.85531 V 181.26184" stroke="#3b13e0" stroke-width="2.05442" fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke:#3b13e0;stroke-opacity:1" id="path15" />
+<path d="m 243.31126,181.10716 h -13.8059" style="fill:#3b13e0;fill-opacity:1;stroke:#3b13e0;stroke-width:1.745;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Triangle-8-6)" id="path16" />
+<line x1="242.4976" y1="242.14156" x2="229.50536" y2="242.14156" stroke="#3b13e0" stroke-width="1.74529" style="fill:#3b13e0;fill-opacity:1;stroke:#3b13e0;stroke-width:1.745;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Triangle-8-6)" id="line16" />
+<rect x="50" y="235" width="210" height="48" rx="6" fill="#f5f0ff" stroke="#6820e0" stroke-width="2" id="rect17" style="stroke:#3b13e0;stroke-opacity:0.917647" />
+<rect x="50" y="295" width="210" height="48" rx="6" fill="#f5f0ff" stroke="#6820e0" stroke-width="2" id="rect18" style="stroke:#3b13e0;stroke-opacity:0.917647" />
+<text x="155" y="319" text-anchor="middle" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="16px" font-weight="700" fill="#4c0fb0" id="text19" style="fill:#3b13e0;fill-opacity:1" />
+<rect x="854" y="906" width="186" height="52" rx="6" fill="#f5f0ff" stroke="#6820e0" stroke-width="2" id="rect19" style="stroke:#3b13e0;stroke-opacity:0.917647" />
+<text x="947" y="932" text-anchor="middle" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="16px" font-weight="700" fill="#4c0fb0" id="text20" style="fill:#3b13e0;fill-opacity:1" />
+<rect x="520" y="856" width="270" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect23" />
+<rect x="530" y="654" width="250" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect29" />
+<rect x="530" y="452" width="250" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect35" />
+<rect x="530" y="250" width="250" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect41" />
+<rect x="865" y="370" width="260" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="1.8" id="rect48" />
+<rect x="865" y="175" width="260" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="1.8" id="rect54" />
+<rect x="494" y="60" width="156" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect60" />
+<rect x="660" y="60" width="156" height="148" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect67" />
+<rect x="520" y="0" width="270" height="442" rx="8" fill="none" stroke="#6820e0" stroke-width="2" id="rect5" />

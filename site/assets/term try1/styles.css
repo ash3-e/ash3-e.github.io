@@ -1,0 +1,454 @@
+/* ================================================================
+   styles.css — BCODe Terminal Prototype
+   ================================================================
+   Layout mapped from .tui reference files (JSON component trees):
+     Screen: 80 columns x 24 rows, bg #000, fg #c6a8ff
+     Tab bar:      rows 0–2   (3 * rh)
+     Main area:    rows 3–21  (19 * rh)
+     Command bar:  rows 22–23 (2 * rh)
+     Pane split:   left 39col | 1col gap | right 38col
+     History:      73col x 12 rows, bottom-anchored in home view
+     Command box:  73col with [>] prompt + 4col send button
+   ================================================================ */
+
+/* ── Reset ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Root Variables ────────────────────────────────────────────── */
+:root {
+  /* Terminal chrome */
+  --fg:     #c6a8ff;
+  --bg:     #000000;
+  --border: #c6a8ff;
+  --dim:    rgba(198, 168, 255, 0.35);
+  --font:   'Consolas', 'SF Mono', 'Monaco', 'Inconsolata',
+            'Fira Mono', 'Courier New', monospace;
+  --fs:     14px;
+  --rh:     20px;   /* row height = line-height throughout */
+
+  /* BCODe syntax highlighting — merged from hljs-theme_v12.css.
+     --bcode-plain was referenced but not defined; set to --fg. */
+  --bcode-plain:       #c6a8ff;
+  --bcode-param:       #4F46E5;
+  --bcode-purple-soft: #8B5CF6;
+  --bcode-green:       #108000;
+  --bcode-number:      #6820E0;
+  --bcode-qualified:   #F59E0B;
+  --bcode-epsilon:     #16C60C;
+  --bcode-string:      #00A38A;
+  --bcode-comment:     #7a8799;
+  --bcode-field-punct: #D946EF;
+  --bcode-illegal:     #EF4444;
+}
+
+/* ── Page ──────────────────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ── Terminal Screen ───────────────────────────────────────────── */
+#screen {
+  width: 80ch;
+  height: calc(24 * var(--rh));
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--rh);
+  background: var(--bg);
+  color: var(--fg);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: calc(3 * var(--rh)) 1fr calc(2 * var(--rh));
+  box-shadow: 0 0 40px rgba(104, 32, 224, 0.07),
+              0 0 80px rgba(198, 168, 255, 0.025);
+}
+
+/* ── Tab Bar (rows 0–2) ───────────────────────────────────────── */
+#tab-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 0 1ch;
+}
+
+#tab-strip {
+  display: flex;
+  height: 100%;
+  align-items: flex-end;
+}
+
+.tab {
+  padding: 0 1.5ch;
+  height: var(--rh);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--dim);
+  border: 1px solid transparent;
+  border-bottom: none;
+  position: relative;
+  bottom: -1px;           /* sit on the tab-bar border */
+  user-select: none;
+  white-space: nowrap;
+}
+.tab.active {
+  color: var(--fg);
+  border-color: var(--border);
+  background: var(--bg);  /* punch through the separator */
+}
+.tab:hover:not(.active) { color: var(--fg); }
+
+#title-area {
+  display: flex;
+  align-items: center;
+  height: var(--rh);
+  padding-bottom: 2px;
+}
+#title-text { color: var(--fg); }
+#term-menu {
+  display: none;            /* shown only in Terminal view */
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-size: calc(var(--fs) - 1px);
+  line-height: var(--rh);
+  padding: 0 0.5ch;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+#term-menu option { background: var(--bg); color: var(--fg); }
+
+/* ── Main Content Area (rows 3–21) ─────────────────────────────── */
+#main-area { position: relative; overflow: hidden; }
+
+.view {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+}
+.view.active { display: flex; }
+
+/* ── Panes ─────────────────────────────────────────────────────── */
+/* Two side-by-side panes: 39fr | 1ch gap | 38fr, 1ch margin each side */
+.panes-row {
+  display: grid;
+  grid-template-columns: 39fr 38fr;
+  gap: 1ch;
+  padding: 0 1ch;
+  flex: 1;
+  min-height: 0;
+}
+
+.pane {
+  border: 1px solid var(--border);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Pane label — first content row inside the pane (y:4 in TUI = 1 row below border) */
+.pane-label {
+  padding: 0 1ch;
+  line-height: var(--rh);
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: var(--fg);
+}
+
+.pane-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 1ch;
+  scrollbar-width: none;
+  min-height: 0;
+}
+.pane-body::-webkit-scrollbar { display: none; }
+
+.pane-foot {
+  padding: 0 1ch;
+  line-height: var(--rh);
+  color: var(--dim);
+  flex-shrink: 0;
+}
+
+/* ── History Panel (Home view) ─────────────────────────────────── */
+/*
+  73col x 12 rows, absolute-positioned at the bottom of #home-view.
+  Its lower edge meets the command bar; it overlays the lower
+  portion of the docs/state panes. z-index lifts it above panes.
+  Left/right match the command-bar's cmd-box edges.
+*/
+#history-panel {
+  position: absolute;
+  bottom: 0;
+  left: 1ch;
+  right: calc(1ch + 4ch + 1ch);   /* padding + send-btn + gap = 6ch */
+  height: calc(12 * var(--rh));
+  border: 1px solid var(--border);
+  background: var(--bg);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* History title on the top border, right-aligned (x:50 in TUI) */
+.history-label {
+  position: absolute;
+  top: -1px;
+  right: 2ch;
+  background: var(--bg);
+  padding: 0 0.5ch;
+  z-index: 2;
+  transform: translateY(-50%);
+}
+
+#history-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: calc(var(--rh) * 0.5) 1ch 0 1ch;
+  scrollbar-width: none;
+}
+#history-body::-webkit-scrollbar { display: none; }
+
+/* ── Command Bar (rows 22–23) ──────────────────────────────────── */
+/*
+  [>] prompt + bordered input box (73col) + bordered send button (4col).
+  The input box and history panel share the same left/right edges.
+*/
+#command-bar {
+  display: flex;
+  align-items: stretch;
+  padding: 0 1ch;
+  gap: 1ch;
+}
+
+#cmd-box {
+  flex: 1;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+#prompt {
+  padding: 0 0.5ch 0 0.5ch;
+  color: var(--fg);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── Live Input Highlighting (overlay approach) ────────────────── */
+/*
+  A transparent <input> sits on top of a highlighted <div> mirror.
+  Both share identical font metrics, padding, and alignment so the
+  hljs-colored mirror text aligns exactly with the invisible input
+  text. The real caret remains visible via caret-color.
+*/
+#input-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+#input-hl,
+#cmd-input {
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--rh);
+  padding: 0 0.25ch;
+  white-space: pre;
+}
+
+#input-hl {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#cmd-input {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--fg);
+  border: none;
+  outline: none;
+}
+#cmd-input::selection {
+  background: rgba(198, 168, 255, 0.25);
+  color: transparent;
+}
+
+#send-btn {
+  width: 4ch;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--fg);
+  user-select: none;
+  flex-shrink: 0;
+}
+#send-btn:hover  { background: rgba(198, 168, 255, 0.08); }
+#send-btn:active { background: rgba(198, 168, 255, 0.16); }
+
+/* ── BCODe Line Elements ───────────────────────────────────────── */
+.bcode-line {
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--rh);
+  white-space: pre;
+  min-height: var(--rh);
+}
+.blank-line { height: var(--rh); }
+.output-prefix { color: var(--fg); }
+
+/* Docs/guide pane items */
+.doc-bullet { color: var(--fg); }
+.doc-desc   { color: var(--dim); }
+
+/* State feed items */
+.state-item { color: var(--fg); }
+
+/* ══════════════════════════════════════════════════════════════════
+   BCODe Syntax Highlighting Theme
+   Merged verbatim from hljs-theme_v12.css with --bcode-plain added.
+   This is the canonical source-of-truth for BCODe token styling.
+   ══════════════════════════════════════════════════════════════════ */
+
+pre code.hljs, code.hljs {
+  background: transparent;
+  color: var(--bcode-plain);
+}
+
+/* Base token classes */
+.hljs,
+.hljs-subst        { color: var(--bcode-plain); }
+.hljs-comment       { color: var(--bcode-comment); font-style: italic; }
+.hljs-string        { color: var(--bcode-string); }
+.hljs-number        { color: var(--bcode-number); font-weight: 400; }
+.hljs-operator      { color: var(--bcode-purple-soft); }
+.hljs-punctuation   { color: var(--bcode-field-punct); }
+.hljs-meta          { color: var(--bcode-param); font-weight: 650; }
+
+/* ── Terminators ── */
+.hljs-bcode-term-param {
+  color: var(--bcode-param);
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(79,70,229,0.18);
+}
+.hljs-bcode-term-cmd {
+  color: var(--bcode-green);
+  font-weight: 950;
+  text-shadow: 0 0 10px rgba(16,128,0,0.30);
+}
+.hljs-bcode-term-del {
+  color: var(--bcode-illegal);
+  font-weight: 950;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+/* ── Diagnostic/advisory digits (dark-green + bold) ── */
+.hljs-bcode-diagnostic {
+  color: var(--bcode-green) !important;
+  font-weight: 900;
+}
+
+/* ── Qualified value region ── */
+/* Tint the whole region container orange; selectively override children. */
+.hljs-bcode-qualified-field {
+  color: var(--bcode-qualified) !important;
+  font-style: normal;
+}
+.hljs-bcode-qualified-field * {
+  color: inherit;
+}
+/* Keep PARAM/CMD terminators stable inside qualified regions */
+.hljs-bcode-qualified-field .hljs-bcode-term-param {
+  color: var(--bcode-param) !important;
+  font-style: normal;
+  font-weight: 900;
+}
+.hljs-bcode-qualified-field .hljs-bcode-term-cmd {
+  color: var(--bcode-green) !important;
+  font-style: normal;
+  font-weight: 950;
+}
+/* Keep diagnostic digits dark-green + bold even when qualified */
+.hljs-bcode-qualified-field .hljs-bcode-diagnostic {
+  color: var(--bcode-green) !important;
+  font-weight: 900;
+  font-style: normal;
+}
+
+/* ── Epsilon region ── */
+/* Notation + numbers light-green + italic; G stays indigo; cmd green. */
+.hljs-bcode-epsilon {
+  color: var(--bcode-epsilon) !important;
+  font-style: italic;
+}
+.hljs-bcode-epsilon .hljs-operator,
+.hljs-bcode-epsilon .hljs-number,
+.hljs-bcode-epsilon .hljs-punctuation {
+  color: var(--bcode-epsilon) !important;
+  font-style: italic;
+}
+.hljs-bcode-epsilon .hljs-bcode-term-param {
+  color: var(--bcode-param) !important;
+  font-style: normal;
+  font-weight: 900;
+}
+.hljs-bcode-epsilon .hljs-bcode-term-cmd {
+  color: var(--bcode-green) !important;
+  font-style: normal;
+  font-weight: 950;
+}
+
+/* ── Hex payload (%...%) ── */
+/* % delimiters bold teal; hex digits inside teal non-bold */
+.hljs-bcode-hex-delim {
+  color: var(--bcode-string) !important;
+  font-weight: 900;
+}
+/* Fallback: entire meta payload bold teal, then un-bold digits */
+.hljs-meta {
+  color: var(--bcode-string) !important;
+  font-weight: 900;
+}
+.hljs-meta .hljs-number {
+  color: var(--bcode-string) !important;
+  font-weight: 400 !important;
+}
+
+/* ── Illegal ── */
+.hljs-bcode-illegal {
+  color: var(--bcode-illegal) !important;
+  font-weight: 900;
+  text-decoration: wavy underline;
+  text-underline-offset: 2px;
+}

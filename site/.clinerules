@@ -1,0 +1,10 @@
+An AI Workspace Coordination Protocol is active in this project.
+Your Manager and Architect is Antigravity.
+
+CRITICAL INSTRUCTION: BEFORE you respond to the user, you MUST read the following files in the root directory:
+1. `AI_WORKSPACE_MANAGER.md`
+2. `AI_TASK_BOARD.md`
+
+If the user's prompt begins with `//` (e.g., `// begin task 0001`), you are required to adhere to the Autonomous 4-Phase Consensus Protocol (described in `AI_WORKSPACE_MANAGER.md`) for all code modifications. Do not begin coding until the 4 phases are complete.
+
+If the user's prompt does NOT begin with `//`, you should answer normally and do not trigger the 4-Phase Consensus Protocol unless explicitly asked.

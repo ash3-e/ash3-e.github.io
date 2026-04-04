@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCODe × Claude Code × vexp — Setup Layer Infomatic</title>
+  <style>
+    :root {
+      --bg: #0b0a14;
+      --panel: rgba(17, 18, 33, 0.82);
+      --panel-2: rgba(28, 29, 49, 0.88);
+      --text: #f4f3ff;
+      --muted: #b8b5d9;
+      --line: rgba(150, 138, 255, 0.18);
+      --purple: #6820E0;
+      --indigo: #4338a8;
+      --cyan: #8ce6ff;
+      --green: #6df7b1;
+      --gold: #ffd87a;
+      --danger: #ff8da1;
+      --shadow: 0 24px 70px rgba(7, 7, 17, 0.55);
+      --radius: 24px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(104, 32, 224, 0.22), transparent 30%),
+        radial-gradient(circle at 85% 10%, rgba(140, 230, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 75% 80%, rgba(67, 56, 168, 0.28), transparent 28%),
+        linear-gradient(180deg, #080811 0%, #0d0d18 35%, #0b0a14 100%);
+      min-height: 100vh;
+    }
+
+    .grid-noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.24;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 26px 26px;
+      mask-image: radial-gradient(circle at center, black, transparent 92%);
+    }
+
+    a { color: inherit; }
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      margin-bottom: 28px;
+      backdrop-filter: blur(18px);
+      background: rgba(11, 10, 20, 0.58);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.22);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 25px rgba(104,32,224,0.35);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .nav a, .pill {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.94rem;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      border-color: rgba(140, 230, 255, 0.28);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(23, 24, 43, 0.88), rgba(12, 12, 23, 0.94));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero-main {
+      padding: 36px;
+      position: relative;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.86rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan));
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4.4rem);
+      line-height: 0.97;
+      margin: 0 0 16px;
+      letter-spacing: -0.04em;
+    }
+
+    .lede {
+      font-size: 1.07rem;
+      line-height: 1.72;
+      color: var(--muted);
+      max-width: 62ch;
+      margin: 0 0 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .button {
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      background: rgba(255,255,255,0.04);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+    .button.primary {
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .hero-side {
+      padding: 26px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .stack-box {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 18px;
+    }
+
+    .stack-step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .stack-step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-family: var(--mono);
+      background: rgba(104, 32, 224, 0.18);
+      color: var(--cyan);
+      border: 1px solid rgba(140, 230, 255, 0.14);
+    }
+
+    .stack-step h3 {
+      margin: 2px 0 6px;
+      font-size: 1rem;
+    }
+
+    .stack-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.55;
+    }
+
+    .section {
+      margin-top: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2.3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 60ch;
+      line-height: 1.6;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .practice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .practice {
+      padding: 22px;
+      min-height: 220px;
+    }
+
+    .practice .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cyan);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .practice h3 {
+      margin: 0 0 10px;
+      font-size: 1.16rem;
+    }
+
+    .practice p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .practice ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .code-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .code-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.025);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      font-family: var(--mono);
+      font-size: 0.93rem;
+      line-height: 1.7;
+      color: #ecebff;
+      background:
+        linear-gradient(180deg, rgba(7,8,14,0.94), rgba(12,12,22,0.98));
+    }
+
+    code { font-family: var(--mono); }
+    .comment { color: #7f89bc; }
+    .key { color: #8ce6ff; }
+    .str { color: #ffd87a; }
+    .cmd { color: #b993ff; }
+    .good { color: var(--green); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--gold); }
+
+    .flow {
+      padding: 24px;
+    }
+
+    .flow-track {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .flow-node {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .flow-node small {
+      display: inline-block;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
+
+    .flow-node h3 {
+      margin: 0 0 8px;
+      font-size: 1.04rem;
+    }
+
+    .flow-node p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.94rem;
+    }
+
+    .compare {
+      padding: 22px;
+    }
+
+    .compare-table {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 180px 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .cell {
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      min-height: 88px;
+    }
+
+    .cell.label {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      background: rgba(104, 32, 224, 0.12);
+    }
+
+    .do-dont {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .list-card {
+      padding: 24px;
+    }
+
+    .list-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+    }
+
+    .list-card ol, .list-card ul {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .warning {
+      padding: 20px 22px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 216, 122, 0.1), rgba(255, 141, 161, 0.08));
+      border: 1px solid rgba(255, 216, 122, 0.22);
+    }
+
+    .warning h3 {
+      margin: 0 0 8px;
+      color: var(--gold);
+    }
+
+    .warning p {
+      margin: 0;
+      color: #f3e7bb;
+      line-height: 1.65;
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding: 24px 28px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .footer p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 60ch;
+    }
+
+    .mini-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* === v3 additions === */
+
+    .terminal {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .term-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .term-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .term-dots span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .term-dots span:first-child { background: #ff5f57; }
+    .term-dots span:nth-child(2) { background: #febc2e; }
+    .term-dots span:nth-child(3) { background: #28c840; }
+
+    .term-title {
+      font-size: 0.84rem;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .term-body {
+      padding: 18px;
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      line-height: 1.75;
+      background: linear-gradient(180deg, rgba(7,8,14,0.96), rgba(10,10,18,0.99));
+      color: #d4d2f0;
+    }
+
+    .term-body .prompt { color: var(--green); }
+    .term-body .user-input { color: #fff; font-weight: 600; }
+    .term-body .auto { color: var(--cyan); opacity: 0.7; }
+    .term-body .agent { color: var(--cmd, #b993ff); }
+    .term-body .divider {
+      display: block;
+      margin: 10px 0;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+    }
+    .term-body .label {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-right: 6px;
+    }
+    .term-body .label.you { background: rgba(109, 247, 177, 0.18); color: var(--green); }
+    .term-body .label.cc { background: rgba(185, 147, 255, 0.18); color: #b993ff; }
+    .term-body .label.vexp { background: rgba(140, 230, 255, 0.18); color: var(--cyan); }
+    .term-body .label.sys { background: rgba(255, 216, 122, 0.14); color: var(--gold); }
+
+    .auto-manual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .auto-manual .card {
+      padding: 24px;
+    }
+
+    .auto-manual h3 {
+      margin: 0 0 14px;
+      font-size: 1.15rem;
+    }
+
+    .auto-manual .item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: baseline;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.94rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .auto-manual .item:last-child { border-bottom: none; }
+
+    .auto-manual .icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .icon.auto-icon { background: rgba(140, 230, 255, 0.18); color: var(--cyan); }
+    .icon.manual-icon { background: rgba(109, 247, 177, 0.18); color: var(--green); }
+
+    .task-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .task-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .task-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .task-header .token-badge {
+      margin-left: auto;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(109, 247, 177, 0.12);
+      border: 1px solid rgba(109, 247, 177, 0.2);
+      color: var(--green);
+      font-size: 0.8rem;
+      font-family: var(--mono);
+    }
+
+    .task-card {
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    .task-card:last-child { margin-bottom: 0; }
+
+    @media (max-width: 1080px) {
+      .hero, .two-col, .do-dont, .practice-grid, .flow-track, .row, .auto-manual {
+        grid-template-columns: 1fr;
+      }
+      .hero-metrics {
+        grid-template-columns: 1fr;
+      }
+      .row { gap: 10px; }
+      .cell.label { min-height: auto; }
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(100% - 20px, 1180px); }
+      .topbar { border-radius: 22px; }
+      .hero-main, .hero-side, .practice, .flow, .compare, .list-card { padding: 20px; }
+      h1 { font-size: 2.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+  <div class="grid-noise"></div>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">B&gt;</div>
+        <div>BCODe Portal Workflow Infomatic</div>
+      </div>
+      <nav class="nav">
+        <a href="#automatic">Auto vs manual</a>
+        <a href="#cold-start">Cold start</a>
+        <a href="#tasks">Task walkthroughs</a>
+        <a href="#defaults">Defaults vs script</a>
+        <a href="#guardrails">Guardrails</a>
+      </nav>
+    </header>
+
+    <!-- ════════════════════════ HERO ════════════════════════ -->
+
+    <section class="hero">
+      <article class="card hero-main">
+        <div class="eyebrow">based on your BCODe docs portal + Claude/vexp setup kit</div>
+        <h1>Use Claude Code + vexp with the extra setup layer that vanilla Claude Code does not give you.</h1>
+        <p class="lede">
+          This microsite shows the exact terminal commands and prompts for working with Claude Code on the BCODe portal,
+          from first launch through multi-task sessions. Everything below uses the real file names, real commands,
+          and real agent output you will see on your machine.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#cold-start">See the cold start</a>
+          <a class="button" href="#tasks">Jump to task walkthroughs</a>
+        </div>
+        <div class="hero-metrics">
+          <div class="metric">
+            <strong>65–70%</strong>
+            <span>Typical token reduction when vexp returns focused pivots and skeletons instead of naive whole-file reads.</span>
+          </div>
+          <div class="metric">
+            <strong>1 prompt</strong>
+            <span>Per task. Describe the job, Claude handles vexp calls, file reads, edits, and observation saves automatically.</span>
+          </div>
+          <div class="metric">
+            <strong>3 commands</strong>
+            <span>Total user interaction for setup: run the script, launch Claude, verify <code>/mcp</code>. Then just prompt.</span>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card hero-side">
+        <div class="stack-box">
+          <div class="eyebrow" style="margin-bottom:10px;">What happens when you type a prompt</div>
+          <div class="stack-step">
+            <div class="step-num">01</div>
+            <div>
+              <h3>CLAUDE.md loads</h3>
+              <p>Claude reads your project rules, file map, agent role, and vexp instructions. Happens silently every session.</p>
+            </div>
+          </div>
+          <div class="stack-step">
+            <div class="step-num">02</div>
+            <div>
+              <h3>vexp run_pipeline fires</h3>
+              <p>Claude calls vexp automatically per CLAUDE.md rules. Returns relevant code nodes, skeletons, and past observations.</p>
+            </div>
+          </div>
+          <div class="stack-step">
+            <div class="step-num">03</div>
+            <div>
+              <h3>Claude reads exact files</h3>
+              <p>Only the files identified by vexp get opened. Not the whole repo. Not the 339K context dump.</p>
+            </div>
+          </div>
+          <div class="stack-step">
+            <div class="step-num">04</div>
+            <div>
+              <h3>Edits + observation saved</h3>
+              <p>Claude writes to <code>claude-code-*</code> files only, then persists what it learned for next session.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+
+    <!-- ════════════════════════ AUTOMATIC VS MANUAL ════════════════════════ -->
+
+    <section class="section" id="automatic">
+      <div class="section-head">
+        <div>
+          <h2>What is automatic vs what you type</h2>
+        </div>
+        <p>
+          After setup, most of the efficiency layer is invisible. You type a prompt. Claude handles vexp, file scoping,
+          agent boundaries, and observation persistence on its own because CLAUDE.md tells it to.
+        </p>
+      </div>
+      <div class="auto-manual">
+        <article class="card">
+          <h3 style="color: var(--cyan);">Automatic <span style="font-weight:400; font-size:0.85rem; color: var(--muted);">(you never type these)</span></h3>
+          <div class="item">
+            <div class="icon auto-icon">&#x2713;</div>
+            <div><strong style="color:var(--text)">CLAUDE.md loads</strong> every session start &mdash; project rules, file map, vexp instructions, agent role</div>
+          </div>
+          <div class="item">
+            <div class="icon auto-icon">&#x2713;</div>
+            <div><strong style="color:var(--text)">vexp run_pipeline</strong> called before code changes &mdash; returns only relevant files and past observations</div>
+          </div>
+          <div class="item">
+            <div class="icon auto-icon">&#x2713;</div>
+            <div><strong style="color:var(--text)">.claudeignore</strong> blocks 339K prompt dump, 466K docs-data, and other agents' files from ever entering context</div>
+          </div>
+          <div class="item">
+            <div class="icon auto-icon">&#x2713;</div>
+            <div><strong style="color:var(--text)">Agent boundaries</strong> enforced &mdash; writes only to <code>claude-code-*</code> prefixed files</div>
+          </div>
+          <div class="item">
+            <div class="icon auto-icon">&#x2713;</div>
+            <div><strong style="color:var(--text)">save_observation</strong> persists decisions for next session &mdash; no re-explaining context</div>
+          </div>
+        </article>
+        <article class="card">
+          <h3 style="color: var(--green);">Manual <span style="font-weight:400; font-size:0.85rem; color: var(--muted);">(you do type these)</span></h3>
+          <div class="item">
+            <div class="icon manual-icon">&#x276F;</div>
+            <div><strong style="color:var(--text)">One-time setup</strong> &mdash; run <code>setup-claude.ps1</code> once from project root</div>
+          </div>
+          <div class="item">
+            <div class="icon manual-icon">&#x276F;</div>
+            <div><strong style="color:var(--text)">Launch</strong> &mdash; <code>claude</code> from the project directory each session</div>
+          </div>
+          <div class="item">
+            <div class="icon manual-icon">&#x276F;</div>
+            <div><strong style="color:var(--text)">Your prompt</strong> &mdash; one natural-language sentence describing the task</div>
+          </div>
+          <div class="item">
+            <div class="icon manual-icon">&#x276F;</div>
+            <div><strong style="color:var(--text)">/compact</strong> &mdash; run manually when context feels heavy (~50% usage)</div>
+          </div>
+          <div class="item">
+            <div class="icon manual-icon">&#x276F;</div>
+            <div><strong style="color:var(--text)">/clear</strong> &mdash; run when switching to an unrelated task</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════ COLD START ════════════════════════ -->
+
+    <section class="section" id="cold-start">
+      <div class="section-head">
+        <div>
+          <h2>Cold start: state 0 to first prompt</h2>
+        </div>
+        <p>
+          This is what you type once, ever. After this, every session starts with just <code>claude</code>.
+        </p>
+      </div>
+
+      <article class="card terminal">
+        <div class="term-bar">
+          <div class="term-dots"><span></span><span></span><span></span></div>
+          <div class="term-title">PowerShell &mdash; ~\downloads\site</div>
+        </div>
+        <div class="term-body">
+<span class="comment"># ── ONE-TIME SETUP (never again after this) ──</span>
+
+<span class="prompt">PS site&gt;</span> <span class="user-input">powershell -ExecutionPolicy Bypass -File .\setup-claude.ps1</span>
+<span class="auto">  + Project root detected</span>
+<span class="auto">  + Node.js v22.14.0 detected</span>
+<span class="auto">  + vexp MCP server found: C:\Users\^w^\.vscode\extensions\vexp...mcp-server.cjs</span>
+<span class="auto">  + .mcp.json written</span>
+<span class="auto">  + CLAUDE.md written</span>
+<span class="auto">  + .claudeignore created</span>
+<span class="auto">  + Slash command /svg created</span>
+<span class="auto">  + Slash command /doc created</span>
+<span class="auto">  + Slash command /review created</span>
+<span class="auto">  === Setup Complete ===</span>
+
+<span class="divider"></span>
+<span class="comment"># ── EVERY SESSION STARTS HERE ──</span>
+
+<span class="prompt">PS site&gt;</span> <span class="user-input">claude</span>
+<span class="auto"> ▐▛███▜▌   Claude Code v2.1.80</span>
+<span class="auto">▝▜█████▛▘  Opus 4.6 · Claude Pro</span>
+<span class="auto">  ▘▘ ▝▝    ~\downloads\site</span>
+
+<span class="divider"></span>
+<span class="comment"># ── VERIFY MCP (optional, first session only) ──</span>
+
+<span class="prompt">&gt;</span> <span class="user-input">/mcp</span>
+<span class="auto">  vexp (stdio) ── connected ── 11 tools available</span>
+
+<span class="divider"></span>
+<span class="comment"># ── NOW JUST PROMPT ──</span>
+
+<span class="prompt">&gt;</span> <span class="user-input">fix the hover highlight on subtitle rows in claude-code-site.js</span>
+
+<span class="comment"># Everything below happens automatically:</span>
+<span class="label sys">CLAUDE.md</span> <span class="auto">loaded: agent role, file map, vexp rules</span>
+<span class="label vexp">run_pipeline</span> <span class="auto">task: "fix hover highlight on subtitle rows" → 3 pivot files, 2 observations</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-site.js (hover handler at line 847)...</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-styles.css (.subtitle-row:hover rule)...</span>
+<span class="label cc">claude</span> <span class="agent">Editing claude-code-site.js — batched 2 changes...</span>
+<span class="label vexp">save_observation</span> <span class="auto">"subtitle hover now highlights row + keeps parent card active"</span>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- ════════════════════════ TASK WALKTHROUGHS ════════════════════════ -->
+
+    <section class="section" id="tasks">
+      <div class="section-head">
+        <div>
+          <h2>Three tasks, start to finish: what you type vs what runs</h2>
+        </div>
+        <p>
+          Each task below shows the exact prompt you write and what Claude Code + vexp does automatically in response.
+          The pattern is always the same: one prompt in, automated pipeline out, <code>/clear</code> between unrelated tasks.
+        </p>
+      </div>
+
+      <!-- TASK 1 -->
+      <article class="card task-card">
+        <div class="task-header">
+          <span class="task-num">1</span>
+          <h3>Bug fix &mdash; broken nav highlight</h3>
+          <span class="token-badge">~12K tokens</span>
+        </div>
+
+        <article class="card terminal" style="margin-bottom:14px">
+          <div class="term-bar">
+            <div class="term-dots"><span></span><span></span><span></span></div>
+            <div class="term-title">Task 1 &mdash; you type one line</div>
+          </div>
+          <div class="term-body">
+<span class="prompt">&gt;</span> <span class="user-input">the active nav highlight disappears when switching between dark and balanced themes in claude-code-index.html — fix it</span>
+
+<span class="comment"># automatic from here ↓</span>
+<span class="label vexp">run_pipeline</span> <span class="auto">intent: debug · pivots: claude-code-site.js, claude-code-styles.css · 1 prior observation</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-site.js lines 203-248 (theme toggle handler)...</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-styles.css lines 89-112 (nav active states)...</span>
+<span class="label cc">claude</span> <span class="agent">Found it: CSS custom property --nav-active resets on theme change but JS doesn't re-apply the active class.</span>
+<span class="label cc">claude</span> <span class="agent">Editing claude-code-site.js — added re-apply after theme swap (1 edit)...</span>
+<span class="label vexp">save_observation</span> <span class="auto">"theme toggle must re-apply .nav-active after CSS variable swap"</span>
+<span class="label cc">claude</span> <span class="agent">Done. The active highlight now persists across all three themes.</span>
+          </div>
+        </article>
+
+        <div style="color: var(--muted); font-size: 0.9rem; line-height:1.6; padding: 0 4px;">
+          <strong style="color:var(--text)">You typed:</strong> 1 sentence.
+          <strong style="color:var(--text)">Claude handled:</strong> vexp discovery, file reads (scoped to 2 files, not 60), edit, observation save.
+          <strong style="color:var(--text)">Without vexp:</strong> Claude would have read the full <code>site.js</code> (102K) + <code>styles.css</code> (72K) + explored the directory = ~200K+ tokens instead of ~12K.
+        </div>
+      </article>
+
+      <!-- TASK 2 -->
+      <article class="card task-card">
+        <div class="task-header">
+          <span class="task-num">2</span>
+          <h3>New feature &mdash; add search filtering</h3>
+          <span class="token-badge">~18K tokens</span>
+        </div>
+
+        <article class="card terminal" style="margin-bottom:14px">
+          <div class="term-bar">
+            <div class="term-dots"><span></span><span></span><span></span></div>
+            <div class="term-title">Task 2 &mdash; clear context, then one prompt</div>
+          </div>
+          <div class="term-body">
+<span class="prompt">&gt;</span> <span class="user-input">/clear</span>
+<span class="auto">  Context cleared. CLAUDE.md reloaded.</span>
+
+<span class="prompt">&gt;</span> <span class="user-input">add category filter buttons (syntax, interpretation, meta, rest) above the search results in claude-code-index.html</span>
+
+<span class="label vexp">run_pipeline</span> <span class="auto">intent: modify · pivots: claude-code-index.html, claude-code-site.js, claude-code-styles.css</span>
+<span class="label vexp">search_memory</span> <span class="auto">found: "theme toggle must re-apply .nav-active" (from task 1 — still relevant)</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-index.html lines 30-65 (search region)...</span>
+<span class="label cc">claude</span> <span class="agent">Reading claude-code-site.js lines 112-180 (search handler)...</span>
+<span class="label cc">claude</span> <span class="agent">Plan: add filter button row to HTML, wire click handlers in JS, style in CSS. 3 file edits batched.</span>
+<span class="label cc">claude</span> <span class="agent">Editing claude-code-index.html — filter row markup...</span>
+<span class="label cc">claude</span> <span class="agent">Editing claude-code-site.js — filter toggle + search re-render...</span>
+<span class="label cc">claude</span> <span class="agent">Editing claude-code-styles.css — .filter-btn active state with theme vars...</span>
+<span class="label vexp">save_observation</span> <span class="auto">"filter buttons use data-category attr, search re-renders on toggle, respects theme vars"</span>
+          </div>
+        </article>
+
+        <div style="color: var(--muted); font-size: 0.9rem; line-height:1.6; padding: 0 4px;">
+          <strong style="color:var(--text)">You typed:</strong> <code>/clear</code> + 1 sentence.
+          <strong style="color:var(--text)">Why /clear:</strong> different subsystem than task 1 — fresh context avoids carrying dead weight.
+          <strong style="color:var(--text)">Memory carried forward:</strong> the theme toggle observation from task 1 surfaced automatically, so Claude wired filter buttons to respect it.
+        </div>
+      </article>
+
+      <!-- TASK 3 -->
+      <article class="card task-card">
+        <div class="task-header">
+          <span class="task-num">3</span>
+          <h3>Docs edit &mdash; update a section in the intro</h3>
+          <span class="token-badge">~8K tokens</span>
+        </div>
+
+        <article class="card terminal" style="margin-bottom:14px">
+          <div class="term-bar">
+            <div class="term-dots"><span></span><span></span><span></span></div>
+            <div class="term-title">Task 3 &mdash; slash command shortcut</div>
+          </div>
+          <div class="term-body">
+<span class="prompt">&gt;</span> <span class="user-input">/clear</span>
+<span class="auto">  Context cleared. CLAUDE.md reloaded.</span>
+
+<span class="prompt">&gt;</span> <span class="user-input">/doc update section 3.1 in bcode-intro-v2.html to reference the new ASCII table placement</span>
+
+<span class="label sys">slash cmd</span> <span class="auto">loaded .claude/commands/doc.md — workflow template injected</span>
+<span class="label vexp">run_pipeline</span> <span class="auto">intent: modify · pivots: bcode-intro-v2.html · 0 prior observations on this file</span>
+<span class="label cc">claude</span> <span class="agent">Reading bcode-intro-v2.html lines 56-120 (section 3.1)...</span>
+<span class="label cc">claude</span> <span class="agent">Editing section 3.1 — updated ASCII table reference, matched technical voice...</span>
+<span class="label cc">claude</span> <span class="agent">Added BCODe.meta advanced-concept warning per slash command rules.</span>
+<span class="label vexp">save_observation</span> <span class="auto">"section 3.1 now references ascii.svg placement, includes meta warning"</span>
+          </div>
+        </article>
+
+        <div style="color: var(--muted); font-size: 0.9rem; line-height:1.6; padding: 0 4px;">
+          <strong style="color:var(--text)">You typed:</strong> <code>/clear</code> + <code>/doc</code> + the edit description.
+          <strong style="color:var(--text)">Slash command benefit:</strong> <code>/doc</code> injected the workflow template (match voice, use bcode highlighting, include meta warning, batch edits, save observation). You did not need to re-specify any of that.
+          <strong style="color:var(--text)">Token cost:</strong> ~8K because the intro file is the only pivot — no other files needed.
+        </div>
+      </article>
+    </section>
+
+
+    <!-- ════════════════════════ PATTERN SUMMARY ════════════════════════ -->
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>The pattern is always the same</h2>
+        </div>
+        <p>Every task follows one loop. Memorize this and you have the whole system.</p>
+      </div>
+      <article class="card flow">
+        <div class="flow-track">
+          <div class="flow-node">
+            <small>If new task</small>
+            <h3>/clear</h3>
+            <p>Reset context. CLAUDE.md reloads automatically. Old task baggage is gone.</p>
+          </div>
+          <div class="flow-node">
+            <small>You type</small>
+            <h3>One prompt</h3>
+            <p>Describe the job in one sentence. Use a slash command if one fits (<code>/svg</code>, <code>/doc</code>, <code>/review</code>).</p>
+          </div>
+          <div class="flow-node">
+            <small>Automatic</small>
+            <h3>vexp + read + edit</h3>
+            <p>Claude calls <code>run_pipeline</code>, reads scoped files, makes batched edits, saves observation.</p>
+          </div>
+          <div class="flow-node">
+            <small>If context heavy</small>
+            <h3>/compact</h3>
+            <p>Compress the conversation at ~50% usage. Not always needed &mdash; depends on task size.</p>
+          </div>
+          <div class="flow-node">
+            <small>Next task</small>
+            <h3>Loop</h3>
+            <p>Back to step 1. Memory carries forward via vexp observations. Context does not.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- ════════════════════════ DEFAULTS VS SCRIPT ════════════════════════ -->
+
+    <section class="section" id="defaults">
+      <div class="section-head">
+        <div>
+          <h2>What the script layers on top of vanilla Claude Code defaults</h2>
+        </div>
+        <p>
+          Plain Claude Code is capable, but on this repo it starts blind: no MCP, no file exclusions, no agent boundaries,
+          no project memory. The setup script is the deliberate layer that fixes all of that in one run.
+        </p>
+      </div>
+      <article class="card compare">
+        <div class="compare-table">
+          <div class="row">
+            <div class="cell label">Vanilla Claude Code</div>
+            <div class="cell"><strong class="warn">What you get</strong><br />Reads the repo with grep/cat/find. Loads CLAUDE.md if present (yours was empty). Discovers the project from scratch every session.</div>
+            <div class="cell"><strong class="bad">What is missing</strong><br />No MCP tools, no file exclusions, no multi-agent awareness, no slash commands, no protection against 800K+ of context bombs sitting in root.</div>
+          </div>
+          <div class="row">
+            <div class="cell label">After setup script</div>
+            <div class="cell"><strong class="good">What it adds</strong><br />Auto-detected vexp MCP wiring, populated CLAUDE.md, real <code>.claudeignore</code>, project-local <code>.mcp.json</code>, and <code>/svg</code> <code>/doc</code> <code>/review</code> slash commands.</div>
+            <div class="cell"><strong class="good">Why it matters</strong><br />Claude enters each session with project memory loaded, junk files blocked, agent boundaries enforced, and a retrieval-first workflow baked in. You just prompt.</div>
+          </div>
+          <div class="row">
+            <div class="cell label">Quality boundary</div>
+            <div class="cell"><strong class="good">Keep quality</strong><br />vexp handles discovery. Claude still reads exact source files before editing. Compression lives in the discovery phase, not in the final source truth.</div>
+            <div class="cell"><strong class="bad">Lose quality</strong><br />Treating vexp capsules as the source files themselves, or over-optimizing by skipping direct inspection before edits.</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- ════════════════════════ CONFIG EXAMPLES ════════════════════════ -->
+
+    <section class="section" id="examples">
+      <div class="section-head">
+        <div>
+          <h2>Config files grounded in your actual repo</h2>
+        </div>
+        <p>
+          These are the exact files the setup script writes. You should not need to edit these by hand
+          unless the vexp extension version changes.
+        </p>
+      </div>
+
+      <div class="two-col">
+        <article class="card code-card">
+          <div class="code-top">
+            <span>Project-local MCP config</span>
+            <span class="pill">.mcp.json</span>
+          </div>
+<pre><code>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"vexp"</span>: {
+      <span class="key">"type"</span>: <span class="str">"stdio"</span>,
+      <span class="key">"command"</span>: <span class="str">"node"</span>,
+      <span class="key">"args"</span>: [
+        <span class="str">"C:\\Users\\^w^\\.vscode\\extensions\\vexp.vexp-vscode-1.2.28\\dist\\mcp-server.cjs"</span>
+      ]
+    }
+  }
+}</code></pre>
+        </article>
+        <article class="card code-card">
+          <div class="code-top">
+            <span>Context bomb prevention</span>
+            <span class="pill">.claudeignore</span>
+          </div>
+<pre><code><span class="comment"># block the major context bombs</span>
+codex-last-20-prompts-context.md   <span class="comment"># ~339K</span>
+codex-docs-data.js                 <span class="comment"># ~466K</span>
+
+<span class="comment"># block other agents' implementation files</span>
+codex-*.js
+codex-*.css
+antigravity-*.js
+antigravity-*.css
+
+<span class="comment"># heavy dirs and binaries</span>
+node_modules/
+.git/
+.vexp/
+*.min.js
+*.min.css</code></pre>
+        </article>
+      </div>
+
+      <div class="two-col section">
+        <article class="card code-card">
+          <div class="code-top">
+            <span>Key <code>CLAUDE.md</code> rules that drive automation</span>
+            <span class="pill">project brief</span>
+          </div>
+<pre><code><span class="comment"># These lines are why Claude calls vexp and respects boundaries automatically:</span>
+
+<span class="good">## vexp — ALWAYS USE FIRST</span>
+<span class="str">YOU MUST call run_pipeline before any code modification.</span>
+
+<span class="good">## Multi-Agent Protocol</span>
+You are <span class="str">Agent Alpha (Claude)</span>. Domain: front-end, UI, CSS, JS.
+<span class="bad">NEVER modify shared files or other agents' prefixed files.</span>
+Write only to <span class="str">claude-code-*</span> prefixed files.
+
+<span class="good">## Token Discipline</span>
+<span class="bad">NEVER read codex-last-20-prompts-context.md</span>
+Prefer <span class="cmd">get_skeleton</span> over reading full files when exploring.
+Use subagents for research; keep main context for implementation.</code></pre>
+        </article>
+        <article class="card code-card">
+          <div class="code-top">
+            <span>Slash command example &middot; <code>/doc</code></span>
+            <span class="pill">.claude/commands/doc.md</span>
+          </div>
+<pre><code><span class="comment"># When you type: /doc update section 3.1 to add ascii reference</span>
+<span class="comment"># Claude receives this workflow template automatically:</span>
+
+Edit BCODe documentation HTML files.
+
+1. <span class="cmd">run_pipeline</span> with task: <span class="str">"documentation edit for $ARGUMENTS"</span>
+2. Match existing voice: technical, direct, second-person
+3. Use highlight.js <span class="str">language-bcode</span> blocks for syntax examples
+4. BCODe.meta references must include the advanced-concept warning
+5. Batch all related edits into a single operation
+6. <span class="cmd">save_observation</span> with section numbers modified</code></pre>
+        </article>
+      </div>
+    </section>
+
+
+    <!-- ════════════════════════ GUARDRAILS ════════════════════════ -->
+
+    <section class="section" id="guardrails">
+      <div class="section-head">
+        <div>
+          <h2>Guardrails worth keeping visible</h2>
+        </div>
+        <p>
+          These are the rules most likely to prevent subtle failures: cross-agent collisions, stale MCP paths,
+          accidental context explosions, and overconfident edits from incomplete reads.
+        </p>
+      </div>
+      <div class="do-dont">
+        <article class="card list-card">
+          <h3>Do this</h3>
+          <ol>
+            <li>Use <code>/mcp</code> to verify vexp is connected on first session after setup. If dismissed or failed, fix before prompting.</li>
+            <li>Re-run <code>setup-claude.ps1</code> when the vexp extension version changes so the MCP path stays current.</li>
+            <li>Use <code>/clear</code> between unrelated tasks. Context from task 1 is dead weight in task 2.</li>
+            <li>Use <code>/compact</code> at ~50% context usage within a long task. Do not wait until you hit the wall.</li>
+            <li>Save decisions via vexp observations so the next session inherits them automatically.</li>
+          </ol>
+        </article>
+        <article class="card list-card">
+          <h3>Avoid this</h3>
+          <ul>
+            <li>Do not assume vexp capsules replace reading source. Use capsules for discovery, read files for edits.</li>
+            <li>Do not let Claude edit shared or other-agent files. CLAUDE.md prevents this, but verify on first run.</li>
+            <li>Do not keep dead MCP paths after updating the VS Code extension &mdash; re-run the setup script.</li>
+            <li>Do not mix unrelated tasks in one prompt. One job, one prompt, one <code>/clear</code> between.</li>
+            <li>Do not skip <code>/clear</code> and let context rot across task boundaries.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <article class="warning card">
+        <h3>BCODe.meta warning</h3>
+        <p>
+          Treat <strong>BCODe.meta</strong> as an advanced concept. Do not route beginners into it by default. Use it when the task is explicitly about a higher-level design decision, shared structured pattern, or meta-layer behavior &mdash; not as the first stop for ordinary syntax or portal onboarding.
+        </p>
+      </article>
+    </section>
+
+    <footer class="card footer">
+      <p>
+        This file is standalone and no-build, just like the rest of the BCODe portal stack. It explains both the
+        base Claude Code behavior and the deliberate setup layer, with exact terminal walkthroughs showing what
+        you type versus what runs automatically.
+      </p>
+      <div class="mini-pill-row">
+        <span class="pill">static HTML</span>
+        <span class="pill">BCODe palette</span>
+        <span class="pill">Claude + vexp</span>
+        <span class="pill">v3 &middot; task walkthroughs</span>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>

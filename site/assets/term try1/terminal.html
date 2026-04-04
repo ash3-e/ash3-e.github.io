@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCODe &#945;</title>
+  <link rel="stylesheet" href="styles.css">
+  <!--
+    highlight.js core + BCODe language grammar.
+    hljs must load first so bcode_lang.js can call registerLanguage().
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="assets/bcode_lang.js"></script>
+</head>
+<body>
+
+<!--
+  Screen: 80-column x 24-row terminal frame.
+  Layout mapped from the three .tui reference files:
+    bcode-alpha-history.tui      -> Home view (tabs activeTab:0)
+    bcode-alpha-terminal.tui     -> Terminal view, empty
+    bcode-alpha-terminal-populated.tui -> Terminal view, seeded
+  Grid rows: tab-bar (3 rows) | main-area (19 rows) | command-bar (2 rows)
+-->
+<div id="screen">
+
+  <!-- Rows 0-2: Tab strip + title / menu ──────────────────────── -->
+  <div id="tab-bar">
+    <div id="tab-strip">
+      <div class="tab active" data-view="home">&#8962; Home</div>
+      <div class="tab" data-view="terminal">Terminal</div>
+    </div>
+    <div id="title-area">
+      <span id="title-text">BCODe &#945;</span>
+      <select id="term-menu">
+        <option value="">BCODe &#945;</option>
+        <option value="reset">Parser reset &#9472; DEL</option>
+        <option value="clear">Clear feed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Rows 3-21: Main content area ────────────────────────────── -->
+  <div id="main-area">
+
+    <!-- HOME VIEW ──────────────────────────────────────────────── -->
+    <div id="home-view" class="view active">
+      <!-- Two side-by-side panes: docs/guide (39col) | state feed (38col) -->
+      <div class="panes-row">
+        <div class="pane" id="docs-pane">
+          <div class="pane-label">docs / guide</div>
+          <div class="pane-body" id="docs-body"></div>
+          <div class="pane-foot">examples and docs</div>
+        </div>
+        <div class="pane" id="state-pane">
+          <div class="pane-label">state feed</div>
+          <div class="pane-body" id="state-body"></div>
+          <div class="pane-foot">BCODe output</div>
+        </div>
+      </div>
+      <!--
+        History panel: 73col x 12 rows, attached above command bar.
+        Positioned absolutely at bottom of the view so its lower edge
+        meets the top edge of the command bar. Title on the right side
+        of the top border (legend-style), matching x:50 in the TUI.
+      -->
+      <div id="history-panel">
+        <div class="pane-label history-label">command / output history</div>
+        <div class="pane-body" id="history-body"></div>
+      </div>
+    </div>
+
+    <!-- TERMINAL VIEW ──────────────────────────────────────────── -->
+    <div id="terminal-view" class="view">
+      <!-- Two side-by-side panes: req/resp channel (39col) | unsolicited feed (38col) -->
+      <div class="panes-row">
+        <div class="pane" id="reqresp-pane">
+          <div class="pane-label">request/response channel</div>
+          <div class="pane-body" id="reqresp-body"></div>
+        </div>
+        <div class="pane" id="feed-pane">
+          <div class="pane-label">unsolicited feed</div>
+          <div class="pane-body" id="feed-body"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Rows 22-23: Command bar ──────────────────────────────────── -->
+  <!--
+    [>] prompt + bordered input (73col) + bordered send button (4col).
+    Live syntax highlighting via a transparent input layered over a
+    highlighted mirror div (input-hl).
+  -->
+  <div id="command-bar">
+    <div id="cmd-box">
+      <span id="prompt">[&gt;]</span>
+      <div id="input-wrap">
+        <div id="input-hl" aria-hidden="true"></div>
+        <input id="cmd-input" type="text"
+               spellcheck="false" autocomplete="off" autocapitalize="off">
+      </div>
+    </div>
+    <div id="send-btn" role="button" tabindex="0" aria-label="Send">&#8594;</div>
+  </div>
+
+</div>
+
+<!--
+  app.js is an ES module. It imports SABParser from assets/term/bcode_sab.js.
+  NOTE: ES module imports require HTTP(S) — open via a local server, not file://.
+  e.g.  python -m http.server   or   npx serve .
+-->
+<script type="module" src="app.js"></script>
+</body>
+</html>

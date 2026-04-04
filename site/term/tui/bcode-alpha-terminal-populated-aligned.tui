@@ -1,0 +1,376 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "BCODe Alpha Reference",
+    "theme": "default",
+    "savedAt": "2026-03-31T20:45:00.000Z"
+  },
+  "tree": {
+    "id": "root",
+    "type": "Screen",
+    "name": "BCODe Alpha Reference",
+    "props": {
+      "width": 80,
+      "height": 24,
+      "theme": "dracula"
+    },
+    "layout": {
+      "type": "absolute"
+    },
+    "style": {
+      "border": false,
+      "backgroundColor": "#000000",
+      "color": "#c6a8ff"
+    },
+    "events": {},
+    "children": [
+      {
+        "type": "Tabs",
+        "name": "Tabs",
+        "props": {
+          "tabs": [
+            {
+              "label": "Home",
+              "icon": "\u2302",
+              "status": false,
+              "hotkey": ""
+            },
+            {
+              "label": "Terminal",
+              "icon": "",
+              "status": false,
+              "hotkey": "X"
+            }
+          ],
+          "activeTab": 1,
+          "width": 80
+        },
+        "layout": {
+          "type": "flexbox",
+          "direction": "column"
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-1774228203016-11"
+      },
+      {
+        "type": "Screen",
+        "name": "Docs Pane",
+        "props": {
+          "width": 39,
+          "height": 18,
+          "theme": "dracula"
+        },
+        "layout": {
+          "type": "none",
+          "x": 1,
+          "y": 3,
+          "padding": 1
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "border": true,
+          "borderStyle": "single",
+          "borderColor": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-docs-pane"
+      },
+      {
+        "type": "Screen",
+        "name": "Terminal Pane",
+        "props": {
+          "width": 38,
+          "height": 18,
+          "theme": "dracula"
+        },
+        "layout": {
+          "type": "none",
+          "x": 41,
+          "y": 3,
+          "padding": 1
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "border": true,
+          "borderStyle": "single",
+          "borderColor": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-term-pane"
+      },
+      {
+        "type": "Text",
+        "name": "Docs Label",
+        "props": {
+          "content": "request/response channel",
+          "wrap": false,
+          "align": "left",
+          "width": 23
+        },
+        "layout": {
+          "type": "none",
+          "x": 3,
+          "y": 4,
+          "padding": 0
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": ""
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-docs-label"
+      },
+      {
+        "type": "Text",
+        "name": "Terminal Label",
+        "props": {
+          "content": "unsolicited feed",
+          "wrap": false,
+          "align": "left",
+          "width": 18
+        },
+        "layout": {
+          "type": "none",
+          "x": 43,
+          "y": 4,
+          "padding": 0
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": ""
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-term-label"
+      },
+      {
+        "type": "Text",
+        "name": "Prompt Decor",
+        "props": {
+          "content": "[>]",
+          "wrap": false,
+          "align": "left"
+        },
+        "layout": {
+          "type": "none",
+          "padding": 1,
+          "x": 1,
+          "y": 22
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-prompt-decor"
+      },
+      {
+        "type": "TextInput",
+        "name": "Command Input",
+        "props": {
+          "placeholder": "",
+          "value": "",
+          "width": 73,
+          "height": 2
+        },
+        "layout": {
+          "type": "none",
+          "x": 1,
+          "y": 22,
+          "padding": 1
+        },
+        "style": {
+          "color": "black",
+          "border": true,
+          "borderStyle": "single",
+          "borderColor": "#c6a8ff",
+          "opacity": 1,
+          "backgroundColor": ""
+        },
+        "events": {
+          "onChange": "handleChange"
+        },
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-command-input"
+      },
+      {
+        "type": "Text",
+        "name": "Send Button",
+        "props": {
+          "content": "\u2192",
+          "wrap": false,
+          "align": "center",
+          "width": 4,
+          "height": 1
+        },
+        "layout": {
+          "type": "none",
+          "padding": 1,
+          "x": 75,
+          "y": 22
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "border": true,
+          "borderStyle": "single",
+          "borderColor": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-send-button"
+      },
+      {
+        "type": "Text",
+        "name": "Text",
+        "props": {
+          "content": "24A 0.0s",
+          "wrap": false,
+          "align": "left"
+        },
+        "layout": {
+          "type": "none",
+          "x": 6,
+          "y": 22,
+          "padding": 1
+        },
+        "style": {
+          "color": "#C6A8FF"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-1774232128261-2"
+      },
+      {
+        "type": "Select",
+        "name": "Select",
+        "props": {
+          "options": [
+            "BCODe \u03b1",
+            "Parser reset - DEL",
+            "Clear feed"
+          ],
+          "value": "",
+          "width": 9,
+          "height": 2
+        },
+        "layout": {
+          "type": "none",
+          "x": 70,
+          "y": 0,
+          "padding": 2
+        },
+        "style": {
+          "color": "#C6A8FF",
+          "border": false,
+          "borderStyle": "single",
+          "borderColor": "white",
+          "borderCorners": true
+        },
+        "events": {
+          "onChange": "handleChange"
+        },
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false,
+        "id": "comp-1774305555570-5"
+      },
+      {
+        "type": "Text",
+        "name": "Channel Sample",
+        "id": "comp-channel-sample",
+        "props": {
+          "content": "24A 0.0s\n\u25cb 24A 0.0s\n\n4.8B 0.0s\n\u25cb 4.8B 0.0s\n\n0.18C 0.0s\n\u25cb 0.18C 0.18C 0.0s\n\n>20A 0.0s\n\u25cb 24A 0.0s\n\n0.0q\n\u25cb 312H 24I 0.63J 60K 0.0q",
+          "wrap": false,
+          "align": "left",
+          "width": 34,
+          "height": 14
+        },
+        "layout": {
+          "type": "none",
+          "x": 3,
+          "y": 6,
+          "padding": 0
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false
+      },
+      {
+        "type": "Text",
+        "name": "Feed Sample",
+        "id": "comp-feed-sample",
+        "props": {
+          "content": "301H 24I 0.61J 59K 0.0u\n305H 24I 0.62J 60K 0.1u\n309H 24I 0.63J 60K 0.2u\n!309H 24I 0.63J 58K 0.3u\n312H 24I 0.64J 60K 0.4u\n318H 25I 0.66J 60K 0.5u\n324H 25I 0.67J 60K 0.6u\n329H 25I 0.68J 60K 0.7u",
+          "wrap": false,
+          "align": "left",
+          "width": 33,
+          "height": 14
+        },
+        "layout": {
+          "type": "none",
+          "x": 43,
+          "y": 6,
+          "padding": 0
+        },
+        "style": {
+          "color": "#c6a8ff",
+          "backgroundColor": "#000000"
+        },
+        "events": {},
+        "children": [],
+        "locked": false,
+        "hidden": false,
+        "collapsed": false
+      }
+    ],
+    "locked": false,
+    "hidden": false,
+    "collapsed": false
+  }
+}

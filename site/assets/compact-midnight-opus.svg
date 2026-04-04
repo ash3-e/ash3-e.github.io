@@ -1,0 +1,360 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="1100" viewBox="0 0 340 1100" preserveAspectRatio="none">
+<defs>
+  <filter id="ts" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="0.5" stdDeviation="0.6" flood-color="rgba(0,0,0,0.5)" />
+  </filter>
+  <clipPath id="panelClip">
+    <rect x="0" y="0" width="340" height="1100" rx="12" ry="12" />
+  </clipPath>
+</defs>
+<g clip-path="url(#panelClip)">
+<rect x="0" y="0" width="340" height="1100" fill="#2a3549" />
+<rect x="0" y="0" width="32" height="1100" fill="#2a3549" />
+<rect x="0" y="0.00" width="340" height="20" fill="#1a2640" />
+<text x="83.33" y="13.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x2_</text>
+<text x="83.33" y="563.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x3_</text>
+<text x="186.00" y="13.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x4_</text>
+<text x="16.00" y="36.56" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_0</text>
+<text x="16.00" y="69.68" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_1</text>
+<text x="16.00" y="102.80" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_2</text>
+<text x="16.00" y="135.92" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_3</text>
+<text x="16.00" y="169.04" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_4</text>
+<text x="16.00" y="202.16" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_5</text>
+<text x="16.00" y="235.28" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_6</text>
+<text x="16.00" y="268.40" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_7</text>
+<text x="16.00" y="301.52" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_8</text>
+<text x="16.00" y="334.64" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_9</text>
+<text x="16.00" y="367.76" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_A</text>
+<text x="16.00" y="400.88" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_B</text>
+<text x="16.00" y="434.00" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_C</text>
+<text x="16.00" y="467.12" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_D</text>
+<text x="16.00" y="500.24" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_E</text>
+<text x="16.00" y="533.36" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_F</text>
+<rect x="32.00" y="20.00" width="102.67" height="33.12" fill="#222e3e" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="35.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#8898b0" filter="url(#ts)">SP</text>
+<text x="83.33" y="47.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#8898b0" opacity="0.8" filter="url(#ts)">Whitespace</text>
+<rect x="32.00" y="570.00" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="585.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">0</text>
+<text x="83.33" y="597.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="20.00" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="35.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">@</text>
+<text x="186.00" y="47.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="53.12" width="102.67" height="33.12" fill="#2e2818" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="68.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#e8b040" filter="url(#ts)">!</text>
+<text x="83.33" y="80.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#e8b040" opacity="0.8" filter="url(#ts)">Stale qualifier</text>
+<rect x="32.00" y="603.12" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="618.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">1</text>
+<text x="83.33" y="630.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="53.12" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="68.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">A</text>
+<text x="186.00" y="80.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="86.25" width="102.67" height="33.12" fill="#222a3c" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="103.37" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#78849a" filter="url(#ts)">&quot;</text>
+<text x="83.33" y="113.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" fill="#78849a" opacity="0.82" filter="url(#ts)">(Reserved qual)</text>
+<rect x="32.00" y="636.25" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="651.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">2</text>
+<text x="83.33" y="663.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="86.25" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="101.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">B</text>
+<text x="186.00" y="113.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="119.38" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="134.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">#</text>
+<text x="83.33" y="146.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Hex literal delim</text>
+<rect x="32.00" y="669.38" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="684.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">3</text>
+<text x="83.33" y="696.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="119.38" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="134.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">C</text>
+<text x="186.00" y="146.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="152.50" width="102.67" height="33.12" fill="#162e28" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="167.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">$</text>
+<text x="83.33" y="179.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">String payload</text>
+<rect x="32.00" y="702.50" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="717.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">4</text>
+<text x="83.33" y="729.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="152.50" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="167.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">D</text>
+<text x="186.00" y="179.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="185.62" width="102.67" height="33.12" fill="#162e28" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="200.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">%</text>
+<text x="83.33" y="212.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">Hex payload delim</text>
+<rect x="32.00" y="735.62" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="750.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">5</text>
+<text x="83.33" y="762.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="185.62" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="200.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">E</text>
+<text x="186.00" y="212.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="218.75" width="102.67" height="33.12" fill="#162e28" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="233.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">&amp;</text>
+<text x="83.33" y="246.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">Raw payload</text>
+<rect x="32.00" y="768.75" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="783.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">6</text>
+<text x="83.33" y="796.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="218.75" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="233.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">F</text>
+<text x="186.00" y="246.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="251.88" width="102.67" height="33.12" fill="#222a3c" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="268.99" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#78849a" filter="url(#ts)">'</text>
+<text x="83.33" y="279.18" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" fill="#78849a" opacity="0.82" filter="url(#ts)">(Reserved qual)</text>
+<rect x="32.00" y="801.88" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="817.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">7</text>
+<text x="83.33" y="829.18" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="251.88" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="267.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">G</text>
+<text x="186.00" y="279.18" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="285.00" width="102.67" height="33.12" fill="#1e2a3a" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="300.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#8098b8" filter="url(#ts)">(</text>
+<text x="83.33" y="312.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#8098b8" opacity="0.8" filter="url(#ts)">Comment open</text>
+<rect x="32.00" y="835.00" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="850.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">8</text>
+<text x="83.33" y="862.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="285.00" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="300.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">H</text>
+<text x="186.00" y="312.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="318.12" width="102.67" height="33.12" fill="#1e2a3a" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="331.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#8098b8" filter="url(#ts)">)</text>
+<text x="83.33" y="345.43" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#8098b8" opacity="0.8" filter="url(#ts)">Comment close</text>
+<rect x="32.00" y="868.12" width="102.67" height="33.12" fill="#262040" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="883.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#caa8ff" filter="url(#ts)">9</text>
+<text x="83.33" y="895.43" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#caa8ff" opacity="0.8" filter="url(#ts)">Decimal digit</text>
+<rect x="134.67" y="318.12" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="333.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">I</text>
+<text x="186.00" y="345.43" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="351.25" width="102.67" height="33.12" fill="#2a1c34" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="366.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#ec80f4" filter="url(#ts)">*</text>
+<text x="83.33" y="378.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#ec80f4" opacity="0.8" filter="url(#ts)">Exp +</text>
+<rect x="32.00" y="901.25" width="102.67" height="33.12" fill="#222a3c" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="916.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#78849a" filter="url(#ts)">:</text>
+<text x="83.33" y="928.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" fill="#78849a" opacity="0.82" filter="url(#ts)">(Reserved qual)</text>
+<rect x="134.67" y="351.25" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="366.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">J</text>
+<text x="186.00" y="378.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="384.38" width="102.67" height="33.12" fill="#222a3c" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="399.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#78849a" filter="url(#ts)">+</text>
+<text x="83.33" y="411.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" fill="#78849a" opacity="0.82" filter="url(#ts)">(Reserved qual)</text>
+<rect x="32.00" y="934.38" width="102.67" height="33.12" fill="#1e2a3a" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="949.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#8098b8" filter="url(#ts)">;</text>
+<text x="83.33" y="961.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#8098b8" opacity="0.8" filter="url(#ts)">Line comment</text>
+<rect x="134.67" y="384.38" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="399.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">K</text>
+<text x="186.00" y="411.68" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="417.50" width="102.67" height="33.12" fill="#2a1c34" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="432.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18.0" font-weight="900" fill="#ec80f4" filter="url(#ts)">,</text>
+<text x="83.33" y="444.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#ec80f4" opacity="0.8" filter="url(#ts)">Pair sep (-v2)</text>
+<rect x="32.00" y="967.50" width="102.67" height="33.12" fill="#2e2818" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="982.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#e8b040" filter="url(#ts)">&lt;</text>
+<text x="83.33" y="994.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#e8b040" opacity="0.8" filter="url(#ts)">Less-than qual</text>
+<rect x="134.67" y="417.50" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="432.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">L</text>
+<text x="186.00" y="444.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="450.62" width="102.67" height="33.12" fill="#2e2818" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="465.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#e8b040" filter="url(#ts)">-</text>
+<text x="83.33" y="477.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#e8b040" opacity="0.8" filter="url(#ts)">Negative qual</text>
+<rect x="32.00" y="1000.62" width="102.67" height="33.12" fill="#222a3c" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="1015.76" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="16.0" font-weight="900" fill="#78849a" filter="url(#ts)">=</text>
+<text x="83.33" y="1027.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" fill="#78849a" opacity="0.82" filter="url(#ts)">(Reserved qual)</text>
+<rect x="134.67" y="450.62" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="465.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">M</text>
+<text x="186.00" y="477.93" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="483.75" width="102.67" height="33.12" fill="#2a1c34" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="498.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#ec80f4" filter="url(#ts)">.</text>
+<text x="83.33" y="511.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#ec80f4" opacity="0.8" filter="url(#ts)">Pair sep (+v2)</text>
+<rect x="32.00" y="1033.75" width="102.67" height="33.12" fill="#2e2818" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="1048.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#e8b040" filter="url(#ts)">&gt;</text>
+<text x="83.33" y="1061.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#e8b040" opacity="0.8" filter="url(#ts)">Greater-than qual</text>
+<rect x="134.67" y="483.75" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="498.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">N</text>
+<text x="186.00" y="511.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="32.00" y="516.88" width="102.67" height="33.12" fill="#2a1c34" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="532.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#ec80f4" filter="url(#ts)">/</text>
+<text x="83.33" y="544.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#ec80f4" opacity="0.8" filter="url(#ts)">Exp -</text>
+<rect x="32.00" y="1066.88" width="102.67" height="33.12" fill="#2e2818" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="83.33" y="1082.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#e8b040" filter="url(#ts)">?</text>
+<text x="83.33" y="1094.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#e8b040" opacity="0.8" filter="url(#ts)">Unknown qual</text>
+<rect x="134.67" y="516.88" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="532.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">O</text>
+<text x="186.00" y="544.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="0" y="550.00" width="340" height="20" fill="#1a2640" />
+<text x="83.33" y="563.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x3_</text>
+<text x="186.00" y="563.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x5_</text>
+<text x="288.67" y="13.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x6_</text>
+<text x="288.67" y="563.40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#ffffff" filter="url(#ts)">0x7_</text>
+<text x="16.00" y="586.56" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_0</text>
+<text x="16.00" y="619.68" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_1</text>
+<text x="16.00" y="652.80" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_2</text>
+<text x="16.00" y="685.92" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_3</text>
+<text x="16.00" y="719.04" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_4</text>
+<text x="16.00" y="752.16" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_5</text>
+<text x="16.00" y="785.28" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_6</text>
+<text x="16.00" y="818.40" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_7</text>
+<text x="16.00" y="851.52" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_8</text>
+<text x="16.00" y="884.64" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_9</text>
+<text x="16.00" y="917.76" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_A</text>
+<text x="16.00" y="950.88" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_B</text>
+<text x="16.00" y="984.00" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_C</text>
+<text x="16.00" y="1017.12" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_D</text>
+<text x="16.00" y="1050.24" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_E</text>
+<text x="16.00" y="1083.36" text-anchor="middle" dominant-baseline="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="11" font-weight="800" fill="#e8edf7" filter="url(#ts)">0x_F</text>
+<rect x="134.67" y="570.00" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="585.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">P</text>
+<text x="186.00" y="597.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="20.00" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="37.12" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">`</text>
+<text x="288.67" y="47.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="570.00" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="585.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">p</text>
+<text x="288.67" y="597.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="603.12" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="618.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">Q</text>
+<text x="186.00" y="630.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="53.12" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="68.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">a</text>
+<text x="288.67" y="80.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="603.12" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="618.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">q</text>
+<text x="288.67" y="630.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="636.25" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="651.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">R</text>
+<text x="186.00" y="663.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="86.25" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="101.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">b</text>
+<text x="288.67" y="113.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="636.25" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="651.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">r</text>
+<text x="288.67" y="663.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="669.38" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="684.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">S</text>
+<text x="186.00" y="696.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="119.38" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="134.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">c</text>
+<text x="288.67" y="146.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="669.38" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="684.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">s</text>
+<text x="288.67" y="696.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="702.50" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="717.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">T</text>
+<text x="186.00" y="729.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="152.50" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="167.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">d</text>
+<text x="288.67" y="179.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="702.50" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="717.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">t</text>
+<text x="288.67" y="729.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="735.62" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="750.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">U</text>
+<text x="186.00" y="762.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="185.62" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="200.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">e</text>
+<text x="288.67" y="212.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="735.62" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="750.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">u</text>
+<text x="288.67" y="762.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="768.75" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="783.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">V</text>
+<text x="186.00" y="796.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="218.75" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="233.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">f</text>
+<text x="288.67" y="246.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="768.75" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="783.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">v</text>
+<text x="288.67" y="796.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="801.88" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="817.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">W</text>
+<text x="186.00" y="829.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="251.88" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="267.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">g</text>
+<text x="288.67" y="279.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="801.88" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="817.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">w</text>
+<text x="288.67" y="829.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="835.00" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="850.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">X</text>
+<text x="186.00" y="862.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="285.00" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="300.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">h</text>
+<text x="288.67" y="312.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="835.00" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="850.13" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">x</text>
+<text x="288.67" y="862.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="868.12" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="883.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">Y</text>
+<text x="186.00" y="895.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="318.12" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="333.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">i</text>
+<text x="288.67" y="345.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="868.12" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="883.26" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">y</text>
+<text x="288.67" y="895.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="901.25" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="916.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">Z</text>
+<text x="186.00" y="928.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="351.25" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="366.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">j</text>
+<text x="288.67" y="378.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="901.25" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="916.38" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">z</text>
+<text x="288.67" y="928.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="934.38" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="949.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">[</text>
+<text x="186.00" y="961.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="384.38" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="399.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">k</text>
+<text x="288.67" y="411.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="934.38" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="949.51" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">{</text>
+<text x="288.67" y="961.67" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="967.50" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="982.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">\</text>
+<text x="226.50" y="977.30" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.0" font-style="italic" font-weight="800" fill="#92a8ff" opacity="0.95" filter="url(#ts)">*</text>
+<text x="186.00" y="994.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="417.50" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="432.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">l</text>
+<text x="288.67" y="444.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="967.50" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="982.63" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">|</text>
+<text x="288.67" y="994.80" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="1000.62" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="1015.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">]</text>
+<text x="226.50" y="1010.42" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.0" font-style="italic" font-weight="800" fill="#92a8ff" opacity="0.95" filter="url(#ts)">*</text>
+<text x="186.00" y="1027.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="450.62" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="465.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">m</text>
+<text x="288.67" y="477.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="1000.62" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="1015.76" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">}</text>
+<text x="288.67" y="1027.92" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="1033.75" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="1050.87" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">^</text>
+<text x="226.50" y="1043.55" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.0" font-style="italic" font-weight="800" fill="#92a8ff" opacity="0.95" filter="url(#ts)">*</text>
+<text x="186.00" y="1061.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="483.75" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="498.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">n</text>
+<text x="288.67" y="511.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="1033.75" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="1048.88" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">~</text>
+<text x="288.67" y="1061.05" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="134.67" y="1066.88" width="102.67" height="33.12" fill="#222848" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="186.00" y="1082.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#92a8ff" filter="url(#ts)">_</text>
+<text x="186.00" y="1094.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#92a8ff" opacity="0.8" filter="url(#ts)">PARAM</text>
+<rect x="237.33" y="516.88" width="102.67" height="33.12" fill="#1a2a20" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="532.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#71df8f" filter="url(#ts)">o</text>
+<text x="288.67" y="544.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#71df8f" opacity="0.8" filter="url(#ts)">CMD</text>
+<rect x="237.33" y="1066.88" width="102.67" height="33.12" fill="#341c22" stroke="#46546d" stroke-width="0.5" rx="3" ry="3" />
+<text x="288.67" y="1082.01" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14.0" font-weight="800" fill="#ff7878" filter="url(#ts)">DEL</text>
+<text x="288.67" y="1094.17" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="8.5" font-weight="700" fill="#ff7878" opacity="0.8" filter="url(#ts)">(Parser reset)</text>
+<line x1="32" y1="20" x2="32" y2="549" stroke="#46546d" stroke-width="2" />
+<line x1="134.67" y1="20" x2="134.67" y2="549" stroke="#46546d" stroke-width="2" />
+<line x1="237.33" y1="20" x2="237.33" y2="549" stroke="#46546d" stroke-width="2" />
+<line x1="339" y1="20" x2="339" y2="549" stroke="#46546d" stroke-width="2" />
+<line x1="32" y1="550" x2="340" y2="550" stroke="#46546d" stroke-width="1" />
+<line x1="32" y1="570" x2="32" y2="1099" stroke="#46546d" stroke-width="2" />
+<line x1="134.67" y1="570" x2="134.67" y2="1099" stroke="#46546d" stroke-width="2" />
+<line x1="237.33" y1="570" x2="237.33" y2="1099" stroke="#46546d" stroke-width="2" />
+<line x1="339" y1="570" x2="339" y2="1099" stroke="#46546d" stroke-width="2" />
+<line x1="32" y1="570" x2="340" y2="570" stroke="#46546d" stroke-width="1" />
+<line x1="32" y1="1099.25" x2="340" y2="1099.25" stroke="#46546d" stroke-width="0.5" />
+</g>
+<rect x="0" y="0" width="340" height="1100" rx="12" ry="12" fill="none" stroke="#46546d" stroke-width="2" />
+</svg>
+

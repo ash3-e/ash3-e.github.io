@@ -1,0 +1,1400 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Intro - Reader</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/bcode_lang.js"></script>
+  <link rel="stylesheet" href="../assets/hljs-theme.css">
+  <link rel="stylesheet" href="../assets/doc-terminal.css?v=20260401i">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body data-page-type="reader">
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+  <header>
+    <div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png"
+          alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/documentation-tree.html"
+        aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div>
+  </header>
+  <main>
+    <div class="container">
+      <div class="reader-wrap">
+        <div class="reader-grid">
+          <aside class="toc-pane" aria-label="Quick jump">
+            <div class="toc-head">
+              <div class="toc-title">Quick Jump</div><button class="pill-btn" id="tocToggle"
+                type="button">Collapse</button>
+            </div>
+            <div class="toc-jumps"><a id="toTop" href="#">Back to top</a><a id="toBottom" href="#">Go to bottom</a>
+            </div>
+            <ul id="tocList" class="toc-list"></ul>
+          </aside>
+          <section class="reader">
+            <div class="reader-head">
+              <div>
+                <h1 class="reader-title">Intro</h1>
+                <p class="reader-meta">bcode-intro-v2</p>
+              </div>
+              <div class="links"><a class="pill primary" id="cardLink" href="bcode-intro-v2.html">Card view</a><button
+                  class="pill-btn" id="darkToggle" type="button">Dark mode</button><span class="query-chip"
+                  id="findCount"></span></div>
+            </div>
+            <div class="reader-body" id="readerBody">
+              <article id="content" class="markdown-body"></article>
+            </div>
+          </section>
+          <div class="reader-phantom-col"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script id="md-source" type="text/plain"># BCODe — A Stream-Native Telemetry & Control Architecture
+*A Narrative, Publication-Depth Technical Introduction (Integrated Edition)*
+
+------------------------------------------------------------------------
+
+## Document intent
+
+This document is intentionally **descriptive** rather than purely normative. The companion BCODe texts define exact syntax and strict interpretation rules; this publication is meant to tell a coherent story about **why** the format looks the way it does, **how** a parser experiences the stream, and **what** patterns emerge when you build telemetry and control systems around line-atomic statements.
+
+It is written so that a reader can understand BCODe’s “whys, hows, and whats” without needing to read the normative specifications first—while still staying consistent with them.
+
+------------------------------------------------------------------------
+
+# 1. Introduction — Structure Before Meaning
+
+When two systems communicate, they do not exchange “meaning.” They exchange structure. Meaning is inferred only after both sides agree on how that structure is organized. Without shared structure, a stream of bytes is indistinguishable from noise. Even when the bytes are human-readable, without an agreed grammar the receiver cannot know where one idea ends and the next begins.
+
+Inside a running program, information lives as objects, references, pointers, arrays, and nested memory graphs. These internal representations are optimized for computation, not transmission. The moment information leaves process memory and crosses a boundary—whether that boundary is a thread, a device bus, a network socket, or a storage medium—it must be serialized. Serialization is the act of turning an in-memory structure into a transferable representation that another system can parse and reconstruct.
+
+Serialization transforms internal structure into a transferable form. JSON, XML, CSV, and binary encodings are all answers to this problem. Each chooses a different balance between verbosity, readability, structure, and efficiency. JSON, in particular, provides a broadly interoperable way to encode hierarchical data, and that ubiquity is why it is often the default choice when teams need “a format” quickly.
+
+JSON, for example, excels at representing hierarchical documents. It is readable, human-friendly, and widely supported. However, JSON assumes a bounded document. It expects braces to close, arrays to terminate, and the entire object to exist as a coherent structure before it is considered valid. That is a great fit for web APIs and stored records, but it is a more awkward fit for **unbounded** streams where data is continuously emitted and partial delivery must never be mistaken for a valid update.
+
+BCODe was conceived for a different environment. It is designed for byte streams where you might attach in the middle, where you might drop bytes, and where you must recover deterministically without inventing a separate framing protocol. In practice, that environment includes serial ports, TCP streams, WebSockets, pipes, embedded consoles, and other “always-on” transports.
+
+BCODe assumes that communication may be continuous. It assumes that streams may never end. It assumes that atomicity matters more than hierarchy. And it assumes that measurement quality is as important as measurement value. Those assumptions are not aesthetic—they directly shape the grammar.
+
+------------------------------------------------------------------------
+
+# 2. The Foundational Assumption: Continuous Streams
+
+Many real-world systems do not exchange documents. They exchange state. A furnace controller reports temperatures continuously. A sensor array emits readings every few milliseconds. An embedded device accepts commands over a serial line that may remain open for hours. In these systems, “the message” is not a file; it is an evolving timeline of updates.
+
+In such environments:
+
+- There may be no clear “end of file.” A stream might be a session that lasts days.
+- Noise may appear mid-stream. A UART can glitch; a TCP connection can drop segments.
+- Partial updates must never commit. A half-parsed command must not take effect.
+- Recovery must be possible without restarting the session. Devices often cannot reset just because a host reconnected.
+
+BCODe is built around these realities. Where JSON is document-native, BCODe is stream-native. Where JSON emphasizes nested structure, BCODe emphasizes deterministic latching. That emphasis is visible in one idea that shows up again and again: **BCODe commits an update only at an explicit “line latch” byte.**
+
+------------------------------------------------------------------------
+
+# 3. Structural Philosophy — Determinism by ASCII Columns
+
+BCODe does not rely on nested braces or balanced punctuation to determine structure. Instead, it classifies characters by ASCII column ranges and assigns structural meaning accordingly. This makes the parser’s job closer to a finite-state machine than a recursive tree builder, which is exactly what you want in firmware and in high-throughput stream tooling.
+
+### 3.1 ASCII columns used
+
+<p class="ascii-chart-subtitle"><strong>Table 3.1 - ASCII columns and structural roles</strong></p>
+<figure class="ascii-chart-figure">
+  <img class="ascii-theme-chart" src="../assets/ascii.png" alt="BCODe ASCII reference chart showing field-content, PARAM, and CMD columns">
+  <figcaption>The grammar stays visible at the byte level: the parser only needs to know which ASCII column a byte occupies.</figcaption>
+</figure>
+<p>The chart maps the usable ASCII range to its BCODe role. The split that matters is simple:</p>
+ 
+ 
+ 
+<ul>
+  <li><strong>Columns 3 & 4</strong> (<code>0x20-0x3F</code>) is <strong>field content</strong>. This is where qualifiers (<code>- &lt; &gt; ? !</code>), decimal digits (<code>0-9</code>), hex delimiter (<code>#</code>), comment markers (<code>( ; )</code>), pair separators (<code>. ,</code>), exponent markers (<code>* /</code>), and payload openers (<code>$ % &amp;</code>) live. <code>SP</code>, <code>HT</code>, <code>CR</code>, and <code>LF</code> are ignorable outside opaque regions.
+    <pre><code class="language-plaintext">- &lt; &gt; ? !  0 1 2 3 4 5 6 7 8 9 #...#  ( ; )  . ,  * /  $ % &amp;</code></pre>
+  </li>
+  <li><strong>Column 5 & 6</strong> (<code>0x40-0x5F</code>) is <strong>PARAM</strong>. Any byte in this column terminates an intermediate field and assigns it to one of 32 parameter identities via <code>term &amp; 0x1F</code>.
+    <pre><code class="language-bcode">@ A B C D ... X Y Z [ \ ] ^</code></pre>
+  </li>
+  <li><strong>Column 7 & 8</strong> (<code>0x60-0x7E</code>) is <strong>CMD</strong>. Any byte in this column terminates the final field and latches the line atomically. <code>DEL</code> (<code>0x7F</code>) is reserved for parser reset/resynchronization and is not delivered as an application-visible command.
+    <pre><code class="language-bcode">a b c d ... x y z { | } ~  DEL</code></pre>
+  </li>
+</ul>
+<p>A parser can classify any incoming byte with at most two range checks. There is no context-dependent reinterpretation of identity: a byte in column 3 is always a PARAM terminator, and a byte in column 4 is always a CMD terminator.</p>
+<p><strong>A note on BCODe.meta annotations.</strong></p>
+<p>The non-alphabetic PARAM characters <code>[ \ ] ^</code> are annotated in the chart because BCODe.meta gives them conventional higher-level meaning. At the syntax layer, however, they are still ordinary PARAM terminators. The parser treats <code>[</code> exactly the same way it treats <code>A</code>; only the convention layered above the wire format gives those bytes request/response or batching semantics.</p>
+
+------------------------------------------------------------------------
+
+# 4. The Atomic Line Model
+
+Consider the minimal statement:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">72A 0.0a</code></pre> | *Assigns&nbsp;A=72&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+
+This can be treated as:
+
+```text
+72A -> qualifiers=∅  term=A (PARAM)  shape=C1  value1=72
+0.0a -> qualifiers=∅  term=a (CMD)  shape=C2  value1=0  value2=0  frac_width=1
+```
+
+
+As digits arrive, the parser accumulates a numeric value. When the character `A` (column 3) appears, the field is terminated and assigned to parameter A. The parser continues accumulating until it encounters `a` (column 4). The moment `a` is read, the entire line commits atomically. The key point is not merely that the line ends—it is that the parser treats the line as **not real** until the latch byte arrives.
+
+A simple parser sketch looks like this:
+
+```text
+for each byte b in stream:
+  if b in field-content column:
+    accumulate(b)
+  if b is a PARAM terminator:
+    store(accumulator, param_index(b))
+    reset_accumulator()
+  if b is a CMD terminator:
+    store(accumulator_if_present, cmd_slot)
+    commit_line(cmd=b)
+    reset_line_state()
+```
+
+This atomic latch model ensures that incomplete transmissions never produce partial state updates. If noise corrupts the stream before the command byte arrives, no commit occurs. In JSON, a missing brace invalidates the document. In BCODe, a missing command byte simply means “no commit yet.” That distinction matters in continuous telemetry because it converts “corruption” into “delay” instead of “catastrophic parse failure.”
+
+------------------------------------------------------------------------
+
+# 5. The 32-Parameter Reality (and Why It’s a Feature)
+
+BCODe defines exactly **32 parameter identities**. Identity is derived from the low five bits of the terminator byte. In practice, most implementations use `A–Z` for domain payload parameters and reserve a small subset of symbols (like `@`, `[`, `]`, `^`, `\`) for conventions.
+
+Those symbol choices are **not magical in the base protocol**—they are the result of shared, higher‑level profiles. In particular, **BCODe.meta** uses a few of these non‑alphabetic identities for “protocol plumbing” (requests vs responses, unsolicited lines, sequence counters, and atomic multi‑line packets). This is why you’ll often see advice like “reserve non‑alphabetics for common scenarios”: it keeps your `A–Z` space clean for domain telemetry while still giving you standardized structure when you need it.
+
+This bounded model provides multiple advantages:
+
+- Parser memory usage is fixed. A receiver can store a complete line in a predictable footprint.
+- Presence masks fit in a 32-bit integer. This makes reducers and filters extremely efficient.
+- Reducer logic is efficient. Summaries like “missing,” “stale,” “diagnostic,” “bounded,” or “exact” can be represented as bitmasks.
+- Schema discipline is encouraged. You must decide what each parameter means rather than letting keys sprawl.
+
+Unlike JSON, where arbitrary keys may appear at runtime, BCODe constrains identity intentionally. This encourages stable mappings and interoperability. It also pushes protocol designers toward publishing a parameter map table (what each letter means per command context) and discourages brittle schemas where a value is only meaningful “if the other fields are present.”
+
+------------------------------------------------------------------------
+
+# 6. Multi-Parameter Telemetry — Narrative Walkthrough
+
+### Example: Temperature control with explicit intent and latch-on-command
+
+This example is deliberately “engineering-shaped”: it shows a host expressing *intent* (a bound) rather than pretending it knows the device’s exact internal resolution, while also illustrating why the **explicit command byte** matters in streams.
+
+**Definitions (for this example only):**
+- `T` — temperature process variable / setpoint parameter (chosen by convention for this device) *(Best Practices: “publish a parameter map table”)*
+- `c` — a control command class (device-specific semantics layered on BCODe syntax) *(Meta + Rest conventions)*
+- `>` — lower-bound qualifier (“at least”) *(Interpretation v10: bounds are not hard values)*
+- `!` — staleness modifier (“value is usable but not fresh”) *(Interpretation v10: orthogonal freshness)*
+- **CMD terminator** — the trailing lowercase command byte (`c`) that latches the line atomically *(Syntax: latch-on-command)*
+
+**Host request (intent, not exactness):**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1200T 0.0c</code></pre> | *Assigns&nbsp;T=1200&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+```bcode
+>1200T 0.0c
+```
+
+
+**Narrative:** The host is saying “make temperature at least 1200.” The device can choose the nearest representable setpoint ≥ 1200 (or reject it), and it can apply internal safety policy without the host baking those details into a client library.
+
+**Device direct acknowledgement (applied setpoint echoed):**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">^ 1200T 0.0c</code></pre> | *Assigns&nbsp;^=(empty),&nbsp;T=1200&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+
+**Device telemetry during warm-up (stale previous reading carried forward):**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">!1198T 0.0f</code></pre> | *Assigns&nbsp;T=1198&nbsp;(stale)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+|<pre><code class="language-bcode">1201T 0.0f</code></pre> | *Assigns&nbsp;T=1201&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+**Why the explicit command byte matters:** if the stream is interrupted halfway through `>1200T 0.0c`, nothing commits. The parser simply has an accumulator in progress until it sees the `c` latch byte. That means a line cannot “half-apply” in the way some ad-hoc delimited protocols can when bytes are dropped mid-message.
+
+*(Citations: Syntax “CMD terminators latch a line”; Interpretation v10 “bounds are not hard values” + “stale is orthogonal”; Best Practices “avoid interparameter dependency”; Meta “^/\ tagging”; Rest “control semantics on streams”)*
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">72A 18B 5C 0.0a</code></pre> | *Assigns&nbsp;A=72,&nbsp;B=18,&nbsp;C=5&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+
+
+In this single line, three measurements are transmitted. Each parameter terminator assigns its numeric accumulator to a predefined slot. When the command terminator appears, the system commits the complete telemetry set. The viability of this model lies in its determinism. At no point does the parser need to guess structure. There is no ambiguity about where a field ends. There is no ambiguity about when a line commits.
+
+In telemetry systems where thousands of lines may pass per minute, such determinism reduces processing overhead and improves reliability. It also makes it practical to build stream transforms that operate on the fly—dropping certain parameters, rewriting qualifiers, or extracting reducer masks—without ever needing a full document parse.
+
+A complementary best practice is to keep parameters **self-contained**. If A is “temperature,” then the validity, staleness, diagnostic codes, and bounds should live *in A* rather than in a separate “temperature_status” parameter. BCODe’s qualifier system exists specifically to make that possible.
+
+------------------------------------------------------------------------
+
+# 7. Numeric Shapes and Precision Preservation
+
+BCODe’s numeric design is less about “inventing new math” and more about making sure that **the wire spelling stays stable** while interpreters stay honest about what they know. The format is deliberately friendly to telemetry: values arrive as text, but a parser can hold them as **raw components** rather than immediately collapsing them into IEEE‑754 floats.
+
+### 7.1 The core idea: keep the integer pair and width
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">12.34A</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.34.*|
+
+
+BCODe encodes a fixed‑point number as an **integer pair** separated by a single punctuation character. In the common spelling, the dot (`.`) separates `value1` and `value2` (e.g., `12.34`). The comma form (`,`) uses the same structural idea but flips the sign of the second component—useful when you want to express a negative fractional part without inventing an extra token.
+
+This is also a helpful contrast with JSON: JSON uses commas to **separate** values, but that comma doesn’t identify the value or carry semantic payload. In BCODe, the character that ends a field (the parameter or command terminator) **both separates and identifies** what you just wrote, which is why a BCODe line stays unambiguous even when it’s being typed into a live stream.
+
+By deferring floating conversion, BCODe avoids rounding drift and preserves the original transmitted precision. In long-running telemetry systems, this matters because the **human spelling** (“12.34”) can remain consistent across logs, firmware, and tools—even when different layers ultimately choose different numeric policies (fixed-point, rational, float).
+
+### 7.2 Exponent suffixes: compact scale without changing the parsing substrate
+
+Exponent markers extend the same philosophy: keep the *spelling* compact while keeping the parsed representation deterministic.
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">123*3A&#10;;123 × 10^3</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;123.*|
+|<pre><code class="language-bcode">123/2A&#10;;123 × 10^-2</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;123.*|
+
+
+A useful narrative way to view this is: BCODe wants the wire form to behave like an engineering notebook or lab log—compact, stable, and easy to scan—without forcing the receiver to commit to floating conversion earlier than it has to.
+
+### 7.3 Reference tables (shapes, forms, exponent markers)
+
+**Table 7.1 — Numeric shape classes (how many numbers a field carries)**
+
+Shape ID | Canonical spelling | Description
+--- | --- | ---
+C0 | Q* T | Empty field (no numeric content)
+C1 | Q* N [EXP] T | Single-number field with optional exponent suffix
+C2 | Q* N S M [EXP] T | Two-number field (fixed-point pair) with optional exponent suffix
+
+**Table 7.2 — Field forms by terminator type (PARAM vs CMD)**
+
+Form ID | Shape | Terminator | Canonical spelling
+--- | --- | --- | ---
+F0P | C0 | PARAM | Q* PARAM
+F1P | C1 | PARAM | Q* N [EXP] PARAM
+F2P | C2 | PARAM | Q* N S M [EXP] PARAM
+F0C | C0 | CMD | Q* CMD
+F1C | C1 | CMD | Q* N [EXP] CMD
+F2C | C2 | CMD | Q* N S M [EXP] CMD
+
+**Table 7.3 — Exponent markers**
+
+| Marker | Meaning | Exponent value if digits omitted |
+| --- | --- | --- |
+| `*` | Positive exponent | `+1` (discouraged) |
+| `/` | Negative exponent | `-1` (discouraged) |
+
+
+### 7.4 Worked micro-examples: parse once, then compute under a declared policy
+
+The practical pattern you’ll use in host tools and firmware is simple: **parse the field**, keep its **raw components**, and only then do arithmetic under an explicit policy. The point is not that BCODe “does math,” but that it gives you a stable numeric substrate you can treat deterministically.
+
+#### Grouped example set — basic operators, integer math, and mixed widths
+
+**BCODe on the wire (three small “operand frames”):**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">12.34A 5.06B 0.0m</code></pre> | *Assigns&nbsp;A=12.34,&nbsp;B=5.06&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`m`.*|
+|<pre><code class="language-bcode">123A 10B 0.0m</code></pre> | *Assigns&nbsp;A=123,&nbsp;B=10&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`m`.*|
+|<pre><code class="language-bcode">1.2A 3.045B 0.0m</code></pre> | *Assigns&nbsp;A=1.2,&nbsp;B=3.045&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`m`.*|
+
+
+```bcode
+12.34A 5.06B 0.0m
+123A 10B 0.0m
+1.2A 3.045B 0.0m
+```
+
+This can be treated as (definitions shown once for the whole grouping):
+
+```text
+(1) 12.34A   ->  A: value1=12  value2=34   frac_width=2
+    5.06B    ->  B: value1=5   value2=06   frac_width=2
+
+(2) 123A     ->  A: value1=123 (no fractional digits)
+    10B      ->  B: value1=10  (no fractional digits)
+
+(3) 1.2A     ->  A: value1=1   value2=2     frac_width=1
+    3.045B   ->  B: value1=3   value2=045   frac_width=3
+```
+
+Plainly stated results:
+
+```text
+For (1) fixed-point at 2 fractional digits:
+  A + B = 17.40
+  A - B = 7.28
+  A × B = 62.40
+  A ÷ B = 2.43   (rounded to 2 fractional digits)
+  A mod B = 2.22 (remainder in the same 2-digit fixed-point scale)
+
+For (2) integer arithmetic:
+  A + B = 133
+  A - B = 113
+  A × B = 1230
+  A ÷ B = 12   (integer division)
+  A mod B = 3
+
+For (3) mixed-width policy (align to the finer width = 3 fractional digits):
+  A ≡ 1.200  (aligned)
+  B ≡ 3.045
+  A + B = 4.245
+  A - B = -1.845
+```
+
+A small but useful telemetry pattern is to publish derived results as their own parameters so logs remain grep-friendly and self-contained (this is optional, and application-defined):
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">17.40R 7.28S 62.40P 2.43Q 2.22M 0.0m</code></pre> | *Assigns&nbsp;R=17.40,&nbsp;S=7.28,&nbsp;P=62.40,&nbsp;Q=2.43,&nbsp;M=2.22&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`m`.*|
+
+
+> Note: this section is intentionally “choreographed.” In real telemetry, you usually publish **operands** and either compute locally in the host/tool, or publish a smaller set of derived values as additional parameters when it improves observability.
+
+# 8. Measurement Quality as First-Class Data (Integrated Deep Dive)
+
+BCODe encodes measurement quality directly within the field using qualifiers. This is not “extra metadata.” It is the core strategy for keeping lines flat, atomic, and self-contained.
+
+Before we deep dive into each value class, it’s worth stating the motivating problem plainly: in many formats, “value” and “validity” become separate fields. Once they are separate, they can fall out of sync. Worse, every consumer must remember the coupling rule. BCODe avoids that by making “validity” a property of the field itself.
+
+Here is the compact summary that many systems start with:
+
+**Table 8.1 — Base qualifier combinations and standardized value classes (symbols show which base qualifiers are present)**
+
+| - | < | > | ? | Base interpretation | Notes |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  | Normal positive finite value | Hard numeric value |
+| - |  |  |  | Negative finite value | Hard numeric value; sign preserved |
+|  | < |  |  | Value less than stated | Upper bound; not a hard value |
+| - | < |  |  | Negative value less than stated | Upper bound on negative value |
+|  |  | > |  | Value greater than stated | Lower bound; not a hard value |
+| - |  | > |  | Negative value greater than stated | Lower bound on negative value |
+|  |  |  | ? | Unknown or pending calculation | No numeric value should be used |
+| - |  |  | ? | Excessive noise / unstable signal | Quality failure; numeric may be present but SHOULD NOT be treated as hard |
+|  | < |  | ? | Positive epsilon (smallest measurable +) | Special finite sentinel |
+| - | < |  | ? | Negative epsilon (smallest measurable -) | Special finite sentinel |
+|  |  | > | ? | Positive infinity | Beyond measurable range |
+| - |  | > | ? | Negative infinity | Below measurable range |
+|  | < | > |  | **Signaling NaN (sNaN)** | **Reserved; only valid as C1; value1 encodes sNaN payload** |
+| - | < | > |  | **Signaling NaN (sNaN), sign preserved** | **Reserved; only valid as C1; value1 encodes sNaN payload** |
+|  | < | > | ? | Null value (no data available) | Distinct from empty field; numeric digits MAY be 0 |
+| - | < | > | ? | NaN (invalid computational result) | Quiet/invalid; sign preserved; not a hard value |
+
+The narrative subsections below repeatedly refer back to Table 8.1. When you’re implementing an interpreter, this table is effectively the decision surface that turns qualifiers into value classes.
+
+```text
+?    unknown/pending
+-?   noisy/unstable
+<>?  null (no-data)
+-<>? NaN (invalid result)
+<>   sNaN (diagnostic payload code in value1)
+!    stale (orthogonal modifier)
+<,>  bounds (not hard values)
+```
+
+Now we expand each class as a standalone narrative subsection, preserving both syntax clarity and operational intuition.
+
+------------------------------------------------------------------------
+
+## 8.1 Exact Numeric (Hard Numeric)
+
+**Syntax**
+No `<`, `>`, or `?` present. Optional leading `-` for sign.
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">12A</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.*|
+|<pre><code class="language-bcode">-5B</code></pre> | *B&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;5.*|
+|<pre><code class="language-bcode">12.34C</code></pre> | *C&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.34.*|
+
+
+### An exact numeric value represents a committed measurement. It signals that the device believes the number is meaningful and usable, within the resolution implied by its formatting and scaling. In control systems, this is the value class that most downstream logic expects; it is the “normal” case.
+
+BCODe’s interpretation model deliberately allows you to treat “exact” as a high-confidence class. If you build typed accessors, they can refuse to return a hard numeric result unless the qualifiers indicate the field is exact.
+
+------------------------------------------------------------------------
+
+## 8.2 Unknown / Pending (`?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">?A</code></pre> | *A&nbsp;represents&nbsp;present&nbsp;but&nbsp;unknown/pending.*|
+|<pre><code class="language-bcode">?12A&#10;;optional advisory diagnostic code</code></pre> | *A&nbsp;is&nbsp;present&nbsp;but&nbsp;unknown/pending&nbsp;with&nbsp;advisory&nbsp;code&nbsp;12.*|
+
+
+### The `?` qualifier indicates that the value is unknown or pending. The field exists structurally, but the measurement is not currently available. This differs from omission. Omission means the parameter simply wasn’t transmitted. `?` means it was transmitted explicitly to say “I don’t know yet.”
+
+Operationally, this is powerful because it lets a receiver distinguish between “sensor not part of this message” and “sensor is part of the system but currently unresolved.” That distinction often determines whether you wait, fallback, or fault.
+
+The optional digits may carry a diagnostic code, but the key is that the field should not be treated as a hard numeric measurement.
+
+------------------------------------------------------------------------
+
+## 8.3 Noise / Unstable (`-?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">-?A</code></pre> | *A&nbsp;represents&nbsp;present&nbsp;but&nbsp;unstable/noisy.*|
+|<pre><code class="language-bcode">-?3A&#10;;optional advisory diagnostic code</code></pre> | *A&nbsp;is&nbsp;present&nbsp;but&nbsp;unstable/noisy&nbsp;with&nbsp;advisory&nbsp;code&nbsp;3.*|
+
+
+### The combination `-?` represents a noisy or unstable signal. The device is indicating that the measurement is fluctuating beyond acceptable thresholds, or that it has detected conditions that make the value unreliable. The field remains structurally present, but it must not be interpreted as a stable measurement.
+
+This class exists because telemetry reality is messier than “valid” or “missing.” In practice, sensors can be alive but unstable. Encoding that state inline avoids an entire family of schema patterns where you ship `value` plus `stabilityFlag` plus `reasonCode` and hope consumers interpret them consistently.
+
+------------------------------------------------------------------------
+
+## 8.4 Epsilon (`<?` and `-<?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;?A&#10;;+epsilon</code></pre> | *A&nbsp;represents&nbsp;positive&nbsp;epsilon&nbsp;(smallest&nbsp;step).*|
+|<pre><code class="language-bcode">-&lt;?A&#10;;-epsilon</code></pre> | *A&nbsp;represents&nbsp;negative&nbsp;epsilon&nbsp;(smallest&nbsp;step).*|
+
+
+### Epsilon represents the smallest representable increment of the device. It communicates resolution rather than magnitude. In telemetry, epsilon is a way to say “this value is at the granularity floor”—not simply “small.”
+
+In control semantics, epsilon is even more interesting because it lets a host express intent without knowing device quantization:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;?C&#10;;increase by the smallest step for parameter C</code></pre> | *C&nbsp;represents&nbsp;positive&nbsp;epsilon&nbsp;(smallest&nbsp;step).*|
+
+
+This avoids coupling host software to device implementation details. It also makes protocols more durable: devices can change internal resolution without forcing host updates, because the host is describing *intent* (“one step”) rather than *implementation* (“+0.125”).
+
+------------------------------------------------------------------------
+
+## 8.5 Infinity (`>?` and `->?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;?A&#10;;+infinity</code></pre> | *A&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range).*|
+|<pre><code class="language-bcode">-&gt;?A&#10;;-infinity</code></pre> | *A&nbsp;represents&nbsp;negative&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range).*|
+
+
+### Infinity represents values beyond measurable range. Rather than clipping to a max integer or saturating silently, BCODe explicitly encodes overflow semantics. This makes telemetry more honest and more interpretable.
+
+In many systems, the difference between “very high” and “out of range” is operationally important. Infinity communicates the latter cleanly. It also avoids cross-language inconsistencies: JSON doesn’t have a standard numeric representation for infinity, so different toolchains end up with different ad-hoc conventions. BCODe solves this on the wire.
+
+------------------------------------------------------------------------
+
+## 8.6 Null (`<>?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;&gt;?A</code></pre> | *A&nbsp;represents&nbsp;explicitly&nbsp;null&nbsp;(no-data).*|
+|<pre><code class="language-bcode">&lt;&gt;?0A&#10;;digits MAY be present; class remains NULL</code></pre> | *A&nbsp;is&nbsp;explicitly&nbsp;null&nbsp;(no-data)&nbsp;with&nbsp;advisory&nbsp;code&nbsp;0.*|
+
+
+### Null represents explicit no-data. It is not “unknown pending.” It is “intentionally absent.” A device might send null when a sensor is disabled, when the data is deliberately cleared, or when the concept is not applicable in the current state.
+
+This class matters because telemetry often needs to distinguish “not yet” from “not applicable.” Without that distinction, consumers either guess or add separate schema flags. BCODe keeps it in one place: the field.
+
+------------------------------------------------------------------------
+
+## 8.7 Quiet NaN (`-<>?`)
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">-&lt;&gt;?A</code></pre> | *A&nbsp;represents&nbsp;explicitly&nbsp;null&nbsp;(no-data).*|
+
+
+### Quiet NaN represents an invalid computational result. It implies that computation happened, but the result is undefined or unusable. The defining characteristic is that this state is not “sensor noise” and not “missing data”—it is “invalid math.”
+
+In pipelines where values are derived from other signals, this class lets a device report a clear “calculation failure” outcome without inventing a new status parameter. Downstream systems can propagate or quarantine this state using policy logic, while keeping the telemetry representation compact.
+
+------------------------------------------------------------------------
+
+## 8.8 Signaling NaN (`<>` and `-<>`) with payload code
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">17&lt;&gt;A</code></pre> | *A&nbsp;carries&nbsp;a&nbsp;single-number&nbsp;field&nbsp;(integer),&nbsp;but&nbsp;the&nbsp;digits&nbsp;are&nbsp;not&nbsp;a&nbsp;simple&nbsp;base-10&nbsp;integer.*|
+|<pre><code class="language-bcode">-17&lt;&gt;A&#10;;signed code (if domain chooses)</code></pre> | *A&nbsp;carries&nbsp;a&nbsp;single-number&nbsp;field&nbsp;(integer),&nbsp;but&nbsp;the&nbsp;digits&nbsp;are&nbsp;not&nbsp;a&nbsp;simple&nbsp;base-10&nbsp;integer.*|
+
+
+### Signaling NaN carries a payload code in `value1`. Unlike quiet NaN, signaling NaN is meant to *communicate a reason*. It is an intentionally structured diagnostic channel. A device can embed a stable error identifier directly in the field that would normally carry the value.
+
+This supports a best-practices pattern: **diagnostics without extra parameters**. Rather than sending `A` plus `A_reason`, the device can send one field that says “A is invalid and here is why.” The line remains atomic. The schema remains flat.
+
+------------------------------------------------------------------------
+
+## 8.9 Staleness modifier (`!`) — orthogonal freshness
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">!12.3A</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.3,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&lt;&gt;?A</code></pre> | *A&nbsp;represents&nbsp;explicitly&nbsp;null&nbsp;(no-data),&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&gt;?A</code></pre> | *A&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range),&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!17&lt;&gt;A</code></pre> | *A&nbsp;carries&nbsp;a&nbsp;single-number&nbsp;field&nbsp;(integer),&nbsp;but&nbsp;the&nbsp;digits&nbsp;are&nbsp;not&nbsp;a&nbsp;simple&nbsp;base-10&nbsp;integer,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+
+
+### The `!` qualifier is orthogonal. It modifies freshness without altering the base value class. A stale numeric value remains numeric. A stale infinity remains infinity. A stale null remains null.
+
+**Syntax (staleness examples)**
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">!12.3A</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.3,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&lt;&gt;?A</code></pre> | *A&nbsp;is&nbsp;explicitly&nbsp;null&nbsp;(no-data),&nbsp;but&nbsp;that&nbsp;null&nbsp;state&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&gt;?A</code></pre> | *A&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range),&nbsp;but&nbsp;that&nbsp;infinity&nbsp;state&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!17&lt;&gt;A</code></pre> | *A&nbsp;is&nbsp;signaling&nbsp;NaN&nbsp;with&nbsp;diagnostic&nbsp;code&nbsp;17,&nbsp;but&nbsp;that&nbsp;diagnostic&nbsp;is&nbsp;stale.*|
+
+
+This design preserves semantic clarity: freshness is independent of validity. In telemetry systems, this is a common reality—sometimes the last known value remains useful, but you must know it’s old. Encoding staleness inline avoids time-coupled schemas like `A_age_ms` that require extra coordination and timing logic.
+
+------------------------------------------------------------------------
+
+## 8.10 Bounds (`<` and `>` without `?`) — not hard values
+
+**Syntax**
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;100A&#10;;value is less than stated (upper bound)</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;100.*|
+|<pre><code class="language-bcode">&gt;100A&#10;;value is greater than stated (lower bound)</code></pre> | *A&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;100.*|
+
+
+### Bounds indicate inequality relationships rather than exact values. They are not “real numbers” in the hard numeric sense; they are statements about intervals. This distinction is crucial: accessors that promise hard numeric values should reject `<` or `>` unless the caller explicitly requests a bound/interval type.
+
+Bounds are especially useful for control intent. Rather than forcing the host to compute an exact target that the device cannot represent cleanly, the host can declare constraints and let the device resolve policy. This is one of the places BCODe feels “GCODE-like”: you express intent with compact tokens, and the machine decides the exact actuation details.
+
+------------------------------------------------------------------------
+
+## 8.11 Composite qualifier logic — classes emerge from combinations
+
+BCODe’s base qualifiers combine into standardized classes. Interpretation layers classify based on the presence of `<`, `>`, `?`, and `-`, with `!` modifying freshness orthogonally. The value class emerges from the combination rather than any single symbol.
+
+This deterministic mapping ensures interoperability across implementations. It also enables reducers to summarize line quality efficiently, which is critical for stream tooling and embedded logic.
+
+------------------------------------------------------------------------
+
+# 9. Payloads Without Gymnastics
+
+BCODe supports three payload forms:
+
+**Table 9.1 — Payload and comment tokens recognized in normal mode**
+
+| Token | Meaning | Parsed where? | Notes |
+| --- | --- | --- | --- |
+| <pre><code class="language-bcode">`0x20`, `TAB`, `CR`, `LF`</code></pre> | Whitespace | Everywhere except “opaque regions” | TAB/LF/CR are treated the same as spaces. |
+| <pre><code class="language-bcode">`;`</code></pre> | Line comment | Normal mode | Runs until LF. If LF never occurs, the comment continues indefinitely (streaming model). |
+| <pre><code class="language-bcode">`(...)`</code></pre> | Parentheses comment | Normal mode | Runs until the next `)`. Unterminated comment continues indefinitely. |
+| <pre><code class="language-bcode">`$`</code></pre> | String payload | Normal mode | Ends only at LF or NUL. Within a string payload, comment and terminator tokens are not recognized. |
+| <pre><code class="language-bcode">`%`</code></pre> | Hex-byte payload | Normal mode | Payload content is 2-digit hex bytes; whitespace is allowed; comments are allowed inside. |
+| <pre><code class="language-bcode">`&`</code></pre> | Raw-binary payload | Normal mode | Consumes an integer length (defaults to 0) then reads that many raw bytes (opaque region). |
+| <pre><code class="language-bcode">`#...#`</code></pre> | Hex number literal | Inside number spelling | Hex digits MUST be uppercase. While `#` is open, PARAM/CMD bytes are not terminators; only closing `#` ends the literal. |
+| <pre><code class="language-bcode">`.` or `,`</code></pre> | Pair separator | Normal mode (number spelling) | Separates `value1` and `value2`. `.` indicates non-negative `value2`; `,` indicates negative `value2` (digits encode magnitude). The width of `value2` is preserved. |
+| <pre><code class="language-bcode">`*` / `/`</code></pre> | Exponent suffix marker | Normal mode (after mantissa) | `*` is positive exponent, `/` is negative exponent. If no digits follow, exponent magnitude defaults to 1. |
+| <pre><code class="language-bcode">`-` `<` `>` `?` `!`</code></pre> | Qualifiers / modifiers | Normal mode (field prefix) | Any combination of `- < > ?` may appear; `!` is orthogonal staleness. |
+
+Table 9.1 is a practical reminder that payloads are part of the syntax layer: the parser knows exactly when it is in an opaque region and exactly what terminates that region, which is why stream recovery stays deterministic.
+
+- `$...` for string payloads (ends at LF or NUL; body is opaque)
+- `%...%` for hexadecimal byte payloads (whitespace/comments allowed inside)
+- `&` for raw binary payloads (length derived from the numeric accumulator/value1; body is opaque)
+
+Binary payloads do not require base64 encoding. This reduces overhead and preserves exact byte structure. In firmware distribution, diagnostic dumps, or binary sensor frames, this capability simplifies pipelines and reduces computational cost. It also keeps “binary transport” in the protocol itself instead of pushing it into ad-hoc encoding layers.
+
+A practical best practice is to keep generation trivial. If your application layer requires complicated escaping or mandatory binary-to-text encodings, you are eroding the advantage of a stream-native format. BCODe is meant to be emit-able with `printf`-style code and modest discipline.
+
+------------------------------------------------------------------------
+
+# 10. Multiline Atomic Packets
+
+Multiline grouping is **not** part of “core” BCODe. Core BCODe merely defines `[` as a legal **parameter terminator** (one of the 32 identities), but it does not assign special meaning to it.
+
+**BCODe.meta** is the convention that *does* assign meaning: it uses the `[` parameter to tag a set of lines as a **packet** that receivers should buffer and deliver **atomically as a group**.
+
+**Table 10.1 — Multiline packet enumeration forms**
+
+| Encoding | Meaning | Receiver behavior |
+| --- | --- | --- |
+| <pre><code class="language-bcode">`i.t[`</code></pre> | Fixed-bound packet line | Buffer until line `t.t[` arrives, then deliver the whole packet atomically |
+| <pre><code class="language-bcode">`>n[`</code></pre> | Open-ended packet line (unknown total) | Buffer until a closing `n.t[` arrives (no `>`), then deliver atomically |
+
+Table 10.1 is referenced in the examples below to clarify why BCODe packets are stream-safe: the receiver never has to guess where a group ends.
+ Lines are buffered until the final index is received. Only then are they delivered as a group. This enables batch updates without sacrificing stream determinism.
+
+### Fixed-bound packet example
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">1.3[ 10A 1B 0.0a</code></pre> | *Assigns&nbsp;[=1.3,&nbsp;A=10,&nbsp;B=1&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">2.3[ 11A 2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=2.3,&nbsp;A=11,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">3.3[ 1A  2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=3.3,&nbsp;A=1,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+
+
+### Open-ended packet example (unknown length at start)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1[ 10A 1B 0.0a</code></pre> | *Assigns&nbsp;[=1,&nbsp;A=10,&nbsp;B=1&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">&gt;2[ 11A 2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=2,&nbsp;A=11,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">3.3[ 1A  2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=3.3,&nbsp;A=1,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+
+
+Unlike JSON streaming APIs, which often require external framing protocols or “chunked document” rules, BCODe.meta integrates grouping into the stream itself without requiring an external framing protocol. The narrative reason this matters is simple: packets are a common reality in stream systems (multi-line responses, batched telemetry, state snapshots), and BCODe gives you a built-in way to treat them atomically.
+
+------------------------------------------------------------------------
+
+# 11. Command and Response Narrative (BCODe.meta)
+
+BCODe.meta defines command-response semantics using response tags
+
+### 11.1 BCODe.meta structural tokens
+
+| Token | Meaning (convention) |
+|---|---|
+| <pre><code class="language-bcode">`^`</code></pre> | affirmative response tag (optional timestamp value) |
+| <pre><code class="language-bcode">`\`</code></pre> | negative response tag (optional error/reason code value) |
+| <pre><code class="language-bcode">`^\`</code></pre> | unsolicited statement tag (sent without a request) |
+| <pre><code class="language-bcode">`[`</code></pre> | multiline packet/batch tag |
+| <pre><code class="language-bcode">`]`</code></pre> | sequence counter |
+| <pre><code class="language-bcode">`-N[`</code></pre> | header-prefix lines that attach metadata to the next deliverable unit |
+
+### 11.2 Negative-response error codes: General errors (`group = -1`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERRGEN_CMD_UNKNOWN` | `-1.0\` | The command is unknown |
+| 1 | `BCODEREST_ERRGEN_RES_UNKNOWN` | `-1.1\` | The resource id is unknown |
+| 2 | `BCODEREST_ERRGEN_SEQ_MISSING` | `-1.2\` | The command sequence is missing |
+| 3 | `BCODEREST_ERRGEN_SEQ_UNKNOWN` | `-1.3\` | The command sequence is unknown |
+| 4 | `BCODEREST_ERRGEN_PAYLOAD_MISSING` | `-1.4\` | Expected payload but was missing |
+| 5 | `BCODEREST_ERRGEN_PAYLOAD_OVERFLOW` | `-1.5\` | Buffer reserved for payload overflowed |
+| 6 | `BCODEREST_ERRGEN_PAYLOAD_INVALID` | `-1.6\` | Error in the payload data |
+| 7 | `BCODEREST_ERRGEN_INDEX_MISSING` | `-1.7\` | Resource index (`@`) missing from command |
+| 8 | `BCODEREST_ERRGEN_INDEX_UNKNOWN` | `-1.8\` | Resource index does not exist |
+| 9 | `BCODEREST_ERRGEN_PARAM_MISSING` | `-1.9\` | Required parameter missing from command |
+| 10 | `BCODEREST_ERRGEN_PARAM_OVERRANGE` | `-1.10\` | Parameter exceeds acceptable range |
+| 11 | `BCODEREST_ERRGEN_PARAM_UNDERRANGE` | `-1.11\` | Parameter is less than acceptable |
+| 12 | `BCODEREST_ERRGEN_PARAM_BADQUAL` | `-1.12\` | Parameter has bad qualifier |
+| 13 | `BCODEREST_ERRGEN_PARAM_INVALID` | `-1.13\` | Parameter value was invalid |
+| 14 | `BCODEREST_ERRGEN_RESP_OVERFLOW` | `-1.14\` | Multiline response messages exceed buffer |
+| 15 | `BCODEREST_ERRGEN_RANGE_MISSING` | `-1.15\` | Expected a range specification |
+| 16 | `BCODEREST_ERRGEN_RANGE_OVERFLOW` | `-1.16\` | Expected range extent is too high |
+| 17 | `BCODEREST_ERRGEN_LINE_MISSING` | `-1.17\` | Expected more BCODe lines in input |
+
+### 11.3 Negative-response error codes: Multiline errors (`group = -2`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERRML_EXPECTED` | `-2.0\` | Missing multiline parameter `[` in a sequence |
+| 1 | `BCODEREST_ERRML_LAST_MISSING` | `-2.1\` | Multiline command missing last value |
+| 2 | `BCODEREST_ERRML_LAST_OVERFLOW` | `-2.2\` | Multiline command exceeds parser buffer |
+| 3 | `BCODEREST_ERRML_LAST_ALTERED` | `-2.3\` | “Last element” did not remain constant in sequence |
+| 4 | `BCODEREST_ERRML_CNTR_START` | `-2.4\` | Counter did not start at 1 |
+| 5 | `BCODEREST_ERRML_CNTR_OVERRANGE` | `-2.5\` | Counter is greater than last |
+| 6 | `BCODEREST_ERRML_CNTR_SEQUENCE` | `-2.6\` | Counter did not match expected sequence |
+
+### 11.4 Command-specific error groups (`group = -ASCII(command)`)
+
+| Group | Command | Notes |
+|------:|:------:|------|
+| -97  | `a` | Read dynamic |
+| -98  | `b` | Write configuration *(provisional)* |
+| -99  | `c` | Control operation |
+| -100 | `d` | *(reserved / TBD)* |
+| -101 | `e` | Read static |
+| -102 | `f` | Manage feeds |
+| -105 | `i` | Allocate / deallocate |
+
+ that remain parseable and stream-friendly:
+
+- `^` — affirmative response (may carry a timestamp)
+- `\` — negative response (may carry a reason code)
+- `^\` — unsolicited statement (sent without a request; `^` may carry a timestamp)
+
+Example: affirmative response with timestamp
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">11B 2.0c</code></pre> | *Assigns&nbsp;B=11&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">192873121^ 2.0c</code></pre> | *Assigns&nbsp;^=192873121&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+
+Example: negative response with reason (group.subcode)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">11B 2.0c</code></pre> | *Assigns&nbsp;B=11&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">-1.13\ 2.0c</code></pre> | *Assigns&nbsp;\=-1.13&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+
+A key best practice here is that negative response codes should be decoded as **integer pairs**, not floats. The distinction between `-1.1` (subcode 1) and `-1.10` (subcode 10) can be important. Treating the value as a float would erase that difference.
+
+The narrative advantage is cohesion: response state, error code, and associated parameters remain within the same atomic line. This keeps the protocol debuggable in plain logs while still supporting structured error handling.
+
+------------------------------------------------------------------------
+
+# 12. Resource-Oriented Streams (BCODe.rest)
+
+**BCODe.rest is a higher-level construction** built on top of core BCODe (syntax + interpretation) and the framing patterns of **BCODe.meta**. It’s intended for larger ecosystems where you want to talk about *resources* (things with identities and instances) instead of only “a fixed letter map per command.”
+
+It’s also the layer that can feel like a mind-bender when encountered too early. For an introductory narrative like this, the goal is not to memorize BCODe.rest—it's to recognize the shape and understand why it exists. If you only need ad-hoc reporting or simple request/response streams, you can happily stop at core BCODe + BCODe.meta and come back to BCODe.rest when you actually need a resource model.
+
+The rest of this section therefore keeps the framing simple: it shows the *idea* (resource id + instance index + command intent) and points you to the dedicated BCODe.rest material for full details.
+
+**Table 12.1 — Operational command categories (telemetry complexity guide)**
+
+| Category | Typical meaning | Idempotent? | Atomic update? | Stale allowed? |
+|---|---|---:|---:|---:|
+| `a` | dynamic read | yes | n/a | yes (parameter fields) |
+| `e` | static read | yes | n/a | no |
+| `b` | stored update/readback | yes | yes (updates) | generally no |
+| `d` | delta update | no | yes | generally no |
+| `c` | control action | no | request validation is atomic | n/a |
+| `f` | feeds/logs | mixed | release is atomic | special command-field rules |
+| `i` | allocate/deallocate | mixed | yes | n/a |
+
+Table 12.1 is referenced in later examples to explain why some commands naturally produce synchronous responses while others produce delayed follow-ons.
+ The upper 32 bits map to an IANA PEN namespace. The lower 32 bits identify a specific resource within that namespace. The result is a compact but globally namespaced key that supports scalable ecosystems.
+
+This structure enables interoperability without increasing parser complexity. A device can publish many resources (thermostats, valves, sensors, configuration blocks) while keeping the wire format stable. Consumers can decode meanings through published resource maps, or treat unknown resources as “ad-hoc” when the PEN is zero.
+
+The discovery story (PEN → domain → lookup document) is not about forcing HTTP into streams. It is about providing a path for third-party tooling to interpret streams without out-of-band knowledge, while still keeping the stream format minimal.
+
+------------------------------------------------------------------------
+
+# 13. Sequence Tracking and Resilience
+
+The `]` parameter allows sequence numbering. Discontinuities reveal dropped lines or resets. The DEL byte provides the parser-level resynchronization mechanism (syntax v12). In unstable transports such as serial buses or wireless telemetry links, these features are crucial.
+
+Sequence counters help you answer pragmatic questions:
+
+- Did we miss an update?
+- Did the remote reboot?
+- Did two streams interleave incorrectly?
+- Did our buffering logic drop a packet?
+
+BCODe’s philosophy is that these are not “nice to have.” In stream systems, they are essential for confidence.
+
+------------------------------------------------------------------------
+
+# 14. Extended Telemetry Case Study — Industrial Furnace
+
+Imagine a furnace control system:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1200T</code></pre> | *T&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;1200.*|
+|<pre><code class="language-bcode">!1198T</code></pre> | *T&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;1198,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">&gt;1200T</code></pre> | *T&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;1200.*|
+
+
+The host requests a lower bound of 1200 degrees. The device reports a stale reading of 1198. The bound remains active. Each line is atomic. Each state is explicit. No schema mutation occurs. The system remains deterministic. And because each statement is only accepted on the explicit command latch, a torn transmission cannot partially update a setpoint or a measurement frame.
+
+Notice what is *not* happening: there is no separate “valid” field, no separate “stale” field, and no implicit coupling rule that says “if staleFlag then interpret temperature differently.” The meaning is localized inside each field. That locality is what keeps stream systems robust when logs are filtered, lines are dropped, or messages are replayed.
+
+------------------------------------------------------------------------
+
+# 15. Extended Case Study — Scientific Instrumentation
+
+A sensor network might report:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">?A</code></pre> | *A&nbsp;represents&nbsp;present&nbsp;but&nbsp;unknown/pending.*|
+|<pre><code class="language-bcode">-?A</code></pre> | *A&nbsp;represents&nbsp;present&nbsp;but&nbsp;unstable/noisy.*|
+|<pre><code class="language-bcode">&lt;&gt;?A</code></pre> | *A&nbsp;represents&nbsp;explicitly&nbsp;null&nbsp;(no-data).*|
+
+
+Each state conveys distinct meaning: pending measurement, unstable reading, explicit null. Embedding this directly in telemetry reduces application-level ambiguity and simplifies post-processing. In scientific contexts, these distinctions are not cosmetic—they determine whether you interpolate, discard, repeat measurement, or halt an experiment.
+
+------------------------------------------------------------------------
+
+# 16. Reducers and Masks
+
+The interpretation layer may reduce field states into bitmasks summarizing:
+
+**Table 16.1 — Typed accessor return modes (interpretation layer, v10)**
+
+| Return | Meaning | Out params written? |
+| --- | --- | --- |
+| `BC_OK` | success (fresh) | yes |
+| `BC_OK_STALE` | success (stale) | yes |
+| `BC_ERR_ABSENT` | parameter not present | no |
+| `BC_ERR_EMPTY` | present but empty (C0) | no |
+| `BC_ERR_SHAPE` | wrong syntactic form for accessor | no |
+| `BC_ERR_QUALITY` | wrong qualifier/ValueKind for accessor | no |
+| `BC_ERR_OVERFLOW` | conversion overflow/underflow | no |
+
+**Table 16.2 — Value variants and what data is considered “available” (v10)**
+
+| Variant | Condition | Available data |
+| --- | --- | --- |
+| Absent numeric | Shape C0 (empty field) | Qualifiers, stale flag only |
+| Single integer mantissa | Shape C1, no second value | `value1` |
+| Fixed-point mantissa | Shape C2 (two integers) | `value1`, `value2`, `value2_neg`, `frac_width` |
+| Exponent-decorated mantissa | `exp_present==true` | `exp10` plus either single or fixed-point mantissa |
+| Integer triplet view (three integers) | Shape C1 or C2 (any exponent state) | `value1`, `signed_value2` (derived from `value2` + `value2_neg`; 0 if absent), `exp10` (0 if exponent absent; see `exp_present`) |
+
+Tables 16.1 and 16.2 connect directly to the reducer story: reducers summarize what the stream said, while typed accessors define what your application is allowed to treat as a hard numeric.
+
+- Exact values
+- Bounds
+- Diagnostics
+- Staleness
+- Missing fields
+
+These reducer masks enable policy logic without schema coupling. Applications can apply rules declaratively based on mask state rather than parameter combinations. In practice, this becomes a clean pipeline:
+
+```text
+stream bytes
+  → parse (latch on CMD)
+  → optional transforms (normalize, filter, rewrite)
+  → reduce line (bitmask summary)
+  → typed accessors / policy logic
+```
+
+This pipeline is a best-practices recommendation because it keeps parsing deterministic and pushes policy decisions into explicit layers. In other words: don’t bake semantic rules into the parser; let reducers and policy logic handle it.
+
+------------------------------------------------------------------------
+
+# 17. Layered Architecture Recap
+
+BCODe is layered intentionally:
+
+1. Syntax — deterministic parsing
+2. Interpretation — typed accessors and quality classes
+3. Meta — request/response and sequencing
+4. Rest — resource-oriented control
+
+Each layer builds upon the previous without modifying it. This modularity supports scalability and long-term evolution. It also keeps the core promise intact: a basic parser can remain stable even as conventions evolve.
+
+------------------------------------------------------------------------
+
+# 18. Closing Narrative
+
+BCODe is intentionally constrained. Those constraints are not limitations; they are design decisions aligned with streaming telemetry realities, where data is never “done,” and correctness is measured in how gracefully a system behaves when something inevitably goes wrong. In the same way that a good instrument enclosure is designed for vibration, heat, and dust rather than showroom lighting, BCODe is designed for byte streams that may arrive late, arrive broken, or arrive forever. The architecture treats the stream as the primary habitat, and then builds meaning on top of the stream in layers that remain mechanically reliable even when the environment is noisy.
+
+At the wire level, the most important promise is the latch: nothing commits until a command byte is read. That single idea is what makes the format behave predictably over serial lines and long-running sockets. It is why attaching mid-stream can be made safe: you can discard partial accumulation until you see an explicit line terminator, and then you know you have a full atomic statement. In instrumentation terms, the command byte is the “trigger edge” that defines when a measurement frame becomes real. If you lose the edge, you lose the frame—but you do not accidentally accept half a frame as truth.
+
+You can feel this in small examples that mirror common lab and field workflows. Imagine a DAQ-like device reporting three channels—temperature, pressure, and flow—at a fixed cadence:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">21.37A 101.8B 3.5C 0.0f</code></pre> | *Assigns&nbsp;A=21.37,&nbsp;B=101.8,&nbsp;C=3.5&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+If the stream glitches mid-line, the receiver does not need a recovery heuristic or a brace counter; it simply keeps scanning until the command latch arrives again. The next good line is still parseable, and the device’s telemetry cadence can remain uninterrupted. In many scientific and industrial contexts—especially when the link is a USB-serial adapter, a noisy RS-485 run, or a radio tunnel—this “recover without renegotiation” behavior is the difference between a log that stays interpretable and a log that becomes an archaeology project.
+
+BCODe’s second promise is that **quality travels with the value**. A sensor does not merely “have a number.” It also has a reality: sometimes it is settling, sometimes it is saturated, sometimes it is disabled, sometimes it is derived from a computation that failed. BCODe’s qualifier classes turn those realities into first-class wire states. Instead of adding secondary keys, flags, and cross-field dependency rules, the field itself declares what it is.
+
+For example, a radiation detector might report a count rate that is temporarily unknown during HV ramp-up:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">?12A 0.0f</code></pre> | *Assigns&nbsp;A=12&nbsp;(unknown)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+A vibration accelerometer might report a noisy value during mechanical resonance:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">-?3B 0.0f</code></pre> | *Assigns&nbsp;B=3&nbsp;(noisy)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+A humidity probe might explicitly declare no-data because it is unplugged or intentionally disabled:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;&gt;?H 0.0f</code></pre> | *Assigns&nbsp;H=(empty)&nbsp;(null)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+And a computed “dew point” channel might return invalid because its prerequisite signals produced an undefined intermediate result:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">-&lt;&gt;?D 0.0f</code></pre> | *Assigns&nbsp;D=(empty)&nbsp;(null)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+These are not just pretty syntactic tricks. They are operational shortcuts that reduce integration friction: dashboards can display “NO DATA” without a schema lookup; control loops can refuse to act on unstable signals without needing extra bits; logging systems can remain compact while still preserving meaning. In other words, BCODe makes the *common* telemetry reality—partial trust, conditional validity—look like a normal part of the protocol rather than an exception bolted on later.
+
+The third promise is that control intent can be expressed in a way that respects real devices. In many control problems, the host is tempted to compute an “exact” setpoint, but the device’s actuator is quantized, rate-limited, or constrained by safety policy. BCODe gives you a way to communicate *constraints* and let the device choose the closest safe representable action. Bounds are the simplest example:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1200T 0.0c</code></pre> | *Assigns&nbsp;T=1200&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+
+This expresses “at least 1200,” which is often more faithful to engineering intent than “exactly 1200.000.” When the device responds, it can report what it actually applied—still in one atomic line, still stream-safe.
+
+Epsilon is the “smallest step” expression of the same philosophy. In scientific instrumentation, this maps cleanly to stepper-driven stages, tunable laser offsets, or DAC trim values where a “one step” adjustment is meaningful but the step size depends on calibration tables or dynamic configuration:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;?G 0.0c</code></pre> | *Assigns&nbsp;G=(empty)&nbsp;(±epsilon)&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+
+The host asks for the minimal increment without embedding the device’s quantization into the host’s logic. This reduces coupling, and coupling is what causes field upgrades to break toolchains.
+
+BCODe also acknowledges a blunt truth: real systems ship strings and binary. They ship calibration blobs, firmware fragments, waveform snapshots, and diagnostic dumps. Making binary “look like text” is sometimes useful, but forcing *all* binary into base64 is frequently overhead you pay forever. BCODe’s payload model keeps strings and bytes as first-class stream elements:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">256&amp;&lt;256 raw bytes&gt; 0.0f</code></pre> | *Consumes 256 raw payload bytes, then latches atomically on command `f`.*|
+|<pre><code class="language-bcode">%48 65 6C 6C 6F% 0.0f</code></pre> | *Consumes hex payload bytes (48 65 6C 6C 6F), then latches atomically on command `f`.*|
+|<pre><code class="language-bcode">$CAL:OK&lt;LF&gt;0.0f</code></pre> | *Consumes a string payload terminated by LF (or NUL), then latches atomically on command `f`.*|
+
+
+The important part is not merely that payloads exist, but that their termination is explicit and deterministic in a stream context. A receiver always knows when it has entered an opaque region and exactly what ends it. That is why the protocol stays debuggable with commodity tools without turning into a format that is “only safe if you parse it with the full stack.”
+
+As systems scale, multiline responses become unavoidable—device inventories, structured diagnostic readouts, large datasets. BCODe’s packet grouping (with `[` indices) is the stream-native way to say “this set of lines is one atomic answer.” In scientific terms, it is closer to “deliver the whole measurement sweep or don’t deliver it at all” than to “stream partial frames and hope the client reassembles them correctly.” A fixed-bound packet makes that intention explicit:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">1.3[ 10A 1B 0.0a</code></pre> | *Assigns&nbsp;[=1.3,&nbsp;A=10,&nbsp;B=1&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">2.3[ 11A 2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=2.3,&nbsp;A=11,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+|<pre><code class="language-bcode">3.3[ 1A  2B 3C 0.0a</code></pre> | *Assigns&nbsp;[=3.3,&nbsp;A=1,&nbsp;B=2,&nbsp;C=3&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`a`.*|
+
+
+An open-ended packet handles cases where the final line count cannot be known up front—common in live listings or streamed enumerations—while still preserving atomic delivery once the closing line arrives.
+
+Finally, BCODe’s conventions (meta + rest) give you a disciplined story for command/response and resource addressing without turning the stream into a document protocol. Responses remain small and legible, but still structured enough to be reliable. A negative response can carry a code that is stable under parsing rules (integer-pair, not float), and unsolicited follow-ons can be clearly marked without ambiguity:
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">-1.13\ 0.0c</code></pre> | *Assigns&nbsp;\=-1.13&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">192873121^\ 10A 0.0f</code></pre> | *Assigns&nbsp;\=(non-int),&nbsp;A=10&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+Taken together, these design choices build a format that behaves like a good instrument:
+
+A short instrumentation-flavored example makes this concrete without turning the document into a catalog of demos:
+
+**Example: spectrometer scan frame (stream-safe, line-atomic)**  
+**Definitions:** `W` = wavelength (nm), `I` = intensity (counts), `]` = sequence counter, `f` = feed/telemetry command.  
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">501.2W 18342I 991] 0.0f</code></pre> | *Assigns&nbsp;W=501.2,&nbsp;I=18342,&nbsp;]=991&nbsp;and&nbsp;then&nbsp;latches&nbsp;atomically&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+
+**Narrative:** A single atomic line carries both the numeric state and a sequence marker. If the stream drops bytes, the next valid `f`-terminated line reestablishes framing immediately—no external “packet mode” required. *(Citations: Syntax latch + 32-parameter masks; Meta sequencing; Interpretation v10 numeric shapes)*
+ predictable under stress, easy to inspect, and honest about uncertainty. BCODe is not trying to replace JSON’s strengths. JSON remains excellent for hierarchical documents and web APIs, and its ecosystem is a major advantage when your data looks like a tree and your transport looks like a request/response exchange.
+
+BCODe is instead aimed at the places where telemetry is a timeline, not a document; where updates are frequent, not occasional; where parsing must be deterministic in small devices; and where measurement quality must travel with the number, not in an auxiliary schema. If those are your realities—embedded controllers, lab instruments, industrial control loops, stream-based monitoring tools—BCODe offers clarity through constraint and reliability through structure.
+
+------------------------------------------------------------------------
+
+### 18.1 Next steps (choose your path)
+
+Different readers reach for BCODe for different reasons. Instead of forcing everyone through the same depth all at once, here are a few “paths” you can follow:
+
+- **Getting started (ad‑hoc reporting):** start with Sections 3–9 and the Example Gallery. Treat letters as an application-defined map, emit a few lines, and build confidence with the atomic latch model.
+- **“What do all these letters/symbols mean?”:** read Sections 5, 10, and 11, then jump to the **BCODe.meta** convention document. BCODe.meta is the most approachable place to learn structured BCODe thinking (requests vs responses, unsolicited lines, sequence counters, and multi‑line atomic packets).
+- **“I need interoperable resource semantics”:** skim Section 12 for the big picture, then switch to the dedicated **BCODe.rest** material. BCODe.rest is intentionally more structured—best tackled once core syntax + BCODe.meta feel natural.
+- **“I’m building tooling”:** focus on Sections 7, 8, 16, and the reducer/mask discussions, then validate against the syntax test cases. This is where determinism pays dividends.
+
+The key idea is that BCODe is intentionally layered: you can adopt it progressively, and you can keep early prototypes deliberately “sloppy” while still remaining syntactically valid.
+
+End of publication-depth narrative document.
+
+# 19. Example Gallery — Optional Patterns to Copy-Paste
+
+This section is intentionally “example-first.” Each mini-pattern is optional, but together they form a quick mental library of what BCODe feels like on the wire. The goal isn’t to prescribe one true schema; it’s to show how BCODe’s **stream-latched lines**, **bounded parameters**, **inline quality**, and **payload realism** can be combined in practical telemetry and control systems.
+
+---
+
+## 19.1 Atomic latching: why the final command byte matters
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">72A 18B 5C 0.0a</code></pre> | *Assigns&nbsp;`A=72`,&nbsp;`B=18`,&nbsp;`C=5`,&nbsp;then&nbsp;latches&nbsp;when&nbsp;command&nbsp;`a`&nbsp;arrives.*|
+
+```bcode
+72A 18B 5C 0.0a
+```
+
+A receiver can ignore partial lines until the final CMD byte arrives. That makes “mid-stream noise” far less catastrophic than formats that depend on balanced punctuation.
+
+---
+
+## 19.2 Minimal “single measurement” telemetry
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">12.3T 0.0f</code></pre> | *Assigns&nbsp;`T=12.3`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+```bcode
+12.3T 0.0f
+```
+
+This is the smallest “real” telemetry statement: one value plus a command that commits it. It stays grep-friendly, and it does not require a schema registry to be useful.
+
+---
+
+## 19.3 Multi-sensor readout (flat, fast, and still human)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">101.3P 23.8T 45.1H 0.0f</code></pre> | *Assigns&nbsp;`H=45.1`,&nbsp;`P=101.3`,&nbsp;`T=23.8`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`f`.*|
+
+```bcode
+101.3P 23.8T 45.1H 0.0f
+```
+
+This kind of line is common in instrumentation: pressure, temperature, and humidity arrive together as a single atomic state update.
+
+---
+
+## 19.4 Qualifier quick sampler (value-class states without extra “status fields”)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">?T</code></pre> | *T&nbsp;is&nbsp;present&nbsp;but&nbsp;unknown/pending.*|
+|<pre><code class="language-bcode">-?T</code></pre> | *T&nbsp;is&nbsp;present&nbsp;but&nbsp;unstable/noisy&nbsp;(do&nbsp;not&nbsp;treat&nbsp;as&nbsp;hard&nbsp;numeric).*|
+|<pre><code class="language-bcode">&lt;&gt;?T</code></pre> | *T&nbsp;is&nbsp;explicitly&nbsp;null&nbsp;(no-data).*|
+|<pre><code class="language-bcode">&gt;?T</code></pre> | *T&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range).*|
+|<pre><code class="language-bcode">-&lt;&gt;?T</code></pre> | *T&nbsp;is&nbsp;NaN/invalid&nbsp;result&nbsp;(not&nbsp;a&nbsp;hard&nbsp;numeric).*|
+|<pre><code class="language-bcode">17&lt;&gt;T</code></pre> | *T&nbsp;is&nbsp;signaling&nbsp;NaN&nbsp;with&nbsp;diagnostic&nbsp;code&nbsp;17.*|
+
+```bcode
+?T
+-?T
+<>?T
+>?T
+-<>?T
+17<>T
+```
+
+These are the “telemetry honesty” states you usually end up inventing in ad-hoc JSON schemas. In BCODe they’re compact, standardized, and travel with the value itself.
+
+---
+
+## 19.5 Stale-but-useful: freshness is orthogonal (`!`)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">!12.3T</code></pre> | *T&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;12.3,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&lt;&gt;?T</code></pre> | *T&nbsp;is&nbsp;explicitly&nbsp;null&nbsp;(no-data),&nbsp;but&nbsp;that&nbsp;null&nbsp;state&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!&gt;?T</code></pre> | *T&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(beyond&nbsp;measurable&nbsp;range),&nbsp;but&nbsp;that&nbsp;infinity&nbsp;state&nbsp;is&nbsp;stale.*|
+|<pre><code class="language-bcode">!17&lt;&gt;T</code></pre> | *T&nbsp;is&nbsp;signaling&nbsp;NaN&nbsp;with&nbsp;diagnostic&nbsp;code&nbsp;17,&nbsp;but&nbsp;that&nbsp;diagnostic&nbsp;is&nbsp;stale.*|
+
+```bcode
+!12.3T
+!<>?T
+!>?T
+!17<>T
+```
+
+Staleness is a modifier, not a replacement. This helps decoders distinguish “bad value” from “good value, old,” which matters in control loops and data logging.
+
+---
+
+## 19.6 Bounds as intent: delegating resolution to the device
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1200T 0.0c</code></pre> | *Assigns&nbsp;`T`&nbsp;as&nbsp;a&nbsp;lower&nbsp;bound&nbsp;(>1200),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">&lt;0.5V 0.0c</code></pre> | *Assigns&nbsp;`V`&nbsp;as&nbsp;an&nbsp;upper&nbsp;bound&nbsp;(<0.5),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">&gt;1000X 1g</code></pre> | *Assigns&nbsp;`X`&nbsp;as&nbsp;a&nbsp;lower&nbsp;bound&nbsp;(>1000),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`g`&nbsp;with&nbsp;value&nbsp;`1`.*|
+
+```bcode
+>1200T 0.0c
+<0.5V 0.0c
+>1000X 1g
+```
+
+A CNC-style “move to a safe place” command can use this same bound pattern. For example, `>1000X 1g` expresses *“ensure X is at least 1000”* rather than demanding a single exact setpoint. That lets the machine choose its own deceleration profile and settle at a point past 1000, which can enable faster motion while still honoring the safety constraint.
+
+Bounds let a host express *constraints* instead of pretending it knows the device’s perfect representable setpoint. It’s a clean way to avoid host↔device quantization coupling.
+
+---
+
+## 19.7 “Smallest step” control with epsilon (`<?`)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&lt;?G 0.0c</code></pre> | *G&nbsp;represents&nbsp;positive&nbsp;epsilon&nbsp;(smallest&nbsp;step),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">-&lt;?G 0.0c</code></pre> | *G&nbsp;represents&nbsp;negative&nbsp;epsilon&nbsp;(smallest&nbsp;step),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+
+```bcode
+<?G 0.0c
+-<?G 0.0c
+```
+
+This pattern is surprisingly powerful in lab gear and motion systems: “nudge up/down by one device step” is expressive without requiring the host to know the step size.
+
+---
+
+## 19.8 Diagnostics without extra parameters (codes embedded inline)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">?12E 0.0f</code></pre> | *E&nbsp;is&nbsp;present&nbsp;but&nbsp;unknown/pending&nbsp;with&nbsp;advisory&nbsp;code&nbsp;12,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">-?3E 0.0f</code></pre> | *E&nbsp;is&nbsp;present&nbsp;but&nbsp;unstable/noisy&nbsp;with&nbsp;advisory&nbsp;code&nbsp;3,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">42&lt;&gt;E 0.0f</code></pre> | *E&nbsp;is&nbsp;signaling&nbsp;NaN&nbsp;with&nbsp;diagnostic&nbsp;code&nbsp;42,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+?12E 0.0f
+-?3E 0.0f
+42<>E 0.0f
+```
+
+In many telemetry stacks you end up creating `error_code`, `valid`, `status`, and `reason` keys. BCODe encourages you to keep the meaning attached to the same field.
+
+---
+
+## 19.9 Command/response tags (BCODe.meta “plumbing” stays flat)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">^ 0.0c</code></pre> | *Affirmative&nbsp;response&nbsp;(ack),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">\ 0.0c</code></pre> | *Negative&nbsp;response&nbsp;(no&nbsp;reason),&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`c`.*|
+|<pre><code class="language-bcode">-1.13\ 2.0c</code></pre> | *Assigns&nbsp;`\=-1.13`;&nbsp;command&nbsp;is&nbsp;`c`&nbsp;with&nbsp;value&nbsp;`2.0`,&nbsp;and&nbsp;the&nbsp;line&nbsp;latches&nbsp;when&nbsp;the&nbsp;command&nbsp;byte&nbsp;is&nbsp;read.*|
+|<pre><code class="language-bcode">^\ 10A 0.0f</code></pre> | *Unsolicited&nbsp;statement&nbsp;marker&nbsp;(sent&nbsp;without&nbsp;a&nbsp;request),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+^ 0.0c
+\ 0.0c
+-1.13\ 2.0c
+^\ 10A 0.0f
+```
+
+The tags are just parameters. That’s the point: the “meta” framing lives in the same deterministic syntax as everything else.
+
+---
+
+## 19.10 Multiline packet: fixed-bound (`i.t[`)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">1.3[ 10A 0.0a</code></pre> | *Assigns&nbsp;`[=1.3`&nbsp;as&nbsp;packet&nbsp;index/total,&nbsp;assigns&nbsp;`A=10`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+|<pre><code class="language-bcode">2.3[ 11A 0.0a</code></pre> | *Assigns&nbsp;`[=2.3`&nbsp;as&nbsp;packet&nbsp;index/total,&nbsp;assigns&nbsp;`A=11`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+|<pre><code class="language-bcode">3.3[ 12A 0.0a</code></pre> | *Assigns&nbsp;`[=3.3`&nbsp;as&nbsp;packet&nbsp;index/total,&nbsp;assigns&nbsp;`A=12`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+
+```bcode
+1.3[ 10A 0.0a
+2.3[ 11A 0.0a
+3.3[ 12A 0.0a
+```
+
+Receivers buffer packet lines and deliver them as an atomic group. This is a stream-native way to do “batch semantics” without inventing external framing.
+
+---
+
+## 19.11 Multiline packet: open-ended (`>n[` … closed by `n.t[`)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1[ 10A 0.0a</code></pre> | *Assigns&nbsp;`[`&nbsp;as&nbsp;open-ended&nbsp;packet&nbsp;index&nbsp;>1,&nbsp;assigns&nbsp;`A=10`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+|<pre><code class="language-bcode">&gt;2[ 11A 0.0a</code></pre> | *Assigns&nbsp;`[`&nbsp;as&nbsp;open-ended&nbsp;packet&nbsp;index&nbsp;>2,&nbsp;assigns&nbsp;`A=11`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+|<pre><code class="language-bcode">3.3[ 12A 0.0a</code></pre> | *Assigns&nbsp;`[=3.3`&nbsp;as&nbsp;the&nbsp;closing&nbsp;bound,&nbsp;assigns&nbsp;`A=12`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+
+```bcode
+>1[ 10A 0.0a
+>2[ 11A 0.0a
+3.3[ 12A 0.0a
+```
+
+Open-ended packets are great when you can’t know the line count up front (e.g., directory listings, table dumps, streamed results). The close line makes the end unambiguous.
+
+---
+
+## 19.12 Sequence counter (`]`) for dropout detection
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">100] 10A 0.0f</code></pre> | *Assigns&nbsp;`]=100`&nbsp;as&nbsp;a&nbsp;sequence&nbsp;counter,&nbsp;assigns&nbsp;`A=10`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">101] 11A 0.0f</code></pre> | *Assigns&nbsp;`]=101`&nbsp;as&nbsp;a&nbsp;sequence&nbsp;counter,&nbsp;assigns&nbsp;`A=11`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">0] 12A 0.0f</code></pre> | *Assigns&nbsp;`]=0`&nbsp;as&nbsp;a&nbsp;reset/discontinuity&nbsp;signal,&nbsp;assigns&nbsp;`A=12`,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+100] 10A 0.0f
+101] 11A 0.0f
+0] 12A 0.0f
+```
+
+Sequence discontinuities let tooling say “something happened” (drop, reset, reconnect) without guessing. That’s invaluable on flaky serial links.
+
+---
+
+## 19.13 Payload realism: string payloads (`$…`)
+
+```bcode
+$hello world
+```
+A `$` payload is an opaque string body terminated by newline (or NUL). It’s useful for human-visible text, firmware identifiers, or log messages without JSON escaping rituals.
+
+---
+
+## 19.14 Hex payloads (`%…%`): readable binary snapshots
+
+```bcode
+%DE AD BE EF%
+```
+Hex payloads are a practical “bridge form” when you want to carry bytes but still keep logs inspectable. Whitespace and comments can live inside the `%…%` block in many tooling contexts.
+
+---
+
+## 19.15 Raw binary payloads (`&`): exact bytes, no base64
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">16&amp; 0.0u</code></pre> | *Command&nbsp;expects&nbsp;a&nbsp;raw-binary&nbsp;payload&nbsp;of&nbsp;length&nbsp;16&nbsp;bytes,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`u`&nbsp;after&nbsp;payload&nbsp;receipt.*|
+
+```bcode
+16& 0.0u
+```
+
+This is the “no-gymnastics” payload path: bytes are bytes. It’s especially attractive for calibration blobs, waveform fragments, and device snapshots.
+
+---
+
+## 19.16 Scientific notation: large/small without changing the wire feel
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">123*3A 0.0f</code></pre> | *Assigns&nbsp;`A`&nbsp;with&nbsp;exponent-scaled&nbsp;numeric&nbsp;spelling&nbsp;(×10^3),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">45/2B 0.0f</code></pre> | *Assigns&nbsp;`B`&nbsp;with&nbsp;exponent-scaled&nbsp;numeric&nbsp;spelling&nbsp;(×10^-2),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+123*3A 0.0f
+45/2B 0.0f
+```
+
+This keeps values compact in a way engineers recognize immediately, while still letting parsers treat the exponent as structured metadata.
+
+---
+
+## 19.17 Resource-oriented streams (BCODe.rest): ID + index + command
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">0@ 12345.7a</code></pre> | *Assigns&nbsp;`@=0`&nbsp;as&nbsp;resource&nbsp;index,&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`a`&nbsp;for&nbsp;resource&nbsp;12345&nbsp;with&nbsp;sequence&nbsp;7.*|
+|<pre><code class="language-bcode">2@ 12345.7e</code></pre> | *Assigns&nbsp;`@=2`&nbsp;as&nbsp;resource&nbsp;index,&nbsp;then&nbsp;latches&nbsp;on&nbsp;command&nbsp;`e`&nbsp;for&nbsp;resource&nbsp;12345&nbsp;with&nbsp;sequence&nbsp;7.*|
+
+```bcode
+0@ 12345.7a
+2@ 12345.7e
+```
+
+This pattern scales well: the command number is the resource key, `@` selects the instance, and the command letter expresses intent (read/write/control/feed/allocate).
+
+---
+
+## 19.18 Ordinals (`*R`) as response “lanes” (direct vs delayed)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">^ 0@ 12345.7*0a</code></pre> | *Affirmative&nbsp;ack&nbsp;for&nbsp;sequence&nbsp;7&nbsp;at&nbsp;ordinal&nbsp;0,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+|<pre><code class="language-bcode">^\ 0@ 10A 12345.7*1a</code></pre> | *Unsolicited&nbsp;follow-on&nbsp;result&nbsp;at&nbsp;ordinal&nbsp;1,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`a`.*|
+
+```bcode
+^ 0@ 12345.7*0a
+^\ 0@ 10A 12345.7*1a
+```
+
+Ordinals let one request evolve into multi-stage reporting without renumbering the command sequence. It’s a clean way to handle “ack now, results later.”
+
+---
+
+## 19.19 Engineering use case: temperature controller (constraint + stale readback)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;1200T 0.0c</code></pre> | *Assigns&nbsp;`T`&nbsp;as&nbsp;a&nbsp;lower&nbsp;bound&nbsp;(>1200)&nbsp;set&nbsp;intent,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`c`.*|
+|<pre><code class="language-bcode">^ 0.0c</code></pre> | *Affirmative&nbsp;response&nbsp;(ack),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`c`.*|
+|<pre><code class="language-bcode">!1198T 0.0f</code></pre> | *T&nbsp;has&nbsp;the&nbsp;numeric&nbsp;content&nbsp;1198,&nbsp;but&nbsp;it&nbsp;is&nbsp;stale,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">1203T 0.0f</code></pre> | *Assigns&nbsp;`T=1203`&nbsp;as&nbsp;a&nbsp;fresh&nbsp;readback,&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+>1200T 0.0c
+^ 0.0c
+!1198T 0.0f
+1203T 0.0f
+```
+
+This shows three core ideas at once: intent via bounds, atomic ack via meta tags, and the ability to explicitly distinguish “old but still informative” from “fresh.”
+
+---
+
+## 19.20 Scientific instrumentation: saturation and diagnostics (spectrometer-style)
+
+| Syntax | Meaning |
+| --- | --- |
+|<pre><code class="language-bcode">&gt;?I 0.0f</code></pre> | *I&nbsp;represents&nbsp;positive&nbsp;infinity&nbsp;(sensor&nbsp;saturated),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">42&lt;&gt;I 0.0f</code></pre> | *I&nbsp;is&nbsp;signaling&nbsp;NaN&nbsp;with&nbsp;diagnostic&nbsp;code&nbsp;42&nbsp;(structured&nbsp;fault),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+|<pre><code class="language-bcode">-?I 0.0f</code></pre> | *I&nbsp;is&nbsp;present&nbsp;but&nbsp;unstable/noisy&nbsp;(transient),&nbsp;then&nbsp;latches&nbsp;on&nbsp;`f`.*|
+
+```bcode
+>?I 0.0f
+42<>I 0.0f
+-?I 0.0f
+```
+
+A lot of lab gear needs to say “not a number, and here’s why.” Inline value classes make that honest, compact, and machine-checkable.
+
+---
+
+## 19.21 One last “debugger’s trick”: grep patterns that stay meaningful
+
+```bash
+grep 'T'      # find any temperature-related fields in logs
+grep 'c$'     # find command c lines (command terminator at end)
+grep '^\^'    # find affirmative responses
+grep '^\^\\'  # find unsolicited follow-ons
+```
+
+BCODe examples are designed to remain readable under commodity tools. When you can search logs effectively, you debug faster—and a stream protocol lives or dies by debuggability.
+
+
+## References
+
+**JSON (background context used for narrative framing):**
+1. JSON.org — JSON syntax overview: https://www.json.org/json-en.html  
+2. *Eloquent JavaScript* (JSON chapter/section): https://eloquentjavascript.net/04_data.html  
+3. Douglas Crockford — “The Application/JSON Media Type” / related writings & McKeeman form discussion: https://www.crockford.com/mckeeman.html  
+4. Online JSON Parser (example-style reference): http://json.parser.online.fr/beta/  
+
+**BCODe companion documents (normative sources for the concepts described here):**
+- `bcode-syntax-with-tests-v12.md` (syntax, terminators, payload tokens, latch rules)  
+- `bcode-interpretation-v10.md` (qualifier classes, freshness, typed accessors, variants)  
+- `BCODe_meta_Convention.updated6.md` (command/response tags, packets, sequencing conventions)  
+- `BCODe_Best_Practices_and_Conventions_Draft_v13.md` (design principles, interoperability guidance)  
+- `BCODe_telemetry_scalable_complexity_guide_plus.md` (telemetry/control scaling patterns)
+
+
+
+  
+</script>
+  <script src="../assets/site.js?v=20260401i"></script>
+  <footer>
+    <div class="footer-content">
+      <nav aria-label="Docs"><a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a> </nav>
+      <p class="footer-right">BCODe</p>
+    </div>
+  </footer>
+  <script src="../assets/lavalamp.js"></script>
+  <script type="module" src="../assets/doc-terminal.js?v=20260401i"></script>
+</body>
+
+</html>

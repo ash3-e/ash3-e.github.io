@@ -1,0 +1,36 @@
+# ── Context bombs ──
+codex-last-20-prompts-context.md
+codex-docs-data.js
+
+# ── Other agents' implementations (read-only via vexp if needed) ──
+codex-site.js
+codex-styles.css
+antigravity-index.html
+antigravity-site.js
+antigravity-styles.css
+
+# ── Heavy / irrelevant ──
+node_modules/
+.git/
+.vexp/
+dist/
+build/
+backup*/
+_restore/
+drive-download-*/
+REQUESTED_CHANGE_IMAGES_LETTERED/
+
+# ── Minified bundles ──
+*.min.js
+*.min.css
+
+# ── Binary assets (can't parse, use vexp for references) ──
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.zip
+
+# ── OS junk ──
+.DS_Store
+Thumbs.db

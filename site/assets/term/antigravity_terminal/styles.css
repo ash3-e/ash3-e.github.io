@@ -1,0 +1,241 @@
+/* styles.css */
+:root {
+  --lh: 1.25em;
+  --cw: 1ch;
+  --bg: #000000;
+  --fg: #c6a8ff;
+  --border: #c6a8ff;
+}
+
+body {
+  background-color: #050505;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  color: var(--fg);
+  font-family: 'Consolas', 'Courier New', 'Monaco', monospace;
+  font-size: 16px; 
+}
+
+#terminal-root {
+  width: calc(80 * var(--cw));
+  height: calc(24 * var(--lh));
+  background-color: var(--bg);
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* subtle outer frame */
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+.pane {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-title {
+  position: absolute;
+  top: calc(-0.5 * var(--lh) - 0.5px);
+  background: var(--bg);
+  padding: 0 0.5ch;
+  line-height: 1;
+  white-space: pre;
+  color: var(--fg);
+}
+
+.pane-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5lh 0.5ch 0.5lh 0.5ch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar to maintain terminal aesthetics */
+.pane-content::-webkit-scrollbar {
+  width: 0.5ch;
+}
+.pane-content::-webkit-scrollbar-thumb {
+  background: #333; 
+}
+
+.pane-bottom-text {
+  position: absolute;
+  background: var(--bg);
+  padding: 0 0.5ch;
+  line-height: 1;
+  bottom: calc(-0.5 * var(--lh) - 0.5px);
+  white-space: pre;
+  color: var(--fg);
+}
+
+/* Top Tabs */
+.tabs-row {
+  position: absolute;
+  top: 0; left: 0; width: 100%;
+  height: calc(2 * var(--lh));
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 0.25lh;
+  padding-left: 1ch;
+  padding-right: 1ch;
+  box-sizing: border-box;
+}
+
+.tabs-left .tab {
+  cursor: pointer;
+  color: var(--fg);
+}
+.tabs-left .tab.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.views-container {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; /* Let clicks pass to absolute children */
+}
+
+.view {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+}
+.view.active {
+  display: block;
+}
+.view * {
+  pointer-events: auto; /* Re-enable for children */
+}
+
+/* Home Panes */
+#home-docs {
+  left: calc(0 * var(--cw) + 1ch);
+  top: calc(2 * var(--lh));
+  width: calc(39 * var(--cw));
+  height: calc(18 * var(--lh));
+}
+#home-feed {
+  left: calc(41 * var(--cw));
+  top: calc(2 * var(--lh));
+  width: calc(38 * var(--cw));
+  height: calc(18 * var(--lh));
+}
+
+#home-docs .list-item, #home-feed .list-item {
+  white-space: pre;
+  line-height: 1.25em;
+  display: flex;
+  gap: 1ch;
+}
+.bullet { width: 1ch; text-align: center; }
+
+/* History box */
+#home-history {
+  left: calc(0 * var(--cw) + 1ch);
+  top: calc(10 * var(--lh));
+  width: calc(73 * var(--cw));
+  height: calc(12 * var(--lh)); 
+  z-index: 10;
+  border-bottom: none; /* Merge with cmd input */
+}
+
+/* Term Panes */
+#term-req {
+  left: calc(0 * var(--cw) + 1ch);
+  top: calc(2 * var(--lh));
+  width: calc(39 * var(--cw));
+  height: calc(18 * var(--lh));
+}
+#term-feed {
+  left: calc(41 * var(--cw));
+  top: calc(2 * var(--lh));
+  width: calc(38 * var(--cw));
+  height: calc(18 * var(--lh));
+}
+
+/* Command Row */
+#cmd-prompt {
+  position: absolute;
+  left: calc(0 * var(--cw) + 1ch);
+  top: calc(22 * var(--lh));
+  line-height: calc(2 * var(--lh));
+  pointer-events: none;
+  z-index: 5;
+  padding-left: 0.5ch;
+}
+#cmd-input-box {
+  left: calc(0 * var(--cw) + 1ch);
+  top: calc(22 * var(--lh));
+  width: calc(73 * var(--cw));
+  height: calc(2 * var(--lh));
+}
+#cmd-input, #cmd-mirror {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: calc(2 * var(--lh));
+  padding: 0;
+  padding-left: 4.5ch; /* Offset for [>] */
+  padding-right: 1ch;
+  margin: 0;
+  border: none;
+  background: transparent;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+#cmd-input {
+  color: transparent;
+  caret-color: var(--fg);
+  outline: none;
+  z-index: 2;
+}
+
+#cmd-mirror {
+  z-index: 1;
+  pointer-events: none;
+  color: var(--fg);
+}
+
+#cmd-send {
+  left: calc(75 * var(--cw));
+  top: calc(22 * var(--lh));
+  width: calc(4 * var(--cw));
+  height: calc(2 * var(--lh));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#cmd-send:active {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* Helpers for JS appending */
+.bcode-line {
+  white-space: pre;
+  line-height: var(--lh);
+  min-height: var(--lh);
+  font-family: inherit;
+}
+.bcode-blank {
+  height: var(--lh);
+}
+.select-none {
+  user-select: none;
+}

@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Best Practices - Reader</title>
+	<link rel="stylesheet" href="../assets/styles.css" />
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+	<script src="../assets/bcode_lang.js"></script>
+	<link rel="stylesheet" href="../assets/hljs-theme.css">
+	<link rel="stylesheet" href="../assets/doc-terminal.css?v=20260401i">
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body data-page-type="reader">
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+	<header>
+		<div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img
+					src="../assets/logo.png" alt="BCODe"><span class="tag">Documentation</span></a><a
+				class="header-link" href="../docs/documentation-tree.html" aria-label="Documentation"><img
+					src="../assets/documentation.svg" alt=""> Documentation</a></div>
+	</header>
+	<main>
+		<div class="container">
+			<div class="reader-wrap">
+				<div class="reader-grid">
+					<aside class="toc-pane" aria-label="Quick jump">
+						<div class="toc-head">
+							<div class="toc-title">Quick Jump</div><button class="pill-btn" id="tocToggle"
+								type="button">Collapse</button>
+						</div>
+						<div class="toc-jumps"><a id="toTop" href="#">Back to top</a><a id="toBottom" href="#">Go to
+								bottom</a></div>
+						<ul id="tocList" class="toc-list"></ul>
+					</aside>
+					<section class="reader">
+						<div class="reader-head">
+							<div>
+								<h1 class="reader-title">Best Practices</h1>
+								<p class="reader-meta">bcode-best-practices-v13</p>
+							</div>
+							<div class="links"><a class="pill primary" id="cardLink"
+									href="bcode-best-practices-v13.html">Card view</a><button class="pill-btn"
+									id="darkToggle" type="button">Dark mode</button><span class="query-chip"
+									id="findCount"></span></div>
+						</div>
+						<div class="reader-body" id="readerBody">
+							<article id="content" class="markdown-body"></article>
+						</div>
+					</section>
+					<div class="reader-phantom-col"></div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<script id="md-source" type="text/plain"># BCODe Best Practices & Conventions (Draft)
+
+**Document date:** 2026-02-02  
+**Audience:** protocol designers, firmware implementers, host/tool implementers  
+**Applies to:** BCODe (lowercase *e*) streams over serial ports, TCP, WebSockets, pipes, and similar byte streams.
+
+**Companion specs (syntax + standard interpretations):**  
+- BCODe Syntax Specification (Draft, 2026-01-30)   
+- BCODe Value Interpretation (Draft, 2026-01-30)   
+
+---
+
+## 1. Purpose
+
+BCODe is a small, streaming, ASCII protocol designed to make **simple telemetry and control**:
+- easy to generate (even with plain `printf`-style output),
+- easy to transport over streams,
+- easy to inspect, filter, and debug with commodity tooling (logs, `grep`, etc.),
+- and easy to parse deterministically in constrained environments.
+
+The tradeoff is intentional: BCODe is not a general-purpose document format. It is optimized for **flat, line-oriented statements** with a strict upper bound of **32 parameter identities**.
+
+If you need nested objects, arbitrary key naming, schema evolution within the payload, or tree-shaped data models, BCODe expects you to justify that complexity and then choose a different representation.
+
+---
+
+## 2. The BCODe layering model
+
+One of the most important design tenets is a clean separation:
+
+1) **Syntax** — what bytes mean structurally  
+2) **Interpretation** — how a parsed field becomes a numeric representation (integer, fixed-point pair, exponent) and how qualifiers map to value-classes  
+3) **Semantics** — what the numbers *mean* for a specific application or device domain  
+4) **Conventions** — standardized semantic profiles that encourage interoperability (e.g., `BCODe.meta`, `BCODe.rest`)
+
+BCODe works best when you do **not** skip layers.
+
+### 2.1 Syntax: a streaming, latch-on-command model
+
+BCODe is parsed from an **unbounded byte stream**; there is no EOF concept. A “line” is a logical unit that ends when a **command character** is read, at which point the entire line is **latched atomically**. 
+
+Fields are terminated by:
+- **PARAM terminators** (ASCII `0x40–0x5F`) for intermediate fields
+- **CMD terminators** (ASCII `0x60–0x7F`) for the final field, which also latches the line 
+
+### 2.2 Interpretation: quality-first telemetry and typed accessors
+
+A parsed field has (at least) these properties: a base qualifier mask (`- < > ?`), an orthogonal stale flag (`!`), a numeric “shape” (empty/single/pair), and optional exponent metadata. 
+
+BCODe interpretation is explicitly **quality-first**: callers should be able to refuse a “hard numeric” result when the field is unknown, null, NaN, infinity, epsilon-only, etc. 
+
+### 2.3 Semantics: application-owned meaning
+
+BCODe syntax and interpretation do **not** assign meaning to particular parameter letters or command letters. That mapping is owned by your application or by shared conventions. 
+
+### 2.4 Conventions: standard semantic profiles
+
+In this document we treat “standard semantics” as **conventions**:
+
+- **BCODe.meta** — command/response, unsolicited frames, multiline grouping, sequence counters  
+- **BCODe.rest** — resource-oriented process-control semantics built on BCODe streams (inspired by Representation State Transfer, not HTTP packets)
+
+---
+
+## 3. The 32-parameter reality (and why it’s a feature)
+
+BCODe has exactly **32 parameter identities** because parameter identity is defined by the low 5 bits of the terminator byte (`term & 0x1F`), producing indices `0..31`. 
+
+This constraint is a design choice:
+- It bounds parser state.
+- It forces semantic discipline.
+- It encourages stable, conventional mappings.
+- It makes bitmask operations natural and fast (selection, reduction, filtering). 
+
+### 3.1 Best practices under the 32-parameter limit
+
+**Do:**
+- Reserve a small set of parameters for cross-cutting conventions (e.g., meta, sequencing, routing).
+- Treat `A–Z` as your “domain payload” bucket unless a convention says otherwise.
+- Create (and publish) a **parameter map table**: what each letter means in each command context.
+- Keep each parameter **self-contained** (see “interparameter dependency” below).
+
+**Don’t:**
+- Create a new parameter just to represent “validity”, “reason”, “mode”, or “status” if it can be expressed by qualifiers or diagnostics.
+- Create brittle schemas where field A is only valid if fields B and C are present.
+- Attempt to encode nested structures by inventing ad-hoc “begin/end” markers inside parameters.
+
+---
+
+## 4. Make simple tasks simple (and keep them that way)
+
+BCODe’s “superpower” is that a BCODe line is:
+- short,
+- stable,
+- grep-able,
+- and can be generated with almost no tooling.
+
+### 4.1 Generation should remain trivial
+
+BCODe should be easy enough that a developer can emit valid output with:
+- a few print statements, and
+- a small amount of local formatting discipline.
+
+If your application layer requires:
+- multi-pass serialization,
+- schema registries,
+- complicated escaping rules,
+- or mandatory binary-to-text encodings
+
+…you are eroding the core advantage of BCODe.
+
+### 4.2 “Grepability” as a design constraint
+
+Prefer designs where:
+- you can locate occurrences of a parameter with `grep 'A'`,
+- you can locate a command class with `grep 'a$'` (or similar),
+- you can eyeball bounds (`<` / `>`) and state (`?`, `!`) without decoding.
+
+This pushes you toward:
+- flat lines,
+- minimal implicit coupling,
+- and stable letter assignments.
+
+---
+
+## 5. Qualifiers: encode quality and intent *in the field itself*
+
+BCODe provides a compact set of field qualifiers:
+```bcode
+- < > ? !
+```
+The syntax spec defines their syntactic role, and the companion interpretation spec defines standard meanings. 
+
+### 5.1 Staleness is `!` (orthogonal)
+
+The `!` qualifier is an **orthogonal freshness modifier** that may be combined with any base value class, including infinity and NaN. It does not change the base class. 
+
+Examples:
+- `!12.3A` — stale but still a hard numeric value
+- `!>?A` — stale positive infinity
+- `!-<>?A` — stale NaN
+
+### 5.2 Base value-class truth table (`- < > ?`)
+
+The four base qualifiers define the **base value class**, independent of staleness. The interpretation spec reserves and standardizes combinations including epsilon, infinity, null, NaN, and signaling NaN. 
+
+Key combinations (summary):
+
+- **Exact (hard numeric):** no `<` or `>` or `?` (optionally `-` for sign)
+- **Bounds:**  
+  - `<` means “value is less than stated” (upper bound)  
+  - `>` means “value is greater than stated” (lower bound) 
+- **Unknown/pending:** `?`
+- **Noise/unstable:** `-?`
+- **Epsilon (smallest device step):** `<?` (positive) and `-<?` (negative) 
+- **Infinity:** `>?` (positive) and `->?` (negative) 
+- **sNaN (signaling NaN):** `<>` and `-<>` (reserved; C1 only; `value1` carries a payload/code) 
+- **Null (no data):** `<>?`
+- **NaN (invalid computational result):** `-<>?` (quiet/invalid; not a hard value) 
+
+> **Important:** “Bounds” are not hard values. Accessors that return hard numerics should reject `<`/`>` unless an explicit bound/interval type is requested. 
+
+### 5.3 Diagnostics without extra parameters
+
+Qualifiers let a single parameter express “this isn’t a usable measurement,” while still carrying **a numeric code** that describes *why*.
+
+This is a core design strategy:
+- avoid adding a separate `X_status` parameter,
+- avoid inventing a “reason” parameter,
+- and avoid interparameter dependency.
+
+Two common patterns:
+
+1) **Signaling NaN with a diagnostic code** (reserved by the interpretation spec):
+```bcode
+17<>A      ; sNaN payload/code 17
+-5<>B      ; signed sNaN payload/code -5 (if your domain wants signed codes)
+```
+(Use single-number shape C1 for sNaN.) 
+
+2) **Unknown/Noise with a diagnostic code** (application-defined):
+```bcode
+?12A       ; unknown/pending with code 12
+-?3B       ; noisy/unstable with code 3
+```
+(Interpretation policy: numeric digits “may be present but should not be treated as hard” for certain value classes.) 
+
+---
+
+## 6. Use qualifiers for control intent (not just telemetry)
+
+Qualifiers are also useful when sending *commands*.
+
+Instead of forcing the host to compute an exact target that the device may not be able to hit cleanly, the host can send intent:
+
+### 6.1 Bounds delegate resolution to the device
+
+Example: “Set temperature to at least 100°C”:
+```bcode
+>100C
+```
+The device is responsible for:
+- choosing the nearest representable setpoint ≥ 100,
+- handling overshoot policy,
+- and acknowledging what it actually applied (if desired).
+
+### 6.2 Epsilon steps avoid “host knows device resolution”
+
+For “increase by the smallest representable increment”:
+```bcode
+<?C
+```
+This delegates the increment size to the device, avoiding a host-side dependency on device quantization.
+
+---
+
+## 7. Avoid interparameter dependency
+
+One of the strongest BCODe line-design principles is:
+
+> A parameter should “stand alone” as much as possible.
+
+Interparameter dependency is where protocols go to die: it creates hidden rules, brittle parsing, and complicated failure modes.
+
+### 7.1 Practical rules
+
+- If a value can be “invalid”, encode invalidity in the field itself (qualifiers), not in a separate field.
+- If a value needs a reason code, encode it in the same field as a diagnostic number.
+- If a value is stale, mark it stale with `!`, rather than introducing `A_age_ms`.
+- If a value is bounded, encode bounds with `<`/`>`, rather than `A_low` / `A_high` pairs unless you truly need intervals.
+
+### 7.2 Use reducers and masks for policy, not schema coupling
+
+The interpretation spec describes a “reducer” that summarizes per-field status into bitmasks (missing/empty/stale/exact/bound/diagnostic) so software layers can apply policy without baking in semantics. 
+
+Transforms and reducers naturally use 32-bit masks keyed by the 32 parameter identities. 
+
+Recommended pipeline:
+```text
+stream bytes
+  -> parse (syntax; latch on CMD)
+  -> optional transforms
+  -> reduce line (bitmask summary)
+  -> typed accessors / policy logic
+``` 
+
+---
+
+## 8. Convention: BCODe.meta (Command–Response)
+
+**BCODe.meta** is a convention for request/response framing, unsolicited statements, multiline grouping, and sequence counters. It reserves a small set of parameters for “protocol plumbing” rather than application data.
+
+### 8.1 Response tagging
+
+- `^` — affirmative response (optional integer value may be a timestamp)
+- `\` — negative response (optional numeric may be a reason code; may be negative)
+- `^\` — unsolicited statement (sent without a request; `^` may carry a timestamp)
+
+Commands themselves do not carry `^` or `\`.
+
+**Affirmative response, no timestamp**
+```bcode
+10A 0.0c
+^ 0.0c
+```
+
+**Affirmative response with timestamp**
+```bcode
+11B 2.0c
+192873121^ 2.0c
+```
+
+**Negative response, no reason**
+```bcode
+10A 0.0c
+\ 0.0c
+```
+
+**Negative response with reason**
+```bcode
+11B 2.0c
+-1.13\ 2.0c
+```
+
+**Unsolicited statement**
+```bcode
+^\ 10A 0.0f
+19283123123^\ 11B 2.0f
+```
+
+
+
+### 8.1.1 Error reporting in the `\` field (provisional)
+
+The `\` parameter MAY carry a numeric value to explain why a request was denied, rejected, or could not be processed.
+This section defines a **provisional** BCODe.rest error-code registry for that numeric value.
+
+This convention applies to:
+
+- **Negative responses** (lines tagged with `\`)
+- **Unsolicited follow-ons** (lines tagged with `^\`) where the `\` field carries a failure/status code
+
+If the `\` field is empty, the error/status is unspecified.
+
+#### 8.1.1.1 On-the-wire encoding
+
+BCODe.rest encodes an error as a **(group, subcode)** pair inside the `\` field.
+
+- The **group** is a negative integer (e.g., `-1`, `-2`, `-97`).
+- The **subcode** is a nonnegative integer written after the decimal point (e.g., `.0`, `.1`, `.12`).
+
+**Decoder requirement (normative):**  
+Decoders MUST NOT treat the error value as a floating-point quantity. They MUST decode it using the raw parsed integer pair:
+
+- `group` = signed integer from the integer part  
+- `subcode` = base-10 integer from the fractional digits (`value2`, using `frac_width`)
+
+This preserves the distinction between `-1.1` (subcode 1) and `-1.10` (subcode 10).
+
+**Encoding guidance (recommended):**
+- Always include a decimal point and at least one digit (i.e., prefer `-1.0\` over `-1\`).
+- For subcodes ≥ 10, include all digits (e.g., `-1.10\`).
+- Avoid leading zeros in the subcode (e.g., prefer `-1.2\` over `-1.02\`) unless you intentionally use fixed-width formatting.
+
+#### 8.1.1.2 Provisional registry constants (C header reference)
+
+The following reference definitions are taken from the existing PCOB implementation and translated to **BCODe.rest** naming.
+
+```text
+/* Error group constants */
+enum {
+	/** @brief General error */
+	BCODEREST_ERRGEN   = -1,
+
+	/** @brief Multiline error */
+	BCODEREST_ERRML    = -2,
+
+	BCODEREST_ERR_a    = -97,
+	BCODEREST_ERR_b    = -98,
+	BCODEREST_ERR_c    = -99,
+	BCODEREST_ERR_d    = -100,
+	BCODEREST_ERR_e    = -101,
+	BCODEREST_ERR_f    = -102,
+	BCODEREST_ERR_i    = -105,
+
+	/** @brief Base offset of device specific errors */
+	BCODEREST_ERRDEV   = -1000
+};
+
+/* General error subcodes (group = BCODEREST_ERRGEN) */
+enum {
+	/** @brief The command is unknown */
+	BCODEREST_ERRGEN_CMD_UNKNOWN,
+
+	/** @brief The resource id is unknown */
+	BCODEREST_ERRGEN_RES_UNKNOWN,
+
+	/** @brief The command sequence is missing */
+	BCODEREST_ERRGEN_SEQ_MISSING,
+
+	/** @brief The command sequence is unknown */
+	BCODEREST_ERRGEN_SEQ_UNKNOWN,
+
+	/** @brief Expected payload but was missing */
+	BCODEREST_ERRGEN_PAYLOAD_MISSING,
+
+	/** @brief Buffer reserved for payload overflowed */
+	BCODEREST_ERRGEN_PAYLOAD_OVERFLOW,
+
+	/** @brief Error in the payload data. */
+	BCODEREST_ERRGEN_PAYLOAD_INVALID,
+
+	/** @brief Parameter missing from command */
+	BCODEREST_ERRGEN_INDEX_MISSING,
+
+	/** @brief The resource index does not exist */
+	BCODEREST_ERRGEN_INDEX_UNKNOWN,
+
+	/** @brief Parameter missing from command */
+	BCODEREST_ERRGEN_PARAM_MISSING,
+
+	/** @brief Parameter exceeds acceptable range */
+	BCODEREST_ERRGEN_PARAM_OVERRANGE,
+
+	/** @brief Parameter is less than acceptable */
+	BCODEREST_ERRGEN_PARAM_UNDERRANGE,
+
+	/** @brief Parameter has bad qualifier */
+	BCODEREST_ERRGEN_PARAM_BADQUAL,
+
+	/** @brief Parameter value was invalid */
+	BCODEREST_ERRGEN_PARAM_INVALID,
+
+	/** @brief Number of multiline response messages exceed buffer */
+	BCODEREST_ERRGEN_RESP_OVERFLOW,
+
+	/** @brief Expected a range specification */
+	BCODEREST_ERRGEN_RANGE_MISSING,
+
+	/** @brief Expected range extent is too high */
+	BCODEREST_ERRGEN_RANGE_OVERFLOW,
+
+	/** @brief Expected more bcode lines in input */
+	BCODEREST_ERRGEN_LINE_MISSING,
+
+	COUNT_BCODEREST_ERRGEN
+};
+
+/* Multiline error subcodes (group = BCODEREST_ERRML) */
+enum {
+	/** @brief Missing multiline parameter in a sequence */
+	BCODEREST_ERRML_EXPECTED,
+
+	/** @brief Multiline command missing last value */
+	BCODEREST_ERRML_LAST_MISSING,
+
+	/** @brief Multiline command exceeds parser buffer */
+	BCODEREST_ERRML_LAST_OVERFLOW,
+
+	/** @brief Last element did not remain constant in sequence*/
+	BCODEREST_ERRML_LAST_ALTERED,
+
+	/** @brief Counter did not start at 1. */
+	BCODEREST_ERRML_CNTR_START,
+
+	/** @brief Counter is greater than last. */
+	BCODEREST_ERRML_CNTR_OVERRANGE,
+
+	/** @brief Counter did not match expected sequence. */
+	BCODEREST_ERRML_CNTR_SEQUENCE,
+
+	COUNT_BCODEREST_ERRML
+};
+
+/* Command-specific errors (examples) */
+
+enum {
+	/** @brief Write cannot complete because state is incompatible with parameter values */
+	BCODEREST_ERR_b_EXPECTATION,
+	BCODEREST_ERR_b_DENIED,
+	BCODEREST_ERR_b_INTERNAL,
+
+	COUNT_BCODEREST_ERR_b
+};
+
+enum {
+	/** @brief reject because the control itself is disabled. */
+	BCODEREST_ERR_c_DISABLED,
+
+	/** @brief reject because resource is not in applicable state. */
+	BCODEREST_ERR_c_NOT_APPLICABLE,
+
+	/** @brief an error occurred starting the control. */
+	BCODEREST_ERR_c_COMMENCEMENT,
+
+	COUNT_BCODEREST_ERR_c
+};
+
+enum {
+	/** @brief Resource is already allocated */
+	BCODEREST_ERR_i_PREV,
+
+	/** @brief Resource requires a dependency to be allocated */
+	BCODEREST_ERR_i_DEPENDENCY,
+
+	/** @brief Parameters supplied caused initialization error */
+	BCODEREST_ERR_i_INVALID,
+
+	COUNT_BCODEREST_ERR_i
+};
+```
+
+#### 8.1.1.3 General errors (group `-1`)
+
+For general errors, use:
+
+> `-(1).<subcode>\`  (i.e., `-1.<subcode>\`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERRGEN_CMD_UNKNOWN` | `-1.0\` | The command is unknown |
+| 1 | `BCODEREST_ERRGEN_RES_UNKNOWN` | `-1.1\` | The resource id is unknown |
+| 2 | `BCODEREST_ERRGEN_SEQ_MISSING` | `-1.2\` | The command sequence is missing |
+| 3 | `BCODEREST_ERRGEN_SEQ_UNKNOWN` | `-1.3\` | The command sequence is unknown |
+| 4 | `BCODEREST_ERRGEN_PAYLOAD_MISSING` | `-1.4\` | Expected payload but was missing |
+| 5 | `BCODEREST_ERRGEN_PAYLOAD_OVERFLOW` | `-1.5\` | Buffer reserved for payload overflowed |
+| 6 | `BCODEREST_ERRGEN_PAYLOAD_INVALID` | `-1.6\` | Error in the payload data |
+| 7 | `BCODEREST_ERRGEN_INDEX_MISSING` | `-1.7\` | Resource index (`@`) missing from command |
+| 8 | `BCODEREST_ERRGEN_INDEX_UNKNOWN` | `-1.8\` | Resource index does not exist |
+| 9 | `BCODEREST_ERRGEN_PARAM_MISSING` | `-1.9\` | Required parameter missing from command |
+| 10 | `BCODEREST_ERRGEN_PARAM_OVERRANGE` | `-1.10\` | Parameter exceeds acceptable range |
+| 11 | `BCODEREST_ERRGEN_PARAM_UNDERRANGE` | `-1.11\` | Parameter is less than acceptable |
+| 12 | `BCODEREST_ERRGEN_PARAM_BADQUAL` | `-1.12\` | Parameter has bad qualifier |
+| 13 | `BCODEREST_ERRGEN_PARAM_INVALID` | `-1.13\` | Parameter value was invalid |
+| 14 | `BCODEREST_ERRGEN_RESP_OVERFLOW` | `-1.14\` | Multiline response messages exceed buffer |
+| 15 | `BCODEREST_ERRGEN_RANGE_MISSING` | `-1.15\` | Expected a range specification |
+| 16 | `BCODEREST_ERRGEN_RANGE_OVERFLOW` | `-1.16\` | Expected range extent is too high |
+| 17 | `BCODEREST_ERRGEN_LINE_MISSING` | `-1.17\` | Expected more BCODe lines in input |
+
+#### 8.1.1.4 Multiline errors (group `-2`)
+
+For multiline errors, use:
+
+> `-(2).<subcode>\`  (i.e., `-2.<subcode>\`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERRML_EXPECTED` | `-2.0\` | Missing multiline parameter `[` in a sequence |
+| 1 | `BCODEREST_ERRML_LAST_MISSING` | `-2.1\` | Multiline command missing last value |
+| 2 | `BCODEREST_ERRML_LAST_OVERFLOW` | `-2.2\` | Multiline command exceeds parser buffer |
+| 3 | `BCODEREST_ERRML_LAST_ALTERED` | `-2.3\` | “Last element” did not remain constant in sequence |
+| 4 | `BCODEREST_ERRML_CNTR_START` | `-2.4\` | Counter did not start at 1 |
+| 5 | `BCODEREST_ERRML_CNTR_OVERRANGE` | `-2.5\` | Counter is greater than last |
+| 6 | `BCODEREST_ERRML_CNTR_SEQUENCE` | `-2.6\` | Counter did not match expected sequence |
+
+#### 8.1.1.5 Command-specific error groups (group = `-ASCII(command)`)
+
+BCODe.rest reserves command-specific error groups using the **negative ASCII** value of the command letter.
+
+| Group | Command | Notes |
+|------:|:------:|------|
+| -97  | `a` | Read dynamic |
+| -98  | `b` | Write configuration *(provisional)* |
+| -99  | `c` | Control operation |
+| -100 | `d` | *(reserved / TBD)* |
+| -101 | `e` | Read static |
+| -102 | `f` | Manage feeds |
+| -105 | `i` | Allocate / deallocate |
+
+Command-specific subcodes are command-defined. This document currently defines subcodes for `b`, `c`, and `i` (below).
+
+##### `b` write configuration errors (group `-98`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERR_b_EXPECTATION` | `-98.0\` | State incompatible with parameter values |
+| 1 | `BCODEREST_ERR_b_DENIED` | `-98.1\` | Write denied |
+| 2 | `BCODEREST_ERR_b_INTERNAL` | `-98.2\` | Internal error |
+
+##### `c` control operation errors (group `-99`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERR_c_DISABLED` | `-99.0\` | Control is disabled |
+| 1 | `BCODEREST_ERR_c_NOT_APPLICABLE` | `-99.1\` | Resource not in applicable state |
+| 2 | `BCODEREST_ERR_c_COMMENCEMENT` | `-99.2\` | Error starting the control |
+
+##### `i` allocate/deallocate errors (group `-105`)
+
+| Subcode | Symbol | Code | Meaning |
+|-------:|--------|------|---------|
+| 0 | `BCODEREST_ERR_i_PREV` | `-105.0\` | Resource already allocated |
+| 1 | `BCODEREST_ERR_i_DEPENDENCY` | `-105.1\` | Required dependency not allocated |
+| 2 | `BCODEREST_ERR_i_INVALID` | `-105.2\` | Initialization error due to supplied parameters |
+
+#### 8.1.1.6 Device-specific errors (group = `-1000 - ASCII(command)`)
+
+BCODe.rest reserves a device-specific error space per command:
+
+> **Device-specific group = BCODEREST_ERRDEV + (-(ASCII(command)))**
+
+Equivalently:
+
+> **Device-specific group = -(1000 + ASCII(command))**
+
+Examples:
+
+| Group  | Command | Meaning |
+|-------:|:------:|---------|
+| -1097 | `a` | Device errors |
+| -1098 | `b` | Device errors |
+| -1099 | `c` | Device errors |
+| -1100 | `d` | Device errors |
+| -1101 | `e` | Device errors |
+| -1102 | `f` | Device errors |
+| -1105 | `i` | Device errors |
+
+Device-specific subcodes (fractional digits) are vendor-defined. Vendors SHOULD document these codes in their `BCODe.rest` lookup mechanism (see §9.2.1) so third parties can decode failures without out-of-band knowledge.
+
+### 8.2 Multiline grouping: `[` (packet) and `]` (sequence)
+
+#### `[` — multiline packet tag
+
+The `[` parameter marks a set of lines as a **packet** that must be evaluated as a group.
+
+- The purpose of `[` is **atomic batching**: receivers SHOULD buffer packet lines and deliver them to the application **as a single grouped statement**, rather than exposing each line as an independent statement.
+- The `[` field on each line uses the form `i.t[`:
+  - integer part `i` identifies the **1-based line index** within the packet
+  - fractional part `t` identifies the **total number of lines** in the packet
+- Packet lines SHOULD be contiguous and in order (`1..t`). Interleaving lines from different packets is discouraged and may be treated as an error.
+- If a packet is incomplete or inconsistent (missing indices, mismatched totals, etc.), receivers SHOULD discard the packet (or surface an explicit packet error), rather than delivering partial application data.
+
+
+##### Open-ended packets (unknown length)
+
+Some **multiline responses** (direct responses or unsolicited follow-ons) cannot know their final line count when the first line is transmitted. In this case, a packet MAY be sent **without an upfront end bound** by qualifying the `[` parameter with the `>` qualifier.
+
+- Each **non-final** line MUST include a `[` field of the form `>n[` (single-integer), where `n` is the **1-based line index** within the packet.
+- The numeric `n` value MUST **monotonically increase** for each subsequent line (canonical form increments by `+1`).
+- The packet MUST be terminated by a **final** line whose `[` field is encoded in the fixed-bound form `n.t[` **without** the `>` qualifier, where `t` is the final total number of lines in the packet and `n == t`.
+  - This closing line MUST be syntactically indistinguishable from the last line of a packet that had fixed bounds from the start.
+- Receivers MUST NOT deliver any packet lines to the application until the terminating fixed-bound line is received (atomic batching).
+
+Example: open-ended packet closed at 3 lines
+```bcode
+>1[ 10A 1B 0.0a
+>2[ 11A 2B 3C 0.0a
+3.3[ 1A 2B 3C 0.0a
+```
+
+
+Example: three-line packet
+```bcode
+1.3[ 10A 1B 0.0a
+2.3[ 11A 2B 3C 0.0a
+3.3[ 1A 2B 3C 0.0a
+```
+
+Example: two-line unsolicited packet
+```bcode
+^\ 1.2[ 10A 3B 4C 0.0f
+^\ 2.2[ 78A 4B 0.0f
+```
+
+A response to a multiline command does not need to match the number of lines in the initial command.
+
+#### `]` — sequence number
+
+Use `]` as a sequence counter to help:
+- debug ordering,
+- detect missing statements,
+- detect remote resets (sequence discontinuity),
+- correlate multi-line packets.
+
+Example: three-line sequence
+```bcode
+100] 10A 1B 0.0a
+101] 11A 2B 3C 0.0a
+102] 1A 2B 3C 0.0a
+```
+
+Example: discontinuity (detect reset)
+```bcode
+1000] 10A 3B 0.0c
+0] 100A 1B 0.0c
+```
+
+**Design note:** choose a rollover strategy that makes rollover either known or extremely improbable (e.g., 64-bit).  
+
+
+### 8.3 RESET command (`` ` ``)
+
+The backtick command (`` ` ``) is reserved as a **RESET** command.
+
+**Semantics (normative):**
+- Upon receiving the RESET command, a device **MUST** silently discard any currently parsed parameters and any in-progress payload reception.
+- The device **MUST NOT** send any response (no `^` / `\` / `^\` tagging). RESET is intentionally silent.
+- After RESET, all `]` sequence counters transmitted from the device **MUST** restart from `0`.
+
+**Usage (informative):**
+- RESET is intended for session start or resynchronization on stream transports (serial consoles, terminal sessions, etc.) to ensure no lingering partial commands are in effect.
+- Because `$` string payloads terminate on a newline, RESET **SHOULD** be sent after one or more `\n` bytes to terminate any partially received string payload.
+- For extra insurance when attaching mid-stream, multiple `\n` bytes MAY be sent first to “pad” through any short binary payload reception on the receiver before issuing RESET.
+
+Example session-start resync sequence (bytes sent by host):
+```bcode
+\n\n\n`
+```
+
+
+---
+
+## 9. Convention: BCODe.rest (Process control over BCODe streams)
+
+**BCODe.rest** (renamed from “PCOB”) is a convention for simple control and telemetry over BCODe. It encodes the idea of **resources**, **indexes**, **commands**, and **command sequences**.
+
+This convention is “REST-inspired” in the **Representation State Transfer** sense, not “HTTP REST”.
+
+### 9.1 “REST” here is not HTTP
+
+HTTP REST is optimized for discrete, intermittent packet exchange.  
+BCODe.rest is optimized for **continuous streams** (serial ports, TCP streams, WebSockets) where ordering and incremental delivery are first-class.
+
+Not everything in BCODe.rest will map cleanly to HTTP verbs, and that is expected.
+
+### 9.2 Resource identifier (64-bit)
+
+A **resource** is identified by a unique 64-bit number, carried as the integer part of the BCODe command.
+
+Split:
+- Upper 32 bits: IANA PEN (namespacing by organization)
+- Lower 32 bits: resource identifier within that PEN’s namespace
+
+Resources typically model a record with multiple fields (e.g., thermostat: temperature, thresholds, state bits).
+
+### 9.2.1 Resource ID ownership and PEN-based lookup
+
+BCODe.rest treats the 64-bit **resource ID** as the primary key for decoding the meaning of a statement. If you do not know what a resource ID means, you cannot reliably interpret the line’s parameters.
+
+**Publishing rule (normative):**
+- Any party that publishes a BCODe.rest specification intended for interoperable third-party decoding **MUST** obtain an **IANA Private Enterprise Number (PEN)** and place it in the **upper 32 bits** of every resource ID it defines.
+- The PEN acts as a global namespace boundary. The lower 32 bits are then free for that PEN-holder to partition as needed.
+
+**Ad-hoc namespace (PEN = 0) (convention):**
+- A PEN value of `0` in the upper 32 bits designates a resource ID as **ad-hoc**: its meaning is not discoverable via the PEN lookup mechanism and requires full contextual information (out-of-band documentation, local agreements, or direct source access).
+- This is intended to streamline tinkering, prototypes, and initial development.
+- Any party publishing a specification intended for third-party decoding **MUST NOT** use PEN `0`; obtain an IANA PEN and use it instead.
+
+**Standard-definition namespace (PENs 5–8) (convention, TBD):**
+- IANA PEN values `5`, `6`, `7`, and `8` are early registry assignments (currently listed as ACC, TWG, CAYMAN, and PSI) and are treated by BCODe.rest as **defunct/appropriable** for standard resource definitions.
+- BCODe.rest reserves these PEN values for future **standard resource definitions** (governance and format TBD).
+- Until those standard definitions are published, implementations SHOULD treat these PENs as reserved and SHOULD NOT use them for vendor-specific namespaces.
+
+**Discovery rule (normative, convention):**
+- When a decoder encounters an unknown resource ID, it SHOULD:
+  1) Extract the upper 32-bit PEN.
+  2) If the PEN is `0`, treat the line as **ad-hoc** (no lookup is possible) and rely on full contextual information.
+  3) Otherwise, look up that PEN in the IANA PEN registry.
+  4) Extract a domain name from the registry’s contact email (typically the substring after `@`).
+  5) Retrieve the vendor’s BCODe.rest lookup document via HTTP at:
+
+     - `https://<domain>/BCODe.rest/lookup.json` (recommended)
+     - `http://<domain>/BCODe.rest/lookup.json` (optional fallback)
+
+The lookup document provides the mappings needed to interpret the resource and its parameter semantics (format TBD).
+
+**Implementation notes (informative):**
+- PEN holders SHOULD ensure their PEN registry contact email uses a stable organizational domain suitable for discovery (avoid throwaway email domains).
+- Consumers SHOULD cache lookup results (including negative results) and treat the lookup as advisory: lack of a lookup document must not break parsing of the underlying BCODe stream.
+
+
+### 9.3 Index (`@`)
+
+The parameter `@` identifies an instance of the resource (e.g., thermostat 0, 1, 2).  
+The index may include a fractional value to add another hierarchy layer.
+
+### 9.4 Command, command sequence, and response ordinal
+
+- The command is the **lowercase letter** at the end of the line.
+- The command sequence is the **fractional portion** of the command’s resource number (the `.N` part).
+- Statements associated with that request are numbered with a **response ordinal** encoded as a `*R` suffix on the command number.
+
+  - Syntactically, this reuses BCODe’s scientific exponent suffix (`*`), which is already parsed into `(exp_present, exp10)`.
+  - In **BCODe.rest**, interpret `exp10` as a **response ordinal**, not as numeric scaling (for the command field only).
+
+Rules:
+
+- A request command sequence `N` MUST be a nonnegative integer (application-defined).
+- Any statement that refers to that request MUST reuse the exact same sequence `N`.
+- Any such statement MUST include an explicit ordinal `*R` where `R` is a nonnegative integer (digits required; do not rely on the implicit default exponent).
+- For a given request, response ordinals SHOULD be **allocated monotonically** starting at `R = 0` and increasing when a *new kind* of statement is introduced.
+- A given ordinal `R` MAY be **repeated** to publish incremental updates for the same statement kind (for example, progress reporting).
+  - In that case, multiple lines with the same `*R` are an **update stream**; ordering should be determined by timestamps (on `^`) and/or a `]` sequence counter if present.
+
+This scheme allows a command that originally had a single response to evolve into “multiple responses” **without renumbering** the command sequence `N` (so you don’t shift dataset IDs embedded in that fractional portion).
+
+#### 9.4.1 Direct response vs delayed results (BCODe.meta interaction)
+
+BCODe.rest relies on `BCODe.meta` for command/response framing:
+
+**Direct response (immediate acknowledgement)**
+
+- The direct response to a command MUST be an **affirmative acknowledgement** tagged with `^`.
+- The direct response MUST begin with ordinal `*0`.
+- If the direct response requires more than one line, those lines MUST be grouped as a **multiline packet** using the `[` parameter (each line contains `[`).
+- Packet enumeration MAY be fixed-bound (`i.t[`) or open-ended (`>n[` ... terminating with `n.t[`), as defined in §8.2.
+- In a multiline direct response packet, ordinals MUST start at `*0` but MAY use `*1`, `*2`, … on subsequent lines. This ensures the interpretation of each line does **not** depend on the presence of `[`; `[` only controls **atomic batching**.
+
+**Delayed results (follow-on statements)**
+
+Delayed results are considered **unsolicited statements** and therefore:
+
+- MUST include both `^` and `\` tags (i.e. `^\` is present on each line).
+- MUST use ordinals that are either:
+  - **new ordinals** that continue after the direct response (e.g., if the direct response used `*0` only, the first new delayed statement uses `*1`; if the direct response used `*0..*2`, the first new delayed statement uses `*3`), or
+  - **repeats of an existing ordinal `R > 0`** to publish incremental updates (progress/status) for that stage.
+  - `*0` is reserved for the direct acknowledgement packet and MUST NOT be used for delayed follow-ons.
+- If a delayed result spans multiple lines, it MUST be grouped as a packet using `[` and SHOULD use consecutive ordinals within that packet.
+  - Open-ended packet enumeration (using `>` on `[`) is permitted when the final line count is not known up front; see §8.2.
+
+In unsolicited follow-ons, the `\` field MAY carry a numeric failure/status code (including negatives). If no failure/status code is needed, it may be empty; the presence of `\` still serves as part of the unsolicited marker in `^\`.
+
+
+
+#### 9.4.2 Ordinal reuse for progress / intermediate updates
+
+Sometimes a device needs to publish *incremental updates* for the same stage (for example, percent completion while an operation is running) without allocating a brand-new ordinal for every update.
+
+In that case, the device MAY **repeat** the same `*R` on multiple statements for the same command sequence `N`. Receivers should treat multiple statements with the same `(N, R)` as an update stream (for many applications, “latest wins”; for logs, keep all).
+
+Example (percent completion updates using repeated `*2`):
+
+```bcode
+^\ 30A 0.1*2a ; 30 percent complete
+^\ 35A 0.1*2a ; 35 percent complete
+```
+
+Example (direct acknowledgement only; delayed single-line result later):
+
+```bcode
+; Request
+0@ #07 03 02 05 01#.0a
+
+; Direct response: positive acknowledgement (no data)
+^ 0@ #07 03020501#.0*0a
+
+; Later: unsolicited result (success) tagged with ^\
+1231211231^\ 0@ 10A 3B #07 03020501#.0*1a
+```
+
+Example (multiline direct response: must use `[`; ordinals begin at *0 and continue):
+
+```bcode
+; Request
+0@ #07 03 02 05 01#.0a
+
+; Direct response: 2-line packet (grouped with [)
+1231211231^ 1.2[ 0@ 10A 3B #07 03020501#.0*0a
+1231211231^ 2.2[ 0@ 11A 4B #07 03020501#.0*1a
+```
+
+Example (direct acknowledgement only; delayed multi-line result later):
+
+```bcode
+; Request
+0@ #07 03 02 05 01#.0a
+
+; Direct response: positive acknowledgement (no data)
+^ 0@ #07 03020501#.0*0a
+
+; Later: unsolicited 2-line packet (grouped with [)
+1231211231^\ 1.2[ 0@ 10A 3B #07 03020501#.0*1a
+1231211231^\ 2.2[ 0@ 11A 4B #07 03020501#.0*2a
+```
+
+Example (direct acknowledgement; later unsolicited failure code on `\`):
+
+```bcode
+; Request
+0@ #07 03 02 05 01#.0a
+
+; Direct response: positive acknowledgement (no data)
+^ 0@ #07 03020501#.0*0a
+
+; Later: unsolicited completion with failure code (-1.3) on the \ field
+1231211231^-1.3\ 0@ #07 03020501#.0*1a
+```
+
+### 9.5 Read commands
+
+Two read classes:
+
+#### `a` — read dynamic dataset (timestamp recommended)
+
+**Synchronous data (returned in the direct response):**
+```bcode
+0@ #07 03 02 05 01#.0a
+1231211231^ 0@ 10A 3B #07 03020501#.0*0a
+```
+
+**Synchronous data across multiple lines (must be grouped with `[`):**
+```bcode
+0@ #07 03 02 05 01#.0a
+1231211231^ 1.2[ 0@ 10A 3B #07 03020501#.0*0a
+1231211231^ 2.2[ 0@ 11A 4B #07 03020501#.0*1a
+```
+
+**Delayed data (direct response is ack; data arrives later as unsolicited `^\`):**
+```bcode
+0@ #07 03 02 05 01#.0a
+^ 0@ #07 03020501#.0*0a
+1231211231^\ 0@ 10A 3B #07 03020501#.0*1a
+```
+
+**Delayed data across multiple lines (unsolicited result must still be grouped with `[`):**
+```bcode
+0@ #07 03 02 05 01#.0a
+^ 0@ #07 03020501#.0*0a
+1231211231^\ 1.2[ 0@ 10A 3B #07 03020501#.0*1a
+1231211231^\ 2.2[ 0@ 11A 4B #07 03020501#.0*2a
+```
+
+**Delayed failure (direct ack; later unsolicited completion carries a failure code on `\`):**
+```bcode
+0@ #07 03 02 05 01#.0a
+^ 0@ #07 03020501#.0*0a
+1231211231^-1.3\ 0@ #07 03020501#.0*1a
+```
+
+#### `e` — read static dataset (timestamp optional)
+
+**Synchronous data (returned in the direct response):**
+```bcode
+0@ #07 03 02 05 01#.0e
+^ 0@ 10A 3B #07 03020501#.0*0e
+```
+
+**Delayed data (direct ack; data arrives later as unsolicited `^\`):**
+```bcode
+0@ #07 03 02 05 01#.0e
+^ 0@ #07 03020501#.0*0e
+^\ 0@ 10A 3B #07 03020501#.0*1e
+```
+
+Other command letters (brief):
+
+
+- `c` — initiate resource control (req/resp)
+- `f` — data feed (unsolicited)
+- `i` — (de)allocate (req/multi-resp)
+
+---
+
+## 10. Streaming-first transport design
+
+BCODe assumes a stream:
+- no EOF requirement,
+- robust resynchronization after errors,
+- and deterministic parsing even with interleaving comments/payloads between tokens. 
+
+This makes BCODe a natural fit for:
+- serial ports
+- WebSockets
+- TCP streams
+- embedded debugging consoles
+
+### 10.1 Payloads: carry strings and binary without “JSON gymnastics”
+
+BCODe supports payloads as first-class syntax:
+- `$...` string payload (ends at LF or NUL; body is opaque)
+- `%...%` hex-byte payload (whitespace allowed; comments allowed inside)
+- `&` raw-binary payload (length derived from the numeric accumulator/value1; body is opaque) 
+
+Qualifiers apply **only to fields**, not to payloads. 
+
+---
+
+## 11. JSON vs BCODe (comparison boxes)
+
+### 11.1 Names, translation, and arbitration
+
+| Topic | JSON | BCODe |
+|---|---|---|
+| Field identification | String keys (names) | Letter parameters (codes) |
+| Cross-language friction | Keys often reflect one language’s vocabulary and abbreviations | Language-neutral wire identifiers |
+| Arbitration | Naming debates are common (“tempC” vs “temperature_celsius”) | No naming arbitration on the wire |
+| Schema churn | Renames and aliases become long-term baggage | Semantics evolve in docs/profiles while letters remain stable |
+| Tooling | Requires JSON tooling; grep is noisier | Grep-friendly by design |
+
+**Principle:** human language belongs in documentation and UI, not in the wire format.
+
+### 11.2 Strings, binary, and payload realism
+
+| Topic | JSON | BCODe |
+|---|---|---|
+| Strings | Native | Native (payloads) |
+| Binary | Not native; must be encoded (e.g., Base64) | Native (`&` raw-binary) |
+| Streaming fit | Encoded blobs and framing complicate streams | Payload bodies are designed for streams  |
+
+### 11.3 IEEE-754 telemetry fidelity
+
+BCODe’s qualifier classes explicitly represent exceptional numeric states such as infinity, NaN, null/no-data, epsilon, and signaling NaN. 
+
+A particularly important capability is signaling NaN:
+- `<>` and `-<>` are reserved for sNaN and carry a payload/code in `value1` (C1 only). 
+
+---
+
+## 12. When to choose something else
+
+Choose a different representation when you truly need:
+- nested trees / arbitrary depth objects,
+- large evolving schemas with self-describing names,
+- ad-hoc arrays of heterogeneous objects,
+- or interoperability primarily driven by “web document” tooling.
+
+BCODe is intentionally not trying to be everything.
+
+---
+
+## Appendix A. Quick reference: corrected “special value” spellings
+
+This appendix corrects and summarizes the standardized qualifier combinations (base `- < > ?` plus orthogonal `!`). 
+
+Examples shown with parameter `A`.
+
+### A.1 Unknown / pending
+```bcode
+?A
+?12A          ; optional diagnostic code
+```
+
+### A.2 Noise / unstable signal
+```bcode
+-?A
+-?3A          ; diagnostic code
+```
+
+### A.3 Epsilon (device’s smallest step)
+```bcode
+<?A           ; +epsilon
+-<?A          ; -epsilon
+```
+
+### A.4 Infinity (beyond measurable range)
+```bcode
+>?A           ; +infinity
+->?A          ; -infinity
+```
+
+### A.5 Null (explicit no-data)
+```bcode
+<>?A
+<>?0A         ; digits MAY be present; still NULL per qualifier class
+```
+
+### A.6 NaN (invalid computational result)
+```bcode
+-<>?A
+```
+
+### A.7 Signaling NaN (sNaN) with payload/code (C1 only)
+```bcode
+17<>A         ; sNaN code 17
+-17<>A        ; signed code (if your domain wants signed codes)
+```
+
+### A.8 Stale modifier (orthogonal)
+```bcode
+!12.3A
+!<>?A         ; stale null
+!17<>A        ; stale sNaN code 17
+!>?A          ; stale +infinity
+```
+
+---
+
+## Appendix B. Minimal “convention stack” recommendation
+
+If you want a pragmatic default for most device+host ecosystems:
+
+1) **BCODe syntax** (mandatory)   
+2) **BCODe interpretation** (strongly recommended)   
+3) **BCODe.meta** for request/response + sequencing  
+4) **BCODe.rest** for resource-oriented telemetry and control over streams
+
+This gives you:
+- stable parsing and typed accessors,
+- a robust command/response story,
+- and a scalable resource model—without abandoning BCODe’s simplicity.
+
+---
+
+*End of document.*
+</script>
+	<script src="../assets/site.js?v=20260401i"></script>
+	<footer>
+		<div class="footer-content">
+			<nav aria-label="Docs"><a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a> </nav>
+			<p class="footer-right">BCODe</p>
+		</div>
+	</footer>
+	<script src="../assets/lavalamp.js"></script>
+	<script type="module" src="../assets/doc-terminal.js?v=20260401i"></script>
+</body>
+
+</html>

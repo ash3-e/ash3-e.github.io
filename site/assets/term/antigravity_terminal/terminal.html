@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BCODe Alpha Reference</title>
+<link rel="stylesheet" href="styles.css">
+<!-- Highlight.js core (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<!-- BCODe language definition -->
+<script src="../assets/bcode_lang.js"></script>
+<!-- BCODe hljs theme -->
+<link rel="stylesheet" href="../assets/hljs-theme.css">
+</head>
+<body>
+
+<div id="terminal-root">
+  <!-- Top Row (Tabs & Select) -->
+  <div class="tabs-row">
+    <div class="tabs-left">
+      <span class="tab active" data-target="home">⌂ Home</span>
+      <span class="tab" data-target="term" style="margin-left: 1ch;">Terminal</span>
+    </div>
+    <div class="tabs-right">
+      <select id="options-select" style="background: transparent; color: var(--fg); border: 1px solid #fff; border-radius: 4px; padding: 0 1ch; margin-right: 1ch; outline: none; appearance: none; cursor: pointer; font-family: inherit; font-size: inherit;">
+        <option value="bcode" style="background: #000; color: #c6a8ff;">BCODe α</option>
+        <option value="reset" style="background: #000; color: #c6a8ff;">Parser reset - DEL</option>
+        <option value="clear" style="background: #000; color: #c6a8ff;">Clear feed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main View Container -->
+  <div class="views-container">
+    
+    <!-- Home View -->
+    <div id="view-home" class="view active">
+      <!-- docs pane -->
+      <div id="home-docs" class="pane hover-border">
+        <div class="pane-title" style="left: 2ch;"> docs / guide </div>
+        <div class="pane-content" id="docs-content">
+          <div class="list-item"><span class="bullet" style="color:var(--bcode-green)">●</span> <code class="bcode-inline">24A 0.0s</code>   <span class="desc">set blob target</span></div>
+          <div class="list-item"><span class="bullet" style="color:#7a8799;">○</span> <code class="bcode-inline">4.9B 0.0s</code>  <span class="desc">radius pair example</span></div>
+          <div class="list-item"><span class="bullet" style="color:#7a8799;">○</span> <code class="bcode-inline">&lt;18A 0.0s</code> <span class="desc">bound-style input</span></div>
+          <div class="list-item"><span class="bullet" style="color:#7a8799;">○</span> <code class="bcode-inline">$neon$ 0.0s</code> <span class="desc">string payload</span></div>
+          <div class="list-item"><span class="bullet" style="color:#7a8799;">○</span> <code class="bcode-inline">#414243# 0.0s</code> <span class="desc">hex payload</span></div>
+          <div class="list-item"><span class="bullet" style="color:#7a8799;">○</span> <code class="bcode-inline">0.0q</code>      <span class="desc">query snapshot</span></div>
+        </div>
+        <div class="pane-bottom-text" style="left: 2ch;">examples and docs</div>
+      </div>
+
+      <!-- feed pane -->
+      <div id="home-feed" class="pane hover-border">
+        <div class="pane-title" style="left: 2ch;">state feed</div>
+        <div class="pane-content" id="telemetry-list">
+          <div class="list-item"><span class="bullet">•</span> <span class="desc">parser: normal</span></div>
+          <div class="list-item"><span class="bullet">•</span> <span class="desc">blobs: 19</span></div>
+          <div class="list-item"><span class="bullet">•</span> <span class="desc"># cells: 318</span></div>
+          <div class="list-item"><span class="bullet">•</span> <span class="desc">density mean: 0.63</span></div>
+          <div class="list-item"><span class="bullet">•</span> <span class="desc">fps: 60</span></div>
+          <div class="list-item"><span class="bullet">•</span> <span class="desc">status: ready</span></div>
+        </div>
+        <div class="pane-bottom-text" style="left: 2ch;">BCODe output </div>
+      </div>
+
+      <!-- history drawer overlay -->
+      <div id="home-history" class="pane hover-border">
+        <div class="pane-title" style="right: 2ch;"> command / output history </div>
+        <div class="pane-content auto-scroll" id="history-content"></div>
+      </div>
+    </div>
+
+    <!-- Terminal View -->
+    <div id="view-term" class="view">
+      <div id="term-req" class="pane hover-border">
+        <div class="pane-title" style="left: 2ch;">request/response channel</div>
+        <div class="pane-content auto-scroll" id="req-channel-content"></div>
+      </div>
+
+      <div id="term-feed" class="pane hover-border">
+        <div class="pane-title" style="left: 2ch;">unsolicited feed</div>
+        <div class="pane-content auto-scroll" id="unsolicited-feed-content"></div>
+      </div>
+    </div>
+
+  </div> <!-- /views container -->
+
+  <!-- Command Area -->
+  <div id="cmd-prompt" class="select-none">[&gt;]</div>
+  <div id="cmd-input-box" class="pane">
+    <div id="cmd-mirror" aria-hidden="true" class="language-bcode hljs"></div>
+    <input type="text" id="cmd-input" autocomplete="off" spellcheck="false" autofocus />
+  </div>
+  <div id="cmd-send" class="pane select-none">→</div>
+
+</div>
+
+<!-- Logic -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

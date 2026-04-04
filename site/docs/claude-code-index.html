@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Documentation — BCODe</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet" href="../assets/claude-code-styles.css" />
+</head>
+
+<body data-page-type="hub" data-agent="claude-code">
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+
+  <header>
+    <div class="header-content">
+      <a class="brand" href="../index.html" aria-label="Home">
+        <img src="../assets/logo.png" alt="BCODe">
+        <span class="tag">Documentation</span>
+      </a>
+      <a class="fixed-doc-btn" href="../docs/claude-code-index.html" aria-label="Documentation">
+        <img src="../assets/documentation.svg" alt="">
+        <span>Documentation</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="stack">
+
+        <!-- ── Hero / Search ── -->
+        <section class="cc-hero">
+          <h1>BCODe Documentation</h1>
+          <p>Interactive architecture map. Hover nodes to preview, search to highlight matches, click to jump.</p>
+          <div class="cc-search-row">
+            <div class="cc-search-wrap">
+              <img class="cc-search-icon" src="../assets/magnify.svg" alt="" aria-hidden="true">
+              <input id="ccSearchInput" class="cc-search-input" type="search"
+                placeholder="Search documentation…" aria-label="Search documentation"
+                autocomplete="off" spellcheck="false"/>
+            </div>
+            <span class="cc-search-meta" id="ccSearchMeta" aria-live="polite">Hover a node to preview it.</span>
+          </div>
+          <div class="cc-legend" aria-hidden="true">
+            <span class="cc-legend-pill">Hover to preview</span>
+            <span class="cc-legend-pill">Search to glow matches</span>
+            <span class="cc-legend-pill">Click to jump</span>
+          </div>
+        </section>
+
+        <!-- ── Sitemap card ── -->
+        <section class="cc-sitemap-card">
+          <h2 class="cc-sitemap-card-hd">Documentation Architecture Map</h2>
+          <p class="cc-sitemap-card-sub">
+            Aligned to <code>bcode-doc-nav-final.svg</code> — connector paths, node positions, and dashed separator extracted directly from the SVG.
+          </p>
+          <div id="ccSitemapShell"></div>
+        </section>
+
+        <!-- ── Bottom preview card ── -->
+        <section class="cc-preview-card" id="ccPreviewCard"
+          tabindex="0" role="button" aria-live="polite" aria-label="Documentation preview — click to open">
+          <div class="cc-preview-eyebrow">Documentation Preview</div>
+          <div class="cc-preview-head">
+            <div>
+              <h2 class="cc-preview-title" id="ccPvTitle">Intro</h2>
+              <p class="cc-preview-meta" id="ccPvMeta">bcode-intro-v2</p>
+            </div>
+            <div class="cc-preview-action" aria-hidden="true">Open →</div>
+          </div>
+          <div class="cc-preview-body">
+            <p class="cc-preview-summary" id="ccPvSummary">
+              Narrative introduction to BCODe fundamentals, stream framing, and practical engineering tradeoffs.
+            </p>
+            <div class="cc-preview-snippet" id="ccPvSnippet"></div>
+            <div class="cc-preview-chips" id="ccPvChips"></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <nav aria-label="Docs">
+        <a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-interpretation-v10.html">Interpretation</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-meta-library-semantics-v9.html">Meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a>
+      </nav>
+      <p class="footer-right">BCODe</p>
+    </div>
+  </footer>
+
+  <script src="../assets/claude-code-site.js"></script>
+  <script src="../assets/lavalamp.js"></script>
+
+</body>
+</html>

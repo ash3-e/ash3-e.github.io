@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" rx="72" fill="#1a57c8"/>
+  <path d="M120 180C230 90 430 110 540 180s160 200 70 310-280 180-430 120S10 270 120 180Z" fill="#e6de93" opacity="0.88"/>
+  <text x="88" y="158" fill="#fff7df" font-family="Georgia, serif" font-size="82">Portfolio Groups</text>
+  <text x="88" y="240" fill="#fff7df" font-family="Trebuchet MS, sans-serif" font-size="34">Repeatable summary blocks + slider modules</text>
+  <rect x="90" y="320" width="500" height="420" rx="34" fill="#0f5e67"/>
+  <rect x="618" y="320" width="492" height="420" rx="34" fill="#fbf7e7"/>
+  <text x="148" y="550" fill="#f8f5df" font-family="Trebuchet MS, sans-serif" font-size="48">1 x 2 Module</text>
+</svg>

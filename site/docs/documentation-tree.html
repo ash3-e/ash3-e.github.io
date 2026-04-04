@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Documentation</title>
+  <link rel="stylesheet" href="../assets/codex-styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+  <link rel="stylesheet" href="../assets/hljs-theme.css">
+</head>
+
+<body data-page-type="hub" data-agent="codex">
+  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+  <header>
+    <div class="header-content">
+      <a class="brand" href="../index.html" aria-label="Home">
+        <img src="../assets/logo.png" alt="BCODe">
+        <span class="tag">Documentation</span>
+      </a>
+      <a class="fixed-doc-btn" href="../docs/documentation-tree.html" aria-label="Documentation">
+        <img src="../assets/documentation.svg" alt="">
+        <span>Documentation</span>
+      </a>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <div class="stack">
+        <section class="card codex-hero-card mode-switcher-host">
+          <div class="mode-switcher-wrap codex-mode-switcher-wrap">
+            <button type="button" class="mode-switcher" id="codexThemeToggle" aria-expanded="false" aria-label="Theme switcher">
+              <img class="mode-switcher-icon" id="codexThemeIcon" alt="">
+              <span class="mode-caret">&#9662;</span>
+            </button>
+            <button type="button" class="mode-switcher lava-toggle" id="codexLavaToggle" aria-pressed="true" aria-label="Toggle lava lamp background">
+              <img class="mode-switcher-icon lava-toggle-icon" src="../assets/lava.svg" alt="Lava lamp">
+            </button>
+            <div class="mode-switcher-menu" id="codexThemeMenu">
+              <div class="mode-switcher-row">
+                <button type="button" class="mode-switcher-item" data-mode="light">
+                  <img class="mode-switcher-item-icon" src="../assets/sun.svg" alt="">
+                  <span class="mode-switcher-item-label">Light</span>
+                  <span class="mode-switcher-check">&#10003;</span>
+                </button>
+                <button type="button" class="mode-switcher-item" data-mode="balanced">
+                  <img class="mode-switcher-item-icon" src="../assets/half.svg" alt="">
+                  <span class="mode-switcher-item-label">Balanced</span>
+                  <span class="mode-switcher-check">&#10003;</span>
+                </button>
+                <button type="button" class="mode-switcher-item" data-mode="dark">
+                  <img class="mode-switcher-item-icon" src="../assets/moon.svg" alt="">
+                  <span class="mode-switcher-item-label">Dark</span>
+                  <span class="mode-switcher-check">&#10003;</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <h1>Documentation</h1>
+          <p>Interactive architecture map. Hover softly highlights, click once previews, click again opens.</p>
+          <div class="search-row hub-top-search">
+            <div class="hub-search-input-wrap reader-search-input-wrap">
+              <img class="reader-search-input-icon" src="../assets/magnify.svg" alt="">
+              <input id="docSearch" class="dock-input" type="search" placeholder="Search documentation..."
+                aria-label="Search documentation">
+              <button type="button" id="codexSearchClear" class="codex-search-clear" aria-label="Clear search">&times;</button>
+            </div>
+            <span class="codex-search-meta" id="codexSearchMeta" aria-live="polite">Search within Documentation</span>
+          </div>
+          <div class="codex-search-help" aria-hidden="true">
+            <div class="codex-sitemap-legend">
+              <span class="codex-legend-pill">Click Selects Preview</span>
+              <span class="codex-legend-pill">Double Click to Jump to Document</span>
+              <span class="codex-legend-pill">Search for Contextual Preview</span>
+              <span class="codex-legend-pill">Scroll Preview</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card codex-sitemap-card">
+          <div class="codex-sitemap-shell" id="codexSitemapShell">
+            <svg class="codex-sitemap-connectors" id="codexSitemapConnectors" aria-hidden="true"></svg>
+            <div class="codex-sitemap-tree" id="codexSitemapTree"></div>
+          </div>
+          <section class="card codex-gallery-card" id="codexGalleryCard" tabindex="0">
+            <div class="codex-gallery-eyebrow">Example Gallery</div>
+            <div class="codex-gallery-head">
+              <h2 class="codex-gallery-title">Example Gallery</h2>
+              <span class="codex-gallery-badge">intro subtree</span>
+            </div>
+            <div class="codex-gallery-body">
+              <div class="codex-example-gallery-list" id="codexExampleGalleryList"></div>
+            </div>
+          </section>
+          <section class="card codex-preview-card" id="codexPreviewCard" tabindex="0" aria-live="polite">
+            <div class="codex-preview-eyebrow">Documentation Preview</div>
+            <div class="codex-preview-head">
+              <div>
+                <h2 id="codexPreviewTitle">Intro</h2>
+                <p id="codexPreviewMeta">bcode-intro-v2</p>
+              </div>
+              <button type="button" class="codex-preview-action" id="codexPreviewOpen">Open &rarr;</button>
+            </div>
+            <div class="codex-preview-body" id="codexPreviewBody">
+              <p id="codexPreviewSummary"></p>
+              <div class="codex-preview-snippet" id="codexPreviewSnippet"></div>
+              <div class="codex-preview-subrows" id="codexPreviewSubrows"></div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-content">
+      <nav aria-label="Docs">
+        <a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a>
+      </nav>
+      <p class="footer-right">BCODe</p>
+    </div>
+  </footer>
+  <script src="../assets/codex-docs-data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/bcode_lang.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="../assets/codex-site.js"></script>
+  <script src="../assets/lavalamp.js"></script>
+</body>
+
+</html>

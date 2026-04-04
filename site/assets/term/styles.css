@@ -1,0 +1,406 @@
+@import url("assets/hljs-theme.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --fg: #c6a8ff;
+  --bg: #000000;
+  --border: #c6a8ff;
+  --dim: rgba(198, 168, 255, 0.62);
+  --faint: rgba(198, 168, 255, 0.34);
+  --bcode-plain: var(--fg);
+  --font: Consolas, "SFMono-Regular", Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
+  --fs: 14px;
+  --rh: 20px;
+  --screen-w: 80ch;
+  --screen-h: calc(24 * var(--rh));
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 16px;
+  font-family: var(--font);
+  overflow: auto;
+}
+
+#screen {
+  width: min(var(--screen-w), calc(100vw - 32px));
+  max-width: var(--screen-w);
+  height: min(var(--screen-h), calc(100vh - 32px));
+  max-height: var(--screen-h);
+  display: grid;
+  grid-template-rows: calc(3 * var(--rh)) 1fr calc(2 * var(--rh));
+  background: var(--bg);
+  color: var(--fg);
+  font-size: var(--fs);
+  line-height: var(--rh);
+  position: relative;
+  overflow: hidden;
+}
+
+#tab-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 0 1ch;
+}
+
+#tab-strip {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: 0;
+}
+
+.tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  color: var(--faint);
+  font: inherit;
+  line-height: var(--rh);
+  padding: 0 1.5ch;
+  position: relative;
+  bottom: -1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover,
+.tab:focus-visible {
+  color: var(--fg);
+  outline: none;
+}
+
+.tab.active {
+  color: var(--fg);
+  border-color: var(--border);
+  background: var(--bg);
+}
+
+#title-area {
+  height: var(--rh);
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  white-space: nowrap;
+}
+
+#title-text {
+  color: var(--fg);
+}
+
+#term-menu {
+  display: none;
+  appearance: none;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  font: inherit;
+  line-height: var(--rh);
+  padding: 0 0.75ch;
+  height: calc(var(--rh) + 2px);
+  cursor: pointer;
+}
+
+#main-area {
+  position: relative;
+  overflow: hidden;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+  display: none;
+  min-height: 0;
+}
+
+.view.active {
+  display: block;
+}
+
+.panes-row {
+  display: grid;
+  grid-template-columns: minmax(0, 39fr) minmax(0, 38fr);
+  gap: 1ch;
+  padding: 0 1ch;
+  height: 100%;
+  min-height: 0;
+}
+
+.pane {
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg);
+  position: relative;
+}
+
+.pane-label {
+  flex: 0 0 auto;
+  line-height: var(--rh);
+  padding: 0 1ch;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.pane-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 1ch;
+  scrollbar-width: none;
+}
+
+.pane-body::-webkit-scrollbar {
+  display: none;
+}
+
+.pane-foot {
+  flex: 0 0 auto;
+  line-height: var(--rh);
+  padding: 0 1ch;
+  color: var(--dim);
+}
+
+#home-view {
+  position: absolute;
+  inset: 0;
+}
+
+#history-panel {
+  position: absolute;
+  left: 1ch;
+  right: 1ch;
+  bottom: 0;
+  height: calc(12 * var(--rh));
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.history-label {
+  position: absolute;
+  top: -1px;
+  right: 2ch;
+  transform: translateY(-50%);
+  background: var(--bg);
+  padding: 0 0.5ch;
+  z-index: 1;
+}
+
+#history-body {
+  padding-top: calc(var(--rh) * 0.65);
+}
+
+#command-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1ch;
+  padding: 0 1ch;
+  align-items: stretch;
+}
+
+#prompt,
+#send-btn {
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  line-height: calc(2 * var(--rh) - 2px);
+  padding: 0 0.9ch;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#prompt:hover,
+#send-btn:hover,
+#prompt:focus-visible,
+#send-btn:focus-visible {
+  background: rgba(198, 168, 255, 0.08);
+  outline: none;
+}
+
+#cmd-box {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  min-width: 0;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+#prompt {
+  border: none;
+  border-right: 1px solid rgba(198, 168, 255, 0.25);
+  flex: 0 0 auto;
+}
+
+#send-btn {
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+#input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#input-hl,
+#cmd-input {
+  font: inherit;
+  line-height: calc(2 * var(--rh) - 2px);
+  white-space: pre;
+  padding: 0 1ch;
+}
+
+#input-hl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  color: var(--fg);
+}
+
+#cmd-input {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--fg);
+}
+
+#cmd-input::selection {
+  background: rgba(198, 168, 255, 0.22);
+  color: transparent;
+}
+
+body[data-view="home"] #send-btn {
+  display: none;
+}
+
+body[data-view="home"] #command-bar {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.guide-entry,
+.guide-note,
+.bcode-line {
+  min-height: var(--rh);
+  line-height: var(--rh);
+  font: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.guide-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.guide-entry + .guide-entry {
+  margin-top: 0;
+}
+
+.guide-bullet {
+  color: var(--fg);
+  flex: 0 0 auto;
+}
+
+.guide-code {
+  flex: 0 0 auto;
+}
+
+.guide-desc {
+  color: var(--dim);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.guide-spacer,
+.blank-line {
+  height: var(--rh);
+}
+
+.guide-note {
+  color: var(--dim);
+}
+
+.bcode-line {
+  color: var(--fg);
+}
+
+.output-prefix {
+  color: var(--fg);
+}
+
+.bcode-line pre,
+.bcode-line code,
+.guide-entry code,
+.guide-entry pre {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  background: transparent;
+  white-space: pre-wrap;
+}
+
+.line-group {
+  display: block;
+}
+
+#docs-body,
+#state-body,
+#reqresp-body,
+#feed-body,
+#history-body {
+  padding-bottom: 0.5ch;
+}
+
+#docs-body .guide-note:last-child {
+  margin-bottom: 0;
+}
+
+.muted {
+  color: var(--dim);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 980px), (max-height: 640px) {
+  body {
+    padding: 8px;
+  }
+
+  :root {
+    --fs: 12px;
+    --rh: 17px;
+  }
+}

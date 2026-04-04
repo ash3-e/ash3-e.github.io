@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCODe Alpha Terminal</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- No local highlight.js runtime was attached, so the prototype uses the same CDN runtime
+       already used by the documentation pages, plus the provided BCODe grammar file. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="assets/bcode_lang.js"></script>
+</head>
+<body data-view="home">
+  <main id="screen" aria-label="BCODe alpha terminal prototype">
+    <header id="tab-bar">
+      <div id="tab-strip" role="tablist" aria-label="Views">
+        <button type="button" class="tab active" data-view="home" role="tab" aria-selected="true">Home</button>
+        <button type="button" class="tab" data-view="terminal" role="tab" aria-selected="false">Terminal</button>
+      </div>
+      <div id="title-area">
+        <span id="title-text">BCODe α</span>
+        <select id="term-menu" aria-label="Terminal actions">
+          <option value="">BCODe α</option>
+          <option value="reset">Parser reset - DEL</option>
+          <option value="clear">Clear feed</option>
+        </select>
+      </div>
+    </header>
+
+    <section id="main-area">
+      <section id="home-view" class="view active" aria-label="Home view">
+        <div class="panes-row">
+          <section class="pane" id="docs-pane" aria-label="docs guide">
+            <div class="pane-label">docs / guide</div>
+            <div class="pane-body" id="docs-body"></div>
+            <div class="pane-foot">examples and docs</div>
+          </section>
+          <section class="pane" id="state-pane" aria-label="state feed">
+            <div class="pane-label">state feed</div>
+            <div class="pane-body" id="state-body"></div>
+            <div class="pane-foot">live unsolicited state</div>
+          </section>
+        </div>
+
+        <section id="history-panel" aria-label="command output history">
+          <div class="pane-label history-label">command / output history</div>
+          <div class="pane-body" id="history-body"></div>
+        </section>
+      </section>
+
+      <section id="terminal-view" class="view" aria-label="Terminal view">
+        <div class="panes-row">
+          <section class="pane" id="reqresp-pane" aria-label="request response channel">
+            <div class="pane-label">request/response channel</div>
+            <div class="pane-body" id="reqresp-body"></div>
+          </section>
+          <section class="pane" id="feed-pane" aria-label="unsolicited feed">
+            <div class="pane-label">unsolicited feed</div>
+            <div class="pane-body" id="feed-body"></div>
+          </section>
+        </div>
+      </section>
+    </section>
+
+    <footer id="command-bar">
+      <div id="cmd-box">
+        <button type="button" id="prompt" aria-label="Focus command input">[&gt;]</button>
+        <div id="input-wrap">
+          <div id="input-hl" aria-hidden="true"></div>
+          <input id="cmd-input" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="BCODe command input">
+        </div>
+      </div>
+      <button type="button" id="send-btn" aria-label="Send command">→</button>
+    </footer>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

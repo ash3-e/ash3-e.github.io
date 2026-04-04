@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f5e67"/>
+      <stop offset="100%" stop-color="#2d9a48"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" rx="72" fill="url(#g)"/>
+  <circle cx="260" cy="250" r="160" fill="#e4dc90" opacity="0.85"/>
+  <circle cx="920" cy="640" r="190" fill="#f5eed0" opacity="0.24"/>
+  <text x="90" y="170" fill="#f8f5df" font-family="Georgia, serif" font-size="78">Resume Systems</text>
+  <text x="90" y="245" fill="#f8f5df" font-family="Trebuchet MS, sans-serif" font-size="32">Latched content pairings and local admin editing</text>
+  <rect x="90" y="320" width="1020" height="420" rx="34" fill="#fbf7e7" opacity="0.9"/>
+  <text x="145" y="420" fill="#12353b" font-family="Trebuchet MS, sans-serif" font-size="36">Slide Preview</text>
+  <text x="145" y="485" fill="#12353b" font-family="Trebuchet MS, sans-serif" font-size="28">Use the local file tree to replace this starter image.</text>
+</svg>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BCODe Alpha Terminal</title>
+  <!-- hljs theme must load before styles.css so custom properties resolve -->
+  <link rel="stylesheet" href="../assets/hljs-theme.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- highlight.js runtime -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- BCODe grammar — path relative to term/ -->
+  <script src="../assets/bcode_lang.js"></script>
+</head>
+<body data-view="home">
+  <main id="screen" aria-label="BCODe alpha terminal prototype">
+
+    <header id="tab-bar">
+      <div id="tab-strip" role="tablist" aria-label="Views">
+        <button type="button" class="tab active" data-view="home" role="tab" aria-selected="true">&#x2302; Home</button>
+        <button type="button" class="tab" data-view="terminal" role="tab" aria-selected="false">Terminal</button>
+      </div>
+      <div id="title-area">
+        <!-- Custom terminal-native dropdown — visible only in terminal view via CSS -->
+        <div id="term-menu-wrap">
+          <button type="button" id="term-menu-btn" aria-haspopup="true" aria-expanded="false">BCODe &#x03b1; &#x25be;</button>
+          <div id="term-menu-drop" role="menu" aria-hidden="true">
+            <button type="button" class="term-menu-item" data-action="reset" role="menuitem">Parser reset - DEL</button>
+            <button type="button" class="term-menu-item" data-action="clear" role="menuitem">Clear feed</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="main-area">
+
+      <!-- Home view: docs + state panes -->
+      <section id="home-view" class="view active" aria-label="Home view">
+        <div class="panes-row">
+          <section class="pane" id="docs-pane" aria-label="docs guide">
+            <div class="pane-label"> docs / guide </div>
+            <div class="pane-body" id="docs-body"></div>
+            <div class="pane-foot">examples and docs</div>
+          </section>
+          <section class="pane" id="state-pane" aria-label="state feed">
+            <div class="pane-label">state feed</div>
+            <div class="pane-body" id="state-body"></div>
+            <div class="pane-foot">live unsolicited state</div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Terminal view: request/response + unsolicited feed -->
+      <section id="terminal-view" class="view" aria-label="Terminal view">
+        <div class="panes-row">
+          <section class="pane" id="reqresp-pane" aria-label="request response channel">
+            <div class="pane-label">request/response channel</div>
+            <div class="pane-body" id="reqresp-body"></div>
+          </section>
+          <section class="pane" id="feed-pane" aria-label="unsolicited feed">
+            <div class="pane-label">unsolicited feed</div>
+            <div class="pane-body" id="feed-body"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- History drawer: lives in main-area so it overlays both views.
+           Hidden by default; [>] toggles it from either tab. -->
+      <section id="history-panel" class="hidden" aria-label="command output history">
+        <div class="history-label"> command / output history </div>
+        <div id="history-body"></div>
+      </section>
+
+    </section>
+
+    <footer id="command-bar">
+      <div id="cmd-box">
+        <!-- [>] toggles history on Home; focuses input always -->
+        <button type="button" id="prompt" aria-label="Toggle history / Focus input">[&gt;]</button>
+        <div id="input-wrap">
+          <!-- Syntax-highlighted mirror layer (pointer-events: none) -->
+          <div id="input-hl" aria-hidden="true"></div>
+          <!-- Actual input — transparent text, caret visible -->
+          <input id="cmd-input" type="text" spellcheck="false" autocomplete="off"
+                 autocapitalize="off" aria-label="BCODe command input">
+        </div>
+      </div>
+      <button type="button" id="send-btn" aria-label="Send command">&#x2192;</button>
+    </footer>
+
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

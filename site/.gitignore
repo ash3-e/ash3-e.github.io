@@ -1,0 +1,31 @@
+@"
+# Context bombs
+codex-last-20-prompts-context.md
+codex-docs-data.js
+
+# Other agents implementations
+codex-site.js
+codex-styles.css
+antigravity-index.html
+antigravity-site.js
+antigravity-styles.css
+
+# Heavy generated assets in root (not refs/)
+compactdarkopus800dpi.png
+compactlightopus800dpi.png
+compactmidnightopus800dpi.png
+
+# Heavy / irrelevant
+node_modules/
+.git/
+.vexp/
+backup*/
+_restore/
+drive-download-*/
+REQUESTED_CHANGE_IMAGES_LETTERED/
+*.min.js
+*.min.css
+*.zip
+.DS_Store
+Thumbs.db
+"@ | Set-Content .\.claudeignore -Encoding UTF8
