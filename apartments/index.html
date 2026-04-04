@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+<<<<<<< HEAD
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,4 +22,856 @@
   <body>
     <div id="root"></div>
   </body>
+=======
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Squirrel Hill Apartments | Curated 2BR Listings in Pittsburgh</title>
+<meta name="description" content="Curated 2-bedroom apartment listings for Squirrel Hill, Pittsburgh, with better filtering, richer presentation, and a GitHub Pages-friendly single-file build." />
+<meta name="theme-color" content="#0d1117" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0d1117;
+    --bg-soft: #121926;
+    --panel: rgba(17, 24, 35, 0.7);
+    --panel-strong: rgba(17, 24, 35, 0.9);
+    --panel-warm: rgba(28, 21, 17, 0.78);
+    --line: rgba(214, 188, 141, 0.16);
+    --line-strong: rgba(214, 188, 141, 0.3);
+    --text: #f7f3ee;
+    --muted: #b9ab99;
+    --muted-strong: #e2d6c5;
+    --gold: #d6bc8d;
+    --gold-strong: #f4dfb4;
+    --teal: #5fd4c4;
+    --shadow: 0 30px 90px rgba(0, 0, 0, 0.34);
+    --radius-xl: 32px;
+    --radius-lg: 24px;
+    --radius-md: 18px;
+    --radius-sm: 14px;
+    --content: min(1180px, calc(100vw - 32px));
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(95, 212, 196, 0.14), transparent 24%),
+      radial-gradient(circle at 85% 12%, rgba(214, 188, 141, 0.16), transparent 20%),
+      radial-gradient(circle at 50% 100%, rgba(88, 54, 38, 0.28), transparent 26%),
+      linear-gradient(180deg, #091018 0%, #0f1621 44%, #17120f 100%);
+    color: var(--text);
+    font-family: "Josefin Sans", sans-serif;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02)),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.016) 0, rgba(255, 255, 255, 0.016) 1px, transparent 1px, transparent 22px);
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 92%);
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: #16110d;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  button,
+  a {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  .shell {
+    width: var(--content);
+    margin: 0 auto;
+  }
+
+  .glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    background-color: var(--panel);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar {
+    padding: 22px 0 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .topbar-row,
+  .brand,
+  .hero-search,
+  .chip-row,
+  .filter-row,
+  .card-meta,
+  .amenities,
+  .card-actions,
+  .stats-row,
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .topbar-row {
+    justify-content: space-between;
+  }
+
+  .brand {
+    text-decoration: none;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--gold);
+  }
+
+  .brand-title,
+  .section-title,
+  .hero-title,
+  .card-title,
+  .footer-title {
+    font-family: "Cinzel", serif;
+  }
+
+  .brand-title {
+    font-size: 0.94rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .brand-copy,
+  .nav-links a,
+  .section-copy,
+  .hero-copy,
+  .hero-note,
+  .metric-label,
+  .card-address,
+  .card-note,
+  .footer-copy,
+  .empty-copy {
+    color: var(--muted);
+  }
+
+  .nav-links {
+    color: var(--muted);
+  }
+
+  .nav-links a {
+    text-decoration: none;
+  }
+
+  .hero {
+    padding-top: 34px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-card,
+  .filters-card,
+  .section-card,
+  .card,
+  .footer-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .hero-card {
+    padding: clamp(24px, 4vw, 42px);
+    position: relative;
+    overflow: hidden;
+    background-color: var(--panel-warm);
+  }
+
+  .hero-card::after {
+    content: "";
+    position: absolute;
+    right: -12%;
+    bottom: -28%;
+    width: 340px;
+    height: 340px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(214, 188, 141, 0.26), transparent 68%);
+    pointer-events: none;
+  }
+
+  .hero-grid,
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
+    gap: 28px;
+    align-items: end;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.82rem;
+  }
+
+  .hero-title {
+    margin: 14px 0 0;
+    font-size: clamp(2.8rem, 8vw, 5.8rem);
+    line-height: 0.96;
+    max-width: 10ch;
+  }
+
+  .hero-copy {
+    margin: 18px 0 0;
+    max-width: 58ch;
+    font-size: clamp(1rem, 2vw, 1.14rem);
+    line-height: 1.6;
+    color: var(--muted-strong);
+  }
+
+  .hero-note {
+    margin: 16px 0 0;
+    line-height: 1.6;
+  }
+
+  .hero-search {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .input-shell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 58px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: rgba(8, 15, 22, 0.6);
+  }
+
+  .input-shell input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .cta {
+    min-height: 58px;
+    padding: 0 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(214, 188, 141, 0.24);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-strong) 100%);
+    color: #1a1510;
+    text-decoration: none;
+    font-weight: 700;
+    justify-content: center;
+  }
+
+  .snapshot {
+    padding: 22px;
+    border-radius: var(--radius-md);
+    background-color: rgba(8, 15, 22, 0.58);
+  }
+
+  .snapshot-grid,
+  .list-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .snapshot-grid {
+    margin-top: 16px;
+  }
+
+  .snapshot-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: baseline;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .section {
+    padding-top: 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    align-items: end;
+    margin-bottom: 22px;
+  }
+
+  .section-title {
+    margin: 10px 0 0;
+    font-size: clamp(1.95rem, 3vw, 2.7rem);
+    line-height: 1.1;
+  }
+
+  .section-copy {
+    margin: 0;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .filters-card {
+    position: sticky;
+    top: 18px;
+    z-index: 20;
+    padding: 18px;
+    background-color: var(--panel-strong);
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, minmax(140px, 1fr));
+    gap: 14px;
+    align-items: end;
+  }
+
+  .field {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .field select {
+    min-height: 48px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    padding: 0 14px;
+  }
+
+  .chip,
+  .summary-pill,
+  .badge,
+  .amenity {
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .chip {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted);
+  }
+
+  .chip.is-active {
+    border-color: rgba(214, 188, 141, 0.26);
+    background: rgba(214, 188, 141, 0.12);
+    color: var(--gold-strong);
+  }
+
+  .summary-pill {
+    min-height: 38px;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .summary-label {
+    color: var(--muted);
+  }
+
+  .list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card {
+    overflow: hidden;
+  }
+
+  .card-inner {
+    padding: 18px;
+    display: grid;
+    gap: 18px;
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .badge {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted-strong);
+  }
+
+  .badge-available {
+    background: rgba(95, 212, 196, 0.16);
+    border-color: rgba(95, 212, 196, 0.22);
+    color: #c9fff9;
+  }
+
+  .card-title {
+    margin: 12px 0 0;
+    font-size: 1.5rem;
+    line-height: 1.15;
+  }
+
+  .card-address {
+    margin: 8px 0 0;
+    line-height: 1.5;
+  }
+
+  .save-btn,
+  .ghost-btn {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--muted);
+  }
+
+  .save-btn.is-active {
+    background: rgba(214, 188, 141, 0.16);
+    border-color: rgba(214, 188, 141, 0.26);
+    color: var(--gold-strong);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .metric {
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .metric-label {
+    margin-bottom: 8px;
+    font-size: 0.84rem;
+  }
+
+  .metric-value {
+    color: var(--text);
+    font-size: 1.08rem;
+    line-height: 1.35;
+  }
+
+  .card-meta {
+    color: var(--muted-strong);
+  }
+
+  .amenities {
+    gap: 8px;
+  }
+
+  .amenity {
+    min-height: 32px;
+    padding: 0 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+  }
+
+  .card-note {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    line-height: 1.5;
+  }
+
+  .card-actions {
+    justify-content: space-between;
+    padding: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .action-link {
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    background: linear-gradient(135deg, rgba(214, 188, 141, 0.18), rgba(214, 188, 141, 0.08));
+    border: 1px solid rgba(214, 188, 141, 0.24);
+    color: var(--gold-strong);
+  }
+
+  .footer-card {
+    padding: 24px;
+  }
+
+  .footer-title {
+    margin: 10px 0 0;
+    font-size: clamp(1.8rem, 3vw, 2.2rem);
+    line-height: 1.1;
+  }
+
+  .footer-copy {
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  .empty {
+    padding: 42px 22px;
+    text-align: center;
+  }
+
+  .empty-title {
+    margin: 0;
+    font-family: "Cinzel", serif;
+    font-size: 1.8rem;
+  }
+
+  .empty-copy {
+    max-width: 40ch;
+    margin: 12px auto 0;
+    line-height: 1.55;
+  }
+
+  .ghost-btn {
+    width: auto;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 16px;
+  }
+
+  @media (max-width: 1080px) {
+    :root {
+      --content: min(1180px, calc(100vw - 24px));
+    }
+
+    .hero-grid,
+    .section-head,
+    .footer-grid,
+    .filters-grid,
+    .list-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-copy {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 720px) {
+    :root {
+      --content: min(1180px, calc(100vw - 20px));
+    }
+
+    .hero-search,
+    .metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .card-actions {
+      align-items: stretch;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import React, { useEffect, useMemo, useState } from "https://esm.sh/react@18.3.1";
+import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
+import { AnimatePresence, motion, useReducedMotion } from "https://esm.sh/framer-motion@11.15.0";
+import htm from "https://esm.sh/htm@3.1.1";
+
+const html = htm.bind(React.createElement);
+const apts=[
+  {id:1,name:"Squirrel Hill Properties",address:"5637 Hobart St, Pittsburgh, PA 15217",rent:[1799,2199],sqft:750,beds:2,baths:1,available:"Now",as:0,pets:true,am:["In-Unit W/D","Window A/C","Near Murray Ave"],phone:"(412) 663-6690",url:"https://www.apartments.com/squirrel-hill-properties-pittsburgh-pa/qjrl9gz/#pricingView",tag:"Move-In Special",note:"$2,100 deposit \u00b7 Fully renovated units"},
+  {id:2,name:"The Wendover \u2014 Corliss 2BR",address:"5562 Hobart St, Pittsburgh, PA 15217",rent:[1331,1331],sqft:790,beds:2,baths:1,available:"Now",as:0,pets:true,am:["1928 Gothic Bldg","Courtyard","Garage","Elevator"],phone:"(412) 467-0395",url:"https://www.apartments.com/the-wendover-community-pittsburgh-pa/l55ygwf/#pricingView",tag:null,note:"Unit WDA-B1 \u00b7 Corliss floor plan \u00b7 790 sq ft"},
+  {id:3,name:"The Velma Court",address:"Squirrel Hill South, Pittsburgh, PA 15217",rent:[1200,1400],sqft:819,beds:2,baths:1,available:"Now",as:0,pets:false,am:["Wall-to-Wall Carpet","Garbage Disposal"],phone:"Contact Property",url:"https://www.homes.com/squirrel-hill-pa/apartments-for-rent/",tag:null,note:null},
+  {id:4,name:"The Wendover \u2014 Hulton 2BR",address:"5562 Hobart St, Pittsburgh, PA 15217",rent:[1560,1560],sqft:912,beds:2,baths:1,available:"Now",as:0,pets:true,am:["1928 Gothic Bldg","Walk-In Closets","Fireplace","Gated"],phone:"(412) 467-0395",url:"https://www.apartments.com/the-wendover-community-pittsburgh-pa/l55ygwf/#pricingView",tag:null,note:"Unit WD-404 \u00b7 Hulton floor plan \u00b7 912 sq ft"},
+  {id:5,name:"Walnut on the Park",address:"5326 Pocusset St, Pittsburgh, PA 15217",rent:[1307,2044],sqft:900,beds:2,baths:1,available:"May 2026",as:1,pets:true,am:["Renovated","Hardwood Floors","Near Frick Park"],phone:"(412) 683-3810",url:"https://www.walnutcapital.com/apartment-for-rent-in-pittsburgh?search=1&neighborhood=7",tag:null,note:"Walnut Capital \u2014 call for exact unit pricing"},
+  {id:6,name:"Morrowfield",address:"2715 Murray Ave, Pittsburgh, PA 15217",rent:[1200,1535],sqft:970,beds:2,baths:1,available:"Now",as:0,pets:true,am:["Historic 1920s Bldg","On Murray Ave","Walk to Shops"],phone:"(412) 467-0249",url:"https://www.apartments.com/morrowfield-pittsburgh-pa/34lt28g/#pricingView",tag:null,note:"2BR units up to 970 sq ft"},
+  {id:7,name:"Hobart Court",address:"5557 Hobart St, Pittsburgh, PA 15217",rent:[1344,2435],sqft:950,beds:2,baths:1,available:"Jun 2026",as:2,pets:true,am:["Renovated","Near Murray Ave","Walnut Capital"],phone:"(412) 683-3810",url:"https://www.walnutcapital.com/apartment-for-rent-in-pittsburgh?search=1&neighborhood=7",tag:null,note:"Walnut Capital \u2014 call for exact unit pricing"},
+  {id:8,name:"Hempstead Road Apartments",address:"5625 Hempstead Rd, Pittsburgh, PA 15217",rent:[1112,2000],sqft:975,beds:2,baths:2,available:"May 2026",as:1,pets:true,am:["2 Bathrooms","Renovated","Walnut Capital"],phone:"(412) 683-3810",url:"https://www.walnutcapital.com/apartment-for-rent-in-pittsburgh?search=1&neighborhood=7",tag:"2 Bath",note:"Walnut Capital \u2014 one of few 2-bath options in Sq Hill"},
+  {id:9,name:"Walnut Towers at Frick Park",address:"7070 Forward Ave, Pittsburgh, PA 15217",rent:[1399,2800],sqft:1050,beds:2,baths:1.5,available:"Jun 2026",as:2,pets:true,am:["Near Frick Park","Elevator","Walnut Capital"],phone:"(412) 683-3810",url:"https://www.walnutcapital.com/apartment-for-rent-in-pittsburgh?search=1&neighborhood=7",tag:"Popular",note:"Walnut Capital \u2014 call for exact unit pricing"},
+  {id:10,name:"The Wendover \u2014 Brilliant 2BR",address:"5562 Hobart St, Pittsburgh, PA 15217",rent:[1756,1756],sqft:1082,beds:2,baths:1,available:"Now",as:0,pets:true,am:["1928 Gothic Bldg","Den","Media Center","Hardwood Floors"],phone:"(412) 467-0395",url:"https://www.apartments.com/the-wendover-community-pittsburgh-pa/l55ygwf/#pricingView",tag:"Largest Wendover",note:"Unit WD-519 \u00b7 Brilliant floor plan \u00b7 1,082 sq ft"},
+  {id:11,name:"Maxon Towers",address:"6315 Forbes Ave, Squirrel Hill, PA 15217",rent:[2037,2037],sqft:1150,beds:2,baths:1,available:"Now",as:0,pets:false,am:["3D Tour","High-Rise","On Forbes Ave"],phone:"(412) 515-8402",url:"https://www.apartments.com/maxon-towers-squirrel-hill-pa/0l3jt62/#pricingView",tag:null,note:null},
+  {id:12,name:"The Gateway at Summerset",address:"1876 Parkview Blvd, Pittsburgh, PA 15217",rent:[1834,2290],sqft:1200,beds:2,baths:2,available:"Now",as:0,pets:true,am:["3D Tour","At Frick Park","2 Bathrooms","Modern"],phone:"(412) 566-8709",url:"https://www.apartments.com/the-gateway-at-summerset-pittsburgh-pa/dhw10rh/#pricingView",tag:"Frick Park",note:null},
+  {id:13,name:"The Reserve at Summerset",address:"1435 Parkview Blvd, Pittsburgh, PA 15217",rent:[2700,3050],sqft:1400,beds:2,baths:1.5,available:"Now",as:0,pets:true,am:["Townhome","3D Tour","At Frick Park"],phone:"(412) 816-9172",url:"https://www.apartments.com/the-reserve-at-summerset-at-frick-park-pittsburgh-pa/wm9hrck/#pricingView",tag:"Luxury",note:null},
+  {id:14,name:"5835 Darlington Rd",address:"5835 Darlington Rd #3, Pittsburgh, PA 15217",rent:[1295,1295],sqft:850,beds:2,baths:1,available:"Jun 2026",as:2,pets:false,am:["Vinyl Flooring","On-Site Laundry","Near Murray/Forbes"],phone:"(844) 325-9286",url:"https://www.zumper.com/apartments-for-rent/2287452p/2-bedroom-squirrel-hill-south-pittsburgh-pa",tag:"Great Price",note:"M.J. Kelly Realty \u00b7 1 block from Murray & Forbes Ave"},
+  {id:15,name:"5850 Alderson St",address:"5850 Alderson St, Pittsburgh, PA 15217",rent:[1900,1900],sqft:800,beds:2,baths:1,available:"Aug 2026",as:4,pets:true,am:["In-Bldg W/D","Central A/C","Granite Counters","Renovated"],phone:"Contact Property",url:"https://www.apartments.com/5850-alderson-st-pittsburgh-pa/6hrmz5v/",tag:"Renovated",note:"Newly renovated \u00b7 12-mo lease \u00b7 Free street parking \u00b7 5 min walk to bus"},
+  {id:16,name:"3555 Beechwood Blvd",address:"3555 Beechwood Blvd, Pittsburgh, PA 15217",rent:[1520,1520],sqft:900,beds:2,baths:1,available:"Now",as:0,pets:true,am:["In-Unit W/D","A/C","Garden","Pet Friendly"],phone:"(323) 237-9818",url:"https://tripalink.com/zip/15217-homes-for-rent",tag:null,note:"Tripalink property \u00b7 Last unit available"},
+  {id:17,name:"2421 Beechwood Blvd",address:"2421 Beechwood Blvd, Pittsburgh, PA 15217",rent:[1650,1650],sqft:900,beds:2,baths:1,available:"Now",as:0,pets:false,am:["Hardwood Floors","Near Murray Ave","Quiet Street"],phone:"aaron@squirrelhillflats.com",url:"https://www.flatquest.com/beechwood-blvd-3/",tag:null,note:"Squirrel Hill Flats (flatquest.com) \u2014 email for availability"},
+  {id:18,name:"5721 Northumberland St",address:"5721 Northumberland St, Pittsburgh, PA 15217",rent:[1200,1200],sqft:750,beds:2,baths:1,available:"Now",as:0,pets:false,am:["Furnished","Smoke Free"],phone:"Contact Property",url:"https://www.apartmenthomeliving.com/pittsburgh-pa/squirrel-hill-south",tag:"Furnished",note:"Furnished unit \u2014 contact for details"},
+  {id:19,name:"Squirrel Hill Flats \u2014 Darlington",address:"5700-5706 Darlington Rd, Pittsburgh, PA 15217",rent:[1300,1600],sqft:850,beds:2,baths:1,available:"Contact",as:3,pets:false,am:["Near Murray Ave","Quiet Street","Renovated"],phone:"aaron@squirrelhillflats.com",url:"https://www.flatquest.com/apartments/",tag:null,note:"Multiple 2BR units at 5700 & 5706 Darlington \u2014 email for pricing & availability"},
+  {id:20,name:"6350 Forward Ave",address:"6350 Forward Ave, Pittsburgh, PA 15217",rent:[1200,1500],sqft:900,beds:2,baths:1,available:"Contact",as:3,pets:false,am:["Off-Street Parking","Dishwasher","Hardwood Floors","A/C"],phone:"aaron@squirrelhillflats.com",url:"https://www.flatquest.com/6350-forward-avenue/",tag:null,note:"Squirrel Hill Flats \u2014 email for current 2BR availability"},
+  {id:21,name:"5660 Forward Ave",address:"5660 Forward Ave, Pittsburgh, PA 15217",rent:[1145,1265],sqft:750,beds:2,baths:1,available:"Contact",as:3,pets:false,am:["Utilities Included","Verified"],phone:"Contact Property",url:"https://www.apartmenthomeliving.com/pittsburgh-pa/squirrel-hill-south",tag:"Utils Incl",note:"Utilities included in rent \u2014 contact for current availability"}
+];
+const tagStyles={"Move-In Special":{b:"rgba(214,188,141,0.16)",t:"#f4deb4",br:"rgba(214,188,141,0.3)"},"Popular":{b:"rgba(95,212,196,0.14)",t:"#c8fff8",br:"rgba(95,212,196,0.3)"},"Luxury":{b:"rgba(246,215,170,0.12)",t:"#fff0d4",br:"rgba(246,215,170,0.3)"},"Frick Park":{b:"rgba(103,193,255,0.12)",t:"#d7efff",br:"rgba(103,193,255,0.26)"},"2 Bath":{b:"rgba(120,164,255,0.12)",t:"#e4edff",br:"rgba(120,164,255,0.28)"},"Largest Wendover":{b:"rgba(122,224,176,0.12)",t:"#d7f9e7",br:"rgba(122,224,176,0.28)"},"Great Price":{b:"rgba(111,232,184,0.12)",t:"#d8feec",br:"rgba(111,232,184,0.28)"},"Renovated":{b:"rgba(214,188,141,0.16)",t:"#ffe7bd",br:"rgba(214,188,141,0.28)"},"Furnished":{b:"rgba(235,187,255,0.13)",t:"#fae0ff",br:"rgba(235,187,255,0.26)"},"Utils Incl":{b:"rgba(127,214,255,0.12)",t:"#dff5ff",br:"rgba(127,214,255,0.24)"}};
+const rentOptions=[[1400,"$1,400"],[1600,"$1,600"],[1800,"$1,800"],[2000,"$2,000"],[2400,"$2,400"],[3200,"No max"]];
+const availabilityOptions=[["all","All timing"],["now","Available now"],["spring","By May 2026"],["summer","Summer 2026"],["contact","Contact listings"]];
+const sortOptions=[["availability","Soonest move-in"],["rent","Lowest rent"],["value","Best value / sq ft"],["largest","Largest floor plan"]];
+const fmt=(n)=>"$"+n.toLocaleString();
+const rentText=(apt)=>apt.rent[0]===apt.rent[1]?fmt(apt.rent[0]):fmt(apt.rent[0])+" - "+fmt(apt.rent[1]);
+const whenText=(apt)=>apt.available==="Now"?"Available now":apt.available==="Contact"?"Contact for dates":"Move-in "+apt.available;
+const matchesTime=(apt,value)=>value==="all"||value==="now"&&apt.available==="Now"||value==="spring"&&apt.as<=1||value==="summer"&&apt.as>=2&&apt.as<=4||value==="contact"&&apt.available==="Contact";
+const icon=(path)=>html`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" aria-hidden="true"><path d=${path}></path></svg>`;
+const pin=()=>html`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" aria-hidden="true"><path d="M12 21s7-6.08 7-11a7 7 0 1 0-14 0c0 4.92 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>`;
+const spark=()=>html`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" aria-hidden="true"><path d="m12 3 1.95 4.58L18.5 9.5l-4.55 1.92L12 16l-1.95-4.58L5.5 9.5l4.55-1.92L12 3Z"></path></svg>`;
+const search=()=>html`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>`;
+function App(){
+  const reduce=useReducedMotion();
+  const [query,setQuery]=useState("");
+  const [sortBy,setSortBy]=useState("availability");
+  const [maxRent,setMaxRent]=useState(2400);
+  const [time,setTime]=useState("all");
+  const [petsOnly,setPetsOnly]=useState(false);
+  const [twoBathsOnly,setTwoBathsOnly]=useState(false);
+  const [saved,setSaved]=useState([]);
+  useEffect(()=>{try{const raw=localStorage.getItem("apartments-saved");if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))setSaved(parsed);}}catch{}},[]);
+  useEffect(()=>{try{localStorage.setItem("apartments-saved",JSON.stringify(saved));}catch{}},[saved]);
+  const filtered=useMemo(()=>{
+    const q=query.trim().toLowerCase();
+    return apts.filter((apt)=>{
+      const hay=(apt.name+" "+apt.address+" "+apt.am.join(" ")+" "+(apt.note||"")).toLowerCase();
+      if(q&&!hay.includes(q)) return false;
+      if(apt.rent[0]>maxRent) return false;
+      if(!matchesTime(apt,time)) return false;
+      if(petsOnly&&!apt.pets) return false;
+      if(twoBathsOnly&&apt.baths<2) return false;
+      return true;
+    }).sort((a,b)=>{
+      if(sortBy==="rent") return a.rent[0]-b.rent[0];
+      if(sortBy==="largest") return b.sqft-a.sqft;
+      if(sortBy==="value") return a.rent[0]/a.sqft-b.rent[0]/b.sqft;
+      return a.as-b.as||a.rent[0]-b.rent[0];
+    });
+  },[query,sortBy,maxRent,time,petsOnly,twoBathsOnly]);
+  const avgRent=filtered.length?Math.round(filtered.reduce((s,a)=>s+a.rent[0],0)/filtered.length):0;
+  const avgSqft=filtered.length?Math.round(filtered.reduce((s,a)=>s+a.sqft,0)/filtered.length):0;
+  const snapshot=[["Listings tracked",apts.length],["Available now",apts.filter((a)=>a.available==="Now").length],["Lowest entry",fmt(Math.min(...apts.map((a)=>a.rent[0])))],["2-bath options",apts.filter((a)=>a.baths>=2).length]];
+  const summary=[["Visible",filtered.length],["Avg entry",avgRent?fmt(avgRent):"—"],["Avg size",avgSqft?avgSqft+" sq ft":"—"],["Saved",saved.length]];
+  const reset=()=>{setQuery("");setSortBy("availability");setMaxRent(2400);setTime("all");setPetsOnly(false);setTwoBathsOnly(false);};
+  const toggleSave=(id)=>setSaved((current)=>current.includes(id)?current.filter((item)=>item!==id):current.concat(id));
+  return html`
+    <div>
+      <header class="topbar">
+        <div class="shell topbar-row">
+          <a class="brand" href="#listings">
+            <span class="brand-mark glass">${pin()}</span>
+            <span>
+              <div class="brand-title">Squirrel Hill Apartments</div>
+              <div class="brand-copy">Curated 2BR search for Pittsburgh 15217</div>
+            </span>
+          </a>
+          <nav class="nav-links">
+            <a href="#filters">Filters</a>
+            <a href="#listings">Listings</a>
+            <a href="#sources">Sources</a>
+          </nav>
+        </div>
+      </header>
+      <main>
+        <section class="hero shell">
+          <motion.div class="hero-card glass" initial=${reduce?false:{opacity:0,y:20}} animate=${reduce?false:{opacity:1,y:0}} transition=${reduce?{duration:0}:{duration:.6,ease:[.22,1,.36,1]}}>
+            <div class="hero-grid">
+              <div>
+                <div class="eyebrow">${spark()}<span>Luxury-directory treatment</span></div>
+                <h1 class="hero-title">Find the right 2BR in Squirrel Hill.</h1>
+                <p class="hero-copy">A cleaner, more editorial apartment shortlist for ZIP 15217, tuned for budget, pets, larger layouts, and 2026 move-in timing.</p>
+                <div class="hero-search">
+                  <label class="input-shell">
+                    <span style=${{color:"var(--gold)"}}>${search()}</span>
+                    <input type="text" aria-label="Search apartments" value=${query} onInput=${(e)=>setQuery(e.target.value)} placeholder="Search Hobart, Frick Park, in-unit laundry..." />
+                  </label>
+                  <a class="cta" href="#listings" style=${{display:"inline-flex"}}>Browse listings</a>
+                </div>
+                <p class="hero-note">Designed from the installed UI/UX Pro Max guidance, but kept buildless so GitHub Pages can host it as a single file.</p>
+              </div>
+              <div class="snapshot glass">
+                <div class="eyebrow">Live snapshot</div>
+                <div class="snapshot-grid">
+                  ${snapshot.map(([label,value])=>html`<div class="snapshot-item" key=${label}><span class="brand-copy">${label}</span><strong>${value}</strong></div>`)}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+        <section id="filters" class="section shell">
+          <div class="filters-card glass">
+            <div class="filters-grid">
+              <label class="input-shell">
+                <span style=${{color:"var(--gold)"}}>${search()}</span>
+                <input type="text" aria-label="Search listings" value=${query} onInput=${(e)=>setQuery(e.target.value)} placeholder="Search by street, amenity, or property..." />
+              </label>
+              <label class="field"><span>Max rent</span><select value=${maxRent} onChange=${(e)=>setMaxRent(Number(e.target.value))}>${rentOptions.map(([value,label])=>html`<option key=${value} value=${value}>${label}</option>`)}</select></label>
+              <label class="field"><span>Availability</span><select value=${time} onChange=${(e)=>setTime(e.target.value)}>${availabilityOptions.map(([value,label])=>html`<option key=${value} value=${value}>${label}</option>`)}</select></label>
+              <label class="field"><span>Sort by</span><select value=${sortBy} onChange=${(e)=>setSortBy(e.target.value)}>${sortOptions.map(([value,label])=>html`<option key=${value} value=${value}>${label}</option>`)}</select></label>
+            </div>
+            <div class="filter-row" style=${{marginTop:"16px"}}>
+              <button class=${"chip"+(petsOnly?" is-active":"")} type="button" onClick=${()=>setPetsOnly((v)=>!v)}>Pet friendly only</button>
+              <button class=${"chip"+(twoBathsOnly?" is-active":"")} type="button" onClick=${()=>setTwoBathsOnly((v)=>!v)}>2 baths only</button>
+              <button class="chip" type="button" onClick=${reset}>Reset filters</button>
+            </div>
+          </div>
+        </section>
+        <section id="listings" class="section shell">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Curated directory</div>
+              <h2 class="section-title">Scroll the shortlist.</h2>
+            </div>
+            <p class="section-copy">Cards prioritize quick rent comparison, move-in timing, and handoff to the real listing page without clutter.</p>
+          </div>
+          <div class="stats-row" style=${{marginBottom:"18px"}}>
+            ${summary.map(([label,value])=>html`<div class="summary-pill glass" key=${label}><span class="summary-label">${label}</span><strong>${value}</strong></div>`)}
+          </div>
+          ${filtered.length?html`
+            <motion.div layout class="list-grid">
+              <AnimatePresence mode="popLayout">
+                ${filtered.map((apt,index)=>{
+                  const tag=tagStyles[apt.tag]||null;
+                  const savedNow=saved.includes(apt.id);
+                  return html`
+                    <motion.article
+                      key=${apt.id}
+                      layout
+                      class="card glass"
+                      initial=${reduce?false:{opacity:0,y:18,filter:"blur(8px)"}}
+                      animate=${reduce?false:{opacity:1,y:0,filter:"blur(0px)"}}
+                      exit=${reduce?false:{opacity:0,y:-8,filter:"blur(8px)"}}
+                      transition=${reduce?{duration:0}:{duration:.42,delay:index*.02,ease:[.22,1,.36,1]}}
+                    >
+                      <div class="card-inner">
+                        <div class="card-top">
+                          <div>
+                            <div class="chip-row">
+                              <span class=${"badge"+(apt.available==="Now"?" badge-available":"")}>${whenText(apt)}</span>
+                              ${tag?html`<span class="badge" style=${{background:tag.b,color:tag.t,borderColor:tag.br}}>${apt.tag}</span>`:null}
+                            </div>
+                            <h3 class="card-title">${apt.name}</h3>
+                            <p class="card-address">${apt.address}</p>
+                          </div>
+                          <button class=${"save-btn"+(savedNow?" is-active":"")} type="button" aria-label=${savedNow?"Remove saved apartment":"Save apartment"} onClick=${()=>toggleSave(apt.id)}>${savedNow?"Saved":"Save"}</button>
+                        </div>
+                        <div class="metrics">
+                          <div class="metric"><div class="metric-label">Entry rent</div><div class="metric-value">${rentText(apt)}</div></div>
+                          <div class="metric"><div class="metric-label">Floor plan</div><div class="metric-value">${apt.sqft.toLocaleString()} sq ft</div></div>
+                          <div class="metric"><div class="metric-label">Layout</div><div class="metric-value">${apt.beds} bed · ${apt.baths} bath</div></div>
+                        </div>
+                        <div class="card-meta">
+                          <span>${apt.pets?"Pet friendly":"No pets listed"}</span>
+                          <span>·</span>
+                          <span>${apt.phone}</span>
+                        </div>
+                        ${apt.note?html`<div class="card-note">${apt.note}</div>`:null}
+                        <div class="amenities">
+                          ${apt.am.map((item)=>html`<span class="amenity" key=${item}>${item}</span>`)}
+                        </div>
+                      </div>
+                      <div class="card-actions">
+                        <span class="brand-copy">${apt.available==="Now"?"Fastest handoff":"Confirm unit-level pricing before applying"}</span>
+                        <a class="action-link" href=${apt.url} target="_blank" rel="noopener noreferrer">Open pricing page →</a>
+                      </div>
+                    </motion.article>
+                  `;
+                })}
+              </AnimatePresence>
+            </motion.div>
+          `:html`
+            <div class="empty glass section-card">
+              <h3 class="empty-title">No listings match that combination.</h3>
+              <p class="empty-copy">Try widening the rent cap, changing the move-in timing, or turning off the specialty filters.</p>
+              <button class="chip is-active" type="button" onClick=${reset} style=${{marginTop:"18px"}}>Reset filters</button>
+            </div>
+          `}
+        </section>
+        <section id="sources" class="section shell">
+          <div class="footer-card glass">
+            <div class="footer-grid">
+              <div>
+                <div class="eyebrow">Source note</div>
+                <h2 class="footer-title">Compiled for faster apartment hunting, not as a brokerage feed.</h2>
+              </div>
+              <p class="footer-copy">Listings were compiled from Apartments.com, Homes.com, Walnut Capital, Tripalink, Zumper, ApartmentHomeLiving, and Squirrel Hill Flats in April 2026. Treat this as a shortlist, then confirm rent, deposits, and unit availability directly on each linked property page.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  `;
+}
+createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>
+</body>
+>>>>>>> c9b6425 (Update apartments page and add publish script)
 </html>
