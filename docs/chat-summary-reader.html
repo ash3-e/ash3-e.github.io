@@ -1,0 +1,295 @@
+﻿<!doctype html><html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>chat-summary-json-cbor-msgpack-bcode 窶・Preview - Reader</title>
+<link rel="stylesheet" href="../assets/styles.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/bcode.lang.js"></script>
+<link rel="stylesheet" href="../assets/hljs-theme.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body data-page-type="reader"><header><div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png" alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/index.html" aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div></header><main><div class="container"><div class="reader-wrap"><div class="reader-grid"><aside class="toc-pane" aria-label="Quick jump"><div class="toc-head"><div class="toc-title">Quick Jump</div><button class="pill-btn" id="tocToggle" type="button">Collapse</button></div><div class="toc-jumps"><a id="toTop" href="#">Back to top</a><a id="toBottom" href="#">Go to bottom</a></div><ul id="tocList" class="toc-list"></ul></aside><section class="reader"><div class="reader-head"><div><h1 class="reader-title">Chat Summary</h1><p class="reader-meta">chat-summary-json-cbor-msgpack-bcode 窶・Preview</p></div><div class="links"><a class="pill primary" id="cardLink" href="chat-summary.html">Card view</a><button class="pill-btn" id="darkToggle" type="button">Dark mode</button><span class="query-chip" id="findCount"></span></div></div><div class="reader-body" id="readerBody"><article id="content" class="markdown-body"></article></div></section></div></div></div></main><script id="md-source" type="text/plain">
+# Chat Summary: JSON Origins, Special Numeric Values, and Interpretation Across JSON/CBOR/MessagePack/BCODe
+
+**Date:** 2026-02-14  
+**Topic:** Douglas Crockford and JSON; why JSON excludes NaN/Infinity; how CBOR and MessagePack handle 窶彳xceptional窶・values; and how all of that compares to **BCODe窶冱 interpretation layer** (quality-first telemetry).
+
+---
+
+## 1) Did Douglas Crockford 窶彿nvent窶・JSON?
+
+The discussion started with a common question: *did Douglas Crockford really invent JSON?*
+
+**Key distinction that emerged:**
+
+- The **syntax** that looks like JSON (objects `{}`, arrays `[]`, strings, numbers, booleans) already existed as part of **JavaScript literal notation**.
+- Crockford窶冱 central contribution was to **package a strict, minimal subset of that notation** as a language-neutral *data interchange format*, publish it, and push it into the broader web ecosystem.
+
+This is consistent with the later standards posture: JSON is defined as a grammar/data-interchange format, not as a programming language feature. See the JSON grammar and value definition in RFC 8259.  
+Sources: RFC 8259 (JSON grammar / values) 窶・https://datatracker.ietf.org/doc/html/rfc8259
+
+---
+
+## 2) What 窶彷ormalizing JSON窶・meant in practice
+
+The conversation unpacked 窶彷ormalizing窶・into a handful of concrete actions:
+
+1. **Choosing and freezing a subset** of JavaScript literal syntax as 窶彭ata only窶・
+2. Publishing a **public definition** (grammar + examples) and advocating the format as an alternative to XML.
+3. Pushing JSON toward standardization and broad adoption.
+
+Two primary sources frame this:
+
+- Crockford窶冱 窶彷at-free窶・writeup explicitly states JSON窶冱 minimalist posture and explains why it omits `NaN` and `Infinity`.  
+  Source: https://www.json.org/fatfree.html
+- ECMA-404 explicitly states its scope is **syntax only**, and that it 窶彿ntentionally does not define 窶ｦ semantics or interpretation窶・  
+  Source: https://ecma-international.org/publications-and-standards/standards/ecma-404/
+
+---
+
+## 3) The JSON 窶徭emantic value set窶・
+A major part of the conversation was clarifying what JSON **can mean** at the lowest level.
+
+RFC 8259 defines a JSON value as one of:
+
+- `object`
+- `array`
+- `number`
+- `string`
+- `true`
+- `false`
+- `null`
+
+(And it explicitly disallows any other literal names.)  
+Source: RFC 8259 窶・https://datatracker.ietf.org/doc/html/rfc8259
+
+This is a *very small universe* by design.
+
+---
+
+## 4) The debate: JSON窶冱 minimalism vs telemetry needs (NaN/Infinity)
+
+### 4.1 JSON窶冱 stated rationale for excluding `NaN` / `Infinity`
+
+Crockford窶冱 窶彷at-free窶・text says JSON omits those values because it 窶彭oes not want to be tied to any particular internal representation.窶・ 
+Source: https://www.json.org/fatfree.html
+
+The standards also define JSON numbers lexically (digits, optional fraction/exponent), so tokens like `NaN`/`Infinity` are not valid JSON numbers.  
+Source: RFC 8259 窶・https://datatracker.ietf.org/doc/html/rfc8259
+
+### 4.2 The user窶冱 critique (and what real systems show)
+
+The user argued (coherently) that:
+
+- Many systems **do** use IEEE-754 in practice.
+- Infinity/NaN are useful (especially in telemetry) because they allow exceptional computation results to propagate.
+- When JSON forbids them, people invent ad hoc encodings, which *fragments semantics anyway*.
+
+Real-world evidence that this happens:
+
+- JavaScript窶冱 `JSON.stringify` maps `NaN` and `ﾂｱInfinity` to `null` (lossy).  
+  Source (ECMA-262 5.1): https://262.ecma-international.org/5.1/  
+  See JSON.stringify NOTE 4.
+
+- Fluent Bit encountered invalid JSON when converting MessagePack containing NaN into JSON, prompting an option to convert NaN 竊・null during msgpack竊男son conversion.  
+  Sources:  
+  - Fluent Bit config option: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file  
+  - Fluent Bit issue #1588: https://github.com/fluent/fluent-bit/issues/1588
+
+### 4.3 I-JSON as an 窶彿nterop profile窶・response
+
+The conversation also referenced that the IETF published a restricted JSON profile (I-JSON) to reduce surprises and maximize interoperability.  
+Source: RFC 7493 窶・https://datatracker.ietf.org/doc/html/rfc7493
+
+This is an example of a broader pattern:
+- JSON the grammar is minimal,
+- ecosystem 窶徘rofiles窶・or 窶徭chemas窶・attempt to fill in missing interoperability constraints.
+
+---
+
+## 5) Interpretation-level comparison: CBOR vs MessagePack vs BCODe
+
+This part of the conversation shifted from 窶徭yntax窶・to **interpretation**: what meaning a receiver can derive *after parsing*.
+
+### 5.1 BCODe: quality-first interpretation model (v10)
+
+BCODe窶冱 interpretation document (draft v10) defines a parser output record with:
+- qualifier mask (from `- < > ?`)
+- stale flag (`!`)
+- numeric shape (empty / single / pair)
+- mantissas and exponent metadata
+
+And it defines a **truth table** where qualifier combinations map to **value/quality classes** (hard finite, bounds, unknown, noise, epsilon, infinity, null, NaN, signaling-NaN payload codes, etc.), with `!` as an orthogonal 窶徭tale窶・modifier.
+
+This is explicitly 窶徠uality-first telemetry窶・ an API must be able to refuse to produce a hard numeric when the field indicates unknown/null/NaN/inf/bounds/etc.
+
+(Reference: 窶廝CODe Value Interpretation (Draft v10)窶・窶・provided in-chat as an uploaded file.)
+
+### 5.2 CBOR: rich typed values + semantic tags
+
+CBOR defines a richer core type system via 窶徇ajor types窶・(ints, byte/text strings, arrays, maps, tags, and simple/float values).  
+Source: RFC 8949 窶・https://www.rfc-editor.org/rfc/rfc8949.html
+
+Interpretation-relevant highlights:
+
+- CBOR supports IEEE-754 floats (so NaN/Infinity are representable in float encodings).
+- CBOR has **simple values** including `null` and `undefined`.
+- CBOR has **tags** (major type 6) to add standardized semantic overlays (date/time, bignums, decimals, etc.).
+
+### 5.3 MessagePack: compact typed values + 窶彳xt窶・semantic escape hatch
+
+MessagePack defines a smaller type system (int, float, nil, bool, str/bin, array/map, ext).  
+The spec explicitly says Float represents IEEE-754 double precision, including NaN and Infinity.  
+Source: MessagePack spec 窶・https://github.com/msgpack/msgpack/blob/master/spec.md
+
+MessagePack窶冱 semantic extensibility relies on 窶彳xt types窶・(type code + bytes), which are application-defined (except a few conventions like timestamp).
+
+### 5.4 Key contrast that emerged
+
+- **CBOR / MessagePack:** decode bytes into typed values; any 窶徠uality窶・concept (bounds, stale, unknown, noise) is usually **schema-level** or application convention.
+- **BCODe:** standardizes a **quality algebra** at the field level (qualifiers + stale), so consumers can gate numeric accessors consistently.
+
+---
+
+## 6) Real systems using MessagePack or CBOR (and how they approximate BCODe concepts)
+
+This section captures the concrete examples we enumerated.
+
+### 6.1 Fluentd forward input (MessagePack/JSON)
+
+Fluentd窶冱 forward input accepts JSON or MessagePack and internally uses MessagePack.  
+Source: https://docs.fluentd.org/input/forward
+
+Equivalent-to-BCODe behaviors:
+- **Stale/fresh:** inferred from timestamps (EventTime), not a stale qualifier.
+- **Quality/bounds/unknown:** represented only via application fields or omitted keys.
+
+### 6.2 Fluent Bit (MessagePack internally; JSON outputs)
+
+Fluent Bit documents `json.convert_nan_to_null`, converting NaN 竊・null during msgpack竊男son conversion.  
+Source: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
+
+The motivating bug report shows NaN leading to invalid JSON output (`{"foo":nan}`) before such handling.  
+Source: https://github.com/fluent/fluent-bit/issues/1588
+
+Equivalent-to-BCODe behaviors:
+- Non-finite values survive inside MessagePack, but are often **collapsed** or **mapped away** when bridging to JSON.
+
+### 6.3 Telegraf MessagePack serializer (InfluxData)
+
+Telegraf documents a MessagePack output data format.  
+Source: https://docs.influxdata.com/telegraf/v1/data_formats/output/msgpack/
+
+A concrete issue shows that Telegraf drops NaN/Inf in at least one pipeline (Graphite 竊・InfluxDB) because the backend doesn窶冲 support them.  
+Source: https://github.com/influxdata/telegraf/issues/6415
+
+Equivalent-to-BCODe behaviors:
+- **NaN/Inf:** treated as invalid/unacceptable for downstream rather than represented as a first-class 窶彭iagnostic窶・value class.
+- **Stale:** inferred from timestamps.
+
+### 6.4 Neovim API (MessagePack-RPC)
+
+Neovim窶冱 API documentation notes msgpack-rpc client libraries for connecting.  
+Source: https://neovim.io/doc/user/api.html
+
+Equivalent-to-BCODe behaviors:
+- Error/invalid cases are typically expressed as **RPC errors** or omitted fields, not a standardized 窶徠uality class窶・
+- Float semantics depend on client libraries; MessagePack supports NaN/Inf, but application-level meaning is not standardized.
+
+### 6.5 SenML over CBOR (IoT telemetry) and LwM2M 1.1
+
+SenML defines 窶弑pdate Time窶・(`ut`) as the maximum time before a sensor will provide an updated reading, usable to detect sensor/comms failures.  
+Source: RFC 8428 窶・https://www.rfc-editor.org/rfc/rfc8428.html
+
+IANA窶冱 SenML registry maps labels and includes the CBOR label for `ut`.  
+Source: https://www.iana.org/assignments/senml/senml.xhtml
+
+Zephyr窶冱 LwM2M docs note that LwM2M 1.1 adds support for SenML CBOR/JSON and time series data.  
+Source: https://docs.zephyrproject.org/latest/connectivity/networking/api/lwm2m.html
+
+Equivalent-to-BCODe behaviors:
+- 窶彜tale窶・is modeled via timestamps + update-time semantics, not a stale bit.
+- 窶弉uality窶・is typically schema/application-specific.
+
+### 6.6 DAG-CBOR (IPLD): a CBOR profile that forbids NaN/Inf
+
+DAG-CBOR explicitly states that IEEE 754 special values NaN/Infinity/-Infinity must not be accepted.  
+Source: https://ipld.io/specs/codecs/dag-cbor/spec/
+
+Equivalent-to-BCODe behaviors:
+- Exceptional numeric states must be represented by *other* schema conventions (e.g., tagged union objects), because the codec/profile forbids encoding them at all.
+
+### 6.7 fxamacker/cbor (Go) policy example
+
+fxamacker/cbor documents: 窶廝y default, decoder treats time values of floating-point NaN and Infinity as if they are CBOR Null or CBOR Undefined.窶・ 
+Source: https://github.com/fxamacker/cbor
+
+Equivalent-to-BCODe behaviors:
+- This is a **library policy** (domain-specific: time decoding), not a universally standardized CBOR semantic rule.
+
+### 6.8 MessagePack library divergence on special floats (NaN/Inf/sNaN)
+
+- msgpack-erlang historically failed to unpack NaN/Inf (returning `{error, incomplete}`), showing real-world implementation divergence.  
+  Source: https://github.com/msgpack/msgpack-erlang/issues/72
+
+- msgpack-c reports inconsistent preservation of signaling-NaN between float32 and float64 on unpack (sNaN may become qNaN).  
+  Source: https://github.com/msgpack/msgpack-c/issues/1087
+
+These examples matter for BCODe because BCODe窶冱 `sNaN` class is **semantic by design** (with explicit payload codes), whereas 窶忖se raw IEEE NaN payloads on the wire窶・can be undermined by decoder normalization.
+
+---
+
+## 7) Practical takeaways that emerged
+
+1. **JSON窶冱 minimal grammar makes it ubiquitous**, but it pushes semantics (quality, NaN/Inf handling, versioning, schema, canonicalization) into higher layers.
+2. **CBOR and MessagePack both can carry NaN/Inf**, but real systems often:
+   - convert them to `null` when bridging to JSON,
+   - reject or drop them due to downstream constraints,
+   - or apply domain-specific rules (time decoding, canonical forms, etc.).
+3. **BCODe窶冱 differentiator is interpretation standardization**:
+   - every field can carry an explicit quality class,
+   - 窶徭tale窶・is orthogonal,
+   - accessors can be specified to refuse hard-numeric conversion unless the value is truly 窶徂ard/finite窶・
+
+---
+
+## 8) Appendix: a schema-level 窶廝CODe-like窶・pattern for CBOR/MessagePack (if needed)
+
+If you want BCODe-style semantics but must use CBOR/MessagePack, the stable pattern is a tagged union / wrapper:
+
+```json
+{ "v": 12.3, "q": "hard", "stale": false }
+{ "v": null, "q": "nan",  "stale": false }
+{ "v": null, "q": "inf",  "stale": true  }
+{ "v": 5.0,  "q": "lt",   "stale": false }   // 窶・ 5.0窶・{ "v": 5.0,  "q": "gt",   "stale": false }   // 窶・ 5.0窶・```
+
+BCODe窶冱 approach is essentially to make a compact, standardized equivalent of this wrapper **implicit** in the field syntax/qualifiers, instead of requiring a wrapper object for every scalar value.
+
+---
+
+## 9) Source index (URLs)
+
+- RFC 8259 窶・JSON grammar and value set: https://datatracker.ietf.org/doc/html/rfc8259
+- ECMA-404 窶・JSON syntax-only scope: https://ecma-international.org/publications-and-standards/standards/ecma-404/
+- Crockford 窶彷at-free窶・rationale (NaN/Inf): https://www.json.org/fatfree.html
+- ECMA-262 5.1 JSON.stringify behavior (NaN/Inf 竊・null): https://262.ecma-international.org/5.1/
+- MDN JSON.stringify notes: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+- RFC 7493 窶・I-JSON profile: https://datatracker.ietf.org/doc/html/rfc7493
+- RFC 8949 窶・CBOR: https://www.rfc-editor.org/rfc/rfc8949.html
+- MessagePack spec: https://github.com/msgpack/msgpack/blob/master/spec.md
+- Fluentd forward input: https://docs.fluentd.org/input/forward
+- Fluent Bit config option: https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
+- Fluent Bit issue #1588: https://github.com/fluent/fluent-bit/issues/1588
+- Telegraf MessagePack output: https://docs.influxdata.com/telegraf/v1/data_formats/output/msgpack/
+- Telegraf issue #6415: https://github.com/influxdata/telegraf/issues/6415
+- Neovim API docs: https://neovim.io/doc/user/api.html
+- RFC 8428 窶・SenML: https://www.rfc-editor.org/rfc/rfc8428.html
+- IANA SenML registry: https://www.iana.org/assignments/senml/senml.xhtml
+- Zephyr LwM2M SenML CBOR note: https://docs.zephyrproject.org/latest/connectivity/networking/api/lwm2m.html
+- DAG-CBOR forbids NaN/Inf: https://ipld.io/specs/codecs/dag-cbor/spec/
+- fxamacker/cbor NaN/Inf time decode policy: https://github.com/fxamacker/cbor
+- msgpack-erlang NaN/Inf issue: https://github.com/msgpack/msgpack-erlang/issues/72
+- msgpack-c signaling NaN issue: https://github.com/msgpack/msgpack-c/issues/1087
+</script><script src="../assets/site.js"></script><footer><div class="footer-content"><nav aria-label="Docs"><a href="../docs/intro.html">Intro</a> <span class="footer-sep">|</span> <a href="../docs/syntax.html">Syntax (v13)</a> <span class="footer-sep">|</span> <a href="../docs/interpretation.html">Interpretation</a> <span class="footer-sep">|</span> <a href="../docs/meta-v9.html">BCODe.meta (v9)</a> <span class="footer-sep">|</span> <a href="../docs/meta-v7.html">BCODe.meta (v7)</a> <span class="footer-sep">|</span> <a href="../docs/meta-library-semantics.html">Meta Library Semantics</a> <span class="footer-sep">|</span> <a href="../docs/rest.html">BCODe.rest (v6.1.3)</a> <span class="footer-sep">|</span> <a href="../docs/best-practices.html">Best Practices</a> <span class="footer-sep">|</span> <a href="../docs/telemetry-guide.html">Telemetry Guide</a> <span class="footer-sep">|</span> <a href="../docs/chat-summary.html">Chat Summary</a> </nav><p class="footer-right">BCODe</p></div></footer></body></html>

@@ -1,0 +1,2845 @@
+﻿<!doctype html><html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>bcode-syntax-with-tests-v13 窶・Preview</title>
+<link rel="stylesheet" href="../assets/styles.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/bcode.lang.js"></script>
+<link rel="stylesheet" href="../assets/hljs-theme.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body data-page-type="doc"><header><div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png" alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/index.html" aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div></header><main><div class="container"><div class="stack"><section class="card doc-frame"><div class="doc-head"><h1 class="doc-title">Syntax (v13)</h1><p class="doc-sub">bcode-syntax-with-tests-v13 窶・Preview</p></div><div class="doc-scroll"><article id="content" class="markdown-body"></article></div></section></div></div></main><div class="dock" aria-label="Document tools"><a class="dock-btn primary" id="readerLink" href="syntax-reader.html">Reader</a><input class="dock-input" id="findInput" type="search" placeholder="Find in document" aria-label="Find in document"><button class="dock-btn" id="findBtn" type="button">Find</button><button class="dock-btn" id="clearFindBtn" type="button">Clear</button><button class="dock-btn" id="darkToggle" type="button">Dark mode</button><span class="find-count" id="findCount"></span></div><script id="md-source" type="text/plain">
+# BCODe Syntax Specification (Draft v13)
+**BCODe** (lowercase *e*) is a streaming ASCII protocol for numeric data with payloads and comments.
+ This document defines **syntax and streaming parsing rules only**.
+
+
+
+
+ Companion document: [BCODe Value Interpretation (Draft)](bcode-interpretation-v13.html)
+
+
+
+
+**Status:** Draft
+**Document date:** 2026-02-22
+**Syntax version:** v13
+**Audience:** implementers
+
+**Companion document:** `bcode-interpretation-v13.html` defines standard interpretations, transforms, reducers, and reference accessors. This document (syntax) does not assign meaning to commands or parameters.
+
+
+
+ Normative keywords 窶廴UST窶・ 窶廴UST NOT窶・ 窶彜HOULD窶・ 窶彜HOULD NOT窶・ and 窶廴AY窶・are to be interpreted as in RFC 2119.
+
+
+
+
+
+
+## Contents
+
+
+- [1. Scope](#scope)
+- [2. Metanotation and Abstract Symbols](#metanotation-and-abstract-symbols-informative)
+- [3. Streaming model](#streaming-model)
+- [4. ASCII column grammar](#ascii-columns)
+- [5. Line structure & latching](#line-structure)
+- [6. Whitespace](#whitespace)
+- [7. Comments](#comments)
+- [8. Payloads](#payloads)
+- [9. Fields](#fields)
+- [10. Numbers & fractional width](#numbers)
+- [11. Scientific exponent suffix](#exponent)
+- [12. Implementation limits](#limits)
+- [13. Interleaving](#interleaving)
+- [14. Opaque regions & precedence](#opaque-precedence)
+- [15. Conformance](#conformance)
+- [16. Error handling & resynchronization](#errors)
+- [Appendix A 窶・ABNF](#abnf)
+- [Appendix B 窶・Streaming state machine](#state-machine)
+- [Appendix C 窶・State machine diagram](#diagram)
+- [Appendix D 窶・Canonical C parser](#c-parser)
+- [Appendix E 窶・Design notes](#design-notes)
+- [Appendix F 窶・Conformance tests](#conformance-tests)
+- [Appendix G 窶・Streaming conformance](#appendix-streaming-conformance)
+- [Appendix H 窶・Code generation reference](#appendix-codegen)
+
+## 1. Scope
+
+
+
+ This document defines the core **syntax** and **streaming parsing model** of BCODe:
+ ASCII-column token classes, lines and latching, fields (qualifiers + numbers), payloads, comments, whitespace,
+ interleaving rules, deterministic recognition precedence, and a canonical streaming parser reference.
+
+
+
+
+
+ This document does not assign semantic meaning to any particular parameter character or command character, except where a character is reserved for parser-level resynchronization. The command byte `DEL` (0x7F) is reserved for parser reset/resynchronization and MUST NOT be assigned higher-layer meaning (see Section 16.1). Interpretation of qualifier combinations and numeric types is defined separately.
+
+
+
+
+
+
+## 2. Metanotation and Abstract Symbols (Informative)
+
+This section defines the metanotation used in this document when describing BCODe syntax abstractly. These symbols are used only in specification prose and formal derivations. They do not appear on the wire and do not alter the grammar defined elsewhere in this document.
+
+Greek letters represent abstract roles within a BCODe line. Literal ASCII punctuation (such as `.`, `,`, `*`, `/`) is shown explicitly and always represents actual on-wire characters.
+
+### 2.1 Terminators
+
+#### Command Terminator
+
+`ﾎｺ竄兪
+
+Represents a command terminator character (ASCII `0x60窶・x7F`).
+
+The subscript `n` provides local numbering within a given derivation or example. It has no semantic meaning beyond distinguishing occurrences in the text.
+
+If identity is relevant, the actual ASCII character is stated explicitly, for example:
+
+`ﾎｺ竄・= 'b'`
+
+---
+
+#### Parameter Terminator
+
+`ﾎ竄兪
+
+Represents a parameter terminator character (ASCII `0x40窶・x5F`).
+
+The subscript `n` provides local numbering within a given derivation or example. It does not imply any absolute indexing or bit position. If identity matters, the specific ASCII character is given explicitly, for example:
+
+`ﾎ竄・= 'A'`
+
+---
+
+### 2.2 Field Values
+
+#### Abstract Field Value
+
+`ﾎｦ`
+
+Represents a complete numeric field value, independent of its internal structure. This abstraction is used when the internal decomposition of the field value is not relevant to the discussion.
+
+---
+
+#### Numeric Decomposition
+
+When the internal structure of a field value matters, it is decomposed as:
+
+`ﾎｦ ::= ﾎ・[ .|, ﾎ・] [ (*|/) ﾎ・]`
+
+Where:
+
+- `ﾎ伝 represents the first numeric value (value1).
+- `ﾎ覗 represents the second numeric value (value2), if present.
+- `ﾎ杼 represents the exponent magnitude, if present.
+- `.` or `,` are literal on-wire pair separators.
+- `*` or `/` are literal on-wire exponent operators.
+
+The comma separator indicates a negative `ﾎ覗, as defined in the syntax rules. The exponent magnitude `ﾎ杼 corresponds to the integer value following `*` or `/`.
+
+Subscripts MAY be used when multiple values appear in the same derivation:
+
+`ﾎ凪ａ, ﾎ披ａ, ﾎ樞ａ`
+
+---
+
+### 2.3 Payload Structure
+
+#### Abstract Payload
+
+`ﾎｩ`
+
+Represents an abstract payload body (string, hex-byte, or raw binary payload).
+
+When a payload is preceded by a numeric length hint, the abstract form is written:
+
+`ﾎ・ﾎｩ`
+
+where `ﾎ伝 represents the length hint value and `ﾎｩ` represents the payload body.
+
+---
+
+### 2.4 Abstract Line Structure
+
+A BCODe line is abstractly represented as:
+
+`( ﾎｦ ﾎ竄・)*  ﾎｦ ﾎｺ竄兪
+
+Meaning:
+
+- Zero or more parameter-terminated fields
+- Followed by one command-terminated field
+- The line is latched upon reading `ﾎｺ竄兪, as defined by the command termination rules elsewhere in this document.
+
+---
+
+### 2.5 Notes
+
+1. Greek symbols are used only for specification clarity and never appear in the transmitted byte stream.
+2. ASCII punctuation shown in this section (`.`, `,`, `*`, `/`) always represents literal on-wire characters.
+3. Subscripts provide local disambiguation within a derivation and have no independent protocol meaning.
+4. This metanotation is layered: discussions may operate at the `ﾎｦ` level (entire field value) or at the `ﾎ・ﾎ・ﾎ杼 level (numeric decomposition) as appropriate.
+
+## 4. Streaming model
+
+
+
+ BCODe is parsed from a potentially unbounded byte stream. There is **no concept of end-of-file**.
+ The consumer decides where the stream starts and ends.
+
+
+
+
+
+ A BCODe 窶徑ine窶・is a logical unit that ends when a **command character** is read in normal mode.
+ All parsed state (fields, payloads) is **latched atomically** at that moment.
+
+
+
+
+### 3.1 Stream start, session boundaries, and transport open events (Normative)
+
+
+
+ Because BCODe has no end-of-file and command bytes are only recognized in normal mode (see Section 14 and Appendix B),
+ a receiver cannot assume it is synchronized unless the transport or a higher-layer convention provides an explicit stream start.
+
+
+
+
+
+ An implementation MUST reset its parser to the baseline state (**S\_NORMAL** with an empty pending line)
+ whenever it begins consuming a new logical stream.
+
+
+
+- **Transports with a distinct open event.**
+ On session-oriented transports with a reliable 窶徙pen窶・event (for example: TCP connection establishment and WebSocket open),
+ a receiver MUST reset its parser at the open event, and MUST NOT carry parser state across sessions.
+- **Transports without a distinct open event.**
+ On channels where a receiver may begin observing bytes at an arbitrary time, or where peers may reset independently while the channel remains 窶忖p窶・ (for example: UART links, named FIFOs, and UDP),
+ higher layers MUST provide an explicit resynchronization mechanism.
+ This specification reserves the command byte `DEL` (`0x7F`) as an in-band parser reset/resynchronization command (Section 16.1).
+
+
+
+
+
+## 4. ASCII column grammar (Normative)
+
+
+
+**Metanotation reference.** In abstract descriptions, a parameter terminator is denoted `ﾎ竄兪 and a command terminator is denoted `ﾎｺ竄兪. Thus a field is terminated by either `ﾎ竄兪 (PARAM) or `ﾎｺ竄兪 (CMD). These symbols are descriptive only; on-wire classification remains defined by ASCII range (Section 4).
+
+ BCODe assigns grammatical meaning by ASCII 窶彡olumn窶・ i.e., by the upper three bits of the byte
+ (`c & 0xE0`). Token identity within a class can be derived from the lower five bits
+ (`c & 0x1F`).
+
+
+
+### 4.1 ASCII columns used
+
+
+
+
+| ASCII range | Column | Typical chars | BCODe role |
+| --- | --- | --- | --- |
+| `0x20窶・x3F` | 2 |<pre><code class="language-bcode">`SP ! " ##  %% && ' (;) * + / 0窶・ : < = > ? , - . $$`</code></pre> | Field content, qualifiers, numeric punctuation, payload/comment markers, exponent markers |
+| `0x40窶・x5F` | 3 |<pre><code class="language-bcode">`@ A窶纏 [ \ ] ^ _`</code></pre> | **Parameter characters** (terminate intermediate fields) |
+| `0x60窶・x7F` | 4 |<pre><code class="language-bcode">`` ` a窶奴  ~ DEL `` {} </code></pre> | **Command characters** (terminate line and latch). The byte `DEL` (0x7F) is reserved for parser reset/resynchronization (Section 15.1). |
+
+
+
+
+## 5. Line structure & latching (Normative)
+
+
+
+**Abstract line form.** Using the metanotation defined in Section 2, a BCODe line has the abstract structure:
+
+`( ﾎｦ ﾎ竄・)*  ﾎｦ ﾎｺ竄兪
+
+This expression captures the structural rule that zero or more parameter-terminated fields precede exactly one command-terminated field, and that latching occurs upon reading `ﾎｺ竄兪.
+
+ A BCODe line is any sequence of fields, payloads, and whitespace/comments that ends with a command character.
+ Newlines are not line terminators in BCODe.
+
+
+
+
+
+**All fields and payloads parsed since the previous command character are latched when the next command character is read.**
+ No semantic action is taken prior to latching.
+
+
+
+
+Payloads **SHOULD** precede fields for readability, but this is not required.
+
+
+
+
+## 6. Whitespace (Normative)
+
+
+Outside opaque regions, the following are treated identically as ignorable whitespace:
+
+
+- SP (`0x20`), HTAB (`0x09`), CR (`0x0D`), LF (`0x0A`)
+
+
+
+
+ Outside opaque regions and comments, whitespace **MAY** appear anywhere (including inside numbers, exponents,
+ and between qualifiers) and **MUST NOT** affect syntax-level values.
+
+
+
+
+
+
+## 7. Comments (Normative)
+
+
+
+
+ Comments are treated as ignorable whitespace with opaque content: the parser MUST NOT interpret comment contents as syntax,
+ and comment contents are not part of the latched semantic record.
+
+
+
+
+### 7.1 Semicolon comment
+
+
+A semicolon comment begins with `;` and ends at the next LF (`0x0A`).
+
+
+
+```bcode
+;this is a comment<LF>
+```
+
+### 7.2 Parenthesized comment
+
+
+A parenthesized comment begins with `(` and ends at the next `)`. Comments are not nestable.
+
+
+
+```bcode
+(this is a comment)
+```
+
+### 7.3 Where comments are recognized
+
+
+
+- Comments are recognized in normal mode.
+- Comments are **not** recognized inside opaque regions (string payload bodies and raw binary bodies).
+- Comments **are** recognized inside `%...%` hex payload bodies and removed before decoding.
+
+
+
+
+
+## 8. Payloads (Normative)
+
+
+
+ A line may include zero or more payloads, appearing anywhere before the command character.
+ Payloads are latched along with fields when the command character is read.
+
+
+
+### 8.1 String payload (opaque)
+
+
+
+ A string payload begins with `$` and ends at LF (`0x0A`) or NUL (`0x00`).
+ The body is opaque: no comments or other syntax are recognized inside.
+
+
+
+#### Optional length hint
+
+
+
+ An optional *unsigned integer* length hint MAY precede the `$`. It provides a receiver
+ a head窶爽p for buffer sizing and an extra end窶奏o窶粗nd verification signal.
+ The hint indicates the number of payload bytes **excluding** the terminating LF/NUL.
+
+
+
+- The length hint uses the normal integer literal syntax: decimal digits or uppercase hex `#...#`.
+- Whitespace (SP/HTAB/CR/LF) is ignored, and comments MAY appear between digits and before `$`.
+- Qualifiers have no meaning for payload length and SHOULD NOT be used on a length hint.
+
+
+
+
+ If a length hint is present, the string payload length (bytes before LF/NUL) MUST match it exactly.
+ If the terminator occurs early, or if more bytes arrive than hinted, this is a parse error.
+
+
+
+
+
+```bcode
+$hello<LF>
+5$hello<LF>
+#0005#$hello<LF>
+$<LF>          ; empty string
+0$<LF>         ; empty string with explicit length hint
+```
+
+### 8.2 Hex-byte binary payload (comment-friendly)
+
+
+
+ A hex-byte payload is bounded by `%` characters and encodes bytes as pairs of uppercase hex digits.
+ Whitespace is allowed and ignored. Comments are allowed inside and removed prior to decoding.
+
+
+
+#### Optional decoded-length hint
+
+
+
+ An optional *unsigned integer* length hint MAY precede the opening `%`.
+ The hint indicates the number of **decoded bytes** carried inside `%...%`
+ (i.e., after removing whitespace/comments and converting hex digit pairs to bytes).
+
+
+
+
+
+ After removing whitespace and comments from `%...%`, the remaining hex digit count MUST be even
+ (two digits per byte), and digits MUST be uppercase `0窶・` or `A窶擢`.
+ If a decoded-length hint is present, the decoded byte count MUST match it exactly; otherwise this is a parse error.
+
+
+
+
+
+```bcode
+%DE AD (crc32=12345678) BE EF%
+4%DE AD (crc32=12345678) BE EF%
+```
+
+### 8.3 Length-prefixed raw binary payload (opaque body)
+
+
+
+ A length-prefixed raw binary payload begins with an `&` delimiter and consumes exactly *payload\_length* raw bytes.
+ A numeric length MAY appear immediately before `&` (allowing intervening whitespace), otherwise length defaults to 0.
+
+
+
+
+```bcode
+10&<10 raw bytes>
+10   &<10 raw bytes>
+&                 (length defaults to 0)
+```
+
+
+**Raw payload length derivation (updated)**
+
+
+- The payload length MUST be derived from the field窶冱 **first numeric value** (`value1`) only.
+- If `value1` has already been committed, `payload_length = value1`.
+- Otherwise, if a first-number accumulator exists, `payload_length` is the current accumulator value.
+- Otherwise, `payload_length = 0`.
+- **Decimal fractions and exponent suffixes MUST NOT affect `payload_length`.** Including them is safe but discouraged.
+- After determining `payload_length`, the parser MUST consume/reset the numeric accumulator and then consume exactly `payload_length` raw bytes.
+
+
+
+
+
+ If `&` appears while a hex number is open (i.e., between the opening and closing `#`),
+ parsing resumes in that same 窶徂ex-open窶・mode after the raw payload is consumed. This is permitted but strongly discouraged.
+
+
+
+
+### 8.4 Qualifiers do not apply to payloads
+
+
+
+
+ Qualifier characters (`-`, `<`, `>`, `?`, `!`) apply only to fields.
+ If qualifiers appear adjacent to payloads, they MUST NOT be interpreted as modifying that payload.
+
+
+
+
+
+
+## 9. Fields (Normative)
+
+
+
+ Fields carry numeric data and are terminated by either a parameter character (intermediate fields) or a command character (final field).
+
+
+
+### 9.1 Field termination
+
+
+
+- A parameter character (ASCII `0x40窶・x5F`) terminates a field and identifies a parameter.
+- A command character (ASCII `0x60窶・x7F`) terminates the final field and latches the entire line.
+- Terminators are not part of the field value.
+
+
+
+### 9.2 Qualifiers (syntax only)
+
+
+Each field may contain any combination of the following qualifier characters:
+
+
+
+```bcode
+-   <   >   ?   !
+```
+
+
+ This document defines only the syntax of qualifier presence. The standard interpretation of qualifier combinations and the meaning of
+ `!` (freshness modifier) are defined separately.
+
+
+
+### 9.3 Empty fields (Normative)
+
+
+
+
+ Empty fields are permitted. An *empty field* is a field terminator (parameter or command character) that occurs
+ when no numeric value has been provided for the current field.
+
+
+
+
+ A parser MUST treat an empty field as having:
+ `value1 = 0`, `value2 = 0`, `frac_width = 0`,
+ and qualifier flags as accumulated (if any qualifiers appeared).
+
+
+
+
+### 9.4 Enumeration of field forms (Normative)
+
+
+
+ Decimal vs hex encoding, pair separator choice (`.` for positive `value2`, `,` for negative `value2`), and optional exponent suffix do not create distinct field forms.
+ The terminator class (PARAM vs CMD) does create distinct field forms.
+
+
+
+#### 8.4.1 Content shapes
+
+
+
+
+| Shape ID | Canonical spelling | Description |
+| --- | --- | --- |
+| C0 | <pre><code class="language-bcode">Q* T</code></pre> | Empty field (no numeric content) |
+| C1 | <pre><code class="language-bcode">Q* N [EXP] T</code></pre> | Single-number field with optional exponent suffix |
+| C2 | <pre><code class="language-bcode">Q* N S M [EXP] T</code></pre> | Two-number field (fixed-point pair) with optional exponent suffix |
+
+
+#### 8.4.2 Distinct field forms by terminator class
+
+
+
+
+ Each content shape has two terminator-class variants:
+ **窶ｦP** for parameter terminators (`0x40窶・x5F`) and **窶ｦC** for command terminators (`0x60窶・x7F`).
+
+
+
+
+
+
+| Form ID | Shape | Terminator | Canonical spelling |
+| --- | --- | --- | --- |
+| F0P | C0 | PARAM | <pre><code class="language-bcode">Q* PARAM</code></pre> |
+| F1P | C1 | PARAM | <pre><code class="language-bcode">Q* N [EXP] PARAM</code></pre> |
+| F2P | C2 | PARAM | <pre><code class="language-bcode">Q* N S M [EXP] PARAM</code></pre> |
+| F0C | C0 | CMD | <pre><code class="language-bcode">Q* CMD</code></pre> |
+| F1C | C1 | CMD | <pre><code class="language-bcode">Q* N [EXP] CMD</code></pre> |
+| F2C | C2 | CMD | <pre><code class="language-bcode">Q* N S M [EXP] CMD</code></pre> |
+
+
+
+
+ Whitespace/comments and interleaved payloads (outside opaque regions) do not change the field form classification (C0/C1/C2, PARAM/CMD).
+
+
+
+
+
+
+## 10. Numbers & fractional width (Normative)
+
+
+### 10.1 One or two numeric values
+
+
+
+ A field contains one or two numeric values. If two values are present, they are separated by either `.` or `,`.
+ The separator indicates the sign of the second value: `.` indicates a non-negative `value2`, and `,` indicates a negative `value2`.
+ The digits of `value2` encode the magnitude; the sign MUST be derived solely from the separator and MUST be recorded by the parser.
+
+
+
+**Note:** In BCODe syntax, `.` and `,` are pair separators, not locale-dependent decimal separators. This specification records the sign and digits; numeric interpretation is defined separately.
+
+
+
+### 10.2 Decimal vs hex
+
+
+Each numeric value is either decimal digits (`0窶・`) or hex digits bounded by `#`:
+
+
+
+```bcode
+12345
+#1A3F#
+```
+
+### 10.3 Uppercase-only hex digits (safety constraint)
+
+
+
+
+ Hex digits MUST be uppercase only: `0窶・` and `A窶擢`. Lowercase `a窶吐` are forbidden.
+ A hex value MUST be terminated by a closing `#`, and MUST contain at least one hex digit. Hex literals are opaque to field terminators: while inside an open `#...#` sequence, PARAM and CMD characters MUST NOT terminate the field. Only the closing `#` ends the hex literal. If a terminator is encountered before the closing `#`, the construct is malformed and a parser SHOULD resynchronize.
+
+
+
+
+### 10.4 Leading zeros
+
+
+
+- Leading zeros in `value1` are permitted and MUST NOT affect syntax-level numeric parsing.
+- Leading zeros in `value2` are permitted; the digit count in `value2` is recorded as `frac_width`.
+
+
+
+### 10.5 Fractional width recording
+
+
+
+
+ For every field, the parser MUST record `frac_width` as follows:
+ if a second numeric value is absent, `frac_width = 0`; otherwise, `frac_width` is the number of digits
+ in `value2` as encoded (whitespace/comments ignored; `#` delimiters excluded).
+
+
+
+
+
+```text
+12.3      => value2=3, frac_width=1
+12.03     => value2=3, frac_width=2
+12,03     => value2=-3, frac_width=2
+12.003    => value2=3, frac_width=3
+#1#.#0A#  => value2=10, frac_width=2
+#1#,#0A#  => value2=-10, frac_width=2
+```
+
+
+
+## 11. Scientific exponent suffix (Normative)
+
+
+
+ BCODe supports a compact scientific notation suffix on the mantissa. The exponent is an integer and is encoded using a
+ column-2 marker character to avoid reusing the `-` qualifier.
+
+
+
+### 11.1 Syntax
+
+
+
+
+| Marker | Meaning | Exponent value if digits omitted |
+| --- | --- | --- |
+| <pre><code class="language-bcode">`*`</code></pre> | Positive exponent | `+1` (discouraged) |
+| <pre><code class="language-bcode">`/`</code></pre> | Negative exponent | `-1` (discouraged) |
+
+
+
+- The exponent marker MUST occur after the mantissa (`value1` or `value1.value2`) and before the field terminator.
+- The pair separator (`.` or `,`) MUST NOT occur after an exponent marker.
+- The exponent digits (if present) MUST be decimal digits `0窶・` (whitespace/comments may appear between digits).
+- If an exponent marker is present with no digits, the exponent magnitude defaults to 1 (safe but discouraged).
+- Only one exponent marker is allowed per field.
+
+
+
+### 11.2 Parser output
+
+
+
+ A conforming parser MUST record the exponent suffix as:
+ `exp_present` (boolean) and `exp10` (signed integer base-10 exponent; 0 if absent).
+
+
+
+
+ This document defines how the exponent is parsed and recorded. How typed accessors apply the exponent is defined in the interpretation document.
+
+
+
+### 11.3 Examples
+
+
+
+```bcode
+123*3P      ; mantissa 123, exp10=+3
+123/2P      ; mantissa 123, exp10=-2
+12.34*P     ; mantissa 12.34 (fixed-point), exp10=+1 (defaulted)
+12.34/5C    ; mantissa 12.34, exp10=-5
+```
+
+
+
+## 12. Implementation limits (Normative)
+
+
+
+
+ The BCODe language does not impose fixed numeric size limits. Implementations MAY impose bounds on numeric magnitude,
+ digit count, fractional width, exponent magnitude, and payload lengths for practical reasons.
+
+
+
+
+ If an implementation cannot represent a value (overflow, excessive length, etc.), it MUST treat the construct as malformed
+ and apply its resynchronization strategy.
+
+
+
+
+
+
+## 13. Interleaving (Normative)
+
+
+
+ BCODe permits comments and payloads to appear between tokens, including within fields and within numeric spellings,
+ subject to opaque-region rules.
+
+
+
+
+- Interleaving of payloads and comments is permitted in normal mode, including between digits of a numeric spelling or exponent.
+- Comments and payload markers are not recognized inside opaque regions (string payload bodies and raw-binary bodies).
+- Comments are recognized inside `%...%` and removed prior to hex decoding.
+
+
+
+
+
+## 14. Opaque regions & recognition precedence (Normative)
+
+
+### 14.1 Opaque regions
+
+
+- String payload body: after `$` until LF or NUL terminator (terminator consumed)
+- Raw binary payload body: after `&` until exactly *payload\_length* bytes are consumed
+
+
+### 14.2 Recognition precedence outside opaque regions
+
+
+1. `;` begins a semicolon comment (ends at LF)
+2. `(` begins a parenthesized comment (ends at `)`)
+3. `$` begins a string payload (opaque)
+4. `%` begins a hex-byte payload (comments allowed inside)
+5. `&` begins a raw binary payload (length derived from `value1` as in Section 8.3)
+6. Parameter character (`0x40窶・x5F`) terminates a field
+7. Command character (`0x60窶・x7F`) terminates the final field and latches the line
+8. Otherwise, bytes contribute to the current field (qualifiers/numbers/exponent), ignoring whitespace
+
+
+This precedence yields a single deterministic parse of the stream.
+
+
+
+
+## 15. Conformance (Normative)
+
+
+- MUST classify PARAM as `0x40窶・x5F` and CMD as `0x60窶・x7F`.
+- MUST latch line state only on CMD encountered outside opaque regions and comments.
+- MUST treat the command byte `DEL` (0x7F) as a reserved parser reset/resynchronization token in normal mode (Section 16.1), and MUST NOT deliver it as an application-visible command.
+- MUST treat SP/HTAB/CR/LF as ignorable whitespace outside opaque regions/comments.
+- MUST accept both pair separators `.` and `,`; `.` indicates a non-negative `value2`, and `,` indicates a negative `value2` (digits encode magnitude).
+- MUST enforce uppercase-only hex digits (`0窶・A窶擢`) in `#...#` and in `%...%`.
+- MUST require at least one hex digit inside `#...#` (no empty hex values).
+- MUST record `frac_width` per Section 10.5.
+- MUST record exponent suffix as `exp_present` and `exp10` per Section 11.
+- MUST treat string payload body and raw binary body as opaque; no comments/syntax recognized inside.
+- MUST allow comments inside `%...%` and remove them before hex decoding.
+- MUST start a raw binary payload on `&` with length defaulting to 0 when absent.
+- MUST derive raw payload length from `value1` only; fraction/exponent MUST NOT affect length.
+- MUST permit empty fields and treat them as zeros per Section 9.3.
+- MUST accept the qualifier character set `- < > ? !` syntactically.
+
+
+
+
+## 16. Error handling & resynchronization
+
+
+
+
+ Recommended strategy: on detecting a malformed construct in normal mode (invalid hex digit, malformed `#...#`, odd digit count in
+ `%...%`, malformed exponent, etc.), an implementation **SHOULD** discard the pending line state and resynchronize by scanning until the next
+ command character encountered in normal mode.
+
+
+
+
+### 16.1 Reserved parser reset / resynchronization command (`DEL`)
+
+
+
+
+ The command byte `DEL` (ASCII `0x7F`) is **reserved** for parser reset / resynchronization and
+ **MUST NOT** be assigned meaning by higher-layer schemas, conventions, or applications.
+
+
+
+
+ - The reset byte is recognized only when encountered as a command terminator in **S\_NORMAL**
+ (see Appendix B.2). It is **not** recognized inside comment bodies, or inside opaque regions such as `$...LF/NUL` string bodies or
+ `&...raw bytes...` bodies.
+
+ - When `DEL` is read in **S\_NORMAL**, a conforming parser MUST discard any pending (not-yet-latched) line state and
+ MUST report a parser reset event to the host (implementation-defined API; see Appendix D for one reference).
+
+ - The parser MUST NOT report any normal 窶徑ine latched窶・event for `DEL`, and MUST NOT deliver the reset byte upward as an
+ application-visible command.
+
+
+
+#### 15.1.1 Reset acknowledgement token
+
+
+
+ A reset acknowledgement is encoded as the two-byte sequence `0x3E 0x7F`
+ (ASCII `>` followed by `DEL`).
+ In this document we write this token as `><DEL>`, where `<DEL>` denotes the single byte `0x7F`.
+ It consists of a line containing only the `>` qualifier (no numeric content) terminated by the reserved reset command byte.
+ Parsers MAY classify reset events as either 窶徨eset request窶・or 窶徨eset acknowledgement窶・based on whether the pending line state matches this acknowledgement shape.
+
+
+
+
+
+ A receiver that implements the reset mechanism MUST transmit the reset acknowledgement token (`0x3E 0x7F`) after receiving a reset request.
+ A receiver MUST NOT transmit a reset acknowledgement in response to a reset acknowledgement.
+
+
+
+
+
+
+**Diagnostics:** Implementations MAY render the `0x7F` byte as 窶廛EL窶・ 窶弯?窶・ or 窶・DEL>窶・in logs and UIs.
+ The on-wire acknowledgement is always exactly two bytes.
+
+
+
+
+### 16.2 Recommended serial resynchronization procedure (Informative)
+
+
+
+ Because command bytes are not recognized inside opaque regions and comments, a peer may be 窶徭tuck窶・consuming an unknown number of bytes
+ in a parenthesized comment body (until `)`), a semicolon comment (until `LF`), a `$` string payload body (until LF/NUL), or a raw `&` payload body (until *N* bytes are consumed).
+
+ The following byte sequence is commonly used on serial/terminal links to regain synchronization.
+ **After each step, the sender MUST check RX for the reset acknowledgement token**
+ (`0x3E 0x7F`, written `><DEL>`; Section 16.1.1).
+ If the acknowledgement is observed, the sender MUST stop transmitting further resynchronization bytes.
+
+
+
+1. Send a single `)` byte (`0x29`) to terminate any parenthesized comment.
+2. Send a single `DEL` byte (`0x7F`) as a reset request.
+3. Send a single `LF` byte (`0x0A`, `\n`) to terminate any semicolon comment and to terminate any `$...LF` string payload body.
+4. Send `DEL` (`0x7F`) repeatedly (checking RX for `><DEL>` after each transmitted byte) until the peer responds with the reset acknowledgement token `><DEL>`.
+
+
+
+ If a bare `DEL` (`0x7F`) is observed on RX before any `>` byte is observed, abort and fail (probable serial loopback/echo).
+
+
+
+ Because `DEL` (`0x7F`) is non-printing and may be intercepted by TTY line editing,
+ 窶徇anual reset窶・typically requires a tool, macro, or device-specific UI that can emit the byte explicitly on the wire
+ (raw/binary mode). When raw binary payloads are used, such tooling may also need to transmit enough bytes to exhaust a known
+ maximum raw payload length before a reset can be recognized.
+
+
+
+## Appendix A 窶・ABNF (RFC 5234 style)
+
+
+
+ ABNF cannot fully express streaming state (opaque regions and byte-counted raw binary).
+ The ABNF below describes token shapes; normative state behavior is defined in Appendix B.
+
+
+
+
+```
+ ===== Core bytes =====
+NUL     = %x00
+HTAB    = %x09
+LF      = %x0A
+CR      = %x0D
+SP      = %x20
+
+WSP     = SP / HTAB / CR / LF
+OWS     = *WSP
+
+PARAM   = %x40-5F
+CMD     = %x60-7F
+
+QUAL    = "-" / "<" / ">" / "?" / "!"
+PAIRSEP_POS = "."
+PAIRSEP_NEG = ","
+PAIRSEP     = PAIRSEP_POS / PAIRSEP_NEG  ; '.' => value2 >= 0, ',' => value2 < 0
+EXPMARK = "*" / "/"
+EXPDIGS = 1*( DIGIT / WSP )  ; decimal digits only (WSP allowed between)
+EXP     = EXPMARK OWS [ EXPDIGS ]  ; if EXPDIGS absent, exponent magnitude defaults to 1
+
+bcode-line = *( element / WSP ) final-field CMD
+
+element    = field PARAM
+           / payload
+           / comment
+
+final-field = [ field ]
+
+field    = OWS *( QUAL / WSP )
+           [ number [ OWS PAIRSEP OWS frac ] [ OWS EXP ] ]
+           OWS
+
+number   = decnum / hexnum
+frac     = decfrac / hexfrac
+
+decnum   = 1*( DIGIT / WSP )
+decfrac  = 1*( DIGIT / WSP )
+
+hexnum   = "#" OWS 1*( hexdig-uc / WSP ) OWS "#"
+hexfrac  = "#" OWS 1*( hexdig-uc / WSP ) OWS "#"
+
+hexdig-uc = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+
+payload = string-payload / hex-payload / rawbin-payload
+
+lenint = decnum / hexnum  ; unsigned integer only
+
+string-payload = [ lenint ] OWS "$" *string-char ( LF / NUL )
+string-char    = %x01-09 / %x0B-FF
+
+hex-payload = [ lenint ] OWS "%" *( hex-body ) "%"
+hex-body    = WSP / hexdig-uc / comment
+
+; Raw binary payload:
+; '&' always begins this payload. Optional preceding number MAY appear, but the actual payload length is derived
+; from value1 only (see Section 8.3). ABNF cannot express byte-count consumption or the 窶彡onsume accumulator and reset it窶・rule.
+rawbin-payload = [ number ] OWS "&" *OCTET
+
+comment = semi-comment / paren-comment
+semi-comment  = ";" *( %x00-09 / %x0B-FF ) LF
+paren-comment = "(" *( %x00-FF - ")" ) ")"
+```
+
+
+
+## Appendix B 窶・Streaming parser state machine (Normative)
+
+
+### B.1 States
+
+
+- **S\_NORMAL**: normal recognition mode
+- **S\_SEMI\_COMMENT**: inside `;...LF`
+- **S\_PAREN\_COMMENT**: inside `(...)`
+- **S\_STRING\_PAYLOAD**: inside `$...LF/NUL` (opaque)
+- **S\_HEX\_PAYLOAD**: inside `%...%` (comments allowed)
+- **S\_RAWBIN\_PAYLOAD**: consuming *payload\_length* raw bytes after `&` (opaque)
+
+
+### B.2 Latching rule
+
+
+
+
+ A command character (ASCII `0x60窶・x7F`) latches the pending line state only when encountered in **S\_NORMAL**.
+ Command characters in any other state are treated as literal data and MUST NOT latch.
+ The reserved command byte `DEL` (0x7F) is handled specially in **S\_NORMAL**: it triggers a parser reset/resynchronization event and discards pending line state rather than producing a normal line latch (Section 16.1).
+
+
+
+
+### B.3 Key transitions
+
+
+
+```
+In S_NORMAL:
+  ';'  -> S_SEMI_COMMENT (consume until LF, return to S_NORMAL)
+  '('  -> S_PAREN_COMMENT (consume until ')', return to S_NORMAL)
+  '$'  -> S_STRING_PAYLOAD (opaque until LF or NUL, return to S_NORMAL; optional [len] hint may precede '$')
+  '%'  -> S_HEX_PAYLOAD (until next '%'; comments allowed inside; optional [len] hint may precede '%')
+  '&'  -> begin raw-binary payload (payload_length derived from value1 only; consume+reset numeric accumulator)
+  '*'/'/' -> begin exponent suffix for current mantissa (default magnitude 1 if digits omitted)
+
+  QUAL -> set qualifier flag for current field and stay in S_NORMAL
+  PARAM -> terminate current field
+  CMD   -> terminate final field and latch line
+  else  -> feed into field parsing; ignore WSP
+
+In S_HEX_PAYLOAD:
+  '%' terminates payload and returns to S_NORMAL
+  WSP ignored
+  ';' begins semicolon comment that returns to S_HEX_PAYLOAD
+  '(' begins paren comment that returns to S_HEX_PAYLOAD
+  otherwise must be hexdig-uc; after stripping WSP/comments, digit count must be even
+
+In S_RAWBIN_PAYLOAD:
+  consume exactly payload_length bytes verbatim (opaque), then return to S_NORMAL
+  (and if hex-open restore was requested, restore that hex-open numeric mode)
+```
+
+
+**Length hint recognition:** For `$` and opening `%`, a length hint is recognized only when the parser has accumulated
+ a standalone, unqualified integer immediately before the payload start. If recognized, that integer is consumed as the payload窶冱 length hint and is not part
+ of any field.
+
+
+
+
+
+## Appendix C 窶・State machine diagram (Informative)
+
+
+Copy into any Mermaid renderer (this HTML does not load external scripts).
+
+
+
+```
+stateDiagram-v2
+  [*] --> NORMAL
+
+  NORMAL --> SEMI_COMMENT : ';'
+  SEMI_COMMENT --> NORMAL : LF
+
+  NORMAL --> PAREN_COMMENT : '('
+  PAREN_COMMENT --> NORMAL : ')'
+
+  NORMAL --> STRING_PAYLOAD : '$'
+  STRING_PAYLOAD --> NORMAL : LF or NUL
+
+  NORMAL --> HEX_PAYLOAD : '%'
+  HEX_PAYLOAD --> NORMAL : '%'
+  HEX_PAYLOAD --> HEX_SEMI_COMMENT : ';'
+  HEX_SEMI_COMMENT --> HEX_PAYLOAD : LF
+  HEX_PAYLOAD --> HEX_PAREN_COMMENT : '('
+  HEX_PAREN_COMMENT --> HEX_PAYLOAD : ')'
+
+  NORMAL --> RAWBIN_PAYLOAD : '&' (len derived from value1; reset accumulator)
+  RAWBIN_PAYLOAD --> NORMAL : raw_remaining == 0
+
+  NORMAL --> NORMAL : '*' or '/' (begin exponent)
+  NORMAL --> NORMAL : QUAL / digits / '#' / '.' / ',' / WSP
+  NORMAL --> NORMAL : PARAM (terminates field)
+  NORMAL --> [*] : CMD (terminates + latch + reset)
+```
+
+
+
+## Appendix D 窶・Canonical C parser (Reference)
+
+
+
+ This is a canonical streaming parser for the **syntax** rules in this document.
+ It reports fields/payloads as they are parsed; an application that wants a 窶忤hole latched line窶・can buffer events until `on_line_latched`.
+
+
+
+
+Show canonical C parser (single-file reference)
+
+```
+
+
+
+/* ============================================================
+   File: bcode_parser.c  (canonical streaming syntax parser)
+   Supports:
+     - streaming parse (no EOF)
+     - latching on CMD (0x60..0x7F) in NORMAL (except reserved reset CMD 0x7F (DEL))
+     - reserved reset CMD 0x7F (DEL): in NORMAL, discards pending line state and reports a reset event (on_reset)
+     - PARAM terminators (0x40..0x5F)
+     - whitespace SP/HTAB/CR/LF ignored in NORMAL and HEX payload
+     - comments ;..LF and (..)
+     - qualifiers: -, <, >, ?, ! (stale modifier)
+     - numbers: decimal digits or #...# hex (uppercase 0-9A-F only), whitespace allowed between digits
+     - pair separator: '.' (non-negative value2) or ',' (negative value2)
+     - fractional width: digit count of value2 (digits only; whitespace ignored; '#' excluded)
+     - optional scientific exponent suffix:
+          '*' [digits]  => exponent +k (default k=1 if digits omitted)
+          '/' [digits]  => exponent -k (default k=1 if digits omitted)
+       Exponent applies to the mantissa (value1[.value2]) and MUST NOT precede the separator.
+     - payloads:
+          $...LF/NUL  string (opaque)
+          %...%       hex bytes (whitespace ignored; comments allowed; uppercase hex only; even digit count)
+          &           raw bytes (length derived ONLY from first number value1; see notes)
+            Length derivation for '&':
+              - if value1 already committed: len=value1
+              - else if mantissa accumulator has digits: len=acc_value
+              - else len=0
+            Decimal fraction/exponent do not affect payload length. Not recommended but safe.
+
+   ============================================================ */
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+#include <limits.h>
+
+static inline bool bc_is_param(uint8_t c) { return (c >= 0x40 && c <= 0x5F); }
+static inline bool bc_is_cmd(uint8_t c)   { return (c >= 0x60 && c <= 0x7F); }
+static inline bool bc_is_wsp(uint8_t c)   { return c==0x20 || c==0x09 || c==0x0D || c==0x0A; }
+
+static inline int bc_hex_uc_val(uint8_t c) {
+  if (c >= '0' && c <= '9') return (int)(c - '0');
+  if (c >= 'A' && c <= 'F') return (int)(c - 'A' + 10);
+  return -1;
+}
+
+typedef enum {
+  BC_SHAPE_EMPTY  = 0,
+  BC_SHAPE_SINGLE = 1,
+  BC_SHAPE_PAIR   = 2
+} bc_shape_t;
+
+typedef enum { ACC_NONE=0, ACC_DEC=1, ACC_HEX=2 } bc_acc_mode_t;
+
+typedef enum {
+  ST_NORMAL = 0,
+  ST_SEMI_COMMENT,
+  ST_PAREN_COMMENT,
+  ST_STRING_PAYLOAD,
+  ST_HEX_PAYLOAD,
+  ST_HEX_SEMI_COMMENT,
+  ST_HEX_PAREN_COMMENT,
+  ST_RAWBIN_PAYLOAD
+} bc_state_t;
+
+typedef struct {
+  // Public (latched-per-field)
+  uint8_t     qual_mask;   // bit0='-', bit1='<', bit2='>', bit3='?'
+  bool        stale;       // '!' freshness modifier (interpretation defined elsewhere)
+
+  bc_shape_t  shape;       // empty / single / pair
+  uint64_t    value1;
+  uint64_t    value2;      // magnitude (always non-negative)
+  bool        value2_neg;  // true iff separator was ',' (so rendered v2 is negative)
+  uint32_t    frac_width;  // digit count of value2 (0 if absent)
+
+  bool        exp_present; // exponent marker ('*' or '/') present
+  int32_t     exp10;       // signed base-10 exponent (default magnitude 1 if no digits)
+
+  // Internal field parsing state
+  bool        sep_seen;    // '.' or ',' seen
+  bool        parsing_v2;  // true after separator
+
+  // Mantissa numeric accumulator (digits for value1 or value2)
+  bool        acc_present;
+  bc_acc_mode_t acc_mode;
+  bool        acc_hex_open;     // between '#' and closing '#'
+  bool        acc_saw_digit;
+  uint32_t    acc_digit_count;  // digits in current accumulator (used for frac_width when committing v2)
+  uint64_t    acc_value;
+
+  // Exponent parse state (digits after '*' or '/')
+  bool        exp_neg;          // true if '/' (negative exponent)
+  bool        exp_digits_seen;
+  uint32_t    exp_mag;          // parsed magnitude digits (decimal)
+} bc_field_t;
+
+typedef struct {
+  // Optional callbacks (all may be NULL)
+  void (*on_field)(void *user, uint8_t term, bool term_is_cmd, const bc_field_t *field);
+  void (*on_line_latched)(void *user, uint8_t cmd);
+  void (*on_reset)(void *user, bool is_ack);
+
+
+  void (*on_payload_string_begin)(void *user, bool len_present, uint64_t len);
+  void (*on_payload_string_byte)(void *user, uint8_t b);
+  void (*on_payload_string_end)(void *user, uint8_t term /*LF or NUL*/, bool is_null_string,
+                                bool len_present, uint64_t expected_len, uint64_t actual_len, bool len_match);
+
+  void (*on_payload_hex_begin)(void *user, bool len_present, uint64_t len);
+  void (*on_payload_hex_byte)(void *user, uint8_t b);
+  void (*on_payload_hex_end)(void *user, bool len_present, uint64_t expected_len, uint64_t actual_len, bool len_match);
+
+  void (*on_payload_raw_begin)(void *user, uint64_t len);
+  void (*on_payload_raw_byte)(void *user, uint8_t b);
+  void (*on_payload_raw_end)(void *user);
+} bc_callbacks_t;
+
+typedef struct {
+  bc_state_t st;
+  bool resync; // if true: discard bytes until next CMD in NORMAL
+
+  bc_callbacks_t cb;
+  void *user;
+
+  bc_field_t field;
+
+  // line-scoped accounting (since last CMD)
+  uint32_t line_param_fields; // number of PARAM-terminated fields in the current line
+  bool line_payload_seen;     // whether any payload began in the current line
+
+  // raw payload consumption
+  uint64_t raw_remaining;
+  bool raw_restore_hex_open; // restore hex-open mantissa accumulator after raw payload ends
+
+  // hex payload decode nibble state
+  bool hex_have_half;
+  uint8_t hex_half;
+
+  // string payload body length (to distinguish NULL vs empty)
+  uint32_t str_len;
+} bc_parser_t;
+
+static void bc_field_reset(bc_field_t *f) {
+  memset(f, 0, sizeof(*f));
+  f->shape = BC_SHAPE_EMPTY;
+  f->value1 = 0;
+  f->value2 = 0;
+  f->value2_neg = false;
+  f->frac_width = 0;
+  f->qual_mask = 0;
+  f->stale = false;
+
+  f->exp_present = false;
+  f->exp10 = 0;
+
+  f->sep_seen = false;
+  f->parsing_v2 = false;
+
+  f->acc_present = false;
+  f->acc_mode = ACC_NONE;
+  f->acc_hex_open = false;
+  f->acc_saw_digit = false;
+  f->acc_digit_count = 0;
+  f->acc_value = 0;
+
+  f->exp_neg = false;
+  f->exp_digits_seen = false;
+  f->exp_mag = 0;
+}
+
+void bc_init(bc_parser_t *p, const bc_callbacks_t *cb, void *user) {
+  memset(p, 0, sizeof(*p));
+  p->st = ST_NORMAL;
+  p->resync = false;
+  if (cb) p->cb = *cb;
+  p->user = user;
+  bc_field_reset(&p->field);
+}
+
+static void bc_enter_resync(bc_parser_t *p) {
+  // Drop pending line state and discard until next CMD in NORMAL.
+  bc_field_reset(&p->field);
+  p->st = ST_NORMAL;
+  p->raw_remaining = 0;
+  p->hex_have_half = false;
+  p->str_len = 0;
+  p->raw_restore_hex_open = false;
+  p->line_param_fields = 0;
+  p->line_payload_seen = false;
+  p->resync = true;
+}
+
+static bool bc_acc_mul_add_dec(bc_field_t *f, uint8_t c) {
+  uint8_t d = (uint8_t)(c - '0');
+  if (f->acc_value > (UINT64_MAX - (uint64_t)d) / 10ULL) return false;
+  f->acc_value = f->acc_value * 10ULL + (uint64_t)d;
+  return true;
+}
+
+static bool bc_acc_shift_add_hex(bc_field_t *f, uint8_t c) {
+  int v = bc_hex_uc_val(c);
+  if (v < 0) return false;
+  if (f->acc_value > (UINT64_MAX >> 4)) return false;
+  f->acc_value = (f->acc_value << 4) | (uint64_t)(uint8_t)v;
+  return true;
+}
+
+static bool bc_acc_add_digit(bc_field_t *f, uint8_t c) {
+  if (!f->acc_present) {
+    f->acc_present = true;
+    f->acc_mode = ACC_DEC;
+    f->acc_hex_open = false;
+    f->acc_saw_digit = false;
+    f->acc_digit_count = 0;
+    f->acc_value = 0;
+  }
+
+  bool ok = false;
+  if (f->acc_mode == ACC_DEC) {
+    if (c < '0' || c > '9') return false;
+    ok = bc_acc_mul_add_dec(f, c);
+  } else if (f->acc_mode == ACC_HEX) {
+    ok = bc_acc_shift_add_hex(f, c);
+  } else {
+    return false;
+  }
+
+  if (!ok) return false;
+  f->acc_saw_digit = true;
+  f->acc_digit_count++;
+  return true;
+}
+
+static bool bc_begin_hex_acc(bc_field_t *f) {
+  // Start a hex number: '#'
+  if (f->acc_present && f->acc_mode != ACC_HEX) return false;
+  if (!f->acc_present) {
+    f->acc_present = true;
+    f->acc_value = 0;
+    f->acc_digit_count = 0;
+    f->acc_saw_digit = false;
+  }
+  f->acc_mode = ACC_HEX;
+  f->acc_hex_open = true;
+  return true;
+}
+
+static bool bc_end_hex_acc(bc_field_t *f) {
+  // End a hex number: closing '#'
+  if (!f->acc_present || f->acc_mode != ACC_HEX || !f->acc_hex_open) return false;
+  if (!f->acc_saw_digit) return false; // must contain at least one hex digit
+  f->acc_hex_open = false;
+  return true;
+}
+
+static bool bc_commit_acc_to_field(bc_parser_t *p) {
+  bc_field_t *f = &p->field;
+  if (!f->acc_present) return true;
+
+  // For normal field commit (PARAM/CMD), hex must be closed.
+  if (f->acc_mode == ACC_HEX && f->acc_hex_open) return false;
+  if (!f->acc_saw_digit) return false;
+
+  if (!f->parsing_v2) {
+    f->value1 = f->acc_value;
+    f->shape = BC_SHAPE_SINGLE;
+  } else {
+    f->value2 = f->acc_value;
+    f->frac_width = f->acc_digit_count;
+    f->shape = BC_SHAPE_PAIR;
+  }
+
+  // reset mantissa accumulator
+  f->acc_present = false;
+  f->acc_mode = ACC_NONE;
+  f->acc_hex_open = false;
+  f->acc_saw_digit = false;
+  f->acc_digit_count = 0;
+  f->acc_value = 0;
+  return true;
+}
+
+static bool bc_start_v2(bc_parser_t *p, uint8_t sep) {
+  bc_field_t *f = &p->field;
+
+  // Pair separator must never come after an exponent marker.
+  if (f->exp_present) return false;
+
+  // Separator requires a complete first number.
+  if (!f->acc_present || !f->acc_saw_digit) return false;
+  // If hex, must already be closed (i.e., '#...#' ended)
+  if (f->acc_mode == ACC_HEX && f->acc_hex_open) return false;
+
+  if (!bc_commit_acc_to_field(p)) return false;
+  f->sep_seen = true;
+  f->parsing_v2 = true;
+  f->value2_neg = (sep == ',');
+  return true;
+}
+
+static void bc_set_qual(bc_field_t *f, uint8_t q) {
+  switch (q) {
+    case '-': f->qual_mask |= 0x01; break;
+    case '<': f->qual_mask |= 0x02; break;
+    case '>': f->qual_mask |= 0x04; break;
+    case '?': f->qual_mask |= 0x08; break;
+    case '!': f->stale = true; break;
+    default: break;
+  }
+}
+
+static bool bc_exp_add_digit(bc_field_t *f, uint8_t c) {
+  if (c < '0' || c > '9') return false;
+  uint8_t d = (uint8_t)(c - '0');
+
+  // bound to INT32_MAX magnitude
+  if (f->exp_mag > ((uint32_t)INT32_MAX - (uint32_t)d) / 10U) return false;
+  f->exp_mag = f->exp_mag * 10U + (uint32_t)d;
+  f->exp_digits_seen = true;
+  return true;
+}
+
+static bool bc_start_exp(bc_parser_t *p, bool neg) {
+  bc_field_t *f = &p->field;
+
+  if (f->exp_present) return false;
+
+  // Exponent cannot start inside an open hex literal.
+  if (f->acc_present && f->acc_mode == ACC_HEX && f->acc_hex_open) return false;
+
+  // Exponent must follow the mantissa: either after value1 (C1) or after value2 (C2).
+  if (f->parsing_v2) {
+    // Must have at least one digit for value2 before exponent.
+    if (!f->acc_present || !f->acc_saw_digit) return false;
+    if (!bc_commit_acc_to_field(p)) return false;
+    if (f->shape != BC_SHAPE_PAIR) return false;
+  } else {
+    // Must have at least one digit for value1 before exponent.
+    if (f->shape == BC_SHAPE_EMPTY) {
+      if (!f->acc_present || !f->acc_saw_digit) return false;
+      if (!bc_commit_acc_to_field(p)) return false;
+      if (f->shape != BC_SHAPE_SINGLE) return false;
+    }
+  }
+
+  f->exp_present = true;
+  f->exp_neg = neg;
+  f->exp_digits_seen = false;
+  f->exp_mag = 0;
+  f->exp10 = 0; // finalized later
+  return true;
+}
+
+static bool bc_finalize_exp(bc_field_t *f) {
+  if (!f->exp_present) { f->exp10 = 0; return true; }
+  uint32_t mag = f->exp_digits_seen ? f->exp_mag : 1U;
+  if (mag > (uint32_t)INT32_MAX) return false;
+  int32_t e = (int32_t)mag;
+  if (f->exp_neg) e = -e;
+  f->exp10 = e;
+  return true;
+}
+
+static bool bc_begin_raw_payload(bc_parser_t *p) {
+  bc_field_t *f = &p->field;
+
+  // Determine whether we should restore hex-open mantissa after payload.
+  p->raw_restore_hex_open = (f->acc_present && f->acc_mode == ACC_HEX && f->acc_hex_open);
+
+  // ---- LENGTH RULE (UPDATED) ----
+  // payload_length derives only from FIRST number (value1) and ignores frac/exponent.
+  uint64_t len = 0;
+  if (f->shape != BC_SHAPE_EMPTY) {
+    len = f->value1;
+  } else if (f->acc_present) {
+    if (!f->acc_saw_digit) return false;
+    len = f->acc_value;
+  } else {
+    len = 0;
+  }
+
+  // Consume + reset mantissa accumulator as required by the spec.
+  f->acc_present = false;
+  f->acc_mode = ACC_NONE;
+  f->acc_hex_open = false;
+  f->acc_saw_digit = false;
+  f->acc_digit_count = 0;
+  f->acc_value = 0;
+
+  // NOTE: Exponent state is preserved (safe but discouraged to mix with '&').
+
+  p->raw_remaining = len;
+  if (p->cb.on_payload_raw_begin) p->cb.on_payload_raw_begin(p->user, len);
+
+  if (len == 0) {
+    if (p->cb.on_payload_raw_end) p->cb.on_payload_raw_end(p->user);
+
+    // If hex was open, resume in hex-open mode with accumulator reset to 0.
+    if (p->raw_restore_hex_open) {
+      p->raw_restore_hex_open = false;
+      f->acc_present = true;
+      f->acc_mode = ACC_HEX;
+      f->acc_hex_open = true;
+      f->acc_saw_digit = false;
+      f->acc_digit_count = 0;
+      f->acc_value = 0;
+    }
+    p->st = ST_NORMAL;
+  } else {
+    p->st = ST_RAWBIN_PAYLOAD;
+  }
+  return true;
+}
+
+static bool bc_finalize_field(bc_parser_t *p, uint8_t term, bool term_is_cmd) {
+  bc_field_t *f = &p->field;
+
+  if (!bc_commit_acc_to_field(p)) return false;
+  if (!bc_finalize_exp(f)) return false;
+
+  // If a separator was seen, we must have committed a second number.
+  if (f->sep_seen && f->shape != BC_SHAPE_PAIR) return false;
+
+  if (p->cb.on_field) p->cb.on_field(p->user, term, term_is_cmd, f);
+
+  // Reset field for next one
+  bc_field_reset(f);
+
+  if (term_is_cmd) {
+    // Line boundary reached.
+    p->line_param_fields = 0;
+    p->line_payload_seen = false;
+    if (p->cb.on_line_latched) p->cb.on_line_latched(p->user, term);
+  } else {
+    p->line_param_fields++;
+  }
+  return true;
+}
+
+static void bc_handle_reset_cmd(bc_parser_t *p) {
+  bc_field_t *f = &p->field;
+
+  // RESET-ACK is encoded as bytes 0x3E 0x7F ( '>' then DEL ).
+  bool is_ack =
+      (p->line_param_fields == 0) &&
+      (!p->line_payload_seen) &&
+      (f->qual_mask == 0x04) &&
+      (!f->stale) &&
+      (f->shape == BC_SHAPE_EMPTY) &&
+      (!f->acc_present) &&
+      (!f->sep_seen) &&
+      (!f->exp_present);
+
+  // Discard pending line and return to baseline parser state.
+  bc_field_reset(f);
+  p->st = ST_NORMAL;
+  p->raw_remaining = 0;
+  p->raw_restore_hex_open = false;
+  p->hex_have_half = false;
+  p->hex_half = 0;
+  p->str_len = 0;
+  p->resync = false;
+  p->line_param_fields = 0;
+  p->line_payload_seen = false;
+
+  if (p->cb.on_reset) p->cb.on_reset(p->user, is_ack);
+}
+
+static void bc_feed_byte(bc_parser_t *p, uint8_t c) {
+  // Resynchronization mode: discard until next CMD in NORMAL.
+  if (p->resync) {
+    if (p->st == ST_NORMAL && bc_is_cmd(c)) {
+      if (c == 0x7F) { bc_handle_reset_cmd(p); return; }
+      p->resync = false;
+      bc_field_reset(&p->field);
+      p->line_param_fields = 0;
+      p->line_payload_seen = false;
+    }
+    return;
+  }
+
+  switch (p->st) {
+    case ST_SEMI_COMMENT:
+      if (c == 0x0A) p->st = ST_NORMAL;
+      return;
+
+    case ST_PAREN_COMMENT:
+      if (c == ')') p->st = ST_NORMAL;
+      return;
+
+    case ST_STRING_PAYLOAD:
+      if (c == 0x0A || c == 0x00) {
+        bool is_null_string = (c == 0x00 && p->str_len == 0);
+        if (p->cb.on_payload_string_end) p->cb.on_payload_string_end(p->user, c, is_null_string);
+        p->st = ST_NORMAL;
+      } else {
+        p->str_len++;
+        if (p->cb.on_payload_string_byte) p->cb.on_payload_string_byte(p->user, c);
+      }
+      return;
+
+    case ST_RAWBIN_PAYLOAD:
+      if (p->cb.on_payload_raw_byte) p->cb.on_payload_raw_byte(p->user, c);
+      if (p->raw_remaining > 0) p->raw_remaining--;
+      if (p->raw_remaining == 0) {
+        if (p->cb.on_payload_raw_end) p->cb.on_payload_raw_end(p->user);
+
+        // Restore hex-open mantissa if requested.
+        if (p->raw_restore_hex_open) {
+          p->raw_restore_hex_open = false;
+          bc_field_t *f = &p->field;
+          f->acc_present = true;
+          f->acc_mode = ACC_HEX;
+          f->acc_hex_open = true;
+          f->acc_saw_digit = false;
+          f->acc_digit_count = 0;
+          f->acc_value = 0;
+        }
+
+        p->st = ST_NORMAL;
+      }
+      return;
+
+    case ST_HEX_SEMI_COMMENT:
+      if (c == 0x0A) p->st = ST_HEX_PAYLOAD;
+      return;
+
+    case ST_HEX_PAREN_COMMENT:
+      if (c == ')') p->st = ST_HEX_PAYLOAD;
+      return;
+
+    case ST_HEX_PAYLOAD:
+      if (c == '%') {
+        if (p->hex_have_half) { bc_enter_resync(p); return; }
+        if (p->cb.on_payload_hex_end) p->cb.on_payload_hex_end(p->user);
+        p->st = ST_NORMAL;
+        return;
+      }
+      if (bc_is_wsp(c)) return;
+      if (c == ';') { p->st = ST_HEX_SEMI_COMMENT; return; }
+      if (c == '(') { p->st = ST_HEX_PAREN_COMMENT; return; }
+
+      {
+        int v = bc_hex_uc_val(c);
+        if (v < 0) { bc_enter_resync(p); return; }
+        if (!p->hex_have_half) {
+          p->hex_half = (uint8_t)v;
+          p->hex_have_half = true;
+        } else {
+          uint8_t byte = (uint8_t)((p->hex_half << 4) | (uint8_t)v);
+          p->hex_have_half = false;
+          if (p->cb.on_payload_hex_byte) p->cb.on_payload_hex_byte(p->user, byte);
+        }
+      }
+      return;
+
+    case ST_NORMAL:
+    default:
+      break;
+  }
+
+  // NORMAL mode
+  if (bc_is_wsp(c)) return;
+
+  // Special case: inside an open #...# hex literal, PARAM/CMD characters MUST NOT terminate the field.
+  // This permits uppercase A窶擢 digits while preventing an unterminated hex literal from accidentally encoding commands.
+  {
+    bc_field_t *fhex = &p->field;
+    if (fhex->acc_present && fhex->acc_mode == ACC_HEX && fhex->acc_hex_open) {
+      // Comments (treated as whitespace)
+      if (c == ';') { p->st = ST_SEMI_COMMENT; return; }
+      if (c == '(') { p->st = ST_PAREN_COMMENT; return; }
+
+      // Payloads (allowed to interrupt numbers, including hex)
+      if (c == '$') {
+        p->line_payload_seen = true;
+        p->str_len = 0;
+        if (p->cb.on_payload_string_begin) p->cb.on_payload_string_begin(p->user);
+        p->st = ST_STRING_PAYLOAD;
+        return;
+      }
+      if (c == '%') {
+        p->line_payload_seen = true;
+        p->hex_have_half = false;
+        if (p->cb.on_payload_hex_begin) p->cb.on_payload_hex_begin(p->user);
+        p->st = ST_HEX_PAYLOAD;
+        return;
+      }
+      if (c == '&') {
+        p->line_payload_seen = true;
+        if (!bc_begin_raw_payload(p)) { bc_enter_resync(p); }
+        return;
+      }
+
+      // Closing delimiter
+      if (c == '#') {
+        if (!bc_end_hex_acc(fhex)) { bc_enter_resync(p); }
+        return;
+      }
+
+      // Digits
+      if (c >= '0' && c <= '9') {
+        if (!bc_acc_add_digit(fhex, c)) { bc_enter_resync(p); }
+        return;
+      }
+      if (c >= 'A' && c <= 'F') {
+        if (!bc_acc_add_digit(fhex, c)) { bc_enter_resync(p); }
+        return;
+      }
+
+      // Anything else is malformed inside an open hex literal.
+      bc_enter_resync(p);
+      return;
+    }
+  }
+
+  // PARAM/CMD end fields regardless of other content.
+  if (bc_is_param(c)) {
+    if (!bc_finalize_field(p, c, false)) { bc_enter_resync(p); }
+    return;
+  }
+  // Reserved reset command (parser-level resynchronization token)
+  if (c == 0x7F) { bc_handle_reset_cmd(p); return; }
+  if (bc_is_cmd(c)) {
+    if (!bc_finalize_field(p, c, true)) { bc_enter_resync(p); }
+    return;
+  }
+
+  // Comments
+  if (c == ';') { p->st = ST_SEMI_COMMENT; return; }
+  if (c == '(') { p->st = ST_PAREN_COMMENT; return; }
+
+  // Payloads
+  if (c == '$') {
+    p->line_payload_seen = true;
+    p->str_len = 0;
+    if (p->cb.on_payload_string_begin) p->cb.on_payload_string_begin(p->user);
+    p->st = ST_STRING_PAYLOAD;
+    return;
+  }
+  if (c == '%') {
+    p->line_payload_seen = true;
+    p->hex_have_half = false;
+    if (p->cb.on_payload_hex_begin) p->cb.on_payload_hex_begin(p->user);
+    p->st = ST_HEX_PAYLOAD;
+    return;
+  }
+  if (c == '&') {
+    p->line_payload_seen = true;
+    if (!bc_begin_raw_payload(p)) { bc_enter_resync(p); }
+    return;
+  }
+
+  // Exponent markers (scientific notation suffix)
+  if (c == '*' || c == '/') {
+    if (!bc_start_exp(p, (c == '/'))) { bc_enter_resync(p); }
+    return;
+  }
+
+  // Qualifiers
+  if (c == '-' || c == '<' || c == '>' || c == '?' || c == '!') {
+    bc_set_qual(&p->field, c);
+    return;
+  }
+
+  // Pair separator
+  if (c == '.' || c == ',') {
+    if (!bc_start_v2(p, c)) { bc_enter_resync(p); }
+    return;
+  }
+
+  // Hex delimiters
+  if (c == '#') {
+    bc_field_t *f = &p->field;
+    if (f->exp_present) { bc_enter_resync(p); return; }
+
+    if (!f->acc_present) {
+      if (!bc_begin_hex_acc(f)) { bc_enter_resync(p); }
+      return;
+    }
+    // If already in hex-open, this closes it.
+    if (f->acc_mode == ACC_HEX && f->acc_hex_open) {
+      if (!bc_end_hex_acc(f)) { bc_enter_resync(p); }
+      return;
+    }
+    // Any other '#' placement is invalid.
+    bc_enter_resync(p);
+    return;
+  }
+
+  // Digits
+  if (c >= '0' && c <= '9') {
+    bc_field_t *f = &p->field;
+    if (f->exp_present) {
+      if (!bc_exp_add_digit(f, c)) { bc_enter_resync(p); }
+    } else {
+      if (!bc_acc_add_digit(f, c)) { bc_enter_resync(p); }
+    }
+    return;
+  }
+  if (c >= 'A' && c <= 'F') {
+    bc_field_t *f = &p->field;
+    if (f->exp_present) { bc_enter_resync(p); return; }
+
+    if (!f->acc_present || f->acc_mode != ACC_HEX) { bc_enter_resync(p); return; }
+    if (!bc_acc_add_digit(f, c)) { bc_enter_resync(p); }
+    return;
+  }
+
+  // Anything else is malformed in NORMAL mode.
+  bc_enter_resync(p);
+}
+
+void bc_feed(bc_parser_t *p, const uint8_t *buf, size_t n) {
+  for (size_t i = 0; i < n; i++) bc_feed_byte(p, buf[i]);
+}
+
+
+
+```
+
+
+
+
+## Appendix E 窶・Design notes (Informative)
+
+
+### E.1 ASCII-column partitioning
+
+
+
+ Using ASCII range classes (column 3 for parameters and column 4 for commands) creates a hard boundary between
+ 窶彭ata characters窶・and 窶徭tructural terminators窶・ Parsers can classify bytes via range checks or bit masks.
+
+
+
+### E.2 Latching on command
+
+
+
+ The 窶彡ommit on command character窶・model provides atomic updates and avoids partial application of streamed data.
+ It also provides a natural resynchronization boundary in noisy links.
+
+
+
+### E.3 Uppercase-only hex is a safety feature
+
+
+
+ Lowercase `a窶吐` live in the command-column ASCII range. Forbidding them reduces the chance that malformed or
+ truncated hex sequences could accidentally resemble command characters or otherwise destabilize parsing.
+
+
+
+### E.4 Scientific exponent suffix
+
+
+
+ The exponent suffix (`*` and `/`) adds scale expressiveness while keeping the base qualifier set unchanged.
+ The suffix is intentionally constrained (integer decimal exponent, default magnitude 1 if digits omitted) to preserve streaming determinism.
+
+
+
+### E.5 Reserved reset byte choice (DEL)
+
+
+
+ BCODe reserves exactly one command byte for parser-level resynchronization.
+ Earlier drafts reserved the printable backtick character (`` ` ``, `0x60`);
+ this draft instead reserves `DEL` (`0x7F`).
+
+
+
+- **Opportunity cost.** Many applications want to use human-readable command characters in the CMD range.
+ Reserving a commonly typed printable character has a higher long-term cost than reserving a non-printing control code.
+ Reserving `DEL` preserves the rest of the command set (including backtick) for higher-layer meaning.
+- **Reset is a special case.** Parser reset is primarily required to establish synchronization on communication channels without a distinct 窶徙pen窶・event
+ (see Section 3.1) and as a programmatic recovery mechanism after corruption.
+ It is not a common 窶彙usiness-level窶・command.
+- **Human/manual operation is environment-specific.** Some terminal and TTY stacks treat `0x7F` as an erase/backspace key and may intercept it unless the link is in raw/binary mode.
+ Implementations that expose a 窶徇anual reset窶・workflow should provide a tool, macro, or UI affordance to emit `0x7F` explicitly.
+
+
+### E.6 Reset cannot preempt opaque payloads
+
+
+
+ The reset command is recognized only in **S\_NORMAL**.
+ Inside opaque payload bodies (`$...LF/NUL` and raw `&...bytes...`), all bytes窶琶ncluding CMD bytes窶蚤re treated as literal payload data.
+ As a result, resynchronization may require draining or terminating the current opaque region (for example by sending `LF` to end a string payload),
+ or by sending enough bytes to exhaust a known maximum raw payload length before the reset byte can be recognized.
+
+
+
+
+## Appendix F 窶・Conformance tests (Recommended)
+
+
+
+ This appendix provides reference test vectors for BCODe syntax parsers. A conforming implementation SHOULD parse these inputs
+ into the same sequence of events (fields, payload bytes, and line latches).
+
+
+
+
+
+ The event log format used below matches the reference implementation in `bcode_parser_with_lenprefix_v7.c`.
+ Implementations may buffer differently internally, but the observable results at field termination and payload decoding SHOULD match.
+
+
+
+
+### F.1 Canonical event log format
+
+
+
+```
+FIELD term=X(0xNN) cmd={0|1} q=0xM stale={0|1} shape={empty|single|pair} v1=... v2=... fw=... exp={0|1} exp10=...
+PSTR_BEGIN | PSTR_BYTE 0xNN | PSTR_END term={LF|NUL} null={0|1}
+PHEX_BEGIN | PHEX_BYTE 0xNN | PHEX_END
+PRAW_BEGIN len=N | PRAW_BYTE 0xNN | PRAW_END
+RESET is_ack={0|1}
+LATCH cmd=X(0xNN)
+
+```
+
+**Note:** In this log format, `v2` is rendered as a signed integer: it is negative iff the pair separator was `,` (see Section 10.1).
+
+
+### F.2 Test vectors
+
+
+
+**T01** 窶・basic two fields
+Two numeric fields: one PARAM, one CMD.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 123A456b
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=A(0x41) cmd=0 q=0x0 stale=0 shape=single v1=123 v2=0 fw=0 exp=0 exp10=0
+FIELD term=b(0x62) cmd=1 q=0x0 stale=0 shape=single v1=456 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=b(0x62)
+```
+
+
+
+**T02** 窶・empty fields
+Empty fields allowed for both PARAM and CMD.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) Aa
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=A(0x41) cmd=0 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T03** 窶・pair frac\_width
+Dot separator; leading zeros in fractional contribute to frac\_width.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12.003a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=3 fw=3 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T04** 窶・pair comma (negative value2)
+Comma separator indicates negative `value2`; digit spelling encodes magnitude.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12,03a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=-3 fw=2 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T05** 窶・hex single
+Uppercase hex literal in #...#.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) #1A3F#a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=6719 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T06** 窶・hex with whitespace
+Whitespace inside hex digits is ignored.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) #1 A 3 F# a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=6719 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T07** 窶・comments inside numbers
+Paren comment inside number; semicolon comment ends at LF.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII bytes:) 1(hi)2A;xx
+3a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=A(0x41) cmd=0 q=0x0 stale=0 shape=single v1=12 v2=0 fw=0 exp=0 exp10=0
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=3 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T08** 窶・string payload semicolon not comment
+Semicolon is literal inside $...LF string payload.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII bytes:) $hi;no
+12a
+```
+
+**Expected events**
+
+
+
+```
+PSTR_BEGIN
+PSTR_BYTE 0x68
+PSTR_BYTE 0x69
+PSTR_BYTE 0x3B
+PSTR_BYTE 0x6E
+PSTR_BYTE 0x6F
+PSTR_END term=LF null=0
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=12 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T09** 窶・string payload null
+$ followed immediately by NUL encodes a NULL string payload.
+
+
+**Input**
+
+
+
+```
+bytes: '$' 0x00 'a'
+```
+
+**Expected events**
+
+
+
+```
+PSTR_BEGIN
+PSTR_END term=NUL null=1
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T10** 窶・hex payload basic
+%...% hex bytes decode (whitespace ignored).
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) %DE AD%12a
+```
+
+**Expected events**
+
+
+
+```
+PHEX_BEGIN
+PHEX_BYTE 0xDE
+PHEX_BYTE 0xAD
+PHEX_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=12 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T11** 窶・hex payload with comments
+Comments allowed inside %...% and removed prior to decoding.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII bytes:) %DE(hi) AD;xx
+ BE EF%a
+```
+
+**Expected events**
+
+
+
+```
+PHEX_BEGIN
+PHEX_BYTE 0xDE
+PHEX_BYTE 0xAD
+PHEX_BYTE 0xBE
+PHEX_BYTE 0xEF
+PHEX_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T12** 窶・hex payload interleaved in number
+A payload may appear between digits; digits concatenate around it.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12%AA%34a
+```
+
+**Expected events**
+
+
+
+```
+PHEX_BEGIN
+PHEX_BYTE 0xAA
+PHEX_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=1234 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T13** 窶・raw payload length from accumulator
+Length-prefixed raw payload uses digits before & (when value1 not committed).
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 5&HELLOa
+```
+
+**Expected events**
+
+
+
+```
+PRAW_BEGIN len=5
+PRAW_BYTE 0x48
+PRAW_BYTE 0x45
+PRAW_BYTE 0x4C
+PRAW_BYTE 0x4C
+PRAW_BYTE 0x4F
+PRAW_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T14** 窶・raw payload default length 0
+& with no preceding number has length 0 (NULL binary payload).
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) &a
+```
+
+**Expected events**
+
+
+
+```
+PRAW_BEGIN len=0
+PRAW_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T15** 窶・raw length ignores fraction and exponent
+Length derives from value1 only; fraction/exponent do not affect length.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12.34*0&ABCDEFGHIJKLa
+```
+
+**Expected events**
+
+
+
+```
+PRAW_BEGIN len=12
+PRAW_BYTE 0x41
+PRAW_BYTE 0x42
+PRAW_BYTE 0x43
+PRAW_BYTE 0x44
+PRAW_BYTE 0x45
+PRAW_BYTE 0x46
+PRAW_BYTE 0x47
+PRAW_BYTE 0x48
+PRAW_BYTE 0x49
+PRAW_BYTE 0x4A
+PRAW_BYTE 0x4B
+PRAW_BYTE 0x4C
+PRAW_END
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=34 fw=2 exp=1 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T16** 窶・exponent after value1
+Scientific suffix on single-number field.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 123*2a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=123 v2=0 fw=0 exp=1 exp10=2
+LATCH cmd=a(0x61)
+```
+
+
+
+**T17** 窶・exponent negative default
+'/' with no digits defaults magnitude to 1, i.e., exp10=-1.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 7/a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=7 v2=0 fw=0 exp=1 exp10=-1
+LATCH cmd=a(0x61)
+```
+
+
+
+**T18** 窶・exponent after value2
+Exponent may follow the second number in a pair.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12.03/3a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=-3 fw=2 exp=1 exp10=-3
+LATCH cmd=a(0x61)
+```
+
+
+
+**T19** 窶・illegal separator after exponent triggers resync
+A separator after exponent is malformed; parser resyncs to next CMD.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12*2.3a4b
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=b(0x62) cmd=1 q=0x0 stale=0 shape=single v1=4 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=b(0x62)
+```
+
+
+
+**T20** 窶・hex-open raw payload restore
+If & occurs in open hex (#... not closed), parser restores hex-open mode after payload.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) #1&Z2#Aa
+```
+
+**Expected events**
+
+
+
+```
+PRAW_BEGIN len=1
+PRAW_BYTE 0x5A
+PRAW_END
+FIELD term=A(0x41) cmd=0 q=0x0 stale=0 shape=single v1=2 v2=0 fw=0 exp=0 exp10=0
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=empty v1=0 v2=0 fw=0 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T21** 窶・whitespace in exponent digits
+Whitespace between exponent marker and digits is ignored.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII bytes:) 1*	2a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=1 v2=0 fw=0 exp=1 exp10=2
+LATCH cmd=a(0x61)
+```
+
+
+
+**T22** 窶・default exponent magnitude +1
+'*' with no digits defaults to exp10=+1.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 9*a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=single v1=9 v2=0 fw=0 exp=1 exp10=1
+LATCH cmd=a(0x61)
+```
+
+
+
+**T23** 窶・negative pair frac\_width
+Comma separator indicates negative `value2`; leading zeros contribute to `frac_width`.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12,003a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=-3 fw=3 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T24** 窶・negative pair hex value2
+Hex spelling for `value2` with a comma separator produces a negative second value; `frac_width` is the hex digit count (excluding `#`).
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12,#0A#a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=-10 fw=2 exp=0 exp10=0
+LATCH cmd=a(0x61)
+```
+
+
+
+**T25** 窶・negative pair with exponent after value2
+Exponent may follow the second number in a pair; comma separator still indicates negative `value2`.
+
+
+**Input**
+
+
+
+```bcode
+(ASCII:) 12,03/3a
+```
+
+**Expected events**
+
+
+
+```
+FIELD term=a(0x61) cmd=1 q=0x0 stale=0 shape=pair v1=12 v2=-3 fw=2 exp=1 exp10=-3
+LATCH cmd=a(0x61)
+```
+
+
+
+**T26** 窶・reserved reset command (request)
+The single byte `0x7F` (DEL) is reserved as a parser reset/resynchronization token. It does not produce a normal latch.
+
+
+**Input**
+
+
+
+```bcode
+(bytes:) 0x7F
+```
+
+**Expected events**
+
+
+
+```
+RESET is_ack=0
+```
+
+
+
+**T27** 窶・reset acknowledgement token
+The reset acknowledgement token is encoded as bytes `0x3E 0x7F` (ASCII `>` followed by DEL).
+
+
+**Input**
+
+
+
+```bcode
+(bytes:) 0x3E 0x7F
+```
+
+**Expected events**
+
+
+
+```
+RESET is_ack=1
+```
+
+
+
+
+
+## Appendix H 窶・Code generation reference
+
+
+
+ This appendix is **informative**. It is a compact, implementation-oriented summary intended to help
+ generate correct parser and consumer code from the specification.
+
+
+
+### H.1 Reference files produced alongside this spec
+
+
+- `bcode_parser_with_lenprefix_v7.c` 窶・canonical streaming syntax parser (reference implementation).
+- `bcode_streaming_conformance_tests_v7.c` 窶・chunking/stress tests for streaming invariance.
+- `bcode_interp_v3.h` / `bcode_interp_v3.c` 窶・reference interpretation API (transforms, reducer, accessors).
+- `bcode-interpretation-v13.html` 窶・companion specification for interpretations and API behavior.
+- *See also:* Section `12.6` of `bcode-interpretation-v13.html` for canonical field normalization pseudocode (parser adapters).
+
+
+### H.2 Token class quick table
+
+
+
+
+| Token | Meaning | Parsed where? | Notes |
+| --- | --- | --- | --- |
+| <pre><code class="language-bcode">0x20, TAB, CR, LF</code></pre> | Whitespace | Everywhere except 窶徙paque regions窶・| TAB/LF/CR are treated the same as spaces. |
+| <pre><code class="language-bcode">;</code></pre> | Line comment | Normal mode | Runs until LF. If LF never occurs, the comment continues indefinitely (streaming model). |
+| <pre><code class="language-bcode">(...)</code></pre> | Parentheses comment | Normal mode | Runs until the next `)`. Unterminated comment continues indefinitely. |
+| <pre><code class="language-bcode">$</code></pre> | String payload | Normal mode | Ends only at LF or NUL. Within a string payload, comment and terminator tokens are not recognized. |
+| <pre><code class="language-bcode">%</code></pre> | Hex-byte payload | Normal mode | Payload content is 2-digit hex bytes; whitespace is allowed; comments are allowed inside. |
+| <pre><code class="language-bcode">&amp;</code></pre> | Raw-binary payload | Normal mode | Consumes an integer length (defaults to 0) then reads that many raw bytes (opaque region). |
+| <pre><code class="language-bcode">#...#</code></pre> | Hex number literal | Inside number spelling | Hex digits MUST be uppercase. While `#` is open, PARAM/CMD bytes are not terminators; only closing `#` ends the literal. |
+| <pre><code class="language-bcode">. or ,</code></pre> | Pair separator | Normal mode (number spelling) | Separates `value1` and `value2`. `.` indicates non-negative `value2`; `,` indicates negative `value2` (digits encode magnitude). The width of `value2` is preserved. |
+| <pre><code class="language-bcode">* / /</code></pre> | Exponent suffix marker | Normal mode (after mantissa) | `*` is positive exponent, `/` is negative exponent. If no digits follow, exponent magnitude defaults to 1. |
+| <pre><code class="language-bcode">- &lt; &gt; ? !</code></pre> | Qualifiers / modifiers | Normal mode (field prefix) | Any combination of `- < > ?` may appear; `!` is orthogonal staleness. |
+
+
+### H.3 Parameter & command terminators
+
+
+
+ Terminators are organized by ASCII column (low 5 bits). Column 3 is the parameter terminator range and column 4
+ is the command terminator range:
+
+
+
+- **PARAM**: `0x40..0x5F` 窶・ends a field, continues the line.
+- **CMD**: `0x60..0x7F` 窶・ends the final field and latches the entire line.
+
+
+
+ Parameter identity is **defined by the low 5 bits**:
+
+
+
+
+```
+// index 0..31 for PARAM (and optionally CMD)
+param_index = term & 0x1F;
+param_bit   = 1u << param_index;
+```
+
+### H.4 Opaque-region precedence rules (common pitfalls)
+
+
+
+ Implementations MUST treat certain regions as opaque (tokens inside do not act as comments/terminators):
+
+
+
+- **String payload** (`$...LF/NUL`): opaque; comments and terminators are literal bytes.
+- **Raw payload** (`&...raw bytes...`): payload bytes are opaque; comments and terminators are literal bytes.
+
+
+
+ Hex-byte payload (`%...%`) is not opaque to whitespace/comments (whitespace/comments may appear between hex digits).
+
+
+
+
+ Hex number literal (`#...#`) is special: while open, PARAM/CMD bytes MUST NOT terminate the field; only closing `#` ends the literal.
+
+
+
+### H.5 & length derivation (mandatory rule)
+
+
+**Requirement (Normative):** The raw payload length for `&` is derived *only* from the field窶冱 first numeric value (`value1`).
+ Fractional (`value2`) and exponent metadata MUST NOT affect payload length.
+
+
+### H.6 Implementation checklist for generated parsers
+
+
+- Empty fields are allowed (a terminator may occur with no number content).
+- Whitespace and comments behave like whitespace in normal mode (including inside number spelling), except inside opaque regions.
+- Hex digits in `#...#` MUST be **uppercase** (`A窶擢` only). Lowercase is invalid and should trigger resynchronization.
+- Allow whitespace between qualifiers and numbers, and between numbers and terminators.
+- Allow payloads to interleave with number spelling; payloads do not alter numeric accumulation (except `&` consumes the accumulator).
+- Exponent marker `*`/`/` may appear with no digits; default magnitude is 1 (discouraged but allowed).
+- No decimal separator may appear after an exponent marker.
+- Streaming model: there is no EOF; unterminated comments/strings continue indefinitely.
+- Reserved reset: the command byte `0x7F` (DEL) discards pending line state and reports a parser reset event; it MUST NOT be delivered as an application-visible command (Section 16.1).
+
+
+### H.7 Parse error reporting (optional)
+
+
+
+ The syntax specification defines error behavior by requiring the parser to discard the current line and
+ *resynchronize* on the next command terminator byte (0x60..0x7F). The canonical reference parser
+ (`bcode_parser_with_lenprefix_v7.c`) exposes this via an optional callback.
+
+
+
+
+```
+// Optional: called once per syntax error when resync begins.
+void (*on_parse_error)(void *user,
+                       bc_parse_error_t code,
+                       uint8_t offending_byte,
+                       bc_state_t state,
+                       uint64_t a, uint64_t b);
+
+// For PAYLOAD_HINT_MISMATCH:
+//   a = expected length hint
+//   b = actual length observed so far
+```
+
+#### H.8 Parse error codes (bc\_parse\_error\_t)
+
+
+
+ The reference parser reports a stable, small set of error codes when it enters resynchronization.
+ All parse errors are treated uniformly: the current line is dropped and input is discarded until the next CMD
+ byte is seen in normal mode. The numeric values below are stable for this reference implementation.
+
+
+
+
+
+| Code (name) | Value | Meaning | Typical trigger |
+| --- | --- | --- | --- |
+| `BC_PE_SYNTAX` | 0 | Generic syntax error | Invalid character for the current parsing context; malformed field structure |
+| `BC_PE_OVERFLOW` | 1 | Numeric overflow | Decimal/hex accumulator would exceed 64-bit range; exponent magnitude overflow |
+| `BC_PE_HEX_PAYLOAD_ODD_NIBBLE` | 2 | Odd nibble in `%...%` payload | Closing `%` encountered with exactly one hex digit buffered |
+| `BC_PE_HEX_PAYLOAD_BAD_HEX` | 3 | Invalid hex digit in `%...%` payload | Non-hex (or lowercase) where a hex digit is required |
+| `BC_PE_PAYLOAD_HINT_MISMATCH` | 4 | Length hint mismatch | `LEN$` string body length != `LEN`, or `LEN%` decoded bytes != `LEN` |
+| `BC_PE_HEX_LITERAL_BAD_HEX` | 5 | Invalid hex digit inside `#...#` literal | Lowercase `a..f` or other invalid character inside an open hex literal |
+
+
+
+ Tip for robust callback wiring in C: use a zero-initialized struct and assign the field explicitly to avoid any
+ ordering issues:
+
+
+
+
+```
+bc_callbacks_t cb;
+memset(&cb, 0, sizeof(cb));
+cb.on_parse_error = my_on_error;
+```
+
+
+ Recommended consumer behavior:
+
+
+
+- Drop any partially buffered payload and parsed-but-not-latched fields for the current line.
+- Do not attempt to interpret payload contents; payload bytes are opaque even when used for diagnostics.
+- Wait for the next CMD byte to resume normal parsing.
+
+
+
+End of document.
+
+
+
+
+
+
+
+
+---
+
+
+
+## Appendix G 窶・Streaming Conformance Tests
+
+
+
+ BCODe is defined as a streaming protocol; therefore, implementations MUST produce identical parse results
+ regardless of how the incoming byte stream is chunked (e.g., packet boundaries, serial read sizes, etc.).
+
+
+
+### G.1 Chunking invariance requirement
+
+
+**Requirement (Normative):** For any finite byte sequence `B` and any partition of `B`
+ into contiguous chunks `C0..Cn`, feeding the parser with `B` in a single call MUST produce the same
+ sequence of parser events as feeding the parser with `C0..Cn` across multiple calls, assuming identical initial state.
+
+
+### G.2 Reference conformance harness
+
+
+
+ The canonical test harness provided with this specification is:
+
+
+
+- `bcode_streaming_conformance_tests_v7.c` 窶・executes each test vector under multiple chunking strategies.
+- `bcode_parser_with_lenprefix_v7.c` 窶・canonical streaming syntax parser used by the harness.
+- `bcode-conformance-vectors-v7.md` 窶・human-readable description of the streaming stress vectors.
+
+
+### G.3 Included stress vectors
+
+
+The v3 suite includes additional 窶從asty窶・vectors beyond the deterministic v2 set, including:
+
+
+- Commands occurring inside unterminated `;` comments, `(...)` comments, and `$` strings.
+- Malformed `%...%` payloads (odd nibble / invalid digit) and the resynchronization behavior.
+- Lowercase hex digits in `#...#` numbers (forbidden) and recovery.
+- Exponent markers and digits split across chunk boundaries, and payloads interrupting exponent digits.
+- Raw `&` payload bodies split across chunk boundaries; payload length derivation remains invariant.
+
+
+*Note:* These tests validate syntax-level behavior and parser state machine correctness; they do not assign semantic meaning
+ to any specific CMD or PARAM values.
+</script><script src="../assets/site.js"></script><footer><div class="footer-content"><nav aria-label="Docs"><a href="../docs/intro.html">Intro</a> <span class="footer-sep">|</span> <a href="../docs/syntax.html">Syntax (v13)</a> <span class="footer-sep">|</span> <a href="../docs/interpretation.html">Interpretation</a> <span class="footer-sep">|</span> <a href="../docs/meta-v9.html">BCODe.meta (v9)</a> <span class="footer-sep">|</span> <a href="../docs/meta-v7.html">BCODe.meta (v7)</a> <span class="footer-sep">|</span> <a href="../docs/meta-library-semantics.html">Meta Library Semantics</a> <span class="footer-sep">|</span> <a href="../docs/rest.html">BCODe.rest (v6.1.3)</a> <span class="footer-sep">|</span> <a href="../docs/best-practices.html">Best Practices</a> <span class="footer-sep">|</span> <a href="../docs/telemetry-guide.html">Telemetry Guide</a> <span class="footer-sep">|</span> <a href="../docs/chat-summary.html">Chat Summary</a> </nav><p class="footer-right">BCODe</p></div></footer></body></html>

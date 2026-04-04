@@ -1,0 +1,393 @@
+﻿<!doctype html><html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>BCODe_meta_Library_Semantics.v9aligned 窶・Preview</title>
+<link rel="stylesheet" href="../assets/styles.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="../assets/bcode.lang.js"></script>
+<link rel="stylesheet" href="../assets/hljs-theme.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body data-page-type="doc"><header><div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png" alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/index.html" aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div></header><main><div class="container"><div class="stack"><section class="card doc-frame"><div class="doc-head"><h1 class="doc-title">Meta Library Semantics</h1><p class="doc-sub">BCODe_meta_Library_Semantics.v9aligned 窶・Preview</p></div><div class="doc-scroll"><article id="content" class="markdown-body"></article></div></section></div></div></main><div class="dock" aria-label="Document tools"><a class="dock-btn primary" id="readerLink" href="meta-library-semantics-reader.html">Reader</a><input class="dock-input" id="findInput" type="search" placeholder="Find in document" aria-label="Find in document"><button class="dock-btn" id="findBtn" type="button">Find</button><button class="dock-btn" id="clearFindBtn" type="button">Clear</button><button class="dock-btn" id="darkToggle" type="button">Dark mode</button><span class="find-count" id="findCount"></span></div><script id="md-source" type="text/plain">
+# BCODe_meta Library Semantics Specification (BCODe.meta Convention v9)
+
+**Document date:** 2026-02-23  
+**Status:** Library semantics (normative)  
+**Normative convention baseline:** *BCODe.meta 窶・Convention v9* (2026-02-22)
+
+## 1. Scope
+
+This document specifies the observable behavior of the **`bcode_meta`** library:
+
+- How it consumes a stream of bytes via the underlying SAB streaming parser and delivers **atomic units** to the application.
+- How it buffers and assembles multiline packets (``[`` batching, including open-ended packets) and header-prefix runs (``-N[``).
+- How it captures and exposes per-line payload bytes (``$`` string payload and binary payload forms).
+- How it performs BCODe.meta **sequence** and **session** analysis and emits diagnostics.
+- How it stages and serializes outgoing transmissions (TX) when TX support is enabled.
+
+This document **does not redefine** BCODe syntax. It also does not redefine BCODe.meta *on窶層ire meaning*; where possible it **imports** those rules from the **BCODe.meta Convention v9** document and focuses on how this library exposes them.
+
+Normative keywords (MUST, MUST NOT, SHOULD, SHOULD NOT, MAY) are to be interpreted as in RFC 2119.
+
+## 2. Normative references
+
+- **BCODe syntax / SAB parser**: defines byte-to-line parsing, payload tokenization, and the parser-level reset event.
+- **BCODe.meta Convention v9 (2026-02-22)**: defines on窶層ire meaning for ``^``, ``\``, ``^\``, ``[``, ``]``, header-prefix ``-N[``, sessions via fractional ``]``, rollover marker ``<`` on ``]``, ephemeral qualifier ``?`` on ``]``, and required reaction to parser reset events.
+
+Where this spec says 窶・*per v9**窶・ it refers to those imported rules. Where this spec says 窶・*library-specific**窶・ it defines behavior not standardized by v9.
+
+## 3. Terminology
+
+**Line**  
+A parsed BCODe line produced by the SAB parser (`bcode_line_t`).
+
+**Header-prefix line**  
+A line that carries a *negative* ``[`` value: ``-N[`` for integer ``N 竕･ 1`` (per v9 header-prefix convention). Header-prefix lines are buffered and later attached to a unit; they are **never delivered standalone**.
+
+**Multiline packet / batch**  
+A group of one or more content lines framed by the v9 ``[`` batching convention and delivered atomically.
+
+**Deliverable unit (unit)**  
+The atomic item delivered to the application callbacks:
+- **Content**: either 1 content line, or N content lines from a completed multiline packet.
+- **Optional headers**: 0..K header-prefix lines attached to that unit.
+
+**Unit kind** (per v9)
+- **Command**: no ``^`` and no ``\``.
+- **Direct response**: ``^`` *or* ``\`` (but not ``^\``).
+- **Unsolicited**: tagged with both ``^`` and ``\`` (written ``^\``).
+
+**Primary sequence number**  
+The integer part of ``]`` (per v9). This library tracks peer primary sequences and can emit mismatch diagnostics.
+
+**Session discriminator**  
+The fractional component ``.ﾎ拜` in a pair-shaped ``]`` value (``ﾎ.ﾎ拆``) used by v9 to label asynchronous followup sessions.
+
+**Ephemeral qualifier**  
+The ``?`` qualifier on ``]`` (per v9 ﾂｧ4.3). Ephemeral units are excluded from default-writer peer sequence tracking.
+
+**Reserved busy-refusal form**  
+The v9 reserved negative direct response used for ephemeral contention: ``!0.T] \ ... ﾎｺ`` (excluded from default sequence tracking).
+
+## 4. Public API contracts
+
+### 4.1 Configuration (`bcode_meta_config_t`)
+
+The configuration struct defines fixed capacities and a small number of behavior knobs:
+
+**RX buffering capacity**
+- `rx_max_header_lines`  
+  Maximum number of buffered header-prefix lines waiting to attach to the next deliverable unit.  
+  If `rx_max_header_lines == 0`, **all header-prefix lines are dropped** (with `BC_META_ERR_HEADER_LIMIT`).
+- `rx_max_multiline_lines`  
+  Maximum number of **content lines** buffered for one multiline packet. If exceeded: `BC_META_ERR_PACKET_LIMIT` and the packet is dropped.
+- `rx_payload_bytes` *(overloaded; library-specific)*  
+  - RX payload **capture pool capacity** in bytes.  
+  - Also the per-packet payload-byte **budget** enforced while buffering a packet (only when nonzero).  
+  Special case: `rx_payload_bytes == 0` disables payload capture and disables the per-packet payload budget check.
+
+**RX session behavior**
+- `rx_enable_session_timeout`, `rx_session_timeout_ms`  
+  Enables receiver-side idle session timeout behavior (v9 `session_idle_timeout`). The application MUST provide monotonic time via `bcode_meta_tick(now_ms)` for timeouts to take effect.
+
+**TX staging capacity**
+- `tx_max_header_lines`, `tx_max_multiline_lines`  
+  Maximum number of staged TX header lines and content lines for a single in-flight TX unit.
+- `tx_payload_bytes`  
+  Budget for serialized outbound bytes for the staged TX unit (0 => unbounded).
+
+**Optional bookkeeping table limits** *(used by both RX and TX)*
+- `tx_max_active_requests`  
+  Size of the pending-request table used to validate v9 session-start discriminators and to match outbound requests with inbound direct responses.  
+  If 0: request tracking is disabled and some validations become best-effort.
+- `tx_max_active_sessions`  
+  Size of the active-session table used for RX in-session followup classification and TX in-session validation.  
+  If 0: session tracking is disabled; all in-session followups will be treated as referencing a nonexistent session and will be dropped.
+
+**Behavior knobs**
+- `strict_open_contiguous`  
+  If true: RX open-ended packets (``>i[``) MUST increase contiguously by 1 (``>1[``, ``>2[``, 窶ｦ). Otherwise the library permits non-contiguous monotonic increases.
+- `tx_manage_primary_seq`  
+  If true: the library stamps/advances integer ``]`` primary sequence on outbound units where required and resets the managed primary sequence to 0 on parser reset.
+
+**Serialization**
+- `use_crlf` selects line termination (`\r\n` vs `\n`) for TX serialization.
+
+### 4.2 Callbacks (`bcode_meta_callbacks_t`)
+
+**Delivery callbacks**  
+For each delivered unit, exactly one of the following may be called (depending on unit kind):
+
+- `on_command(user, unit)`
+- `on_direct_response(user, unit)`  
+  Special case: if TX failure is signaled for an outbound request that expected a direct response, the library calls `on_direct_response(user, NULL)` (see ﾂｧ8.5).
+- `on_unsolicited_sessionless(user, unit)`
+- `on_unsolicited_in_session(user, unit)`
+
+**Session lifecycle callbacks**
+- `on_session_start(user, session_n)` 窶・v9 session start observation.
+- `on_session_end(user, session_n, by_timeout)` 窶・v9 end marker observation or local idle timeout.
+
+**Diagnostics**
+- `on_meta_error(user, ctx)` is called for meta-layer errors and policy/validation events (batching violations, limit overflows, session violations, etc.).  
+  `ctx->code` identifies the event; `ctx->line_index`, `ctx->session_n`, and `ctx->a`/`ctx->b` provide context.
+
+**Reset**
+- `on_reset(user, is_ack)` is called when the SAB parser reports a reset event. No deliverable unit is produced for a reset.
+
+### 4.3 Pointer lifetime (hard rule)
+
+All pointers reachable from a delivered `bcode_meta_unit_t` (including header and content `bcode_line_t` pointers and any `payload` pointer) are valid **only during the callback invocation**. The application MUST copy data it needs to retain beyond the callback.
+
+## 5. BCODe.meta Convention v9 semantics as implemented
+
+### 5.1 Unit classification and delivery (per v9)
+
+The library classifies completed deliverable units using v9窶冱 tagging rules:
+
+- **Command**: no ``^`` and no ``\`` 竍・delivered via `on_command`.
+- **Direct response**: has exactly one of ``^`` or ``\`` 竍・delivered via `on_direct_response`.
+- **Unsolicited**: has both ``^`` and ``\`` 竍・delivered via one of:
+  - `on_unsolicited_sessionless` if not an in-session followup, or
+  - `on_unsolicited_in_session` if it is an in-session followup for an active session discriminator `.ﾎ拜.
+
+A deliverable unit is:
+- a single content line, or
+- a completed multiline packet (N content lines),
+plus any attached header-prefix run.
+
+Header-prefix lines are never delivered standalone.
+
+### 5.2 Header-prefix runs (per v9 ﾂｧ3.0 + ﾂｧ3.4, plus library details)
+
+**5.2.1 Buffering and attachment**
+- A header-prefix run is a contiguous run of one or more ``-N[`` lines immediately preceding a deliverable content unit.
+- The library buffers such lines and attempts to attach them to the next delivered unit.
+- Header-prefix lines MUST NOT be delivered as independent units.
+
+**5.2.2 Ordering rule**
+Per v9 窶徭tack form窶・ the buffered header run MUST be a contiguous decreasing sequence:
+
+``-K[, -(K-1)[, 窶ｦ, -2[, -1[``
+
+Ordering violations can be detected in two places:
+
+- **While collecting headers:** if a newly received header-prefix line does not match the expected next `-N[` value, the library emits `BC_META_ERR_HEADER_ORDER` and clears the buffered header run immediately.
+- **At unit delivery time:** if a content unit becomes deliverable while a header run is pending but **incomplete** (i.e., the library is still expecting additional headers down to `-1[`), the library emits `BC_META_ERR_HEADER_ORDER`, delivers the content unit **without** headers, and sets `BC_META_UNIT_F_DROPPED` on that delivered unit.
+
+**5.2.3 Capacity limit**
+If buffering a header line would exceed `rx_max_header_lines` (or if `rx_max_header_lines == 0`), the library emits `BC_META_ERR_HEADER_LIMIT` and discards the entire buffered header run. Header-prefix lines are not delivered.
+
+**5.2.4 Header/sequence coupling**
+Per v9 ﾂｧ3.4, header-prefix lines MUST copy the `]` field of the immediately following line (or omit `]` if the following line omits it).  
+The library enforces this by requiring each buffered header line窶冱 `]` field to exactly match the first content line窶冱 `]` field (including qualifiers/modifiers).
+
+If coupling fails, the library emits `BC_META_ERR_HEADER_DISALLOWED`, discards the header run, and delivers the content unit with `BC_META_UNIT_F_DROPPED` and without headers.
+
+### 5.3 Multiline batching with `[` (per v9 ﾂｧ3, plus library details)
+
+**5.3.1 Fixed-bound packets**
+The library supports fixed-bound batching where each content line carries an ``[`` value of the form ``i.t`` with:
+- `i` = 1-based line index
+- `t` = total line count
+- Packet closes when the line with `i == t` is received.
+
+Violations of shape, index/total mismatch, unexpected close, or interleaving emit the corresponding `BC_META_ERR_BATCH_*` error and the packet is dropped.
+
+**5.3.2 Open-ended packets**
+The library supports open-ended batching per v9:
+- Non-final lines carry ``>i[`` (``>`` qualifier on ``[``) with monotonically increasing `i`.
+- The final line closes the packet with a fixed-bound ``i.t[`` terminator.
+
+If `strict_open_contiguous` is true, then the open-ended index MUST increment contiguously by 1.
+
+Open-ended units are delivered with unit flag `BC_META_UNIT_F_OPEN_ENDED` in addition to `BC_META_UNIT_F_PACKET`.
+
+**5.3.3 Packet buffering limits**
+- If buffering would exceed `rx_max_multiline_lines`, the library emits `BC_META_ERR_PACKET_LIMIT` and drops the packet.
+- If `rx_payload_bytes != 0` and the cumulative payload bytes across buffered packet lines would exceed `rx_payload_bytes`, the library emits `BC_META_ERR_PAYLOAD_OVERFLOW` and drops the packet.
+
+**5.3.4 Multiline consistency (v9 ﾂｧ3.1.1)**
+When a packet completes, the library enforces v9 multiline consistency:
+
+- All content lines in the unit MUST have the same meta kind (command, direct response, unsolicited).  
+  Violation 竍・`BC_META_ERR_BATCH_MIXED_KIND` and drop.
+- If the kind is direct response, all lines MUST have the same polarity (`^` vs `\`).  
+  Violation 竍・`BC_META_ERR_BATCH_MIXED_POLARITY` and drop.
+- If the kind is unsolicited and any line is labeled as in-session (fractional `]` discriminator `.ﾎ拜), then all lines MUST be labeled with the same `.ﾎ拜.  
+  Violation 竍・`BC_META_ERR_BATCH_MIXED_SESSION` and drop.
+
+### 5.4 Sequence counters `]` and mismatch diagnostics (v9 ﾂｧ4 + ﾂｧ6.1)
+
+**5.4.1 What is tracked**
+The library performs peer sequence tracking on the **first content line** of each completed deliverable unit.
+
+The following units are excluded from default peer sequence tracking:
+- Units whose first content line has `?` qualified `]` (ephemeral stream).
+- The reserved busy-refusal form `!0.T] \ 窶ｦ ﾎｺ`.
+
+**5.4.2 Expected-next rule**
+Let the last tracked primary be `N`. For the next tracked unit, expected primary is:
+- `0` if the previously tracked unit carried the rollover marker `<` on its `]`,
+- otherwise `N + 1`.
+
+**5.4.3 Mismatch behavior**
+If the observed primary differs from expected:
+- Emit `BC_META_ERR_SEQ_MISMATCH` with `ctx->a = expected` and `ctx->b = observed`.
+- Still update the recorded last primary to the observed value.
+- **Library policy:** mismatch is **log-only** (the unit is still delivered).
+
+### 5.5 Sessions encoded in `]` (v9 ﾂｧ2.4 + ﾂｧ6.2窶督ｧ6.8)
+
+This library implements v9 session semantics using an active-session table sized by `tx_max_active_sessions`.
+
+**5.5.1 Session start (v9 ﾂｧ2.4.2)**
+A session discriminator `ﾎ拜 MAY start only from a **positive direct response** (`^`) that carries a pair-shaped `]` value `ﾎ.ﾎ拆` whose fractional component matches the request窶冱 integer `]` value.
+
+- If request tracking is enabled (`tx_max_active_requests > 0`), the library validates that `ﾎ拜 corresponds to a pending request and that the request窶冱 ephemeral-ness matches the `?` qualifier (per v9).
+- If request tracking is disabled, the library cannot validate and treats a positive direct response with a valid discriminator as a session start best-effort.
+
+On session start, the library:
+- records session `ﾎ拜 as active (subject to table capacity), and
+- calls `on_session_start(user, ﾎ・` once when the session transitions from inactive to active.
+
+**5.5.2 In-session followups (v9 ﾂｧ2.4.3)**
+While session `ﾎ拜 is active, any unsolicited unit (`^\`) whose `]` is pair-shaped and has fractional discriminator `.ﾎ拜 is delivered as **in-session** via `on_unsolicited_in_session`, with `unit.session_n = ﾎ拜.
+
+**5.5.3 End of session (v9 ﾂｧ2.4.4)**
+If an in-session unsolicited unit窶冱 **final** content line carries the stale marker on its `]` (i.e., `!ﾎ.ﾎ拆`), the library ends the session after delivering the unit:
+- calls `on_session_end(user, ﾎ・ by_timeout=false)`,
+- marks the session inactive.
+
+**5.5.4 Nonexistent session (v9 ﾂｧ2.4.4 + ﾂｧ6.7)**
+If an unsolicited unit is labeled with `.ﾎ拜 but session `ﾎ拜 is not active, the library:
+- emits `BC_META_ERR_NON_EXISTENT_SESSION` with `ctx->session_n = ﾎ拜, and
+- **drops the unit** (it is not delivered to application callbacks).
+
+**Library policy note:** v9 defines a `nonexistent_session_policy` knob; this library currently behaves as if it is fixed to `DROP` (no pass-through mode).
+
+**5.5.5 Invalid session declaration / termination (v9 ﾂｧ6.6, ﾂｧ6.8)**
+The library emits non-fatal diagnostics for per-line protocol violations:
+
+- `BC_META_ERR_INVALID_SESSION_DECL` when a fractional discriminator appears in a context disallowed by v9 (e.g., command carries `ﾎ.ﾎ拆`, negative response carries `ﾎ.ﾎ拆` not in reserved busy-refusal form, etc.).
+- `BC_META_ERR_INVALID_SESSION_TERMINATION` when `!` is applied to an integer-only `]` (`!ﾎ]`).
+
+These diagnostics do not automatically reset parser/meta state and do not necessarily prevent unit delivery (unless another rule causes the unit to be dropped).
+
+### 5.6 Parser reset event handling (v9 ﾂｧ5.1)
+
+When the SAB parser reports a reset event, the library MUST:
+- discard any partially buffered packet state,
+- discard any buffered header-prefix run not yet attached to a delivered unit,
+- clear direct-response bookkeeping,
+- clear request and session tracking state,
+- reset the managed outbound primary sequence to 0 if `tx_manage_primary_seq` is enabled,
+and then call `on_reset(user, is_ack)`.
+
+No deliverable unit is produced for a reset.
+
+## 6. Payload capture semantics (library-specific)
+
+### 6.1 Line payload fields
+
+Each delivered `bcode_line_t` exposes:
+- `payload_tag` (`BC_PAYLOAD_NONE`, `BC_PAYLOAD_STRING`, `BC_PAYLOAD_BINARY`)
+- `payload_len` = number of payload bytes observed on-wire for that line (sum over payload bodies)
+- `payload` = pointer to captured bytes, or NULL.
+
+**Important:** `payload_len > 0` does **not** imply `payload != NULL`. `payload` may be NULL if capture is disabled (`rx_payload_bytes == 0`) or if capture overflow caused the line/unit to be dropped.
+
+### 6.2 Capture pool
+
+The library maintains a single RX payload capture pool of capacity `rx_payload_bytes` bytes.
+
+- The pool is used to store payload bytes for buffered headers and buffered packet lines, and for the currently building line.
+- The pool is reset when a unit is delivered and after aborting a packet/unit.
+
+### 6.3 Payload overflow handling
+
+If the library cannot capture a line窶冱 full payload body into the RX pool (pool capacity exceeded while building that line):
+
+- Emit `BC_META_ERR_PAYLOAD_OVERFLOW`.
+- Drop the affected line/unit.
+- If a multiline packet was in progress, abort and drop the entire packet.
+- Clear any buffered header-prefix run.
+- Continue parsing subsequent lines (resynchronization is at the SAB line boundary).
+
+Separately, while buffering a multiline packet, if `rx_payload_bytes != 0` and the cumulative payload bytes across buffered packet lines would exceed `rx_payload_bytes`, the library emits `BC_META_ERR_PAYLOAD_OVERFLOW` and drops the packet.
+
+## 7. Resynchronization and 窶彭ropped窶・signaling (library-specific)
+
+- For **hard drops** (packet malformed, packet limit, payload overflow, nonexistent session, etc.), the unit is not delivered; meta clears its buffered state and continues processing subsequent lines.
+- For **soft drops** where only header-prefix metadata is discarded *at the moment of unit delivery* (e.g., an incomplete header run or a coupling failure), the content unit is delivered without headers and with `BC_META_UNIT_F_DROPPED` set.
+  Header-prefix runs that are discarded earlier (for example due to `rx_max_header_lines` overflow while collecting headers) are **not** necessarily reflected via `BC_META_UNIT_F_DROPPED`.
+
+The library does not currently implement a v9 `drop_sink` diagnostic tap; dropped units are observable only via `on_meta_error` and, when applicable, `BC_META_UNIT_F_DROPPED`.
+
+## 8. TX semantics (library-specific, v9-compatible)
+
+### 8.1 TX lifecycle
+TX is single-flight:
+
+1) `bcode_meta_tx_begin(kind, request_line, session_n)`  
+2) `bcode_meta_tx_push_header_line()` / `bcode_meta_tx_push_line()` to stage lines  
+3) `bcode_meta_tx_size()` finalizes decoration and returns required serialized bytes  
+4) `bcode_meta_tx_write(buf)` serializes  
+5) `bcode_meta_tx_complete(success)` commits or discards bookkeeping and releases staged state
+
+### 8.2 TX limits
+If staging exceeds TX capacities (`tx_max_header_lines`, `tx_max_multiline_lines`, `tx_payload_bytes`), TX APIs return `BC_META_ERR_TX_LIMIT` or report `BC_META_ERR_TX_LIMIT` via `on_meta_error` as appropriate.
+
+### 8.3 Managed primary sequence (`tx_manage_primary_seq`)
+If enabled, the library stamps/advances integer primary `]` for what it transmits and commits that advancement only on `tx_complete(success=true)`. On parser reset, it resets this managed primary sequence to 0.
+
+### 8.4 TX in-session validation
+If TX kind is `*_IN_SESSION`, the provided `session_n` MUST correspond to an active session. Otherwise `bcode_meta_tx_begin()` returns `BC_META_ERR_NON_EXISTENT_SESSION`.
+
+### 8.5 Direct-response expectation on TX failure
+If an outbound command 窶彳xpects a direct response窶・and the application calls `tx_complete(success=false)`, the library MUST call:
+
+`on_direct_response(user, NULL)`
+
+exactly once for that failed request.
+
+A command is considered 窶彳xpects direct response窶・only if **every staged content line** carried the same explicit nonnegative integer `]` prior to `tx_size()`.
+
+## 9. Mapping: v9 events/policies 竊・`bcode_meta` surface
+
+### 9.1 v9 events
+
+| v9 event name | Library exposure |
+|---|---|
+| `E_SEQ_MISMATCH` | `on_meta_error(BC_META_ERR_SEQ_MISMATCH)`; unit still delivered |
+| `E_SESSION_START(ﾎ・` | `on_session_start(ﾎ・` (best-effort if request tracking disabled) |
+| `E_SESSION_END(ﾎ・` | `on_session_end(ﾎ・ by_timeout=false)` |
+| `E_SESSION_END(ﾎ・ timeout)` | `on_session_end(ﾎ・ by_timeout=true)` (requires `bcode_meta_tick`) |
+| `E_NON_EXISTENT_SESSION(ﾎ・` | `on_meta_error(BC_META_ERR_NON_EXISTENT_SESSION)`; unit dropped |
+| `E_INVALID_SESSION_DECL` | `on_meta_error(BC_META_ERR_INVALID_SESSION_DECL)` (non-fatal) |
+| `E_INVALID_SESSION_TERMINATION` | `on_meta_error(BC_META_ERR_INVALID_SESSION_TERMINATION)` (non-fatal) |
+| `E_HEADER_START` / `E_HEADER_TO_CONTENT` | Not exposed as dedicated callbacks; headers only appear attached on delivered units |
+| Parser reset event | `on_reset(is_ack)` |
+
+### 9.2 v9 policy knobs
+
+v9 defines standardized knob names; this library窶冱 current support is:
+
+- `session_idle_timeout (ﾎ煩・` 竊・supported via `rx_enable_session_timeout`, `rx_session_timeout_ms`, and `bcode_meta_tick()`.
+- `seq_mismatch_policy` 竊・fixed behavior equivalent to `LOG_ONLY`.
+- `nonexistent_session_policy` 竊・fixed behavior equivalent to `DROP`.
+- `drop_sink` 竊・not implemented.
+- `allow_ephemeral_interjection` 竊・not configurable (library parses `?` and supports reserved busy refusal handling; higher layers must enforce any disable policy).
+- `ephemeral_sessionless_policy` 竊・not applicable (since allow/deny is not implemented here).
+
+## 10. Conformance and deviations
+
+An implementation MAY claim conformance to BCODe.meta Convention v9 only if it implements all v9-required on-wire behaviors it claims to support.
+
+Known deliberate library-level constraints:
+- No configurable pass-through for nonexistent sessions (always drop).
+- No `drop_sink` export path.
+- `rx_payload_bytes` is overloaded as both capture-pool capacity and, when nonzero, per-packet payload budget.
+</script><script src="../assets/site.js"></script><footer><div class="footer-content"><nav aria-label="Docs"><a href="../docs/intro.html">Intro</a> <span class="footer-sep">|</span> <a href="../docs/syntax.html">Syntax (v13)</a> <span class="footer-sep">|</span> <a href="../docs/interpretation.html">Interpretation</a> <span class="footer-sep">|</span> <a href="../docs/meta-v9.html">BCODe.meta (v9)</a> <span class="footer-sep">|</span> <a href="../docs/meta-v7.html">BCODe.meta (v7)</a> <span class="footer-sep">|</span> <a href="../docs/meta-library-semantics.html">Meta Library Semantics</a> <span class="footer-sep">|</span> <a href="../docs/rest.html">BCODe.rest (v6.1.3)</a> <span class="footer-sep">|</span> <a href="../docs/best-practices.html">Best Practices</a> <span class="footer-sep">|</span> <a href="../docs/telemetry-guide.html">Telemetry Guide</a> <span class="footer-sep">|</span> <a href="../docs/chat-summary.html">Chat Summary</a> </nav><p class="footer-right">BCODe</p></div></footer></body></html>
