@@ -111,12 +111,12 @@ function buildPanelHTML() {
           <section class="dt-pane" aria-label="docs guide">
             <div class="dt-pane-label"> docs / guide </div>
             <div class="dt-pane-body" id="dt-docs-body"></div>
-            <div class="dt-pane-foot">examples and docs</div>
+            <div class="dt-pane-foot">docs / guide</div>
           </section>
           <section class="dt-pane" aria-label="state feed">
             <div class="dt-pane-label">state feed</div>
             <div class="dt-pane-body" id="dt-state-body"></div>
-            <div class="dt-pane-foot">live unsolicited state</div>
+            <div class="dt-pane-foot">state feed</div>
           </section>
         </div>
       </section>
@@ -126,10 +126,12 @@ function buildPanelHTML() {
           <section class="dt-pane" aria-label="request response channel">
             <div class="dt-pane-label">request/response channel</div>
             <div class="dt-pane-body" id="dt-reqresp-body"></div>
+            <div class="dt-pane-foot">request/response channel</div>
           </section>
           <section class="dt-pane" aria-label="unsolicited feed">
             <div class="dt-pane-label">unsolicited feed</div>
             <div class="dt-pane-body" id="dt-feed-body"></div>
+            <div class="dt-pane-foot">unsolicited feed</div>
           </section>
         </div>
       </section>

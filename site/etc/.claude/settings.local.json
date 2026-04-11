@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(where node:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(powershell:*)",
+      "Bash(xxd:*)",
+      "Bash(node -e \":*)",
+      "mcp__vexp__run_pipeline",
+      "Bash(where magick:*)",
+      "Bash(where inkscape:*)",
+      "Bash(where rsvg-convert:*)",
+      "Bash(where chrome:*)",
+      "Bash(where pwsh:*)",
+      "Bash(where magick.exe)",
+      "Bash(where convert.exe)",
+      "Bash(where inkscape.exe)",
+      "Bash(npm list:*)",
+      "Bash(where resvg:*)",
+      "mcp__vexp__get_skeleton",
+      "mcp__vexp__get_session_context",
+      "mcp__vexp__search_memory",
+      "mcp__vexp__index_status"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "vexp"
+  ]
+}

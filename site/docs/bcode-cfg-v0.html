@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BCODe.cfg - Reader</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/bcode_lang.js"></script>
+  <link rel="stylesheet" href="../assets/hljs-theme.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body data-page-type="reader">
+  <header>
+    <div class="header-content"><a class="brand" href="../index.html" aria-label="Home"><img src="../assets/logo.png"
+          alt="BCODe"><span class="tag">Documentation</span></a><a class="header-link" href="../docs/codex-index.html"
+        aria-label="Documentation"><img src="../assets/documentation.svg" alt=""> Documentation</a></div>
+  </header>
+  <main>
+    <div class="container">
+      <div class="reader-wrap">
+        <div class="reader-grid">
+          <aside class="toc-pane" aria-label="Quick jump">
+            <div class="toc-head">
+              <div class="toc-title">Quick Jump</div><button class="pill-btn" id="tocToggle"
+                type="button">Collapse</button>
+            </div>
+            <div class="toc-jumps"><a id="toTop" href="#">Back to top</a><a id="toBottom" href="#">Go to bottom</a>
+            </div>
+            <ul id="tocList" class="toc-list"></ul>
+          </aside>
+          <section class="reader">
+            <div class="reader-head">
+              <div>
+                <h1 class="reader-title">BCODe.cfg</h1>
+                <p class="reader-meta">bcode-cfg-v0</p>
+              </div>
+              <div class="links"><a class="pill primary" id="cardLink" href="bcode-cfg-v0.html">Card view</a><button
+                  class="pill-btn" id="darkToggle" type="button">Dark mode</button><span class="query-chip"
+                  id="findCount"></span></div>
+            </div>
+            <div class="reader-body" id="readerBody">
+              <article id="content" class="markdown-body"></article>
+            </div>
+          </section>
+          <div class="reader-phantom-col"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script id="md-source" type="text/plain"># BCODe.cfg v0 — Normative Draft
+
+## 1. Scope
+
+BCODe.cfg is a bounded-file runner profile over ordinary BCODe syntax.
+
+BCODe.cfg defines:
+
+- control forms encoded as ordinary BCODe lines,
+- a typed cfg variable table,
+- substitution into the next emitted content line,
+- emission of content lines through BCODe.meta,
+- optional softening of negative direct responses,
+- capture of response-derived wait tokens,
+- waiting on previously captured wait tokens,
+- organizational sections, and
+- non-emitting regions.
+
+BCODe.cfg does not redefine BCODe syntax. It assigns profile semantics only to the specific control forms defined here.
+
+## 2. Normative language
+
+The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** are to be interpreted as normative requirements.
+
+## 3. General model
+
+### 3.1 Logical-line basis
+
+All pairing, adjacency, and nesting rules in BCODe.cfg are defined over **latched logical lines**, not physical text lines.
+
+A control form that spans multiple physical lines because of payload syntax is still one logical line.
+
+### 3.2 Content lines and control lines
+
+An ordinary BCODe line that is not one of the defined control forms is a **content line**.
+
+A line whose full command form matches a defined control form is a **control line**.
+
+A control line is never emitted as content.
+
+### 3.3 Default emission
+
+A content line is emitted through BCODe.meta by default.
+
+A content line within an active `-<>?{ ... -<>?}` scope is parsed but not emitted.
+
+### 3.4 Immediate and scoped forms
+
+An opening control form whose full opening spelling is one or two characters long is an **immediate form**.
+
+For v0, the immediate forms are:
+
+- `{`
+- `>{`
+
+An immediate form **MUST terminate immediately**. "Terminate immediately" means:
+
+> the matching close line MUST be the next latched logical line after the open line.
+
+All other defined control forms are **scoped forms**.
+
+For v0, the scoped forms are:
+
+- `\?{ ... \?}`
+- `]?{ ... ]?}`
+- `]!{ ... ]!}`
+- `<>{ ... <>}`
+- `-<>?{ ... -<>?}`
+
+### 3.5 Full control forms
+
+The family identity of a control line is the **full control form**. Qualification belongs to the command form, not to selector fields.
+
+So, for example:
+
+- `\?{ ... \?}` is one scoped family,
+- `]?{ ... ]?}` is one scoped family,
+- `{ ... }` is one immediate family.
+
+## 4. Variable classes
+
+### 4.1 Typed table
+
+The cfg processor maintains a typed variable table.
+
+Exactly two variable classes are defined in v0:
+
+- **byte-string variable**
+- **wait-token variable**
+
+A variable name MUST belong to exactly one class for its entire lifetime.
+
+Rebinding an existing variable name is a BCODe.cfg semantic error.
+
+### 4.2 Variable names
+
+A variable name MUST match:
+
+```text
+[A-Za-z_][A-Za-z0-9_.-]*
+```
+
+### 4.3 Byte-string variables
+
+A byte-string variable holds an uninterpreted byte string.
+
+Byte-string variables are created only by:
+
+```bcode
+>{ ... >}
+```
+
+Byte-string variables may be consumed only by:
+
+```bcode
+{ ... }
+```
+
+### 4.4 Wait-token variables
+
+A wait-token variable holds an opaque response-wait token derived from a positive direct response.
+
+Wait-token variables are created only by:
+
+```bcode
+]?{ ... ]?}
+```
+
+Wait-token variables may be consumed only by:
+
+```bcode
+]!{ ... ]!}
+```
+
+Using a variable through the wrong family is a semantic error at the point of processing.
+
+## 5. Environment binding
+
+### 5.1 Form
+
+```bcode
+$VARNAME
+>{
+$ENVNAME
+>}
+```
+
+This is an immediate pair.
+
+### 5.2 Semantics
+
+The opener payload body is the cfg variable name.  
+The closer payload body is the host environment variable name.
+
+Processing semantics are:
+
+```text
+V[VARNAME] := getenv(ENVNAME)
+```
+
+The resulting variable is a byte-string variable.
+
+### 5.3 Requirements
+
+- The close line MUST be the next latched logical line after the open line.
+- Both payloads are required.
+- `VARNAME` MUST be a valid variable name.
+- `VARNAME` MUST be previously undefined.
+- `ENVNAME` MUST exist in the host environment.
+
+Failure of any requirement is a BCODe.cfg semantic error at the point of processing.
+
+## 6. Next-emitted-line substitution
+
+### 6.1 Form
+
+```bcode
+$VARNAME
+{
+...selector...
+}
+```
+
+This is an immediate pair.
+
+The opener payload body names a byte-string variable.  
+The close line selects the target on the **next emitted content line**.
+
+### 6.2 Requirements
+
+- The close line MUST be the next latched logical line after the open line.
+- `VARNAME` MUST exist.
+- `VARNAME` MUST name a byte-string variable.
+
+The pair queues one substitution for the next emitted content line only.
+
+A content line inside an active non-emitting scope does not consume queued substitution.
+
+Reaching end of input with queued substitution still pending is a semantic error.
+
+### 6.3 Parameter selector
+
+A close line consisting of one or more empty parameter fields followed by `}` selects those parameters.
+
+Examples:
+
+```bcode
+A}
+AB}
+```
+
+Semantics:
+
+- `A}` injects into parameter `A`
+- `AB}` injects the same value into `A` and `B`, in that order
+
+Requirements for each selected parameter:
+
+- the target parameter MUST NOT already exist on the emitted content line
+- the variable value MUST be valid as a BCODe field body for that parameter position
+
+Otherwise the emitted line is a semantic error.
+
+### 6.4 Command-field selector
+
+A close line consisting only of:
+
+```bcode
+}
+```
+
+selects the command field body of the next emitted content line.
+
+Requirements:
+
+- the target content line's command field body MUST be empty
+- the variable value MUST be valid as a BCODe command-field body
+
+Otherwise the emitted line is a semantic error.
+
+### 6.5 String-payload selector
+
+A close line consisting of an empty string payload followed by `}` selects the string payload body of the next emitted content line.
+
+Form:
+
+```bcode
+$
+}
+```
+
+This is one logical close line.
+
+Requirements:
+
+- the target content line MUST NOT already contain a string payload
+- the variable value MUST be representable as one BCODe string payload body
+- at minimum, a conforming runner MUST reject a value containing LF for this selector
+
+The variable value becomes the payload body exactly.
+
+Forms such as:
+
+```bcode
+$}
+```
+
+on one physical line are not payload selectors under this profile.
+
+## 7. Non-emitting scope
+
+### 7.1 Form
+
+```bcode
+-<>?{
+  ...
+-<>?}
+```
+
+This is a scoped form.
+
+### 7.2 Semantics
+
+Within an active non-emitting scope:
+
+- ordinary BCODe lines are parsed but not emitted
+- control lines continue to execute
+- omitted ordinary lines do not consume queued substitution
+- omitted ordinary lines do not satisfy the one-emitted-line requirement of `]?{ ... ]?}`
+
+Nested non-emitting scopes are allowed.
+
+### 7.3 Runner policy
+
+Whether observation of `-<>?{ ... -<>?}` is accepted, warned, or treated as an error is runner policy, not BCODe.cfg syntax.
+
+## 8. Emission through BCODe.meta
+
+### 8.1 Emitted content lines
+
+For each emitted content line:
+
+1. queued substitution is applied,
+2. the resulting line MUST be valid ordinary BCODe,
+3. the runner submits that line to BCODe.meta TX,
+4. if permitted by BCODe.meta TX policy, a missing numeric `]` MAY be auto-stamped,
+5. the runner waits for the matching direct response before advancing past that line, except where this profile explicitly states otherwise.
+
+BCODe.cfg does not redefine BCODe.meta line classification.
+
+### 8.2 Matching direct response
+
+The matching direct response is the exact direct response recognized by the BCODe.meta / launcher request-response rules for that emitted line.
+
+BCODe.cfg relies on the existing BCODe.meta lifecycle, including sessioned unsolicited continuation tied to the response `]`.
+
+## 9. Ignore-negative-response scope
+
+### 9.1 Form
+
+```bcode
+\?{
+  ...
+\?}
+```
+
+This is a scoped form.
+
+### 9.2 Semantics
+
+Within an active `\?{ ... \?}` scope:
+
+- a matching negative direct response `\` to an emitted content line does not by itself terminate cfg execution
+- the runner advances after observing that response
+- the response remains available for diagnostics
+
+This scope does not soften:
+
+- parse errors,
+- substitution errors,
+- undefined-variable errors,
+- wrong-type variable errors,
+- timeouts,
+- reset/transport failures,
+- or the special negative-response rule of `]?{ ... ]?}`.
+
+## 10. Capture-wait-token scope
+
+### 10.1 Form
+
+```bcode
+$WAITVAR
+]?{
+  ...
+]?}
+```
+
+This is a scoped form.
+
+### 10.2 Requirements
+
+- The opener payload body names the destination variable.
+- The destination name MUST be valid.
+- The destination name MUST be previously undefined.
+- The scope MUST emit exactly one content line.
+- The runner MUST observe the matching direct response to that one emitted content line.
+
+### 10.3 Semantics
+
+If the matching direct response is positive:
+
+- a wait token is constructed from that response identity,
+- the wait token is stored in `WAITVAR`,
+- `WAITVAR` becomes a wait-token variable.
+
+If the matching direct response is negative:
+
+- cfg execution fails immediately,
+- no wait-token variable is created.
+
+This rule applies even inside `\?{ ... \?}`.
+
+### 10.4 One-line rule
+
+A second emitted content line within the active `]?{ ... ]?}` scope is an immediate semantic error.
+
+A scope that closes after emitting zero content lines is also a semantic error.
+
+## 11. Wait-token identity and semantics
+
+### 11.1 Identity
+
+A wait token is derived from the positive matching direct response captured by `]?{ ... ]?}`.
+
+If that response carries a single-shaped `]`, the token is terminal immediately.
+
+If that response carries a pair-shaped `]` with fractional session `.N`, the token identity is:
+
+- the primary sequence from that positive direct response, and
+- the session number `N` from that positive direct response.
+
+The token is then pending until the corresponding same-session unsolicited completion is observed under the BCODe.meta response/session rules.
+
+### 11.2 States
+
+A v0 wait token has two semantic states:
+
+- **terminal**
+- **pending-session**
+
+A negative direct response does not create a token.
+
+Timeout, reset, or transport failure while waiting is not a third token state stored for later use; it is an immediate cfg failure when encountered.
+
+## 12. Wait-on-token scope
+
+### 12.1 Form
+
+```bcode
+$WAITVAR
+]!{
+]!}
+```
+
+This is a scoped form.
+
+### 12.2 Requirements
+
+- The opener payload body names the source variable.
+- The source variable MUST exist at the point of processing.
+- The source variable MUST be a wait-token variable.
+
+A form with no opener payload operand is a semantic error at the point of processing.
+
+### 12.3 Semantics
+
+- If the token is terminal, the wait succeeds immediately.
+- If the token is pending-session, the runner waits until the corresponding same-session unsolicited completion is observed.
+- If timeout, reset, or transport failure occurs before completion, cfg execution fails.
+
+## 13. Section scope
+
+### 13.1 Form
+
+```bcode
+$SECTION_TAG
+7N<>{
+  ...
+<>}
+```
+
+This is a scoped form.
+
+### 13.2 Requirements
+
+- The opener payload body is the section tag.
+- The section tag is required.
+- The optional `N` parameter carries a numeric section code.
+
+### 13.3 Semantics
+
+Section scope is organizational only.
+
+It:
+
+- sets the current section tag,
+- sets the optional current section code,
+- may be used for diagnostics,
+- may be associated with created wait tokens for diagnostics,
+
+and it does **not**:
+
+- alter emission,
+- alter response handling,
+- or wait on close.
+
+Nested sections are allowed.
+
+## 14. Error handling
+
+### 14.1 Fixed fatal-error return
+
+A fatal BCODe.cfg failure terminates execution and returns one structured error object to the caller.
+
+BCODe.cfg does not define selectable error-return fields.
+
+### 14.2 Returned information
+
+A conforming implementation **MUST** return at least:
+
+- `kind`
+- `message`
+- `file`
+- `physical_line`
+- `logical_line`
+
+A conforming implementation **MUST** also include the following fields when applicable:
+
+- current `section_tag`
+- current `section_code`
+- `content_line` after cfg substitution and before BCODe.meta TX stamping
+- `wire_line` actually transmitted through BCODe.meta
+- matching `response_line`, if any
+- referenced wait-token identity, if any
+- `parse_detail`, if any
+
+### 14.3 Error timing
+
+A control form that is syntactically valid BCODe but:
+
+- lacks required BCODe.cfg operands,
+- violates immediate-pair adjacency,
+- references an undefined variable,
+- references a wrong-typed variable,
+- violates family-specific cardinality,
+- or violates any other rule in this profile,
+
+is a BCODe.cfg semantic error at the point of processing.
+
+Examples:
+
+- a second emitted line inside `]?{ ... ]?}` → immediate cfg error
+- `]!{ ... ]!}` references an undefined variable → immediate cfg error
+- a negative matching direct response inside `]?{ ... ]?}` → immediate cfg failure and no token binding
+- timeout while waiting inside `]!{ ... ]!}` → immediate cfg failure
+
+## 15. Summary of v0 control families
+
+Immediate families:
+
+```bcode
+>{ ... >}
+{  ...  }
+```
+
+Scoped families:
+
+```bcode
+\?{ ... \?}
+]?{ ... ]?}
+]!{ ... ]!}
+<>{ ... <>}
+-<>?{ ... -<>?}
+```
+
+---
+
+# Appendix A. Conformance Examples (Non-Normative)
+
+This appendix is illustrative and non-normative, but each example is intended to reflect the normative rules of Sections 1–15.
+
+All adjacency statements in this appendix refer to **latched logical lines**, not physical text lines.
+
+## A.1 Environment binding
+
+### A.1.1 Valid environment binding
+
+```bcode
+$LISTEN_PORT
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+```
+
+Result:
+
+- creates byte-string variable `LISTEN_PORT`
+- binds it from host environment variable `CIVEPHIUM_LISTEN_PORT`
+
+### A.1.2 Invalid: missing close operand
+
+```bcode
+$LISTEN_PORT
+>{
+>}
+```
+
+Result:
+
+- syntactically valid BCODe
+- semantically invalid BCODe.cfg
+- error at point of processing because the close line lacks the required environment-variable payload
+
+### A.1.3 Invalid: non-immediate termination
+
+```bcode
+$LISTEN_PORT
+>{
+$OTHER
+{
+A}
+$CIVEPHIUM_LISTEN_PORT
+>}
+```
+
+Result:
+
+- error at point of processing
+- `>{ ... >}` is an immediate form and must terminate with no latched logical line between opener and closer
+
+## A.2 Next-emitted-line substitution into a parameter
+
+### A.2.1 Valid parameter substitution
+
+```bcode
+$LISTEN_PORT
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+
+$LISTEN_PORT
+{
+A}
+0.0c
+```
+
+Result:
+
+- binds `LISTEN_PORT` from the environment
+- queues substitution into parameter `A`
+- next emitted content line is `0.0c`
+- emitted line has parameter `A` injected from `LISTEN_PORT`
+
+### A.2.2 Valid multi-parameter substitution
+
+```bcode
+$TIMEOUT
+>{
+$CIVEPHIUM_TIMEOUT
+>}
+
+$TIMEOUT
+{
+AB}
+0.0c
+```
+
+Result:
+
+- injects the same byte-string value into both parameter `A` and parameter `B`
+- both target parameters must be absent on the emitted line
+
+### A.2.3 Invalid: undefined substitution source
+
+```bcode
+$LISTEN_PORT
+{
+A}
+0.0c
+```
+
+Result:
+
+- error at point of processing
+- source variable `LISTEN_PORT` is undefined
+
+### A.2.4 Invalid: target already present
+
+```bcode
+$LISTEN_PORT
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+
+$LISTEN_PORT
+{
+A}
+1A0.0c
+```
+
+Result:
+
+- error at point of processing of the emitted content line
+- substitution target `A` already exists on that line
+
+## A.3 Next-emitted-line substitution into the command field
+
+### A.3.1 Valid command-field substitution
+
+```bcode
+$CMDVAL
+>{
+$BOOT_COMMAND
+>}
+
+$CMDVAL
+{
+}
+a
+```
+
+Result:
+
+- injects `CMDVAL` into the next emitted content line's command field body
+- target content line must have an empty command field body before injection
+
+### A.3.2 Invalid: command field already present
+
+```bcode
+$CMDVAL
+>{
+$BOOT_COMMAND
+>}
+
+$CMDVAL
+{
+}
+1a
+```
+
+Result:
+
+- error at point of processing of the emitted content line
+- command field body is not empty
+
+## A.4 Next-emitted-line substitution into a string payload
+
+### A.4.1 Valid payload substitution
+
+```bcode
+$DRAIN_FILE
+>{
+$DRAIN_FILE
+>}
+
+$DRAIN_FILE
+{
+$
+}
+0@ #D9#.0|
+```
+
+Result:
+
+- injects `DRAIN_FILE` as the next emitted content line's string payload body
+
+The close selector is the whole logical line:
+
+```bcode
+$
+}
+```
+
+### A.4.2 Invalid: `$}` on one physical line is not a selector
+
+```bcode
+$DRAIN_FILE
+>{
+$DRAIN_FILE
+>}
+
+$DRAIN_FILE
+{
+$}
+0@ #D9#.0|
+```
+
+Result:
+
+- this is not the payload-target selector defined by this profile
+- the `}` is absorbed into the `$` payload body
+- therefore the immediate pair is not formed correctly
+- error at point of processing
+
+### A.4.3 Invalid: content line already has a string payload
+
+```bcode
+$DRAIN_FILE
+>{
+$DRAIN_FILE
+>}
+
+$DRAIN_FILE
+{
+$
+}
+$literal
+0@ #D9#.0|
+```
+
+Result:
+
+- error at point of processing of the emitted content line
+- the target line already contains a string payload
+
+## A.5 Non-emitting scope
+
+### A.5.1 Valid non-emitting scope
+
+```bcode
+-<>?{
+0.0c
+-<>?}
+1.0d
+```
+
+Result:
+
+- `0.0c` is parsed but not emitted
+- `1.0d` is emitted normally
+
+### A.5.2 Substitution skips omitted ordinary lines
+
+```bcode
+$LISTEN_PORT
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+
+$LISTEN_PORT
+{
+A}
+-<>?{
+0.0c
+-<>?}
+1.0d
+```
+
+Result:
+
+- `0.0c` is omitted and does not consume queued substitution
+- substitution applies to the next emitted content line, `1.0d`
+
+## A.6 Ignore-negative-response scope
+
+### A.6.1 Valid ignore-negative scope
+
+```bcode
+\?{
+0.0c
+\?}
+```
+
+Result:
+
+- if `0.0c` receives a matching negative direct response, cfg execution continues
+- the negative response remains available for diagnostics
+
+### A.6.2 Negative response remains fatal inside capture scope
+
+```bcode
+$WAITVAR
+]?{
+\?{
+0.0c
+\?}
+]?}
+```
+
+Result:
+
+- if `0.0c` receives a matching negative direct response, cfg execution fails immediately
+- no wait-token variable is created
+- inner `\?{ ... \?}` does not soften this case
+
+## A.7 Capture-wait-token scope
+
+### A.7.1 Valid capture of a wait token
+
+```bcode
+$WAITVAR
+]?{
+0.0c
+]?}
+```
+
+Result:
+
+- exactly one emitted content line occurs inside the scope
+- matching direct response is observed
+- if positive, a wait-token variable `WAITVAR` is created
+
+### A.7.2 Invalid: zero emitted lines
+
+```bcode
+$WAITVAR
+]?{
+-<>?{
+0.0c
+-<>?}
+]?}
+```
+
+Result:
+
+- error at scope close
+- the scope emitted zero content lines
+
+### A.7.3 Invalid: more than one emitted line
+
+```bcode
+$WAITVAR
+]?{
+0.0c
+1.0d
+]?}
+```
+
+Result:
+
+- error at point the second emitted line is processed
+- `]?{ ... ]?}` must emit exactly one content line
+
+### A.7.4 Invalid: negative direct response
+
+```bcode
+$WAITVAR
+]?{
+0.0c
+]?}
+```
+
+Result if the matching direct response is negative:
+
+- cfg execution fails immediately
+- `WAITVAR` is not created
+
+## A.8 Wait-on-token scope
+
+### A.8.1 Valid wait on a previously captured token
+
+```bcode
+$WAITVAR
+]?{
+0.0c
+]?}
+
+$WAITVAR
+]!{
+]!}
+```
+
+Result:
+
+- the first scope captures a wait token into `WAITVAR`
+- the second scope waits on that token
+- if terminal already, wait completes immediately
+- if pending-session, wait continues until matching same-session completion is observed
+
+### A.8.2 Invalid: undefined token variable
+
+```bcode
+$WAITVAR
+]!{
+]!}
+```
+
+Result:
+
+- syntactically valid BCODe
+- semantically invalid BCODe.cfg
+- error at point of processing because `WAITVAR` is undefined
+
+### A.8.3 Invalid: wrong variable type
+
+```bcode
+$WAITVAR
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+
+$WAITVAR
+]!{
+]!}
+```
+
+Result:
+
+- error at point of processing
+- `WAITVAR` exists, but it is a byte-string variable, not a wait-token variable
+
+## A.9 Section scope
+
+### A.9.1 Valid section with tag only
+
+```bcode
+$boot
+<>{
+0.0c
+<>}
+```
+
+Result:
+
+- opens section `boot`
+- `0.0c` emits normally
+- section close does not wait
+
+### A.9.2 Valid section with tag and numeric code
+
+```bcode
+$boot
+7N<>{
+0.0c
+<>}
+```
+
+Result:
+
+- opens section `boot`
+- current section code is `7`
+- diagnostics arising within the scope may include tag `boot` and code `7`
+
+### A.9.3 Nested sections
+
+```bcode
+$outer
+<>{
+0.0c
+$inner
+3N<>{
+1.0d
+<>}
+<>}
+```
+
+Result:
+
+- nested sections are valid
+- current section is `outer` for `0.0c`
+- current section is `inner` with code `3` for `1.0d`
+
+## A.10 Combined example
+
+```bcode
+$LISTEN_PORT
+>{
+$CIVEPHIUM_LISTEN_PORT
+>}
+
+$boot
+7N<>{
+
+$WAITVAR
+]?{
+
+$LISTEN_PORT
+{
+A}
+
+0.0c
+
+]?}
+
+$WAITVAR
+]!{
+]!}
+
+<>}
+```
+
+Result:
+
+- binds `LISTEN_PORT` from the environment
+- opens section `boot`, code `7`
+- capture scope emits exactly one line
+- substitution injects `LISTEN_PORT` into parameter `A` of that line
+- matching positive direct response creates wait-token `WAITVAR`
+- wait scope waits on `WAITVAR`
+- section close is organizational only and does not itself wait
+
+## A.11 Immediate-pair failure by intervening logical line
+
+### A.11.1 Invalid substitution pair with an intervening logical line
+
+```bcode
+$LISTEN_PORT
+{
+$OTHER
+>{
+$ENVNAME
+>}
+A}
+0.0c
+```
+
+Result:
+
+- error at point of processing
+- `{ ... }` is immediate and may not have any latched logical line between opener and closer
+
+## A.12 Omit scope policy is runner-defined
+
+```bcode
+-<>?{
+0.0c
+-<>?}
+```
+
+Result:
+
+- `0.0c` is not emitted under this profile
+- whether observation of `-<>?{ ... -<>?}` is accepted, warned, or rejected is runner policy
+
+
+  
+</script>
+  <script src="../assets/site.js"></script>
+  <footer>
+    <div class="footer-content">
+      <nav aria-label="Docs"><a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
+        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a> <span class="footer-sep">|</span> <a
+          href="../docs/bcode-cfg-v0.html">BCODe.cfg</a> </nav>
+      <p class="footer-right">BCODe</p>
+    </div>
+  </footer>
+  <script src="../assets/lavalamp.js"></script>
+</body>
+
+</html>

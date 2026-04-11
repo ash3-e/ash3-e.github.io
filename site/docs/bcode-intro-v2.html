@@ -115,7 +115,7 @@ BCODe does not rely on nested braces or balanced punctuation to determine struct
  
 <ul>
   <li><strong>Columns 3 & 4</strong> (<code>0x20-0x3F</code>) is <strong>field content</strong>. This is where qualifiers (<code>- &lt; &gt; ? !</code>), decimal digits (<code>0-9</code>), hex delimiter (<code>#</code>), comment markers (<code>( ; )</code>), pair separators (<code>. ,</code>), exponent markers (<code>* /</code>), and payload openers (<code>$ % &amp;</code>) live. <code>SP</code>, <code>HT</code>, <code>CR</code>, and <code>LF</code> are ignorable outside opaque regions.
-    <pre><code class="language-plaintext">- &lt; &gt; ? !  0 1 2 3 4 5 6 7 8 9 #...#  ( ; )  . ,  * /  $ % &amp;</code></pre>
+    <pre><code class="nohighlight hljs"><span class="hljs-bcode-qualified-field">- &lt; &gt; ? !</span>  <span class="hljs-number">0 1 2 3 4 5 6 7 8 9</span> <span class="hljs-number">#...#</span>  <span class="hljs-comment">( ; )</span>  <span class="hljs-punctuation">. ,</span>  <span class="hljs-punctuation">* /</span>  <span class="hljs-string">$ % &amp;</span></code></pre>
   </li>
   <li><strong>Column 5 & 6</strong> (<code>0x40-0x5F</code>) is <strong>PARAM</strong>. Any byte in this column terminates an intermediate field and assigns it to one of 32 parameter identities via <code>term &amp; 0x1F</code>.
     <pre><code class="language-bcode">@ A B C D ... X Y Z [ \ ] ^</code></pre>

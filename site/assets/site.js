@@ -914,10 +914,110 @@
 
   const markCode = () => {
     if (!window.hljs) return;
-    document.querySelectorAll("pre code").forEach((el) => {
+    document.querySelectorAll("pre code, code.language-bcode").forEach((el) => {
+      if (el.dataset.highlighted) return;
       try {
         hljs.highlightElement(el);
       } catch { }
+    });
+  };
+
+  const INLINE_BCODE_WORD_RE = /^(?:DEL|PARAM|CMD|SP|TAB|LF|CR|NUL|WSP|OWS)$/;
+  const INLINE_BCODE_IDENTIFIER_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+  const INLINE_BCODE_PUNCT_RE = /[<>=?!@[\]^\\`$%&*\/.,#;(){}|:+~-]/;
+  const INLINE_BCODE_ALLOWED_RE = /^[A-Za-z0-9\s<>=?!@[\]^\\`$%&*\/.,#;(){}|:+~'"-]+$/;
+  const INLINE_BCODE_SKIP_RE = /^(?:try_get_[A-Za-z0-9_]+|quality_class|value1|value2|value2_neg|frac_width|exp10|exp_present|mantissa|numeric_value)$/;
+  const BCODE_VALIDITY_TEXT_RE = /\(?\b(?:still\s+)?(?:syntactically\s+)?valid(?:\s+ordinary)?\s+BCODe(?:\.[A-Za-z0-9._-]+)?\b\)?/gi;
+
+  const looksLikeInlineBcode = (text) => {
+    const raw = normalizeMojibake(text || "").trim();
+    if (!raw || raw.length > 96) return false;
+    if (INLINE_BCODE_WORD_RE.test(raw)) return true;
+    if (/^[A-Za-z]$/.test(raw)) return true;
+    if (/^[<>=?!@[\]^\\`$%&*\/.,#;(){}|:+~-]+$/.test(raw)) return true;
+    if (!INLINE_BCODE_ALLOWED_RE.test(raw)) return false;
+    if (INLINE_BCODE_SKIP_RE.test(raw)) return false;
+    if (INLINE_BCODE_IDENTIFIER_RE.test(raw)) return false;
+    return INLINE_BCODE_PUNCT_RE.test(raw);
+  };
+
+  const prepareInlineBcode = (root) => {
+    if (!root) return;
+    root.querySelectorAll("code").forEach((el) => {
+      if (el.closest("pre")) return;
+      if (/\blanguage-/.test(el.className || "")) return;
+      const text = normalizeMojibake(el.textContent || "");
+      if (!looksLikeInlineBcode(text)) return;
+      el.classList.add("language-bcode", "inline-bcode");
+    });
+  };
+
+  const buildBcodeValidityHighlight = (text) => {
+    const raw = normalizeMojibake(text || "");
+    const trimmed = raw.trim();
+    const wrapper = document.createElement("span");
+    wrapper.className = "inline-bcode-validity";
+    wrapper.setAttribute("data-bcode-validity", "1");
+
+    const hasOpenParen = trimmed.startsWith("(");
+    const hasCloseParen = trimmed.endsWith(")");
+    const core = trimmed.replace(/^\(/, "").replace(/\)$/, "");
+
+    const appendToken = (value, className) => {
+      const span = document.createElement("span");
+      span.className = className;
+      span.textContent = value;
+      wrapper.appendChild(span);
+    };
+
+    if (hasOpenParen) appendToken("(", "inline-bcode-validity-paren");
+    core.split(/\s+/).forEach((part, index, all) => {
+      appendToken(
+        part,
+        /^BCODe(?:\.[A-Za-z0-9._-]+)?$/i.test(part)
+          ? "inline-bcode-validity-name"
+          : "inline-bcode-validity-keyword"
+      );
+      if (index < all.length - 1) wrapper.appendChild(document.createTextNode(" "));
+    });
+    if (hasCloseParen) appendToken(")", "inline-bcode-validity-paren");
+
+    return wrapper;
+  };
+
+  const highlightBcodeValidityText = (root) => {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const parent = node.parentElement;
+        if (!parent) return NodeFilter.FILTER_REJECT;
+        return parent.closest("pre,code,script,style,mark,.inline-bcode-validity")
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const nodes = [];
+    let current;
+    while ((current = walker.nextNode())) nodes.push(current);
+
+    nodes.forEach((node) => {
+      const text = node.nodeValue;
+      BCODE_VALIDITY_TEXT_RE.lastIndex = 0;
+      if (!BCODE_VALIDITY_TEXT_RE.test(text)) return;
+
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let match;
+      BCODE_VALIDITY_TEXT_RE.lastIndex = 0;
+      while ((match = BCODE_VALIDITY_TEXT_RE.exec(text))) {
+        if (match.index > last) frag.appendChild(document.createTextNode(text.slice(last, match.index)));
+        frag.appendChild(buildBcodeValidityHighlight(match[0]));
+        last = match.index + match[0].length;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
     });
   };
 
@@ -1056,6 +1156,8 @@
     if (!src || !out) return [];
     const md = normalizeMojibake(src.textContent || "");
     out.innerHTML = window.marked ? marked.parse(md) : md;
+    highlightBcodeValidityText(out);
+    prepareInlineBcode(out);
     if (currentReaderSlug() === "intro") {
       const introAsciiHeading = [...out.querySelectorAll("h1,h2,h3,h4,h5,h6")].find(
         (h) => headingNumber(h.textContent || "") === "3.1" &&
@@ -1460,6 +1562,8 @@
 
   let readerTocLaneSyncRaf = 0;
   let readerTableLaneSyncRaf = 0;
+  let readerTableLaneMotionRaf = 0;
+  let readerTableLaneMotionTimer = 0;
   let readerChromeLaneMidTimer = 0;
   let readerChromeLaneEndTimer = 0;
 
@@ -1822,6 +1926,70 @@
   let readerTableResizeSvgSwapTimer = 0;
   let readerTableChromeMotionActive = false;
 
+  const finishReaderTableLaneMotion = (swapBack = true) => {
+    if (readerTableLaneMotionRaf) {
+      window.cancelAnimationFrame(readerTableLaneMotionRaf);
+      readerTableLaneMotionRaf = 0;
+    }
+    if (readerTableLaneMotionTimer) {
+      clearTimeout(readerTableLaneMotionTimer);
+      readerTableLaneMotionTimer = 0;
+    }
+    if (document.body) {
+      document.body.classList.remove("reader-table-lane-syncing");
+    }
+    syncReaderTableFixedLane(true);
+    if (!document.body || !document.body.classList.contains("reader-table-open")) {
+      readerTableChromeMotionActive = false;
+      return;
+    }
+    if (!swapBack) {
+      readerTableChromeMotionActive = false;
+      return;
+    }
+    if (readerTablePreloadedSvg && readerTablePreloadedSvg.complete) {
+      swapCompactChartToSvg();
+      readerTableChromeMotionActive = false;
+    } else if (readerTablePreloadedSvg) {
+      readerTablePreloadedSvg.onload = () => {
+        swapCompactChartToSvg();
+        readerTableChromeMotionActive = false;
+      };
+    } else {
+      swapCompactChartToSvg();
+      readerTableChromeMotionActive = false;
+    }
+  };
+
+  const startReaderTableLaneMotion = (duration = TOC_LAYOUT_TRANSITION_MS + 240) => {
+    if (pageType() !== "reader" || !document.body || !document.body.classList.contains("reader-table-open")) {
+      return false;
+    }
+    finishReaderTableLaneMotion(false);
+    cancelResizeSvgSwap();
+    readerTableSvgSwapPending = false;
+    const panel = document.getElementById("readerTablePane");
+    if (panel) panel.removeEventListener("transitionend", handleTableTransitionEnd);
+    const ready = primeCompactChartForResizeMotion(true);
+    if (!ready) return false;
+    document.body.classList.add("reader-table-lane-syncing");
+    const endAt = performance.now() + Math.max(180, duration);
+    const tick = () => {
+      readerTableLaneMotionRaf = 0;
+      syncReaderTableFixedLane(true);
+      if (performance.now() >= endAt) {
+        finishReaderTableLaneMotion(true);
+        return;
+      }
+      readerTableLaneMotionRaf = window.requestAnimationFrame(tick);
+    };
+    readerTableLaneMotionRaf = window.requestAnimationFrame(tick);
+    readerTableLaneMotionTimer = window.setTimeout(() => {
+      finishReaderTableLaneMotion(true);
+    }, Math.max(180, duration) + 48);
+    return true;
+  };
+
   const primeCompactChartForResizeMotion = (forcePaint = false) => {
     if (!document.body.classList.contains("reader-table-open")) return false;
     readerTableChromeMotionActive = true;
@@ -1868,7 +2036,9 @@
       clearTimeout(readerTableResizeSvgSwapTimer);
       readerTableResizeSvgSwapTimer = 0;
     }
-    readerTableChromeMotionActive = false;
+    if (!readerTableLaneMotionRaf && !readerTableLaneMotionTimer) {
+      readerTableChromeMotionActive = false;
+    }
   };
 
   const setReaderTableOpen = (open) => {
@@ -1947,7 +2117,10 @@
 
   const ensureReaderTablePanel = () => {
     if (pageType() !== "reader") return;
-    const host = document.querySelector(".reader-phantom-col");
+    const isPhoneReaderSingleCard =
+      !!document.body && document.body.classList.contains("is-phone");
+    const desktopHost = document.querySelector(".reader-phantom-col");
+    const host = isPhoneReaderSingleCard ? document.body : desktopHost;
     if (!host) return;
 
     let panel = document.getElementById("readerTablePane");
@@ -1957,6 +2130,12 @@
       panel.className = "reader-table-pane";
       panel.setAttribute("aria-label", "Compact ASCII table");
       panel.innerHTML =
+        '<div class="reader-table-head">' +
+        '<div class="reader-table-title">Compact ASCII Chart</div>' +
+        '<button type="button" class="mobile-panel-close reader-table-mobile-close" id="readerTableMobileClose" aria-label="Close compact table">' +
+        '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+        "</button>" +
+        "</div>" +
         '<div class="reader-table-actions">' +
         `<button type="button" class="ascii-preview-btn reader-table-save" id="readerTableSave" aria-label="Save compact table"><img src="${iconPath("floppy.svg")}" alt=""></button>` +
         `<button type="button" class="ascii-preview-btn reader-table-close" id="readerTableClose" aria-label="Close compact table"><img src="${iconPath("x.svg")}" alt=""></button>` +
@@ -1964,6 +2143,8 @@
         '<figure class="ascii-chart-figure reader-table-figure">' +
         `<img class="ascii-compact-theme-chart" data-preview-variant="full" src="${assetBase()}${getAsciiChartAssets(readTheme(), "compact").png}" alt="Compact ASCII reference chart">` +
         "</figure>";
+      host.appendChild(panel);
+    } else if (panel.parentElement !== host) {
       host.appendChild(panel);
     }
 
@@ -1982,6 +2163,16 @@
     if (closeBtn && !closeBtn.dataset.bound) {
       closeBtn.dataset.bound = "1";
       closeBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setReaderTableOpen(false);
+      });
+    }
+
+    const mobileCloseBtn = panel.querySelector("#readerTableMobileClose");
+    if (mobileCloseBtn && !mobileCloseBtn.dataset.bound) {
+      mobileCloseBtn.dataset.bound = "1";
+      mobileCloseBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         setReaderTableOpen(false);
@@ -2139,6 +2330,20 @@
     if (pageType() !== "reader") return;
     const reader = document.querySelector(".reader");
     if (!reader) return;
+    const linksHost = reader.querySelector(".reader-head .links");
+    const handleHost =
+      document.body &&
+      document.body.classList.contains("is-phone") &&
+      linksHost
+        ? linksHost
+        : reader;
+    const mountHandle = (handle) => {
+      if (handleHost === linksHost && linksHost) {
+        linksHost.insertBefore(handle, linksHost.firstChild || null);
+        return;
+      }
+      handleHost.appendChild(handle);
+    };
     let handle = document.querySelector(".reader-header-peek-handle");
     if (!handle) {
       handle = document.createElement("button");
@@ -2149,9 +2354,9 @@
         '<span class="reader-header-peek-line"></span>' +
         '<span class="reader-header-peek-line"></span>' +
         '<span class="reader-header-peek-line"></span>';
-      reader.appendChild(handle);
-    } else if (handle.parentElement !== reader) {
-      reader.appendChild(handle);
+      mountHandle(handle);
+    } else if (handle.parentElement !== handleHost) {
+      mountHandle(handle);
     }
 
     let hoverTimer = 0;
@@ -2811,6 +3016,13 @@
       }
       const skipTransition = !!options.skipTransition;
       const isOpeningWithTransition = !collapsed && !skipTransition;
+      const shouldTrackTableLaneMotion =
+        !skipTransition &&
+        collapsed &&
+        document.body.classList.contains("reader-table-open");
+      if (shouldTrackTableLaneMotion) {
+        startReaderTableLaneMotion(TOC_LAYOUT_TRANSITION_MS + 240);
+      }
       if (!skipTransition) {
         stageQuickJumpPaneTransition(collapsed ? "closing" : "opening");
         lockTocAutoScroll(TOC_LAYOUT_TRANSITION_MS + TOC_PANE_TRANSITION_MS + 40);
@@ -3107,6 +3319,7 @@
       window.addEventListener("resize", () => {
         invalidateReaderChromeMetrics();
         ensureReaderEndPad();
+        requestAnimationFrame(ensureReaderHeaderPeekHandle);
       });
       window.addEventListener("resize", () => {
         invalidateReaderChromeMetrics();
@@ -3474,6 +3687,7 @@
     b.classList.toggle("is-portrait", mode.endsWith("portrait"));
     b.classList.toggle("is-landscape", isMobile && !mode.endsWith("portrait"));
     const readerPage = pageType() === "reader";
+    if (readerPage) ensureReaderTablePanel();
     // Remove first-pass mobile bottom rail if present.
     const legacyRail = document.getElementById("mobileNavRail");
     if (legacyRail) legacyRail.remove();

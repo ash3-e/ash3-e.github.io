@@ -27,8 +27,12 @@
   --bcode-illegal: #EF4444;
 }
 
-pre code.hljs, code.hljs {
+pre code.hljs {
   background: transparent;
+  color: var(--bcode-plain);
+}
+
+code.hljs {
   color: var(--bcode-plain);
 }
 

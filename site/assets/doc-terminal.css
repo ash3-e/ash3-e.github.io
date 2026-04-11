@@ -7,6 +7,10 @@
   --dt-border: #c6a8ff;
   --dt-dim:    rgba(198, 168, 255, 0.62);
   --dt-faint:  rgba(198, 168, 255, 0.34);
+  --dt-panel-bg: var(--dt-bg);
+  --dt-shell-bg: var(--dt-bg);
+  --dt-surface-bg: var(--dt-bg);
+  --dt-label-bg: var(--dt-bg);
   --dt-font:   Consolas, "SFMono-Regular", Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
   --dt-fs:     13px;
   --dt-rh:     19px;
@@ -41,6 +45,10 @@
   backdrop-filter: none !important;
 }
 
+#doc-terminal-overlay #dt-command-bar {
+  border-top: none !important;
+}
+
 #doc-terminal-overlay #dt-tab-bar::after,
 #doc-terminal-overlay #dt-command-bar::after {
   content: none !important;
@@ -67,6 +75,11 @@
 #dt-toggle-btn .mode-switcher-icon {
   width: 20px;
   height: 20px;
+  filter: drop-shadow(0 1px 2px rgba(23, 8, 48, 0.35));
+}
+
+body:is(.dark, .theme-balanced, .theme-half) #dt-toggle-btn .mode-switcher-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(23, 8, 48, 0.55)) !important;
 }
 
 #dt-toggle-btn.is-active {
@@ -87,16 +100,17 @@
 
   display: grid;
   grid-template-rows: auto 1fr auto;
-  row-gap: var(--dt-frame-gap);
-  padding: var(--dt-frame-gap) 0;
+  row-gap: 0;
+  padding: 0;
 
-  background: #000000 !important;
+  background: var(--dt-panel-bg);
   color: var(--dt-fg);
   font-family: var(--dt-font);
   font-size: var(--dt-fs);
   line-height: var(--dt-rh);
 
   border: 1px solid var(--dt-border);
+  border-top: 1px solid var(--dt-border);
   overflow: hidden;
 
   transform: translate3d(0, 100%, 0);
@@ -123,7 +137,7 @@
   padding: 0 1ch;
   position: relative;
   z-index: 50;
-  background: #000000 !important;
+  background: var(--dt-shell-bg);
 }
 
 #dt-tab-strip {
@@ -159,7 +173,7 @@
 .dt-tab.dt-active {
   color: var(--dt-fg);
   border-color: var(--dt-border);
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
 }
 
 /* ── Title area: BCODe α menu + close ────────────────────────────────── */
@@ -174,7 +188,7 @@
 #dt-menu-wrap { position: relative; }
 
 #dt-menu-btn {
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   color: var(--dt-fg);
   border: 1px solid var(--dt-border);
   border-radius: 0;
@@ -198,7 +212,7 @@
   position: absolute;
   top: calc(100% + 1px);
   right: 0;
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   border: 1px solid var(--dt-border);
   z-index: 200;
   min-width: 100%;
@@ -211,7 +225,7 @@
   display: block;
   width: 100%;
   text-align: left;
-  background: transparent;
+  background: var(--dt-surface-bg);
   color: var(--dt-fg);
   border: none;
   border-bottom: 1px solid var(--dt-faint);
@@ -252,6 +266,7 @@
 #dt-main-area {
   position: relative;
   overflow: hidden;
+  background: var(--dt-panel-bg);
 }
 
 .dt-view {
@@ -268,7 +283,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1ch;
-  padding: 9px 1ch 6px;
+  padding: 6px 1ch;
   height: 100%;
 }
 
@@ -277,16 +292,17 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   position: relative;
   overflow: visible;
 }
 
 .dt-pane-label {
   position: absolute;
-  top: calc(-0.5 * var(--dt-rh) + 3px);
+  top: 0;
   left: 1ch;
-  background: var(--dt-bg);
+  transform: translateY(-50%);
+  background: var(--dt-label-bg);
   padding: 0 0.5ch;
   line-height: 1.1;
   font-size: var(--dt-fs);
@@ -298,13 +314,28 @@
 .dt-pane-body {
   flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: calc(var(--dt-rh) * 0.5) 1ch 0;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dt-border) 72%, transparent 28%) transparent;
 }
 
-.dt-pane-body::-webkit-scrollbar { display: none; }
+.dt-pane-body::-webkit-scrollbar {
+  display: block;
+  width: 9px;
+}
+
+.dt-pane-body::-webkit-scrollbar-track {
+  margin: 0;
+  background: transparent;
+}
+
+.dt-pane-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--dt-border) 72%, transparent 28%);
+  border-radius: 999px;
+}
 
 .dt-pane-foot {
   flex: 0 0 auto;
@@ -324,7 +355,7 @@
   height: calc(10 * var(--dt-rh));
   border: 1px solid var(--dt-border);
   border-bottom: none;
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -335,7 +366,7 @@
   position: absolute;
   top: calc(-0.5 * var(--dt-rh) + 1px);
   right: 2ch;
-  background: var(--dt-bg);
+  background: var(--dt-label-bg);
   padding: 0 0.5ch;
   line-height: 1;
   font-size: var(--dt-fs);
@@ -347,13 +378,89 @@
 #dt-history-body {
   flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: calc(var(--dt-rh) * 0.5) 1ch 0;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dt-border) 72%, transparent 28%) transparent;
 }
 
-#dt-history-body::-webkit-scrollbar { display: none; }
+#dt-history-body::-webkit-scrollbar {
+  display: block;
+  width: 9px;
+}
+
+#dt-history-body::-webkit-scrollbar-track {
+  margin: 0;
+  background: transparent;
+}
+
+#dt-history-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--dt-border) 72%, transparent 28%);
+  border-radius: 999px;
+}
+
+/* Non-glass: hide top pane labels only; keep history/footer labels */
+body:not([data-glass-mode="on"]) #doc-terminal-overlay .dt-pane-label {
+  display: none !important;
+}
+
+body:not([data-glass-mode="on"]) #doc-terminal-overlay .dt-pane-foot {
+  color: var(--dt-fg) !important;
+  font-weight: 700;
+}
+
+body:not([data-glass-mode="on"]) #doc-terminal-overlay .dt-history-label {
+  display: block !important;
+  color: var(--dt-fg) !important;
+  font-weight: 700;
+  top: 4px;
+  line-height: 1.2;
+  z-index: 2;
+}
+
+/* Glass: keep pane text flow to bottom (no bottom footer overlay) */
+body[data-glass-mode="on"] .dt-pane-body {
+  padding-bottom: 0;
+}
+
+body[data-glass-mode="on"] .dt-pane-foot {
+  position: absolute;
+  top: 4px;
+  right: 2ch;
+  left: auto;
+  bottom: auto;
+  padding: 0 0.5ch;
+  pointer-events: none;
+}
+
+/* Pane footer text: use as top-right title chip (all modes) */
+.dt-pane {
+  position: relative;
+}
+
+.dt-pane-foot {
+  position: absolute;
+  top: 4px;
+  right: 2ch;
+  left: auto;
+  bottom: auto;
+  padding: 0 0.5ch;
+  line-height: 1.2;
+  font-size: var(--dt-fs);
+  white-space: nowrap;
+  background: transparent;
+  color: var(--dt-fg);
+  font-weight: 700;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dt-pane-body {
+  padding-top: calc(var(--dt-rh) * 0.35);
+  padding-bottom: 0;
+}
 
 /* ── Command bar (bottom 2 rows) ─────────────────────────────────────── */
 
@@ -364,19 +471,20 @@
   min-height: calc(2 * var(--dt-rh));
   padding: 0 1ch;
   align-items: stretch;
-  background: #000000 !important;
+  background: var(--dt-shell-bg);
+  border-top: none;
 }
 
 #dt-cmd-box {
   border: 1px solid var(--dt-border);
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   min-width: 0;
   display: flex;
   align-items: stretch;
 }
 
 #dt-prompt {
-  background: var(--dt-bg);
+  background: transparent;
   color: var(--dt-fg);
   font: inherit;
   font-size: var(--dt-fs);
@@ -397,7 +505,7 @@
 }
 
 #dt-send-btn {
-  background: var(--dt-bg);
+  background: var(--dt-surface-bg);
   color: var(--dt-fg);
   font: inherit;
   font-size: var(--dt-fs);
@@ -534,8 +642,13 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Panel shell: transparent instead of #000 ────────────────────────── */
+body[data-glass-mode="on"] #doc-terminal-overlay {
+  --dt-glass-tab-active-bg: color-mix(in srgb, var(--glass-bg-code) 78%, transparent 22%);
+}
+
 body[data-glass-mode="on"] #doc-terminal-panel {
   background: var(--glass-bg-code) !important;
+  border-bottom: none !important;
 }
 
 /* ── Elements that had explicit black/dt-bg backgrounds ──────────────── */
@@ -544,16 +657,40 @@ body[data-glass-mode="on"] #dt-command-bar {
   background: transparent !important;
 }
 
-body[data-glass-mode="on"] #doc-terminal-overlay #dt-tab-bar {
-  transform: translateY(calc(var(--dt-frame-gap) - 1px)) !important;
+/* Geometry lock: remove vertical offset so both modes share the same seam alignment */
+#doc-terminal-overlay #dt-tab-bar {
+  transform: none !important;
+}
+
+#dt-main-area {
+  transform: none;
+}
+
+/* Non-glass: enforce true black terminal surfaces (no gray shell bleed-through) */
+body:not([data-glass-mode="on"]) #doc-terminal-overlay :is(#doc-terminal-panel, #dt-tab-bar, #dt-main-area, #dt-command-bar, #dt-cmd-box, #dt-send-btn, .dt-pane, #dt-history-panel) {
+  background: var(--dt-bg) !important;
 }
 
 body[data-glass-mode="on"] #dt-main-area {
-  transform: translateY(calc(var(--dt-frame-gap) - 1px));
+  background: var(--dt-glass-tab-active-bg) !important;
+}
+
+body[data-glass-mode="on"] #dt-command-bar {
+  background: var(--dt-glass-tab-active-bg) !important;
+}
+
+/* Dark/balanced glass: explicitly extend tab surface fill through terminal bottom */
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(#dt-main-area, #dt-command-bar) {
+  background: var(--dt-glass-tab-active-bg) !important;
 }
 
 body[data-glass-mode="on"] #dt-tab-bar {
+  align-items: flex-end;
   border-bottom-color: var(--glass-border) !important;
+}
+
+body[data-glass-mode="on"] .dt-tab {
+  bottom: -1px;
 }
 
 body[data-glass-mode="on"] #dt-toggle-btn,
@@ -571,13 +708,28 @@ body[data-glass-mode="on"] #dt-history-panel {
 
 body[data-glass-mode="on"] #dt-cmd-box {
   border-color: var(--glass-border) !important;
-  background: transparent !important;
+  background: color-mix(in srgb, var(--glass-bg-code) 78%, transparent 22%) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+  border-top-color: var(--glass-border) !important;
 }
 
 body[data-glass-mode="on"] .dt-tab.dt-active {
-  background: color-mix(in srgb, var(--glass-bg-code) 78%, transparent 22%) !important;
+  position: relative;
+  z-index: 3;
+  background: var(--dt-glass-tab-active-bg) !important;
+}
+
+/* Glass: break the tab-divider line under the active tab (non-glass parity) */
+body[data-glass-mode="on"] .dt-tab.dt-active::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: 0;
+  height: 1px;
+  background: var(--dt-glass-tab-active-bg);
+  pointer-events: none;
 }
 
 body[data-glass-mode="on"] .dt-pane-label,
@@ -589,19 +741,88 @@ body[data-glass-mode="on"] #dt-prompt {
   background: transparent !important;
 }
 
-/* ── Light glass mode — TUI surface swaps ─────────────────────────────── */
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-panel {
-  background: var(--tui-panel-surface) !important;
+/* ── Light glass mode — terminal reuses dark-glass tokens 1:1 ─────────── */
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-overlay {
+  --glass-bg: rgba(8, 4, 20, 0.72);
+  --glass-bg-main: rgba(8, 4, 20, 0.54);
+  --glass-bg-elevated: rgba(14, 8, 32, 0.82);
+  --glass-bg-elevated-main: rgba(14, 8, 32, 0.62);
+  --glass-bg-overlay: rgba(10, 6, 24, 0.90);
+  --glass-bg-input: rgba(6, 2, 16, 0.68);
+  --glass-bg-chrome: rgba(10, 6, 24, 0.78);
+  --glass-bg-chrome-main: rgba(10, 6, 24, 0.58);
+  --glass-bg-code: rgba(4, 2, 12, 0.80);
+  --glass-border: rgba(198, 168, 255, 0.14);
+  --glass-border-bright: rgba(198, 168, 255, 0.28);
+  --glass-border-subtle: rgba(198, 168, 255, 0.06);
+  --glass-blur: 24px;
+  --glass-blur-heavy: 36px;
+  --glass-saturate: 1.8;
 }
 
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-toggle-btn,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-menu-btn,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-menu-drop,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .dt-menu-item,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-send-btn,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .dt-pane,
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-history-panel {
-  background: var(--tui-shell-surface) !important;
+/* Light-glass: ensure terminal chrome lines are present and readable */
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(#doc-terminal-panel, #dt-tab-bar, #dt-command-bar, #dt-menu-btn, #dt-menu-drop, .dt-menu-item, #dt-send-btn, .dt-pane, #dt-history-panel, #dt-cmd-box, .dt-tab.dt-active) {
+  border-color: color-mix(in srgb, var(--dt-border) 70%, rgba(198, 168, 255, 0.58) 30%) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-tab-bar {
+  border-bottom: 1px solid color-mix(in srgb, var(--dt-border) 76%, rgba(198, 168, 255, 0.64) 24%) !important;
+  border-bottom-color: color-mix(in srgb, var(--dt-border) 72%, rgba(198, 168, 255, 0.56) 28%) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-prompt {
+  border-right-color: color-mix(in srgb, var(--dt-faint) 78%, rgba(198, 168, 255, 0.46) 22%) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(#dt-menu-btn, #dt-menu-drop, #dt-send-btn, .dt-pane, #dt-history-panel, #dt-cmd-box) {
+  border-style: solid !important;
+  border-width: 1px !important;
+}
+
+/* Light-glass: keep active tab baseline identical to dark/balanced + non-glass */
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .dt-tab.dt-active {
+  border-bottom: none !important;
+  bottom: -1px !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-cmd-input {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition: none !important;
+  animation: none !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-cmd-input:focus {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Prevent global glass input focus effects from bleeding into terminal input */
+body[data-glass-mode="on"] #doc-terminal-overlay :is(#dt-cmd-input, input[type="text"]#dt-cmd-input, input[type="search"]#dt-cmd-input),
+body[data-glass-mode="on"] #doc-terminal-overlay :is(#dt-cmd-input, input[type="text"]#dt-cmd-input, input[type="search"]#dt-cmd-input):focus {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #dt-toggle-btn .mode-switcher-icon {
+  filter: drop-shadow(0 1px 2px rgba(23, 8, 48, 0.35)) !important;
 }
 
 /* ── Light glass — label color + bold treatment ──────────────────────── */
@@ -622,4 +843,63 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .dt-
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .dt-pane-foot {
   color: var(--dt-light-glass-label-color) !important;
   font-weight: 700;
+}
+
+/* Glass terminal cleanup: bottom labels only, no command/send fills */
+body[data-glass-mode="on"] .dt-pane-label {
+  display: none !important;
+}
+
+body[data-glass-mode="on"] :is(#dt-send-btn, #dt-menu-btn) {
+  background: transparent !important;
+}
+
+body[data-glass-mode="on"] #dt-send-btn {
+  border-top-color: var(--glass-border) !important;
+}
+
+body[data-glass-mode="on"] #dt-send-btn:hover,
+body[data-glass-mode="on"] #dt-send-btn:focus-visible,
+body[data-glass-mode="on"] #dt-menu-btn:hover,
+body[data-glass-mode="on"] #dt-menu-btn:focus-visible {
+  background: transparent !important;
+}
+
+/* Glass: force BCODe alpha + send arrow buttons to true no-fill */
+body[data-glass-mode="on"] #doc-terminal-overlay :is(#dt-send-btn, #dt-menu-btn, #dt-send-btn:hover, #dt-send-btn:focus-visible, #dt-menu-btn:hover, #dt-menu-btn:focus-visible) {
+  background: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Light mode terminal tuning: lower history header/content and show scrollbars */
+body:not(.dark):not(.theme-balanced):not(.theme-half) .dt-history-label {
+  top: 4px;
+  line-height: 1.2;
+  z-index: 2;
+}
+
+body:not(.dark):not(.theme-balanced):not(.theme-half) #dt-history-body {
+  padding-top: calc(var(--dt-rh) * 0.75);
+}
+
+body:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-overlay :is(#dt-history-body, #dt-feed-body) {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dt-border) 72%, transparent 28%) transparent;
+}
+
+body:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-overlay :is(#dt-history-body, #dt-feed-body)::-webkit-scrollbar {
+  display: block;
+  width: 9px;
+}
+
+body:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-overlay :is(#dt-history-body, #dt-feed-body)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body:not(.dark):not(.theme-balanced):not(.theme-half) #doc-terminal-overlay :is(#dt-history-body, #dt-feed-body)::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--dt-border) 72%, transparent 28%);
+  border-radius: 999px;
 }

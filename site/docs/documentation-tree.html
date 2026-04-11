@@ -5,14 +5,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Documentation</title>
-  <link rel="stylesheet" href="../assets/codex-styles.css" />
+  <link rel="stylesheet" href="../assets/tree-styles.css" />
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
   <link rel="stylesheet" href="../assets/hljs-theme.css">
 </head>
 
-<body data-page-type="hub" data-agent="codex">
-  <script>(function(){try{var d=document,b=d.body;if(!b)return;var m=localStorage.getItem('bcode-docs-theme');if(m==='half'||m==='auto')m='balanced';if(!/^(light|balanced|dark)$/.test(m||''))m='light';var l=localStorage.getItem('bcode-lavalamp-enabled');var on=l==null||(l!=='0'&&l!=='false');var s=parseFloat(localStorage.getItem('bcode-doc-text-scale'));if(!isFinite(s))s=1;s=Math.max(0.7,Math.min(1.3,s));b.classList.add('theme-'+m);if(m!=='light')b.classList.add('dark');b.classList.add(on?'lava-enabled':'lava-disabled');b.dataset.themeMode=m;b.dataset.lavaEnabled=on?'1':'0';d.documentElement.style.setProperty('--doc-font-scale',String(s));if(b.dataset.pageType==='reader'){var w=window.innerWidth||0,sw=screen.width||3840,split=w>=600&&(w<=1120||w<=Math.round(sw*0.55));b.classList.toggle('codex-split-view',split);if(split&&!b.classList.contains('meta-collapsed'))b.classList.add('meta-collapsed');}}catch(e){}})();</script>
+<body data-page-type="hub" data-agent="tree">
   <header>
     <div class="header-content">
       <a class="brand" href="../index.html" aria-label="Home">
@@ -28,16 +27,16 @@
   <main>
     <div class="container">
       <div class="stack">
-        <section class="card codex-hero-card mode-switcher-host">
-          <div class="mode-switcher-wrap codex-mode-switcher-wrap">
-            <button type="button" class="mode-switcher" id="codexThemeToggle" aria-expanded="false" aria-label="Theme switcher">
-              <img class="mode-switcher-icon" id="codexThemeIcon" alt="">
+        <section class="card tree-hero-card mode-switcher-host">
+          <div class="mode-switcher-wrap tree-mode-switcher-wrap">
+            <button type="button" class="mode-switcher" id="treeThemeToggle" aria-expanded="false" aria-label="Theme switcher">
+              <img class="mode-switcher-icon" id="treeThemeIcon" alt="">
               <span class="mode-caret">&#9662;</span>
             </button>
-            <button type="button" class="mode-switcher lava-toggle" id="codexLavaToggle" aria-pressed="true" aria-label="Toggle lava lamp background">
+            <button type="button" class="mode-switcher lava-toggle" id="treeLavaToggle" aria-pressed="true" aria-label="Toggle lava lamp background">
               <img class="mode-switcher-icon lava-toggle-icon" src="../assets/lava.svg" alt="Lava lamp">
             </button>
-            <div class="mode-switcher-menu" id="codexThemeMenu">
+            <div class="mode-switcher-menu" id="treeThemeMenu">
               <div class="mode-switcher-row">
                 <button type="button" class="mode-switcher-item" data-mode="light">
                   <img class="mode-switcher-item-icon" src="../assets/sun.svg" alt="">
@@ -64,48 +63,58 @@
               <img class="reader-search-input-icon" src="../assets/magnify.svg" alt="">
               <input id="docSearch" class="dock-input" type="search" placeholder="Search documentation..."
                 aria-label="Search documentation">
-              <button type="button" id="codexSearchClear" class="codex-search-clear" aria-label="Clear search">&times;</button>
+              <button type="button" id="treeSearchClear" class="tree-search-clear" aria-label="Clear search">&times;</button>
             </div>
-            <span class="codex-search-meta" id="codexSearchMeta" aria-live="polite">Search within Documentation</span>
+            <span class="tree-search-meta" id="treeSearchMeta" aria-live="polite">Search within Documentation</span>
           </div>
-          <div class="codex-search-help" aria-hidden="true">
-            <div class="codex-sitemap-legend">
-              <span class="codex-legend-pill">Click Selects Preview</span>
-              <span class="codex-legend-pill">Double Click to Jump to Document</span>
-              <span class="codex-legend-pill">Search for Contextual Preview</span>
-              <span class="codex-legend-pill">Scroll Preview</span>
+          <div class="tree-search-help" aria-hidden="true">
+            <div class="tree-sitemap-legend">
+              <span class="tree-legend-pill">Click Selects Preview</span>
+              <span class="tree-legend-pill">Double Click to Jump to Document</span>
+              <span class="tree-legend-pill">Search for Contextual Preview</span>
+              <span class="tree-legend-pill">Scroll Preview</span>
             </div>
           </div>
         </section>
 
-        <section class="card codex-sitemap-card">
-          <div class="codex-sitemap-shell" id="codexSitemapShell">
-            <svg class="codex-sitemap-connectors" id="codexSitemapConnectors" aria-hidden="true"></svg>
-            <div class="codex-sitemap-tree" id="codexSitemapTree"></div>
-          </div>
-          <section class="card codex-gallery-card" id="codexGalleryCard" tabindex="0">
-            <div class="codex-gallery-eyebrow">Example Gallery</div>
-            <div class="codex-gallery-head">
-              <h2 class="codex-gallery-title">Example Gallery</h2>
-              <span class="codex-gallery-badge">intro subtree</span>
+        <section class="card tree-sitemap-card">
+          <div class="tree-sitemap-shell" id="treeSitemapShell">
+            <div class="tree-sitemap-stage" id="treeSitemapStage">
+              <svg class="tree-sitemap-connectors" id="treeSitemapConnectors" aria-hidden="true"></svg>
+              <div class="tree-sitemap-tree" id="treeSitemapTree"></div>
+              <svg class="tree-sitemap-connectors tree-sitemap-connectors-overlay" id="treeSitemapConnectorsOverlay" aria-hidden="true"></svg>
             </div>
-            <div class="codex-gallery-body">
-              <div class="codex-example-gallery-list" id="codexExampleGalleryList"></div>
+          </div>
+          <section class="card tree-gallery-card" id="treeGalleryCard" tabindex="0">
+            <div class="tree-gallery-eyebrow">Example Gallery</div>
+            <div class="tree-gallery-head">
+              <h2 class="tree-gallery-title">Example Gallery</h2>
+              <span class="tree-gallery-badge">intro subtree</span>
+            </div>
+            <div class="tree-gallery-body">
+              <div class="tree-example-gallery-list" id="treeExampleGalleryList"></div>
             </div>
           </section>
-          <section class="card codex-preview-card" id="codexPreviewCard" tabindex="0" aria-live="polite">
-            <div class="codex-preview-eyebrow">Documentation Preview</div>
-            <div class="codex-preview-head">
+          <section class="card tree-preview-card" id="treePreviewCard" tabindex="0" aria-live="polite">
+            <div class="tree-preview-eyebrow">Documentation Preview</div>
+            <div class="tree-preview-head">
               <div>
-                <h2 id="codexPreviewTitle">Intro</h2>
-                <p id="codexPreviewMeta">bcode-intro-v2</p>
+                <h2 id="treePreviewTitle">Intro</h2>
+                <p id="treePreviewMeta">bcode-intro-v2</p>
               </div>
-              <button type="button" class="codex-preview-action" id="codexPreviewOpen">Open &rarr;</button>
+              <div class="tree-preview-head-actions">
+                <button type="button" class="tree-preview-action" id="treePreviewOpen">Open &rarr;</button>
+                <button type="button" class="mobile-panel-close tree-preview-mobile-close" id="treePreviewMobileClose" aria-label="Close preview">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div class="codex-preview-body" id="codexPreviewBody">
-              <p id="codexPreviewSummary"></p>
-              <div class="codex-preview-snippet" id="codexPreviewSnippet"></div>
-              <div class="codex-preview-subrows" id="codexPreviewSubrows"></div>
+            <div class="tree-preview-body" id="treePreviewBody">
+              <p id="treePreviewSummary"></p>
+              <div class="tree-preview-snippet" id="treePreviewSnippet"></div>
+              <div class="tree-preview-subrows" id="treePreviewSubrows"></div>
             </div>
           </section>
         </section>
@@ -126,11 +135,11 @@
       <p class="footer-right">BCODe</p>
     </div>
   </footer>
-  <script src="../assets/codex-docs-data.js"></script>
+  <script src="../assets/tree-docs-data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="../assets/bcode_lang.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="../assets/codex-site.js"></script>
+  <script src="../assets/tree-site.js"></script>
   <script src="../assets/lavalamp.js"></script>
 </body>
 
