@@ -1,0 +1,27 @@
+Relativity — plaintext transcript
+
+Overview
+This compact sheet introduces the transition from Newtonian or Galilean kinematics to special relativity. The note derives time dilation from a light-clock argument, discusses simultaneity failure, introduces the rear-clock-ahead effect, and rewrites velocity addition for moving reference frames.
+
+Core rewrite
+Under Galilean motion one would write
+$$\Delta x=\Delta x' + v\Delta t', \qquad \Delta t=\Delta t',$$
+but this fails when the speed of light must be the same in every inertial frame. A light-clock round-trip argument gives the relativistic factor
+$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}},$$
+and the dilated time interval
+$$\Delta t=\gamma t_0.$$
+
+Light-clock relation
+The page writes the round-trip light speed schematically as
+$$c=\frac{2L}{t_A+t_B},$$
+then shows how moving clocks appear slower by the factor $$\gamma$$.
+
+Simultaneity and velocity addition
+Relativity of simultaneity appears as a clock offset, summarized here by the rear-clock-ahead expression
+$$\Delta t_{RL}=\frac{Lv}{c^2}.$$
+Motion between frames is not simple arithmetic; instead the note records the relativistic addition law
+$$u'=\frac{v+u}{1+vu/c^2}.$$
+The sheet also uses geometric velocity decompositions such as $$u=\sqrt{u_p^2+u_s^2}$$ to discuss component reasoning in diagrams.
+
+Search terms
+Galilean transformation, special relativity, light clock, time dilation, simultaneity, rear clock ahead, velocity addition, inertial frames, speed of light postulate.

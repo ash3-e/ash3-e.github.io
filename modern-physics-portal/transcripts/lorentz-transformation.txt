@@ -1,0 +1,35 @@
+Lorentz Transformation — plaintext transcript
+
+Overview
+This is a fuller relativity sheet built around the Lorentz transformation. It includes interval invariance, velocity transformation, Minkowski diagrams, light cones, pole-and-barn reasoning, twin-paradox timing sketches, Doppler-style pulse timing, and the relativistic energy-momentum relation.
+
+Core rewrite
+Coordinates between two inertial frames are related by
+$$\Delta x=\gamma(\Delta x' + v\,\Delta t'),$$
+$$\Delta t=\gamma\left(\Delta t' + \frac{v}{c^2}\Delta x'\right),$$
+$$\Delta x'=\gamma(\Delta x-v\,\Delta t),$$
+$$\Delta t'=\gamma\left(\Delta t-\frac{v}{c^2}\Delta x\right),$$
+where
+$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}.$$
+
+Velocity transformation
+The x-component transforms as
+$$u'_x=\frac{u_x-v}{1-u_xv/c^2},$$
+while the transverse component is reduced by an extra gamma factor:
+$$u'_y=\frac{u_y}{\gamma(1-u_xv/c^2)}.$$
+These formulas preserve the invariance of the speed of light.
+
+Spacetime geometry
+The notes stress the invariant interval
+$$(\Delta s)^2=(c\Delta t)^2-(\Delta x)^2.$$
+A Minkowski light cone divides events into timelike regions that can influence one another and spacelike regions that cannot. Diagrams on the page also connect this geometry to length contraction, time dilation, and the pole-and-barn thought experiment.
+
+Extra relativity topics
+A later section sketches the twin paradox and a light-pulse timing argument that produces Doppler-shift style frequency changes. The energy-momentum relation is summarized by
+$$E^2=(pc)^2+(mc^2)^2,$$
+together with
+$$E=\gamma mc^2\approx mc^2+\frac12 mv^2$$
+in the low-speed limit.
+
+Search terms
+Lorentz transformation, Minkowski diagram, light cone, interval invariance, time dilation, length contraction, twin paradox, Doppler shift, relativistic momentum, relativistic energy.

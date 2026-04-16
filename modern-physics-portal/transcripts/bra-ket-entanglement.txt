@@ -1,0 +1,31 @@
+Bra-ket - Entanglement — plaintext transcript
+
+Overview
+These notes introduce Dirac bra-ket notation, wavefunction inner products, polarization states, Malus' law, entangled photon pairs, Bell correlations, and the EPR argument against local hidden-variable explanations.
+
+Core rewrite
+A ket stores the state vector,
+$$|v\rangle = (v_1, v_2, \dots)^T,$$
+and the corresponding bra is its complex-conjugate transpose,
+$$\langle v| = (v_1^*, v_2^*, \dots).$$
+For continuous wavefunctions the inner product is
+$$\langle u|v\rangle = \int u^*(x) v(x)\,dx.$$
+Normalized states satisfy
+$$\langle \psi | \psi \rangle = 1.$$
+
+Linear polarization is written as a superposition of horizontal and vertical basis states,
+$$\mathbf{E} = \alpha |H\rangle + \beta |V\rangle.$$
+Passage through a polarizer obeys Malus' law,
+$$I = I_0 \cos^2 \theta.$$
+
+Entanglement section
+A standard maximally entangled two-photon state is
+$$|\Phi^+\rangle = \frac{1}{\sqrt{2}}\left(|HH\rangle + |VV\rangle\right).$$
+Correlations depend on analyzer settings through expressions such as
+$$E(a,b)=\cos 2(a-b).$$
+Bell-test combinations are formed from
+$$S = E(a,b) - E(a,b') + E(a',b) + E(a',b').$$
+The notes connect this with EPR reasoning and the failure of local hidden-variable models to reproduce the observed quantum correlations.
+
+Search terms
+bra-ket, Dirac notation, inner product, normalization, polarization, Malus law, entangled photons, EPR, Bell inequality, local hidden variables, horizontal, vertical.

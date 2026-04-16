@@ -1,0 +1,35 @@
+Quantization — plaintext transcript
+
+Overview
+These notes explain why bound systems have discrete states. The sheet moves through particle-in-a-box solutions, harmonic oscillators, finite square wells, vibrating strings, and photon modes in cavities to show how boundary conditions create quantized wavelengths and energies.
+
+Core rewrite
+For a one-dimensional box of length $$L$$ the normalized stationary states are
+$$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\left(\frac{n\pi x}{L}\right),$$
+with quantized wave number
+$$k_n=\frac{n\pi}{L}.$$
+The corresponding energy spectrum is
+$$E_n=\frac{\hbar^2 k_n^2}{2m}=\frac{n^2\pi^2\hbar^2}{2mL^2}.$$
+
+Harmonic oscillator
+For the potential
+$$V(x)=\frac12 Kx^2,$$
+the quantum oscillator has evenly spaced energy levels
+$$E_n=\hbar\omega\left(n+\frac12\right).$$
+
+Time dependence and finite wells
+Stationary states pick up a phase
+$$\psi(x,t)=\psi(x)e^{-iEt/\hbar},$$
+while the time-independent Schrödinger equation follows from
+$$i\hbar\frac{\partial \psi}{\partial t}=\left(-\frac{\hbar^2}{2m}\frac{d^2}{dx^2}+U(x)\right)\psi.$$
+In a finite square well the exponentially decaying region is controlled by
+$$\kappa=\sqrt{\frac{2m(U-E)}{\hbar^2}},$$
+and matching conditions lead to transcendental relations such as
+$$\tan\left(\frac{k a}{2}\right)=\frac{\sqrt{\beta^2-k^2}}{k}.$$
+
+Cavity and mode language
+The notes extend the same idea to strings and optical cavities: allowed wavelengths are those that fit the boundary conditions, so mode numbers are discrete,
+$$N_n = 0,1,2,\dots.$$
+
+Search terms
+quantization, particle in a box, harmonic oscillator, finite square well, boundary conditions, cavity modes, stationary states, discrete spectrum.

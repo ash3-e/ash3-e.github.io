@@ -1,0 +1,30 @@
+Waves — plaintext transcript
+
+Overview
+These notes rewrite the wave-mechanics sheet on multidimensional plane waves, wavevectors, polarization, phase and group velocity, de Broglie relations, the Schrödinger equation, interference, diffraction, and standing-wave boundary conditions.
+
+Core rewrite
+A general plane wave is written as
+$$\psi(\mathbf{r},t)=A\cos(\mathbf{k}\cdot\mathbf{r}-\omega t+\phi),$$
+where
+$$\mathbf{k}\cdot\mathbf{r}=k_xx+k_yy+k_zz.$$
+The wavelength is tied to the wavevector magnitude by
+$$\lambda=\frac{2\pi}{|\mathbf{k}|}.$$
+Phase and group velocity are distinguished by
+$$v_p=\frac{\omega}{k}, \qquad v_g=\frac{d\omega}{dk}.$$
+
+Electromagnetic and matter waves
+Polarization is described with field components such as
+$$\mathbf{E}=(E_x,E_y,E_z).$$
+The de Broglie relations identify matter-wave parameters through
+$$p=\hbar k,\qquad E=\hbar\omega.$$
+This leads into the Schrödinger equation,
+$$i\hbar\frac{\partial \psi}{\partial t}=-\frac{\hbar^2}{2m}\nabla^2\psi+U\psi.$$
+
+Classical wave equation and interference
+The classical wave equation is
+$$\frac{\partial^2 y}{\partial x^2}=\frac{1}{v^2}\frac{\partial^2 y}{\partial t^2}.$$
+The notes also discuss superposition, constructive and destructive interference, Fraunhofer-style far-field ideas, standing-wave boundary conditions, and quantized modes on strings or in boxes.
+
+Search terms
+plane wave, wavevector, polarization, phase velocity, group velocity, de Broglie relation, Schrödinger equation, standing wave, interference, diffraction, Fraunhofer.

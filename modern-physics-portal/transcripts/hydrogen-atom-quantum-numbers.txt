@@ -1,0 +1,32 @@
+Hydrogen Atom - Quantum Numbers — plaintext transcript
+
+Overview
+This sheet rewrites the hydrogen-atom notes linking the Coulomb potential to bound states, Bohr-scale atomic structure, orbital and spin quantum numbers, degeneracy, angular momentum, and orbital notation.
+
+Core rewrite
+The electron in hydrogen moves in the Coulomb potential
+$$V(r)=-\frac{e^2}{4\pi \varepsilon_0 r}.$$
+The characteristic atomic length is the Bohr radius
+$$a_0=\frac{4\pi \varepsilon_0 \hbar^2}{m_e e^2}.$$
+Bound-state energies are quantized as
+$$E_n=-\frac{13.6\,\text{eV}}{n^2}, \qquad n=1,2,3,\dots.$$
+
+Quantum numbers
+The principal quantum number is $$n$$. For a given $$n$$ the orbital angular-momentum quantum number runs over
+$$\ell = 0,1,\dots,n-1,$$
+and the magnetic quantum number is
+$$m_\ell = -\ell,-\ell+1,\dots,\ell.$$
+Electron spin adds
+$$m_s = \pm \frac12.$$
+
+Angular momentum structure
+Orbital angular momentum has magnitude
+$$L^2=\ell(\ell+1)\hbar^2,$$
+with z-component
+$$L_z = m_\ell \hbar.$$
+The spatial wavefunction is built from a radial factor and spherical harmonic:
+$$\psi_{n\ell m}(r,\theta,\phi)=R_{n\ell}(r)Y_\ell^m(\theta,\phi).$$
+The notes also gesture toward orbital pictures, degeneracy of states at fixed $$n$$, and the relation between quantum numbers and atomic spectroscopy.
+
+Search terms
+hydrogen atom, Coulomb potential, Bohr radius, quantum numbers, principal quantum number, orbital angular momentum, magnetic quantum number, spin quantum number, spherical harmonics, atomic orbitals.

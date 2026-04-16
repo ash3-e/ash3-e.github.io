@@ -1,0 +1,28 @@
+Bose-fermi Distributions — plaintext transcript
+
+Overview
+This sheet compares bosons and fermions through counting rules, equilibrium distributions, density of states, detailed balance, and condensed-matter applications such as Cooper pairs, superconductivity, semiconductors, and doped materials.
+
+Core rewrite
+Bosons can occupy the same quantum state in unrestricted numbers,
+$$N_B = 0,1,2,\dots,$$
+while fermions obey the Pauli exclusion principle,
+$$N_F = 0 \text{ or } 1.$$
+At thermal equilibrium the occupation numbers are
+$$f_B(E)=\frac{1}{e^{(E-\mu)/k_B T}-1}$$
+for bosons and
+$$f_F(E)=\frac{1}{e^{(E-\mu)/k_B T}+1}$$
+for fermions. In the dilute or classical limit both reduce approximately to Maxwell–Boltzmann form
+$$f_{\text{MB}}(E)\approx e^{-(E-\mu)/k_B T}.$$
+
+The number of states in an energy interval is built from the density of states:
+$$N(E)\,dE = D(E) f(E)\,dE.$$
+Transition rates carry enhancement or blocking factors. Bosonic final states are stimulated by existing occupation, whereas fermionic final states are suppressed by exclusion:
+$$W_{1\to2}\propto N_1(1\pm N_2).$$
+Detailed balance states that forward and reverse processes match in equilibrium.
+
+Physical interpretation
+The notes connect the distributions to low-temperature fermion filling near the Fermi energy, bosonic condensation tendencies, and the formation of Cooper pairs in superconductors. They also discuss semiconductors, p-type and n-type doping, conduction and valence bands, and the way carrier occupation depends on temperature and available states.
+
+Search terms
+Bose-Einstein, Fermi-Dirac, Maxwell-Boltzmann, detailed balance, density of states, Pauli exclusion, bosons, fermions, superconductivity, Cooper pair, semiconductor, doping, Fermi energy.
