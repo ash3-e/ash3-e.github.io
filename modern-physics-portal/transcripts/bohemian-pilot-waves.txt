@@ -1,57 +1,31 @@
 Bohemian Pilot Waves
 Overview
-Best-effort Bohmian-mechanics notes on pilot waves, guidance equations, collapse alternatives, and the polar decomposition of the Schrödinger equation.
+These notes treat Bohmian mechanics as a hidden-variable alternative to ordinary collapse language. The page seems to compare Bohmian pilot waves with spontaneous-collapse ideas and with Many-Worlds, then rewrites the Schrödinger equation in polar form so that probability flow and phase dynamics appear as separate equations.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Core construction
+Write the wavefunction in polar form:
+$$\psi = R e^{iS/\hbar}.$$
+Then the density is
+$$\rho = R^2 = |\psi|^2.$$
+Splitting the Schrödinger equation into real and imaginary parts gives a continuity equation
+$$\frac{\partial \rho}{\partial t} + \nabla \cdot \left( \rho \frac{\nabla S}{m} \right) = 0,$$
+together with a Hamilton--Jacobi-like phase equation
+$$\frac{\partial S}{\partial t} + \frac{(\nabla S)^2}{2m} + U + Q = 0,$$
+where the quantum potential is
+$$Q = -\frac{\hbar^2}{2m}\frac{\nabla^2 R}{R}.$$
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Physical picture
+The note is using the standard Bohmian reading that both the wave and the particle position are physically real. The guidance law is
+$$\mathbf{v} = \frac{\nabla S}{m}, \qquad \mathbf{p} = \nabla S.$$
+Measurement probabilities are still summarized by the Born rule
+$$P(\text{measurement})=|\psi|^2,$$
+but collapse is interpreted effectively rather than as a fundamental random jump of the ontology.
 
-Core equations
-Equation 1
-$$\psi=Re^{iS/\hbar}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+Comparisons and criticisms
+The page also appears to compare Bohmian mechanics to spontaneous-collapse models and Many-Worlds. It flags familiar concerns: difficulty extending the theory cleanly to relativistic situations, awkwardness for photons or phonons, the appearance of a preferred slicing or preferred frame in some formulations, and strange trajectory behavior near nodes.
 
-Equation 2
-$$\rho=R^2=|\psi|^2$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+Measurement examples on the same sheet
+The lower part of the page appears to return to polarization and spin chains. The point there is that successive measurements depend on basis choice: inserting an intermediate 45 degree analyzer changes the surviving state and changes the final transmitted fraction. So the page is connecting interpretation talk back to standard Born-rule laboratory examples.
 
-Equation 3
-$$\frac{\partial \rho}{\partial t}+\nabla\cdot\left(\rho\frac{\nabla S}{m}\right)=0$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 4
-$$\mathbf{v}=\frac{\nabla S}{m}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 5
-$$Q=-\frac{\hbar^2}{2m}\frac{\nabla^2 R}{R}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 6
-$$\frac{\partial S}{\partial t}+\frac{(\nabla S)^2}{2m}+U+Q=0$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 7
-$$i\hbar\frac{\partial \psi}{\partial t}=\left(-\frac{\hbar^2}{2m}\nabla^2+U\right)\psi$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 8
-$$P(\text{measurement})=|\psi|^2$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 9
-$$\mathbf{p}=\nabla S$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$\oint \mathbf{p}\cdot d\mathbf{r}=nh$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Bohemian Pilot Waves.
-Category: notes.
-Page count: 1.
-
-Search terms
-Bohemian, Pilot, Waves, Best-effort, Bohmian-mechanics, guidance, equations, collapse, alternatives, polar, decomposition, Schr
+Recovered page cues
+Recovered phrases from the original page include: Bohemian Pilot Waves; Spontaneous Collapse; Bohmian Pilot waves; entangledC relativistic collapse; explanation; = -EmY2R+MRIXsk+ UR; similar to velocity; * H = Reis/h; similar to phase; in an egh w/.

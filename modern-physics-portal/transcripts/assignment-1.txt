@@ -1,57 +1,26 @@
 Assignment 1
 Overview
-Homework on introductory special relativity: simultaneity offsets, the rear-clock-ahead result, and slowly transporting synchronized clocks between events.
+Homework on introductory special relativity: simultaneity offsets, the rear-clock-ahead result, and slowly transporting synchronized clocks between events. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Problem coverage
+The set is centered on introductory special relativity. The pages clearly include clock synchronization, the rear-clock-ahead effect, slow clock transport, the rotated-square optical appearance problem, the pole-and-barn paradox, magnetic force from length contraction, relativistic velocity composition, and equal-speed observer problems. The assignment is using many standard Morin-style exercises to force the same lesson from different directions: simultaneity is frame dependent, and careful frame choice is essential.
 
-The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
+Key equations
 
-Core equations
-Equation 1
 $$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Equation 2
 $$x'=\gamma(x-vt)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Equation 3
 $$t'=\gamma\left(t-\frac{vx}{c^2}\right)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Equation 4
 $$\Delta t=\gamma\left(\Delta t'-\frac{v\Delta x'}{c^2}\right)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Equation 5
 $$L=\gamma l$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Equation 6
 $$\Delta t_{RL}=\frac{Lv}{c^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 7
-$$\Delta t_{\text{dil}}=\gamma\Delta \tau$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
+How to use this page
+Read each displayed relation as solving one of four jobs: transforming between frames, enforcing normalization, matching boundary conditions, or combining amplitudes/phases correctly. That is the logic tying the handwritten algebra together.
 
-Equation 8
-$$\sqrt{1-\epsilon}\approx 1-\frac{\epsilon}{2}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 9
-$$t_B-t_C\to 0\quad(v\to 0)$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$c\Delta t=\Delta x\quad\text{for light}$$
-This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
-
-Context clues
-Title focus: Assignment 1.
-Category: assignments.
-Page count: 5.
-
-Search terms
-introductory, special, relativity, simultaneity, offsets, rear-clock-ahead, result, slowly, transporting, synchronized, clocks, between
+Recovered page cues
+Recovered phrases from the original page include: Assignment 1; Physics 477, Homework 1; Due 2026 Jan 16; Name:; Date:; Class:; 1. Morin 1.1: Consistency with Lv/c2; Show that the tR tL di!erence of the times in Eq. (1.6) (where l is half the length of the train in the ground; frame) is consistent with the Lv/c2 rear-clock-ahead result (where L is the proper length of the train).; 2. Morin 1.3: Synchronizing Clocks.

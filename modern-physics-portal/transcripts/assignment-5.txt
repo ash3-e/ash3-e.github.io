@@ -1,57 +1,26 @@
 Assignment 5
 Overview
-Homework covering normalization and measurement probabilities in the infinite square well, along with finite-well boundary matching and symmetric-state quantization.
+Homework covering normalization and measurement probabilities in the infinite square well, along with finite-well boundary matching and symmetric-state quantization. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Problem coverage
+This set covers normalization and probabilities in the infinite square well, then shifts to the finite square well and symmetry-based matching. The pages are organized around continuity of the wavefunction and its derivative, even and odd states, exponential tails outside the well, and how those tails modify the bound-state conditions.
 
-The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
+Key equations
 
-Core equations
-Equation 1
 $$1=\int_0^L |\psi(x)|^2\,dx$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Equation 2
 $$\psi_n(x)=A\sin\left(\frac{n\pi x}{L}\right)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Equation 3
 $$A=\sqrt{\frac{2}{L}}$$
-This gives the functional form used to model the waveform or motion shown in the notes.
 
-Equation 4
 $$P\left(\frac{3L}{4}\le x\le L\right)=\int_{3L/4}^{L}|\psi(x)|^2\,dx$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Equation 5
 $$\sin^2\theta=\frac{1-\cos 2\theta}{2}$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-Equation 6
 $$\psi_{\text{in}}=A\cos(kx)\ \text{or}\ A\sin(kx)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Equation 7
-$$\psi_{\text{out}}=Be^{-\kappa x}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+How to use this page
+Read each displayed relation as solving one of four jobs: transforming between frames, enforcing normalization, matching boundary conditions, or combining amplitudes/phases correctly. That is the logic tying the handwritten algebra together.
 
-Equation 8
-$$\kappa=\sqrt{\frac{2m(V_0-E)}{\hbar^2}}$$
-This gives the functional form used to model the waveform or motion shown in the notes.
-
-Equation 9
-$$\tan\left(\frac{ka}{2}\right)=\frac{\kappa}{k}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$\psi\ \text{and}\ \frac{d\psi}{dx}\ \text{are continuous}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Context clues
-Title focus: Assignment 5.
-Category: assignments.
-Page count: 4.
-
-Search terms
-covering, normalization, measurement, probabilities, infinite, square, well, along, finite-well, boundary, matching, symmetric-state
+Recovered page cues
+Recovered phrases from the original page include: Assignment 5; Infinite; Squarewell; Find A; normalization; * total probability must equal; 1 =dx/NCATR =/drAsin); try : sinao -; 20 : Narcos; by - Bsinbr.

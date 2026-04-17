@@ -1,57 +1,20 @@
 Lorentz Transformation
 Overview
-Relativity notes focused on the Lorentz transformation, invariance of the spacetime interval, Minkowski diagrams, Doppler-shift style timing arguments, and relativistic energy-momentum relations.
+These notes focus on the Lorentz transformation as the correct replacement for Galilean kinematics when the invariant speed is $c$. The page combines interval arguments, Minkowski-diagram intuition, simultaneity shifts, and relativistic energy-momentum bookkeeping.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Coordinate changes
+The main transformation relations are of the standard form
+$$\Delta x=\gamma(\Delta x' + v\,\Delta t'), \qquad
+\Delta t=\gamma\left(\Delta t' + \frac{v}{c^2}\Delta x'\right),$$
+with inverse relations obtained by sending $v\to -v$. The factor
+$$\gamma = \frac{1}{\sqrt{1-v^2/c^2}}$$
+controls time dilation, length contraction, and simultaneity offsets.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Physical meaning
+The page is not just quoting formulas. It is using them to compare equal-time slices in different frames and to show that events simultaneous in one frame are generally not simultaneous in another. That is the source of classic train, clock, and signal problems.
 
-Core equations
-Equation 1
-$$\Delta x=\gamma(\Delta x' + v\,\Delta t')$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
+Invariant structure
+A second theme is invariance: the spacetime interval and the light cone keep the same physical content in every inertial frame. So the Lorentz transformation is the statement of how different observers preserve the same causal and geometric structure.
 
-Equation 2
-$$\Delta t=\gamma\left(\Delta t' + \frac{v}{c^2}\Delta x'\right)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 3
-$$\Delta x'=\gamma(\Delta x-v\,\Delta t)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 4
-$$\Delta t'=\gamma\left(\Delta t-\frac{v}{c^2}\Delta x\right)$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 5
-$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 6
-$$u'_x=\frac{u_x-v}{1-u_xv/c^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 7
-$$u'_y=\frac{u_y}{\gamma(1-u_xv/c^2)}$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 8
-$$(\Delta s)^2=(c\Delta t)^2-(\Delta x)^2$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 9
-$$E^2=(pc)^2+(mc^2)^2$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$E=\gamma mc^2\approx mc^2+\frac12 mv^2$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Context clues
-Title focus: Lorentz Transformation.
-Category: notes.
-Page count: 6.
-
-Search terms
-Lorentz, Transformation, Relativity, focused, invariance, spacetime, interval, Minkowski, diagrams, Doppler-shift, style, timing
+Recovered page cues
+Recovered phrases from the original page include: Lorentz Transformation; Lorentz; Transformation; (Time Pilation , Relativity); my frame; A = (AX + VAt; HIVAt; At = (At; Ax (A - vAt); Your Frame.

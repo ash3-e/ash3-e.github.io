@@ -1,57 +1,26 @@
 Assignment 6
 Overview
-Polarization and entanglement homework using Malus' law, basis changes, superposition, and pair-correlation probabilities for polarized photons.
+Polarization and entanglement homework using Malus' law, basis changes, superposition, and pair-correlation probabilities for polarized photons. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Problem coverage
+This assignment combines polarization algebra with entanglement-style probability calculations. The visible work suggests Malus' law, basis changes between horizontal/vertical and rotated analyzers, pair-correlation integrals, and a second page that returns to scattering or reflection-coefficient matching.
 
-The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
+Key equations
 
-Core equations
-Equation 1
 $$I=I_0\cos^2\theta$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
 
-Equation 2
 $$|\theta\rangle=\cos\theta\,|H\rangle+\sin\theta\,|V\rangle$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
 
-Equation 3
 $$P(H_{85})=\cos^2 85^\circ$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
 
-Equation 4
 $$P(V_{85})=\sin^2 85^\circ$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-Equation 5
 $$|\Phi^+\rangle=\frac{1}{\sqrt2}(|HH\rangle+|VV\rangle)$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 6
 $$P_{\text{both}}(\theta)=\cos^2\theta$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
 
-Equation 7
-$$\cos A\cos B=\tfrac12[\cos(A-B)+\cos(A+B)]$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
+How to use this page
+Read each displayed relation as solving one of four jobs: transforming between frames, enforcing normalization, matching boundary conditions, or combining amplitudes/phases correctly. That is the logic tying the handwritten algebra together.
 
-Equation 8
-$$\int_0^{\pi/2}\cos^2\theta\,d\theta=\frac{\pi}{4}$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
-
-Equation 9
-$$\langle H|V\rangle=0$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$\langle H|H\rangle=1$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Assignment 6.
-Category: assignments.
-Page count: 2.
-
-Search terms
-Polarization, entanglement, Malus, law, basis, changes, superposition, pair-correlation, probabilities, polarized, photons
+Recovered page cues
+Recovered phrases from the original page include: Assignment 6; If = ICOS2(0); superposition; 1 : FcoS(; II : I ,cosz(30); I : IICOS; >erpost; Iimnsos(cos2 (; after; so,ts: 1.

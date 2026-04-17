@@ -1,57 +1,26 @@
 Assignment 3
 Overview
-Wave-interference homework on phase, amplitude, frequency matching, constructive versus destructive superposition, and graphical interpretation of shifted sinusoidal signals.
+Wave-interference homework on phase, amplitude, frequency matching, constructive versus destructive superposition, and graphical interpretation of shifted sinusoidal signals. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Problem coverage
+This assignment is about wave superposition and the algebra of oscillatory motion. The pages point to phase shifts, constructive versus destructive interference, sinusoidal graph shifts, simple harmonic motion from a linear restoring force, complex-number algebra, and the wave equation. So the set links graphical wave intuition to the ODE and complex-exponential machinery used later in physics.
 
-The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
+Key equations
 
-Core equations
-Equation 1
 $$y_1=A\sin(kx-\omega t)$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
 
-Equation 2
 $$y_2=B\sin(kx-\omega t+\phi)$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
 
-Equation 3
 $$y=y_1+y_2$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 4
 $$A_{\text{result}}=2A\cos\left(\frac{\phi}{2}\right)$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
 
-Equation 5
 $$\phi=\pi\Rightarrow\text{max destructive interference}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 6
 $$\phi=0\Rightarrow\text{max constructive interference}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 7
-$$f=\frac{\omega}{2\pi}$$
-This gives the functional form used to model the waveform or motion shown in the notes.
+How to use this page
+Read each displayed relation as solving one of four jobs: transforming between frames, enforcing normalization, matching boundary conditions, or combining amplitudes/phases correctly. That is the logic tying the handwritten algebra together.
 
-Equation 8
-$$\lambda=\frac{2\pi}{k}$$
-This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
-
-Equation 9
-$$f(x)=a\sin[b(x-c)]+d$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
-
-Equation 10
-$$\Delta x=\frac{\phi}{k}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Assignment 3.
-Category: assignments.
-Page count: 12.
-
-Search terms
-Wave-interference, phase, amplitude, frequency, matching, constructive, versus, destructive, superposition, graphical, interpretation, shifted
+Recovered page cues
+Recovered phrases from the original page include: Assignment 3; - true; , if the two sources were not emitting o the same frequency; then eventually the; sources would not overlap perfectly; true, if two sources; are not emitting o the same amplitude, their signal cannot; destructively interfere entirely; : untfu; * ignoring possibility.

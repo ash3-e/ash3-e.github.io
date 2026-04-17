@@ -1,57 +1,17 @@
 Relativity
 Overview
-Compact introductory relativity sheet covering Newtonian versus relativistic postulates, time dilation from light-clock reasoning, simultaneity offsets, and velocity addition across reference frames.
+This is a compact introductory relativity sheet. The page contrasts the Newtonian picture with Einstein's postulates, then builds up time dilation, simultaneity shifts, and velocity-addition reasoning from simple light-clock or signal-exchange arguments.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Kinematic starting point
+In the Newtonian limit one writes
+$$\Delta x = \Delta x' + v\Delta t', \qquad \Delta t = \Delta t'.$$
+The point of the note is that these relations fail if all inertial observers must agree on the same light speed. That forces one to replace them with Lorentz-style transformations and the associated factor $\gamma$.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Light-clock logic
+The page likely uses a light-bounce argument: because the moving clock forces the light to trace a longer path in another frame, the elapsed time between ticks increases. That is the clean route to time dilation and then to simultaneity effects.
 
-Core equations
-Equation 1
-$$\Delta x=\Delta x' + v\Delta t'$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+Conceptual pivot
+The important theme is that measurements of space and time are frame dependent while the speed of light and the causal light-cone structure remain universal.
 
-Equation 2
-$$\Delta t=\Delta t'$$
-This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
-
-Equation 3
-$$c=\frac{2L}{t_A+t_B}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 4
-$$t_A=\gamma t_0$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 5
-$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 6
-$$\Delta t=\gamma t_0$$
-This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
-
-Equation 7
-$$\Delta t_{RL}=\frac{Lv}{c^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 8
-$$u'=\frac{v+u}{1+vu/c^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 9
-$$u_x=\frac{L}{t}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$u=\sqrt{u_p^2+u_s^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Relativity.
-Category: notes.
-Page count: 1.
-
-Search terms
-Relativity, Compact, introductory, sheet, covering, Newtonian, versus, relativistic, postulates, time, dilation, light-clock
+Recovered page cues
+Recovered phrases from the original page include: Relativity; Intro; time dilation :; > putting this together we get the following; Newtonian; postulates :; round trip time observed by A; Golilean Transformations : At = At'+ vAt'; event; 1) All inertial reference frames.

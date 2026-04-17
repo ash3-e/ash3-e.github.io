@@ -1,57 +1,20 @@
 Hydrogen Atom - Quantum Numbers
 Overview
-Compact hydrogen-atom notes tying the Coulomb potential to atomic orbitals, quantum numbers, degeneracy, and angular-momentum structure.
+These notes summarize the hydrogen atom as the clean central example of quantization in a Coulomb potential. The page is organized around the bound-state spectrum, the Bohr radius, and the meaning of the quantum numbers $n$, $\ell$, and $m$.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Core scales
+The potential is
+$$V(r)=-\frac{e^2}{4\pi \varepsilon_0 r},$$
+and the atomic length scale is the Bohr radius
+$$a_0=\frac{4\pi\varepsilon_0\hbar^2}{m_e e^2}.$$
+The bound-state energies are
+$$E_n=-\frac{13.6\,\text{eV}}{n^2}.$$
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Quantum numbers
+The principal quantum number $n$ fixes the energy for pure hydrogen. The orbital quantum number $\ell$ labels angular-momentum magnitude and $m$ labels the $z$ component. The note likely emphasizes that, before fine-structure corrections, hydrogen states with the same $n$ but different $\ell$ and $m$ are degenerate.
 
-Core equations
-Equation 1
-$$V(r)=-\frac{e^2}{4\pi\varepsilon_0 r}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+Structural picture
+The wavefunction factors into radial and angular pieces, so the page is also functioning as a compact reminder about orbitals, spherical harmonics, and the link between algebraic quantum numbers and spatial orbital shapes.
 
-Equation 2
-$$a_0=\frac{4\pi\varepsilon_0\hbar^2}{m_e e^2}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 3
-$$E_n=-\frac{13.6\,\text{eV}}{n^2}$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
-
-Equation 4
-$$n=1,2,3,\dots$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 5
-$$\ell=0,1,\dots,n-1$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 6
-$$m_\ell=-\ell,-\ell+1,\dots,\ell$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 7
-$$m_s=\pm\frac12$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 8
-$$L^2=\ell(\ell+1)\hbar^2$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 9
-$$L_z=m_\ell\hbar$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$\psi_{n\ell m}(r,\theta,\phi)=R_{n\ell}(r)Y_\ell^m(\theta,\phi)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Context clues
-Title focus: Hydrogen Atom - Quantum Numbers.
-Category: notes.
-Page count: 1.
-
-Search terms
-Hydrogen, Atom, Quantum, Numbers, Compact, hydrogen-atom, tying, Coulomb, potential, atomic, orbitals, degeneracy
+Recovered page cues
+Recovered phrases from the original page include: Hydrogen Atom - Quantum Numbers; e periments; photoelectric effect; Threshold Wavelength; - minimum photon energy (HF-wave frequency); current 'turns on' instantaneously; - regardless of light intensity; current proportional; to light intensity; > modern revelations/Updates to Understanding.

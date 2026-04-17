@@ -1,57 +1,20 @@
 Quantization
 Overview
-Notes on discrete eigenstates in bound systems, including particle-in-a-box states, harmonic oscillators, finite square wells, and photon mode counting in cavities.
+These notes collect several examples of quantization: a particle in a box, the harmonic oscillator, finite potentials, and cavity photon modes. The page is using boundary conditions to explain why only certain wavelengths, energies, or excitation numbers are allowed.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Bound-state quantization
+For a one-dimensional box the allowed stationary states are
+$$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\!\left(\frac{n\pi x}{L}\right), \qquad
+k_n = \frac{n\pi}{L},$$
+which leads to
+$$E_n = \frac{\hbar^2 k_n^2}{2m} = \frac{n^2 \pi^2 \hbar^2}{2mL^2}.$$
+The physical reason is the boundary condition: only standing waves that fit the geometry survive.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Broader message
+The page widens the same idea to other systems. In a harmonic potential the normalizable solutions have discrete energies. In an optical cavity only certain wavelengths fit the cavity. In second-quantized language one then also quantizes how many excitations occupy a given allowed mode.
 
-Core equations
-Equation 1
-$$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\!\left(\frac{n\pi x}{L}\right)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+Two kinds of quantization
+So the sheet is really about two layers at once: quantized mode structure from boundaries and quantized excitation number once the allowed modes are known.
 
-Equation 2
-$$k_n=\frac{n\pi}{L}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 3
-$$E_n=\frac{\hbar^2 k_n^2}{2m}=\frac{n^2\pi^2\hbar^2}{2mL^2}$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
-
-Equation 4
-$$V(x)=\frac{1}{2}Kx^2$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 5
-$$E_n=\hbar\omega\left(n+\frac12\right)$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
-
-Equation 6
-$$i\hbar\frac{\partial \psi}{\partial t}=\left(-\frac{\hbar^2}{2m}\frac{d^2}{dx^2}+U(x)\right)\psi$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 7
-$$\psi(x,t)=\psi(x)e^{-iEt/\hbar}$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 8
-$$\kappa=\sqrt{\frac{2m(U-E)}{\hbar^2}}$$
-This gives the functional form used to model the waveform or motion shown in the notes.
-
-Equation 9
-$$\tan\!\left(\frac{k a}{2}\right)=\frac{\sqrt{\beta^2-k^2}}{k}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 10
-$$N_n=0,1,2,\dots$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Quantization.
-Category: notes.
-Page count: 1.
-
-Search terms
-Quantization, discrete, eigenstates, bound, systems, particle-in-a-box, states, harmonic, oscillators, finite, square, wells
+Recovered page cues
+Recovered phrases from the original page include: Quantization; particle in box; from last frame; write in terms ft; vty: -( mee); uT or; eigenstate; proton; equate potential energy Teduction; Schrodinger.

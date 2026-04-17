@@ -1,57 +1,19 @@
 Bra-ket - Entanglement
 Overview
-Quantum-information notes on bra-ket notation, inner products, polarization states, Bell/EPR experiments, and entangled two-photon states.
+This sheet uses bra-ket notation as the language for quantum states, measurement amplitudes, and entanglement. It mixes abstract vector-space notation with concrete polarization examples and Bell/EPR-style two-particle correlations.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+State notation
+A ket $|v\rangle$ represents a state vector and a bra $\langle v|$ is its dual. Inner products such as
+$$\langle u|v\rangle = \int u^*(x) v(x)\,dx$$
+or in finite dimensions
+$$|v\rangle = (v_1,v_2,\dots)^T, \qquad \langle v| = (v_1^*,v_2^*,\dots)$$
+encode normalization, orthogonality, and measurement amplitudes.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Entanglement content
+The entanglement part of the page is naturally read in tensor-product language. A two-particle state need not factor into separate one-particle states. Bell states are special superpositions whose correlations cannot be reproduced by assigning fully independent local outcomes in advance.
 
-Core equations
-Equation 1
-$$\langle u|v\rangle=\int u^*(x)v(x)\,dx$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+Measurement logic
+The page likely connects bra-ket notation to projection: choose a basis, project the state onto one of the allowed outcomes, square the amplitude to get the probability, and renormalize the surviving component after the measurement. That is the same logic behind spin-$1/2$ and polarization-filter examples.
 
-Equation 2
-$$|v\rangle=(v_1,v_2,\dots)^T$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 3
-$$\langle v|=(v_1^*,v_2^*,\dots)$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 4
-$$\langle \psi|\psi\rangle=1$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 5
-$$\mathbf{E}=\alpha|H\rangle+\beta|V\rangle$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 6
-$$I=I_0\cos^2\theta$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
-
-Equation 7
-$$|\Phi^+\rangle=\frac{1}{\sqrt2}(|HH\rangle+|VV\rangle)$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 8
-$$P(H_{85})=\cos^2 85^\circ$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
-
-Equation 9
-$$E(a,b)=\cos 2(a-b)$$
-This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
-
-Equation 10
-$$S=E(a,b)-E(a,b')+E(a',b)+E(a',b')$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Bra-ket - Entanglement.
-Category: notes.
-Page count: 1.
-
-Search terms
-Bra-ket, Entanglement, Quantum-information, notation, inner, products, polarization, states, Bell, EPR, experiments, entangled
+Recovered page cues
+Recovered phrases from the original page include: Bra-ket - Entanglement; Bell's; Inequality; imagine a continuous function f(x); and the EPR experiment; < uIv) : "dot product; is like; vector w/; where:; > interpretation : local hidden variables.

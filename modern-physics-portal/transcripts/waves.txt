@@ -1,57 +1,26 @@
 Waves
 Overview
-Course notes on wave structure, multidimensional wavevectors, polarization, dispersion, and the bridge from classical waves into the Schrödinger picture of matter waves.
+These notes start from ordinary classical waves and then use the same language to motivate matter waves and the Schrödinger picture. The page treats the wavevector, polarization, dispersion, and the difference between phase and group motion.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Basic wave form
+A traveling wave is written as
+$$\psi(\mathbf{r},t)=A\cos(\mathbf{k}\cdot\mathbf{r}-\omega t+\phi),$$
+where
+$$\mathbf{k}\cdot\mathbf{r} = k_x x + k_y y + k_z z, \qquad
+\lambda = \frac{2\pi}{|\mathbf{k}|}.$$
+The page clearly wants the reader to think geometrically about wavefronts, propagation direction, and wavelength.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Velocities and matter waves
+The phase velocity is
+$$v_p = \frac{\omega}{k},$$
+while packet propagation is governed by
+$$v_g = \frac{d\omega}{dk}.$$
+The note then bridges to de Broglie relations,
+$$p = \hbar k, \qquad E = \hbar \omega,$$
+so that the Schrödinger equation can be read as a wave equation for matter amplitudes rather than only for classical fields.
 
-Core equations
-Equation 1
-$$\psi(\mathbf{r},t)=A\cos(\mathbf{k}\cdot\mathbf{r}-\omega t+\phi)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+Polarization and interference
+The sheet also appears to discuss vector fields, polarization directions, path differences, constructive and destructive interference, and standing-wave boundary conditions. So the page is doing double duty: classical wave mechanics on the surface, quantum interpretation underneath.
 
-Equation 2
-$$\mathbf{k}\cdot\mathbf{r}=k_x x+k_y y+k_z z$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 3
-$$\lambda=\frac{2\pi}{|\mathbf{k}|}$$
-This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
-
-Equation 4
-$$v_p=\frac{\omega}{k}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 5
-$$v_g=\frac{d\omega}{dk}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 6
-$$\mathbf{E}=(E_x,E_y,E_z)$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
-
-Equation 7
-$$p=\hbar k$$
-This connects momentum to wave number, which is central in de Broglie matter-wave arguments.
-
-Equation 8
-$$E=\hbar\omega$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 9
-$$i\hbar\frac{\partial \psi}{\partial t}=-\frac{\hbar^2}{2m}\nabla^2\psi+U\psi$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 10
-$$\frac{\partial^2 y}{\partial x^2}=\frac{1}{v^2}\frac{\partial^2 y}{\partial t^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Waves.
-Category: notes.
-Page count: 1.
-
-Search terms
-Waves, wave, structure, multidimensional, wavevectors, polarization, dispersion, bridge, classical, Schr, dinger, picture
+Recovered page cues
+Recovered phrases from the original page include: Waves; making waves; multi-dimensional; waves (ei([ * -wtl); * = kx + kyy + kzz; = (k)(x)cos; take is along; e . g. To; Y = (x, y ,z); keep only part of along is.

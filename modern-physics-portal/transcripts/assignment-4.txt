@@ -1,57 +1,26 @@
 Assignment 4
 Overview
-Homework on de Broglie wavelength, particle-in-a-box quantization, and why only positive integer quantum numbers survive the boundary conditions.
+Homework on de Broglie wavelength, particle-in-a-box quantization, and why only positive integer quantum numbers survive the boundary conditions. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Problem coverage
+The set revolves around de Broglie wavelength and particle-in-a-box quantization. The work appears to justify why only positive integer quantum numbers survive, why $n=0$ gives the trivial state, and how boundary conditions enforce discrete standing-wave solutions. Later pages also move into finite-well style matching.
 
-The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
+Key equations
 
-Core equations
-Equation 1
 $$\lambda=\frac{h}{p}=\frac{h}{mv}$$
-This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-Equation 2
 $$p=\frac{h}{\lambda}$$
-This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-Equation 3
 $$\sin(n\pi)=0$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
 
-Equation 4
 $$k_n=\frac{n\pi}{L}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Equation 5
 $$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\left(\frac{n\pi x}{L}\right)$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Equation 6
 $$E_n=\frac{n^2 h^2}{8mL^2}$$
-This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-Equation 7
-$$n=1,2,3,\dots$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+How to use this page
+Read each displayed relation as solving one of four jobs: transforming between frames, enforcing normalization, matching boundary conditions, or combining amplitudes/phases correctly. That is the logic tying the handwritten algebra together.
 
-Equation 8
-$$n=0\Rightarrow \psi=0$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 9
-$$|\psi|^2\ge 0$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 10
-$$\psi(0)=\psi(L)=0$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Context clues
-Title focus: Assignment 4.
-Category: assignments.
-Page count: 4.
-
-Search terms
-Broglie, wavelength, particle-in-a-box, quantization, why, only, positive, integer, quantum, numbers, survive, boundary
+Recovered page cues
+Recovered phrases from the original page include: Assignment 4; deBroglie wavelength : X =F; (0 .145kg)(45m/s); 9) this is due to the principles; of quantization; which arises; from the conditions; of our boundaries where; Sin(nit) = 0; n =0 were true then the particle simply would not exist sin(0) = 0.

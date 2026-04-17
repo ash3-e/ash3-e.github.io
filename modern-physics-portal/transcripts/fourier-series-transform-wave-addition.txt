@@ -1,57 +1,20 @@
 Fourier Series - Transform -Wave Addition
 Overview
-Notes on Fourier decomposition, transforms, Gaussian wave packets, k-space versus real space, and the link between superposition and probability amplitudes.
+This page is about decomposing waves into modes and then recombining those modes to make localized packets and interference patterns. The note links classical Fourier analysis to quantum superposition and to the passage between real space and $k$-space.
 
-Interpretive rewrite
-This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
+Fourier language
+On a finite interval one expands a function in sines and cosines:
+$$f(x)=\sum_{n=1}^{\infty}\left[a_n\cos\left(\frac{n\pi x}{L}\right)+b_n\sin\left(\frac{n\pi x}{L}\right)\right].$$
+The coefficients are obtained by projection,
+$$a_n=\frac{1}{L}\int_{-L}^L f(x)\cos\left(\frac{n\pi x}{L}\right)dx, \qquad
+b_n=\frac{1}{L}\int_{-L}^L f(x)\sin\left(\frac{n\pi x}{L}\right)dx.$$
+In the continuum limit the same idea becomes the Fourier transform.
 
-The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
+Wave packets
+The page is using superposition to explain how a packet is assembled from many nearby wave numbers. A narrow spread in $k$ gives a broad feature in $x$, while a broad spread in $k$ gives a more localized packet. That is the natural bridge to matter-wave packets and uncertainty-style reasoning.
 
-Core equations
-Equation 1
-$$f(x)=\sum_{n=1}^{\infty}\left[a_n\cos\left(\frac{n\pi x}{L}\right)+b_n\sin\left(\frac{n\pi x}{L}\right)\right]$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
+Wave addition
+The sheet also appears to use addition identities to discuss constructive and destructive interference, beats, envelopes, and the difference between carrier oscillation and packet motion. In quantum mechanics that same algebra becomes amplitude addition rather than direct intensity addition.
 
-Equation 2
-$$a_n=\frac{1}{L}\int_{-L}^{L} f(x)\cos\left(\frac{n\pi x}{L}\right)dx$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
-
-Equation 3
-$$b_n=\frac{1}{L}\int_{-L}^{L} f(x)\sin\left(\frac{n\pi x}{L}\right)dx$$
-This trigonometric form captures phase, superposition, standing waves, or interference structure.
-
-Equation 4
-$$F(k)=\int_{-\infty}^{\infty} f(x)e^{-ikx}\,dx$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 5
-$$f(x)=\frac{1}{2\pi}\int_{-\infty}^{\infty} F(k)e^{ikx}\,dk$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 6
-$$f(x)=e^{-x^2/2\sigma^2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 7
-$$F(k)\propto e^{-k^2\sigma^2/2}$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 8
-$$\delta(k-k_0)=\frac{1}{2\pi}\int e^{i(k-k_0)x}\,dx$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Equation 9
-$$\psi(x)=\int F(k)e^{ikx}\,dk$$
-This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
-
-Equation 10
-$$\Delta x\,\Delta k\sim 1$$
-This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
-
-Context clues
-Title focus: Fourier Series - Transform -Wave Addition.
-Category: notes.
-Page count: 1.
-
-Search terms
-Fourier, Series, Transform, Wave, Addition, decomposition, transforms, Gaussian, packets, k-space, versus, real
+Recovered page cues
+Recovered phrases from the original page include: Fourier Series - Transform -Wave Addition; Fourier Series Th; *conceptual :; explain; Born Rule; in terms of probability; function f(x) defined; on interval (0,a); Special; Case : "Gaussian wave packet".
