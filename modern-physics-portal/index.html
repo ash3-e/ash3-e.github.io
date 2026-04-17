@@ -82,8 +82,7 @@ body::before{
   box-shadow:var(--shadow);
 }
 .portal-topbar{
-  position:sticky;
-  top:0;
+  position:static;
   z-index:12;
   padding:var(--site-pad);
   padding-bottom:0;
@@ -92,8 +91,8 @@ body::before{
 .portal-header{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(420px,1.35fr);
-  gap:10px;
+  grid-template-columns:minmax(0,1fr) clamp(240px, 24vw, 360px);
+  gap:12px 20px;
   align-items:center;
   padding:12px 16px 14px;
   border-radius:20px;
@@ -110,13 +109,29 @@ body::before{
 }
 .search-shell{
   position:relative;
-  border-radius:12px;
-  padding:0;
-  background:rgba(255,255,255,.96);
-  border:1px solid rgba(20,26,38,.24);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+  border-radius:16px;
+  padding:4px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+    linear-gradient(135deg, rgba(95,175,255,.14), rgba(192,134,255,.16));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 8px 24px rgba(0,0,0,.22);
 }
-.search-row{position:relative;display:flex;gap:12px;align-items:center}
+.search-row{
+  position:relative;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  border-radius:12px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+    linear-gradient(135deg, rgba(69,92,128,.72), rgba(89,73,124,.68));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+}
 .search-icon{
   position:absolute;
   left:14px;
@@ -124,25 +139,46 @@ body::before{
   width:17px;
   height:17px;
   transform:translateY(-50%);
-  opacity:.56;
+  opacity:.82;
+  filter:brightness(0) invert(1);
   pointer-events:none;
 }
 .search-input{
   width:100%;
   min-width:0;
   height:42px;
-  padding:0 14px 0 40px;
+  padding:0 78px 0 40px;
   border-radius:12px;
   border:none;
   background:transparent;
-  color:#1f2430;
+  color:#f5f8ff;
   font-size:.97rem;
   outline:none;
 }
-.search-input::placeholder{color:rgba(31,36,48,.46)}
+.search-input::placeholder{color:rgba(245,248,255,.66)}
 .search-input:focus{box-shadow:0 0 0 3px rgba(155,214,255,.16)}
+.search-submit{
+  position:absolute;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  height:30px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.10);
+  color:#f5f8ff;
+  font-weight:700;
+  font-size:.78rem;
+  cursor:pointer;
+}
+.search-submit:hover{background:rgba(255,255,255,.16)}
 .meta-row{display:flex;flex-wrap:wrap;gap:10px}
-.portal-pills{grid-column:1 / -1}
+.portal-pills{
+  grid-column:2;
+  justify-self:center;
+  justify-content:center;
+}
 .pill{
   padding:9px 13px;
   border-radius:999px;
@@ -480,13 +516,14 @@ mark{
 .hidden{display:none !important}
 body.portal-split-view .portal-header{
   padding:10px 12px 12px;
-  grid-template-columns:minmax(0,1fr) minmax(360px,1.18fr);
+  grid-template-columns:minmax(0,1fr) clamp(220px, 22vw, 300px);
   gap:12px;
 }
 body.portal-split-view .portal-title{font-size:1.2rem}
 body.portal-split-view .pill{font-size:.76rem;padding:7px 11px}
 body.portal-split-view .search-input{height:40px;font-size:.9rem}
 body.portal-split-view .search-icon{left:12px;width:16px;height:16px}
+body.portal-split-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
 body.portal-split-view .content{grid-template-columns:minmax(320px,.92fr) minmax(420px,1.28fr)}
 body.portal-split-view .list-stack{
   display:grid;
@@ -519,9 +556,15 @@ body.portal-mobile-view .portal-header{
   border-radius:16px;
 }
 body.portal-mobile-view .portal-title{font-size:1.08rem}
+body.portal-mobile-view .portal-pills{
+  grid-column:1;
+  justify-self:stretch;
+  justify-content:flex-start;
+}
 body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
 body.portal-mobile-view .search-input{height:40px;font-size:.92rem;padding-left:38px}
+body.portal-mobile-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
 body.portal-mobile-view .content-shell{
   min-height:0;
   padding-top:12px;
@@ -599,6 +642,7 @@ body.portal-mobile-view .zoom-dock{
           <div class="search-row">
             <img class="search-icon" src="assets/magnify.svg" alt="" aria-hidden="true">
             <input id="query" class="search-input" type="search" placeholder="Search" aria-label="Search within documents">
+            <button class="search-submit" id="searchSubmit" type="button">Go</button>
           </div>
         </div>
         <div class="meta-row portal-pills">
@@ -1225,11 +1269,24 @@ function syncTopbarOffset() {
   document.documentElement.style.setProperty("--topbar-space", mobile ? `${Math.max(72, height)}px` : "0px");
 }
 
+function runSearch() {
+  const query = document.getElementById("query");
+  state.query = query.value;
+  ensureSelection();
+  renderAll();
+}
+
 document.getElementById("query").addEventListener("input", (e) => {
   state.query = e.target.value;
   ensureSelection();
   renderAll();
 });
+document.getElementById("query").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();
+  runSearch();
+});
+document.getElementById("searchSubmit").addEventListener("click", runSearch);
 document.getElementById("mobilePreviewClose").addEventListener("click", () => {
   state.mobilePreviewOpen = false;
   syncMobilePreviewState();
