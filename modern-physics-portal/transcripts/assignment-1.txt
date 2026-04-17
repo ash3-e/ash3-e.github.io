@@ -1,475 +1,57 @@
 Assignment 1
-============
+Overview
+Homework on introductory special relativity: simultaneity offsets, the rear-clock-ahead result, and slowly transporting synchronized clocks between events.
 
-Source PDF: Assignment 1.pdf
-Category: assignments
-Page count: 5
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
 
-Extracted text
---------------
-1
-Physics 477, Homework #1
-Due 2026 Jan 16
-Name:
-Date:
-Class:
-1. Morin 1.1: Consistency with Lv/c2
-Show that the tR →tL di!erence of the times in Eq. (1.6) (where l→is half the length of the train in the ground
-frame) is consistent with the Lv/c2 rear-clock-ahead result (where L is the proper length of the train).
-2. Morin 1.3: Synchronizing Clocks
-Two synchronized clocks, A and B, are at rest in a given frame, a distance L apart. A third clock, C, is initially
-located right next to A. All three clocks have initial readings of zero, and then C is moved very slowly (with
-speed v ↑c) from A to B. Show that its final reading can be made arbitrarily close to B's, by making v be
-su"ciently small. (The Taylor series ↓1 →ω ↔1 →ω/2 will come in handy.)
-B
-'
-s÷εε
--
-s
-time to hit
-receiver from B's po
-Fint:At Do
-evente
-A l
-'
-1'
-· F receiver
-↳+
+Core equations
+Equation 1
+$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-+R
-: thEtk
-=> not simultaneous !
-B
-↑rear clock-ahead" effect :
-extra distance traveled
-byUL
-: (iv) -Ev
-= C-
-→V
-...
+Equation 2
+$$x'=\gamma(x-vt)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-B
-s'
-time _
--
-↳
-so , speed
-+k
--fl:
-→ V
-)(v
-)
-cl'- uf
-4 1
-+v)
-_ l'(a
--v)
-= erl
--
-co-vetve
--va
-c
-- v(c+v)
-(+v(s
--v)
-(h +Vs -va -va
-⇒
-:
-2μ
-A
-C
-7 VsC
-B
-t=
-<time dilation)
-k
+Equation 3
+$$t'=\gamma\left(t-\frac{vx}{c^2}\right)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-↓
-wher U =
-For
-so it follows :
-Eg= +B
-1 - vFc2
-with2
-= E in the taylor series we see: 1--
-or that : to
-= tp)1- such that if <C
-then to
-- " tB(1 ) ←
-0 ortc - tB
+Equation 4
+$$\Delta t=\gamma\left(\Delta t'-\frac{v\Delta x'}{c^2}\right)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-PAGE 2
+Equation 5
+$$L=\gamma l$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Extracted text
---------------
-2
-3. Morin 1.4: Rotated square
-A square with sides of proper length L flies past you at speed v, in a direction parallel to two of its sides. You
-stand in the plane of the square. When you see the square at its nearest point to you (see Fig. 1.47), show that
-it looks to you like it is rotated instead of contracted, and find the apparent angle of rotation. Assume that L :
-is small compared with the distance between you and the square. (This setup is one of the few cases where we
-are actually concerned with the time it takes light to travel to your eye.)
-4. Morin 1.6: Pole in barn
-A pole with proper length L moves rightward with speed v through a barn, also with proper length L. Assume
-that initially the door at the left end of the bar is open and the door at the right end is closed. Just after the left
-end of the pole enters the barn, the left door closes. And just before the right end of the pole leaves the barn,
-the right door opens. How would you respond to the following question: "Is the pole ever completely inside the
-barn (with both doors closed)?"
-μ
-observed : "vear clock ahead"
-+
+Equation 6
+$$\Delta t_{RL}=\frac{Lv}{c^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
+Equation 7
+$$\Delta t_{\text{dil}}=\gamma\Delta \tau$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-" A+
-'
-"
-∅
-XLE5 AX
-1
-Ar
-1
+Equation 8
+$$\sqrt{1-\epsilon}\approx 1-\frac{\epsilon}{2}$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-L
-FA+ - vit = v()
-0at
-'
-θ - sim(
-) ]
-- sin ( )
-^
-↑LorentE transform
-X
-Λ
-ref. time
-0
-event 2
-t : 0
+Equation 9
+$$t_B-t_C\to 0\quad(v\to 0)$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-{
-- t : o
-o
-event 1
-√
-'rest time'
-K
-100m
->K
-5Om
-λ
+Equation 10
+$$c\Delta t=\Delta x\quad\text{for light}$$
+This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
 
-θ
-)
-X= o
-X- O
-XI
-= L
-Lpole
-from the reference frame of
-an
-observer
-in
-the
-barn,
-the pole undergoes length
-contraction
-and
-fits and both appear shut.
-from the reference frame
-of
-an
-observer
-on
-the pole, the simultaneous
-shutting of the doors
-does not
-occur due to
-the effect of time dilation.
-The1stdoor shuts onlyafterthe 2nddoor
-opens
-andthee e
+Context clues
+Title focus: Assignment 1.
+Category: assignments.
+Page count: 5.
 
-PAGE 3
-
-Extracted text
---------------
-3
-5. Morin 1.12: Transforming the length
-A stick moves rightward with speed 3
-5c with respect to the ground. The length of the stick in the ground frame
-is L. You move rightward with speed c/2 with respect to the ground. What is the length of the stick in your
-frame?
-6. Morin 1.13: Magnetic Force
-This problem demonstrates how the magnetic force arises from the combination of the electric force and length
-contraction. The interpretation of this problem (discussed in the solution) requires a familiarity with basic
-concepts of electricity and magnetism, although the problem itself does not.
-Consider a current-carrying straight wire. the wire is neutral, that is, it has the same number of negatively
-charged electrons and positively charged protons in any given volume, on average. (If it weren't neutral, it would
-attract or repel electrons, thereby producing neutrality.) In any current-carrying wire, the current is caused by
-electrons moving along the wire; the protons are bolted down. So we have the situation shown in Fig. 1.50.
-(Ignore the charge q for a moment.) In reality, the electrons and protons are distributed throughout the wire,
-but we have drawn them separated for clarity. The qualy and opposite charge densities ±ε0 (charge per meter)
-are indicated. The electron's speed is v0.
-Now consider an electric charge q near the wire. If the charge q is at rest, then since the wire is neutral, q
-will feel no force. But let's assume that the charge q is moving to the right with speed v, as shown in Fig.
-1.50. What are the charge densities of the protons and electrons in q's rest frame? What then is the net charge
-density of the wire in q's frame?
-You will find that the charge density is nonzero, which means that the wire exerts a force on q in q's frame (and
-hence also in the original frame). Returning to the original frame, we conclude that an electric charge q that
-is at rest near a neutral current-carrying wire feels no force, whereas a charge q that is moving near a neutral
-current-carrying wire does feel a force. This force is known as the magnetic force. We will discuss it in the
-solution.
- Vres . - +→ c
-,
-"
-1 × ] c
-→
-
-
-←
-
-
-Cα
-wire rest frame :
-Set & rest
-a rest frame :
-Xs'l Asl
-*Vs'p fpt
-=
-- Vo
-{
-FVs'p
-S
-+1s
-S
-+ +
-++ + +
-+
-+
-++ t
-+ Rg' '
-+ +
-++ + +
-+
-++
-++
-44g
-t
-t
-t
-t
-+ f
-V
-'
-VS' = 0
-⇒
-VS' = 0
-Se
--
------
-- xs
-- Rsl
-↓λs
-'
-* é moving we
-↑e a rest in SI
-↓
-. No
-+
-9 .-> (v' = 0) d rest
-{
-
-t 9
-FE
-"
-assuming (t) charge
-*
-F
-= quxB
-into
-page
-<
-F
-= aux
-out of page
-↑Fisnet
-↳Xs'p
-t
-= JSip
-+
-0
-'
-Fnet :FBstFB ; )FE →
-0
-3
-"
-E
-U = Use-Vs'e
-FBnet
-1
--[Vse (Vs'e)/c2]
-
-PAGE 4
-
-Extracted text
---------------
-4
-7. Morin 1.14: Pythagorean triples
-Let (a, b, h) be a Pythagorean triple. (We'll use h to denote the hypotenuse, instead of c, for obvious reasons.)
-Consider the relativistic addition or subtraction of two speeds with θ values of θ1 = a/h and θ2 = b/h. (θ ↗v/c
-is a speed's fraction of the speed of light.) Show that the numerator and denominator of the result are the leg
-and hypotenuse of another Pythagorean triple, and find the other leg. What is the associated π factor?
-8. Morin 1.17: More equal speeds
-A travels at speed v with respect to the ground, and B is at rest, as shown in Fig. 1.52. How fast should C
-travel so that she sees A and B approaching her at the same speed? In the ground frame (B's frame), what is
-the ratio of the distances CB and AC? (Assume that A and C arrive at B at the same time.) The answer to
-this is nice and clean. Can you think of a simple intuitive explanation for the result?
-speed of moving
-speed of object measured
-B,T i π
-v
-+y' ←
-frame S'
-U =
-^(
-1
-+
-in moving frame sI
-By
-= b
-B=
-speed
-of object
-measured
-in rest frames
-B =+
-≠ab
-≠
-(
-nbatb2)
-? t tI
-nrtab)
-2
-a
-' 2
-c
-' a
-1 +
-↳(h2a2 + h2ab +b2h2) + xL n4+2h2(ab) + a2b2
-*=P
-for triples
-b2/ abtb2)+ h4 + 2h2abta 2bh
-(baz +b2 - h2
-h2+ab)
-↳ha/batablx2 ihi + 2h2ab + 92b 2 ⇒☆= ab!
-γ
--
-n(a +b)
-V
- "
-speed of moving
-speed of object measured
-v
-+y' ←
-
-frame S'
-(
- +
-in moving frame sI
-^
-u
-speed
-of object
--
-C
-B
-measured
-in rest frames
-need to find
-U = V> wit B \
-{
-quadratic!
-when
-C is as
-2
-...
- ,(
- ) -0 ( →( @
--2 Vc→Ve ☆-
-N0
-- 0
-"Ve = U
-IavV - NetVt0
-: VatL ÷ d
--4(I
-( N)
-→2 ± 411
--
-)0,
-
-÷
- ,
-
-
-α
-
-t
-1
-- j
--1
-- v→zrso :
-V [-
-1
-± 1
-. ≥γ+
--
-1±
-1
-- j
-→Vc
-- ( ± : γ )
-
-
-PAGE 5
-
-Extracted text
---------------
-5
-9. Morin 1.22: E!ectively speed c
-A rocket flies between two planets that are one light-year apart. What should the rocket's speed be so that the
-time elapsed on the captain's watch is one year?
-10. Morin 1.42: Equal speeds
-A travels at speed 4
-5c toward B, who is at rest. C is between A and B. How fast should C travel so that she
-sees both A and B approaching her at the same speed? (This problem is a special case of Problem 1.17. solve
-this one from scratch, but feel free to check your answer with the one from Problem 1.17).
-# + V
-At = 8to
- * γv = :
-←
-:
--ε
-"
-find VS.t .
-in t = ly
-,
-Ax = /ly
-:
-Axitly
-
-- c ,thus : V 2 :cr( ) icavs
-
-(↳ -c 2
-⇒02
-≠V
-A
-va
-C
-B
-O
-'
-
-
-Va = /5 G
+Search terms
+introductory, special, relativity, simultaneity, offsets, rear-clock-ahead, result, slowly, transporting, synchronized, clocks, between

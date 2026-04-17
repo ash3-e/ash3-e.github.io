@@ -1,352 +1,57 @@
 Assignment 2
-============
+Overview
+Relativity homework centered on time dilation in moving frames, length contraction, and space-time diagram reasoning for thought experiments like the pole-and-barn setup.
 
-Source PDF: Assignment 2.pdf
-Category: assignments
-Page count: 7
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
 
-Extracted text
---------------
-proof :
-from s
-the lorentz transform yields :
-1
-Vu =
-1
--
-u2%e
-we find dt' = Undt
-Ir
-ady
+Core equations
+Equation 1
+$$\gamma_u=\frac{1}{\sqrt{1-u^2/c^2}}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
- Y
-nthy
-fromthe lorentz transformation yields :
-⇒
-⇒
-E uF
-dt= Vo(dt-vdX/(e)
+Equation 2
+$$\gamma_v=\frac{1}{\sqrt{1-v^2/c^2}}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-s"
-V = s
-where dx = 0
-, thus :
-S
-S
+Equation 3
+$$dt'=\gamma_u\,dt$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-S
-dt
-= Uwdt'
-Vs
-= 0 frame
-putting
-these together by subbingdt' in S
-from
-your frame
-, the
-components of your
-horizontal velocity are added to the vertical
-gives
-usdt = JuUvdI
-velocity of the clock.
-Since c is relative, the
-addition of these components must be transformed
-and resolves
-= Und
-by the lorentz factor to not exceed this
-value.
+Equation 4
+$$dt=\gamma_v\left(dt'-\frac{v\,dx'}{c^2}\right)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-PAGE 2
+Equation 5
+$$dx=0\Rightarrow dt=\gamma_v dt'$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-Extracted text
---------------
+Equation 6
+$$\frac{dt}{d\tau}=\gamma_u\gamma_v$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-√←
-3C15
->
-s
--IsTπ
-V=vo/e"
-1-3551/=
-k
-1 a)
-k
-12)
-i
-S : AXL-
+Equation 7
+$$L=L_0/\gamma$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-At
-= - 3c
-b.
-slope==5, thus : frames"=
-^
-t : 0
-0
-:;eiin
-.
-Vi = O
+Equation 8
+$$\Delta t=\frac{\Delta x}{v}$$
+This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
 
-PAGE 3
+Equation 9
+$$s^2=c^2t^2-x^2$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Extracted text
---------------
-W
-= V
-E= U3T
-Sand
-so
-on
-.!
-C
-YA E +
-&
-iv
-↑
+Equation 10
+$$u'_{x}=\frac{u_x-v}{1-u_xv/c^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-∴
-2
-A
-A t (T+ t.) ttz
-...
-v = di
-i
-B
-B
-B
-t = ++ t ,
-event
-I
-event 2
-event 3
-event 3
-θ
-t= 82T
-tUT
-world frame
-event 2
+Context clues
+Title focus: Assignment 2.
+Category: assignments.
+Page count: 7.
 
-"Observer"
-i
-event I
-∅
-t = t
-!oE
-)
-SUD)
-(8841
-
-PAGE 4
-
-Extracted text
---------------
-'
-*
-v
-dictates 0 of
-train
-in tunnel frame
-, o dictates max of rL
-as
-we
-can
-see,
-in order to
-resolve
-We find:
-the max value of r
-we need to set
-t and -voti
-the equality of rL in terms
-of
-C
-usback)
--refront world frame
--
-↓, L
-, At
-, At
-, 0 and v
-)
-(signal)
-(exit)
-(tunnel)
-v(tunnentrance
-...
-
-...
-D
-event 2 (exit) rL
-6 whentit
-'
--t 'r
--utandti
-_
--
-t
-t
-"
-we seeirl = E-v() solvingforwegoi
-\
-EI,signal
-K Por
-...
-v(tunnel exit)
- vo
-=
-event Center)E
-→r(1+ ) - →γ+°C)
-_
-...
-∴
-U : Fryesor
-: Eve:
-tro
-tunnel
-frame
-Xro
-x= 0 train frame
-" =r(
-
-PAGE 5
-
-Extracted text
---------------
-a .)
-A frame:
-A
-C
-Av÷ (Ar - vAt)
- t
-
-C frame:
-At' - γ(At-
-doppler effect: AT = tc(c -vIrt':BDt
-A +
-- γ( A++ vAt
-AE
-= Z (At
-' +
- Ax')
-- t
- β '
-E
-nence, FIFA
-+ Y
-and
-by substituting be
-for fa
-infir
-in
-..
- °C
-.
-. fr = fa
-weseeifi )
-↓
-since n =v
-B
-b. )"
-" →w. ( ! ! Csus
-uinte)
-mumerator:
-Pt :
--
-factor (1
-+ 2)
-2
--→12
-.
-
-+ + _ ]
-+
-1 +v
-1 + V
-(
-denominator
-:..
-same process :(i)
-
-PAGE 6
-
-Extracted text
---------------
-S
-m2
-mg
-V
-'
-⇌
-sVα
-E= mua
-E - mud
-EE MU
-28
-.
-" 2mut
-.
-α
-E - γmua
-2
-U
-$
-speed of movingV
-+
-y
-speed of object measured
-←
-frame S'
-U =
-
-my
-1
-+ _
-inmovingframe sI
-Ux
-V
-'
-σ
-> Vα
-speed
-of
-object
-measured
-in
-rest frames
-AX
--
-AT - HAT
-'- WAt' ) }
-:vi
-':
- vor
-4 vi' =
-At
-,
-at = Un(at= uAx*(2)
-vi = , Ar
-+δ u(Ar1
-+ uxt)
-w/V,
-, Vea S' resolved we find the energy w/
-At = UnJSt' + UBXcr)
-= Va
-= nhor
-Gamma Identify :(v)
-= UuUv(1)
-such that
-E ,
-= Unfume2)-)
-&
-Ec
-= OuOme/+)
-so , EToT
-= OuJu mu2
-
-PAGE 7
-
-Extracted text
---------------
-a)
+Search terms
+Relativity, centered, time, dilation, moving, frames, length, contraction, space-time, diagram, reasoning, thought

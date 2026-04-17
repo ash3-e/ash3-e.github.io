@@ -1,285 +1,57 @@
 Lorentz Transformation
-======================
+Overview
+Relativity notes focused on the Lorentz transformation, invariance of the spacetime interval, Minkowski diagrams, Doppler-shift style timing arguments, and relativistic energy-momentum relations.
 
-Source PDF: Lorentz Transformation.pdf
-Category: notes
-Page count: 6
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-Lorentz
-Transformation
-(Time Pilation , Relativity)
-est
-my frame
-me
+Core equations
+Equation 1
+$$\Delta x=\gamma(\Delta x' + v\,\Delta t')$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-A×=γ(AX + VAt
- H
- H"
-Λ#HIVAt
+Equation 2
+$$\Delta t=\gamma\left(\Delta t' + \frac{v}{c^2}\Delta x'\right)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-At =γ (At
-' + Ax
+Equation 3
+$$\Delta x'=\gamma(\Delta x-v\,\Delta t)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-^ _
-Ax÷ γ (Aγ - vAt)
-Your Frame
-Ar
-' =γ(cAt
-- vat)
-1
-speed of light seen by you
-:
-A ' -γ(AtA)
-At'
-←γ (At
-- 2cbt
-)d :
-γ (cAt- vAt )
-γ(st
-- cnt) =
-velocity transformation:
-“
+Equation 4
+$$\Delta t'=\gamma\left(\Delta t-\frac{v}{c^2}\Delta x\right)$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-≤
-Fu
-'
-: c
- _(
-+ v)
-+ uji +
-c =
-ε ↑
- ,
-i
-timeilation
-(1 + ) +
-suf
-length contraction :
-length
-uy ) )
-contraction
+Equation 5
+$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-PAGE 2
+Equation 6
+$$u'_x=\frac{u_x-v}{1-u_xv/c^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Extracted text
---------------
-example of an invariant :
-(As2)
+Equation 7
+$$u'_y=\frac{u_y}{\gamma(1-u_xv/c^2)}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-= ( At)? -(A+
-)
-? -
-Z (AE' A+')- γ
-(Ax'+ vAt
-: 2 γ [1At)
-+AZ 'At' +(Ar
-)}
--
-c[ +
- Ar 'At + (At
-)]
-Ay
-> c2γ^{ Bt)
-= (At)] + cazz[
- ( Ar)m2
-- ( A)]
-↑
-7 r2
- ( - /Azα
-X
-( A82)
- = (cnt)_ 6Ax) 2 -
- ( -1 )/ Az) “ space - time ”
-r2
-=(yz2)+ (yye)
+Equation 8
+$$(\Delta s)^2=(c\Delta t)^2-(\Delta x)^2$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-PAGE 3
+Equation 9
+$$E^2=(pc)^2+(mc^2)^2$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-Extracted text
---------------
-spacetime diagram
-forward
-event
-occursorentz transform
-event from other
-minkowski diagram
-t
-(t , X , y, z)
-reference frame
-timelike
-light
-come
-( t' ,r '; g ; z
-( 4
--D)
+Equation 10
+$$E=\gamma mc^2\approx mc^2+\frac12 mv^2$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
 
-¿
-7
-= ct
-t
-can be affected by me
-"light cone"
-6
-x
-'spacelike'
-can
-affect
-me
-&
--
-reverse
-light come
+Context clues
+Title focus: Lorentz Transformation.
+Category: notes.
+Page count: 6.
 
-PAGE 4
-
-Extracted text
---------------
-Λ
-↑LorentE transform
-X
-Λ
-K
-100m
-"
-∞
-event 2
-
-{ π
-- t : 0
-t : 0
-K
-50m
-λ
-∅
-event 1
-d
-θ
-lu)
-from
-one reference :
-X= o
-time dilation
-X- O
-XI
-= L
-from other :
-length
-contraction
-ti ' -810- r50) ) -
-x,
-' - γ10
-- 01 : 0
-tz
-' - γ (
-- 26L) )
-z'
-:
-γ ( L -Vol - γ L
-
-PAGE 5
-
-Extracted text
---------------
-V = o
-> *
-ev
-*
-invariant
-m2
-time curve
-Cany pt
-on this curve experiences same universal time)
-emitting light
-C
-At' -(
-timefor1 s pulse)
-" "
-n f
-; √
-
-E
-UVT
->
-ome
-C
-Ate= UT'(emission of 2nd pulse)
-Λ
-Λ
-At
-
-...
-u
-inframe of enter
-event
-2
-difference : T = UT'-
-emit 1:: ‰
-UT'x
-¤
-=γ( 1 - )+
-
-t' - 0
-√
-*
-, (
-1- )+^ *1+ )
-^
-Primetee
-emit 2 : 21
-=0
-}
-t
-' +
-our frame
-A
-
-↑
-emit 1 :
-x = 0
-frequency
-: F
-=F
-to
-emit 2 :
-x2
-= V(O+ vT)
-tc= ((T
-+o)
-
-PAGE 6
-
-Extracted text
---------------
-invariant :
-E 2 - (pc
-?
-⇒E =γmcn
-Taylor :f(80 +8 ) =f(ea ) ++ ...
-↑
-P
-= 2mr
-↳
-→ 1 - + ...
-kinetic
-momentum
-- x
-energy
-L mu
-E =
-Mca
-(πo - ')
-= 1 t x
-clarification!
-- Emul
-
-
- ( men
-2
-
-mc 2 + mv3
-"rest energy'
+Search terms
+Lorentz, Transformation, Relativity, focused, invariance, spacetime, interval, Minkowski, diagrams, Doppler-shift, style, timing

@@ -1,267 +1,57 @@
 Spin - Antimatter
-=================
+Overview
+Notes on relativistic quantum mechanics, the Dirac equation, spin as intrinsic angular momentum, and the appearance of antimatter from positive/negative-energy structure.
 
-Source PDF: Spin - Antimatter.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-Dirac Equation : Relativity + Quantum
-Mechanics
-unitary evolution
-In general,
-we want
-a
-Relativistic
-model of
-QM for
-fermions.
-N
-Relativistic Invariant :
-&
-recall,
-↳
-&
-E2 = (mc2)2 + (ps)2
-&11
--
-> Dirac
-wanted unitary dynamics
-w
-V
-e-iut
-linear derivative
-in time :
-4)E2 + 12)
-= 0
-plane of light has
-↳(E +x)(E
--A) = 0
-ECF,t everywhere
-E
-=he + it
-Dirac: EF = (mc2)2 + (pc)2
-E = /mc2)" + (pc) = 0
-· =(6
-IE-tom-cp)(E
-+ come +cop)
--
-only
-works if
-matrices have
--
-it
-= (0)
-&is
-a 4x4 matrix
-(Po
-, (x,y , 92)
-the property:
-= -E
-if
--
-&
-=
-didj = a =
-[,x, ,z]
-=
-= 10)
-In general : &'s
-do not commute : ABFBA
-& . p =xpx + Eypy +z9z
-introduces
-new degree
-of
-freedom
-· positive energy
-some
-index
-which the relativistic
-= (j)
-E
-schrodinger egt
-spin up or down
-5
-relies
-on
-:
-Pauli Exclusion
-N = 1
-vacuum
--
-= (0
--i)
-- each state can have only
-"Spin"
-all negative
-5
-filled ent
-N= 0
-or
-N=
-mcG
-3
-P
-all positive
-mc2
-What is spin? angular
-momentum
-inQM ErrN
-·negativeenergya
-empty
-&
-1 = up
-To
-·......
-mole
-men
-↳spin statisticsth :
--
-boundary condition:
-=E units of angular momentum
-energy
-"Dirac sea"
-N = 1
-L = rp
-two values of
-N = 0
-or 1
-connected to
-is
-- so
-~ orbital angular'
-k==N
-4(x) = 4(x + 2πr)
-2
-choices of
-spin
-momentum
-in4(x)
-↑hole" - acts as a particle
-T=xj
-- X=
-(2π = N
-with positive charge
-QM:= -it
-+ positive mass
--
-antimatter
-position
-=>
-worked example
-: [Lx, (g)
-= [ypz-zPy , EPx-yPz]
-connection of spin to angular momentum
-* e .g.
-commutator of
-N
-, p
-T =x
-= YPEPYYPE
-=
-PEEPz(PY
-an operator
-&
-It
-- 1
-=[x,] +(x)
--
-in
-Q. M.:
--st
-Y
-ERXYPEEP
-4 = (x*
-- cx) f(x)
-"z
-↳[Lx, (y]
-= ih(z
-recall :
-many operators doNotcommute (AB = BH)
-= x& -[f(x)+=
-[A , BJ = AB-BA
-L= EN
-eigenstates are : (o)
-, (4)
-define spin matrix :
-sz = Elb-i)
-Pauli Matrices for Spin
-eigenenergies
-are: :
-S=x ,
-Sy=y , se :Etz
-o = (i)
-, 0x
-= (:)
-,
-Oz = 10
--9)
-&
-· It
-=
-↳[Sx
-, Sy]=:z
-7
--
-spin(#1)
-·
-= it /EVz)
-:
-(ij)
-(ii)
-- - 2
-V
-↓(ei(x)
-define: anticommutator
-= ihSz
-operations
-:1measure particle
--
-80x
--0x8x( % 6)(0)
-- (0)( %
-=2) = 2
-↑TA , BY
-= AB + BA
-2
-↓
-2
-Copenhagen "knowledge
-leads to collapse"
-suppose[A , B)
-= 0
-2 full rotations for particle to return to starting position !?
-example of entangled state
--
-AB = -BA
-fermions (matter particles) :
-Spin t
-Local Hidden Variables :
--
-> disproves Bell's Theorem
-glasseam-splitter
-light pulse
-photodetector
--
-L
-=
-3)
-↑
-T
-amplitude
-normalized
-&
-to I
-V
-↑(x)4r(x)
-+ H,(x)42(x)
-SOMUTerSales
-T
-1
-ampl . = 1
-ampl . = 0
-"O
+Core equations
+Equation 1
+$$E^2=(pc)^2+(mc^2)^2$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 2
+$$i\hbar\frac{\partial \Psi}{\partial t}=\left(c\,\boldsymbol{\alpha}\cdot\mathbf{p}+\beta mc^2\right)\Psi$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 3
+$$\{\alpha_i,\alpha_j\}=2\delta_{ij}I$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 4
+$$\{\alpha_i,\beta\}=0$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 5
+$$\beta^2=I$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 6
+$$S_z=\pm\frac{\hbar}{2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 7
+$$L_x=yp_z-zp_y$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 8
+$$[L_x,L_y]=i\hbar L_z$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 9
+$$\Psi(x+2\pi r)=\Psi(x)$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 10
+$$Q_{\text{antiparticle}}=-Q_{\text{particle}}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Context clues
+Title focus: Spin - Antimatter.
+Category: notes.
+Page count: 1.
+
+Search terms
+Spin, Antimatter, relativistic, quantum, mechanics, Dirac, equation, intrinsic, angular, momentum, appearance, positive

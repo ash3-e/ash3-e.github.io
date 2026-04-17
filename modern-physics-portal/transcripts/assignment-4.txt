@@ -1,216 +1,57 @@
 Assignment 4
-============
+Overview
+Homework on de Broglie wavelength, particle-in-a-box quantization, and why only positive integer quantum numbers survive the boundary conditions.
 
-Source PDF: Assignment 4.pdf
-Category: assignments
-Page count: 4
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
 
-Extracted text
---------------
-deBroglie wavelength : X =F
-(6 . 626x10-341
-m2)
-=
-1.0155x10- 34m
-=
-(0 .145kg)(45m/s)
-9) this is due to the principles
-of quantization
-which arises
-from the conditions
-of our boundaries where
-Sin(nit) = 0
-6) If
-n =0 were true then the particle simply would not exist sin(0) = 0
-c.) negative integer values suggest the shape
-and phase of
-our
-wavefunction would change and
-since probability 141
-& this can't be the case (
-57
- ,
-☆41)
- (*
- )o
-: razu
+Core equations
+Equation 1
+$$\lambda=\frac{h}{p}=\frac{h}{mv}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-X
+Equation 2
+$$p=\frac{h}{\lambda}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-PAGE 2
+Equation 3
+$$\sin(n\pi)=0$$
+This trigonometric form captures phase, superposition, standing waves, or interference structure.
 
-Extracted text
---------------
-a.
-l ψ *1
-E
-= - ψ(a ) + 0ψ
-)
-N = P()eint
-"
-int
-guess 4(X) & gike
-nw'
-<24 =-ti
-+ UN) 4
-W
-ε
-Bi)
-↳ε= + U
-2m
-o
-· Find A
-by
-normalization
-* total probability must equal
-100%*
-↑(x) = Asink + Bcosk
-λ
-1
-...√
-d+|ψ(x) |
-P
-=√∵drA=sinz
-(*) dr
-try :
-sin2o :
-1 : Naxcosbr
-- Bsinbr
-→AI (
- sin ) →
-1
-+
-A , sin(kl )- 0 ⇒K
-c(d
-.)
-e .) It
-is similar except for the
-N((x)
-= Agik + Beike
-4 , (0) = 42(0)
-U(X) term
-which
-we can limit
-=>
-boundary X = 0
-: Jecko
-+ eiko)
-= by
-↑, (x) = a . ekx + b , et
-: Yz(z) = 43())
-tothe constant Vo
-Yz(x) = aze
-+ byk 0= = 0
-E =tVo
+Equation 4
+$$k_n=\frac{n\pi}{L}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-( )
--E -1 E 0 ( );E - U0+
+Equation 5
+$$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\left(\frac{n\pi x}{L}\right)$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-PAGE 3
+Equation 6
+$$E_n=\frac{n^2 h^2}{8mL^2}$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-Extracted text
---------------
-(00
-x 20
- + U( +)ψ - E 4
-U (
-=
-700EXSL
-(020)
-b
-20-J ( -E] ψ
-200
-x
-b)
-a .) 1ψ
-... - / U0
-- t)ψ
-4 , ( +)- AekixtBe
--Kix
-where K1 Em 20 -
-→ K
-,ψ
-asx →∞,ψ ,(r ) =Aekv+ Q
-2
-2 ( -
-E)ψ
-2U
-Hc(x)= asin(k2)+ becos(kx)
-1
-3Where K=
-E so d=
-C.) Band as must
-3
-Ψ - (
-- E)ψ
-200
-be zero
-, because
-asAtc
-43 (r)- eka,Etbe-kt
-Ek,
-and -Est + 0
-where K=
-OE)> d =*34
-as *tc
-, 4(x)"
-=bekst
-and
-are non-normalizable
+Equation 7
+$$n=1,2,3,\dots$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-PAGE 4
+Equation 8
+$$n=0\Rightarrow \psi=0$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
 
-Extracted text
---------------
-9) If U = 0
-, the particle cannot exist there
-, so : N(x) = 0 w/ condition U(O) =0
-b. )
-@ (
-, U -o
-General
-so: dh
-= -k2H
-,
-k =
-Em
-thus: 4c(x : Asin)kx + BcoCk s
-↑2(0) = Asin0 + BrosO = B = 0
-so : He() : Asin(kx)
-@ ↳,
-so α -
-K 2
-ψ,
-k -
-2mthus
-: ψ s( t)-Cekt+De-
-kx
-and
-as fet co we find: C=0
-, so : Iz: De
-**
-C.) B = 0
-and
-C=0
-↓
-normalizing as X - c
-from 41(0) =0
-d) to satisfy 3, we must find H2(c) = 43(1) : AsinSKL)
-= De-FL
-,
-D= Asin)kL)eth
-where d
-= AKcoskx Ed
-: AcosSkL)
-AKCoSkL) : -kDe
-}
-and for k:, k =
-- KtanS+()
-dψ3- KDe-Cx
-≠d - KDe
-- kc
-↳tanJkL)
-= *
+Equation 9
+$$|\psi|^2\ge 0$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 10
+$$\psi(0)=\psi(L)=0$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Context clues
+Title focus: Assignment 4.
+Category: assignments.
+Page count: 4.
+
+Search terms
+Broglie, wavelength, particle-in-a-box, quantization, why, only, positive, integer, quantum, numbers, survive, boundary

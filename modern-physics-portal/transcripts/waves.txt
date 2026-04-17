@@ -1,266 +1,57 @@
 Waves
-=====
+Overview
+Course notes on wave structure, multidimensional wavevectors, polarization, dispersion, and the bridge from classical waves into the Schrödinger picture of matter waves.
 
-Source PDF: Waves.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-making waves
-multi-dimensional
-waves (ei([ * -wtl)
-↑* = kx + kyy + kzz
-= (k)(x)cos
-10
-cost
-> is
-take is along
-Y
-~ i
-k = (1 , 0, 0)
-X -
-e . g. To
-Y = (x, y ,z)
-(x = kX
-(i ·*
-- wt)
-keep only part of along is
-Ef M
-waves
-kX = X
-Ikx/cos
-"vector field"
-Y=
-i
-↑wavelength
-= e
-E [2
-now,
-we have polarization
-LE
-B
-/
-/
-/
-Polarization angle
-E
-= (Ex , Ey , Ez)
-q =E
-,
-+ BE
-Ezy
-Y
-70
-phase angle
-v
-Make it Quantum
-1
-Schrodinger Equation
-Potential energy operator
-oscillating test-charge
-Sold : 4 (x,t)
-= Goe:(k* + wt + 4)
-=
-ind= dY
-+ ulx
-= (Heil
-... )
-id
-= it i Noel.
-Kinetis energy operator
-: Id d
--k2
-w = VI
-phase velocity
-De Broglie
-Relations
-p
-=-k
-E = tu
-↑planck's constant
-= itodet
-* d=
-um
-X
-1 operator" : p
-=
--it
-K
-v=
-(dispersion relation)
-↑X
-= -it(ik)4
-= (tk)4
-Regular Wave Equation:
-Hogilx
-+ wt) =dik
-~ y
-= ei(kx
-- wt)
-kwX =
--tek2
-=
-w=
-Im
-u(x) " eiwt
-C- iw)2
-(ii)2
-Il
-2m 4
-phasor :
-Schrdinger :
-itiw)ei)
-...)
-=
--[m)(ik)2
-W
-E = -tw
-tk
-= p
-= mr
-v=
-diagram
-O
-Re
-K
-↑
-Y(X ,t)
-cos(k* - wt) = ei(kx
--wt) + ei(kx
--wt)
-I
-P
-= trk
-m=
-↑Se int
-w =(vSt))k
-2
-E(t)
-"Unitary behind"
-phase
-very far away
--
-V
-m
--
--- "Fraunhofer" limit
-.
--
-↑
-wave phenomenon
-:
-ei(ke
--wt + 4)
-a
-KAN = ZiN
-Vg
-Ug
-=
-dw
-Schro : d==
-emitter
-a detector : sum
-- Casino : sin
-i
-ei(kAf-wt)
-+ ei(kAf-wt)
-in
-(0
-w
-02
-detector
-mee
-AX = AN -AX ,
-conditions for
-destructive
-interference
-↑
-2
-·Re port) : cos(kAx,
-- wi) + cos)kAx2-wel
-# X = asino
-:
-sin :/(a)N
-,
-N =
-0, ,
-.
-..
-EsinD = MN
-Intensity & A2-rule :
-first
-add 4
-condition for
-constructive interference
-↳sin: N
--
-then
-square result
-↳KAN = ZiN
-2
-0 = 0 : sin(0)
-= sin : (2)
--
--
-M
-d :
-D = 0
-im Sin
-phase'
-ei(kx
-- wt + b)
-↑
-boundary conditions"
-Does it satisfy 'Boundary
-conditions' ?
-guess solution : ei)kt-wt)
-- ei)
--kx - wt)
-guitar string A
-↓"standing wave"
-Fike-int
-sin kn = 0
-a X= 0
-44
-eintkeik)
-=
-Fintzisinke
-Sin KL =
-0
-& *IF
-:
-octaeeFifth
-L
-KL = TN
-9
-4(0) : 0
-4() = 0
-"Particle in
-Il
-I
-A
-cosk + isink- [cosk-isiniz]
-=
-Zi sinke :
-uantized'X's
-a
-box
-diffraction :
-Huygen's "wavelets"
--
-> X = * integer
-/
-&
-sum - integral
-complex relation
-evy = cosy + isiny
-I
-/
--2
-dein eksinik
--
-ik Esino
+Core equations
+Equation 1
+$$\psi(\mathbf{r},t)=A\cos(\mathbf{k}\cdot\mathbf{r}-\omega t+\phi)$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 2
+$$\mathbf{k}\cdot\mathbf{r}=k_x x+k_y y+k_z z$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 3
+$$\lambda=\frac{2\pi}{|\mathbf{k}|}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
+
+Equation 4
+$$v_p=\frac{\omega}{k}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 5
+$$v_g=\frac{d\omega}{dk}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 6
+$$\mathbf{E}=(E_x,E_y,E_z)$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
+
+Equation 7
+$$p=\hbar k$$
+This connects momentum to wave number, which is central in de Broglie matter-wave arguments.
+
+Equation 8
+$$E=\hbar\omega$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 9
+$$i\hbar\frac{\partial \psi}{\partial t}=-\frac{\hbar^2}{2m}\nabla^2\psi+U\psi$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 10
+$$\frac{\partial^2 y}{\partial x^2}=\frac{1}{v^2}\frac{\partial^2 y}{\partial t^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Context clues
+Title focus: Waves.
+Category: notes.
+Page count: 1.
+
+Search terms
+Waves, wave, structure, multidimensional, wavevectors, polarization, dispersion, bridge, classical, Schr, dinger, picture

@@ -1,315 +1,57 @@
 Particles
-=========
+Overview
+Quantum-particle notes focused on probability amplitudes, normalization, detector statistics, scattering states, and particle counting for bosons and fermions.
 
-Source PDF: Particles.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-11
-complex conjugates
-"
-particle counting & probability
-↑detector
-"
-WV
-detector plane
--
-> avalanche
-mechanism
-↳matter wave
-excited w/ light
-u
-· escapes from bound state
-. "
-hu
-.....
--
-g
-detector
-photographic
-=↓t
-measurement'
-im M
-↓
-" macroscopic
-"
-=
-· typical currents 100 electrons
-Ist]
-· typical
-mass
-Ign 1023 atoms
-1
-measurement
-· "collapse of
-wavefunction"
-S
-tur
-It
-Instantaneous change of 4
-E = ntwo
-· Find A
-by
-normalization
-Infinite
-Squarewell
-V=
-* total probability must equal
-100%*
-* Born Rule : new empirical "law of physics"
-v = c
-bosons-"amplitude", quantization
-not derived
-from Schrodinger equation
-1
-=fdx(4(x)(
-= JdAsin2(#)dx
-fermions-
-O
-or 1
-probability of detecting a particle a J , E)
-1/
-try : sinto = 1-cos2: axcosbx= sink
-" Copenhagen Interpretation
-~
-14 (F ,E)12
-X= 0
-x= 2
--
-> I is not real, only probability amplitude'
--
-> x2(z - sin ! ) =1
-= APz
-+
-A =
-2
-1
-↑(x) = Asink
-↑
-*(X ,t)4(x, t)
-X= 21
-N22th
-T
-·ik
-e. g . Hweike
-.I
-· 4(x)= Asin
-= Asin()
-energy operator
-: En =
-2 mLl
-=> 1401
-E -
->
-Vo
-m
-matcha boundary :
-Esin(i)
--
->
-I
-region D : Heikx
-- kX
-I
-X= 0 : eikx = e
-,
-x = 0
-V= 0
-X=0
-V =0x=
-E B = A
-2
-region
-2 :
-Be-kx
-X = a:
-Ae
--ka
-= Ceika
-ur
-region
-: Ceikx
-"complex number"
-cosk = eiktei
-particle lux: #particles,Velocity lekap
-2
-V=
-Boundary o f= 0
-I
-#4
-= 4*t
-↑,
-= eik(0) + re-:k(0)!
-= teik(0)
--
-M
-=
-1 + r = t
-& numbersity) x velocity
-It
-derivative
-10)
-I
-unbound states" scattering"
-ikgik-ikrikto) ik'tesk(o)
-,
-R Reflection coefficient
-region 1:
-1
-K
-Il
-k
-↳Irl
-?
-= r
-* v
-is positive & Real
-En
-7
->
-I
--
->
-t = 2
-↓1
-=
-Aeik + Beikx
-r = t
-- 1
-↳ik(1-r) = ik't
-k + k
-k(1
-- St
-- 1)) = k't
-T
-k(1 - r) = k't
-N2 =
-teik + Like
-↳v = t- 1 =
-2k' - (k+ k))
-k(2- t)
-- kit = 0
-V
-k + k
-2k
-- (k+ k')t = 0
-O-input from left side only
-I
-2 unknowns
-I
-↳
-2
-X=0
-tr2k2
-k =
-2m/E-Vo)
-E = Em
-tu
-recall flux :
-I : I
-,
-k is input
-Vo
-↑F74= =
-E
-7
-1412v =
-boundaries gives
-4
-conditions
-7
--
-11
-where 4 = *
-* a
-& units?:
-normalization
-- Jdx 141
-= 1
-unitless
-boundary
-3
-I
-X=0X= a
--t
-Ok = 3
-2
-unknowns:
-v
-B
-= 2,8
-↳It has units it
-X = 0 :
-i
-1Lilgik + reike
-eik(0) + reck(o) = Aes + Be()
-*
-in 3-D:=3
-↳I +r = A+B
-area
--
-1
-ik(1)
-- rikSi) = AK(1)-BKsi)
-reflected
-2
-Aeik + Beik
-- units of flux : area
-At
-↓
-units of length
-&ka
-+ Bekater M
-flux in transmission : (need to square It) to resolve probability wave)
-3
-teikx
-↳KAe-Fa-kBeka
-= ik + eiKa
-- 2
-k =
-B2
-- k2
-(ItRkI) =E
-8values:
-A = 2
-flux in reflection:
-Kappa
-k = 3 fi
-traveling
-= LIRk)=
-B
-= 10
-= +2kk)
-add
-these:
-I
-cos(kx-wt)
-t= 0
-I
-(rkk + 171r=
-X= a
-wt = F2
-m
-↑
-X
-- 0
-cos(k)
-Ma
-input
-flux
-M
--
-cos(kx-E
-, ei
-= cos+ ising
-11
-3
-I
-X
--0X= a
-classical waves: "impedance mismatch"
+Core equations
+Equation 1
+$$P(a\le x\le b)=\int_a^b |\psi(x)|^2\,dx$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 2
+$$\int |\psi(x)|^2\,dx=1$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 3
+$$\psi(x)=A\sin(kx)$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 4
+$$\hat p=-i\hbar\frac{d}{dx}$$
+This connects momentum to wave number, which is central in de Broglie matter-wave arguments.
+
+Equation 5
+$$\hat E=i\hbar\frac{\partial}{\partial t}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 6
+$$R=|r|^2$$
+This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
+
+Equation 7
+$$T=|t|^2\frac{k'}{k}$$
+This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
+
+Equation 8
+$$\psi_1=Ae^{ikx}+Be^{-ikx}$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 9
+$$\psi_2=Ce^{ik'x}$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 10
+$$N_F=0\text{ or }1,\quad N_B=0,1,2,\dots$$
+This gives the functional form used to model the waveform or motion shown in the notes.
+
+Context clues
+Title focus: Particles.
+Category: notes.
+Page count: 1.
+
+Search terms
+Particles, Quantum-particle, focused, probability, amplitudes, normalization, detector, statistics, scattering, states, particle, counting

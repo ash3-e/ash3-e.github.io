@@ -1,273 +1,57 @@
 Quantization
-============
+Overview
+Notes on discrete eigenstates in bound systems, including particle-in-a-box states, harmonic oscillators, finite square wells, and photon mode counting in cavities.
 
-Source PDF: Quantization.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-OCR supplement
---------------
-particle in @ box
-from last frame
-write in terms ft
---
-vty: -(¥ mee)
-dL
-—
-V (r)
-uTéor
-wx: 00
-u(x): 00
-2
-N
-eigenstate
-«(e)
-eo)
-proton
-equate potential energy Teduction
-Schrodinger
-AB=-0
-with the Kinetic energy gain
-Q(o)-0
-(Wet
-(Kk)*
-a
-‘rr
-(0),
-eu!
-)
-gir
-42
-—
-nt
-Cy
-AS
-on = omR= 2
-Le. re
-oh
-2
-2m
-dm
-ra
-1
-‘1m L?
-4 phase
-uTe
-+m
-(5):
-am
-i
-ane/v
-I=
-4
-me
-ye
-natural units
-4
-mass of electron: me?= 0.6.x1D ev
-= 27k
-~ os ene N=3
-K nit of energy
-boundary Condition tor circular path,
-N
-“second” quantization
-optical cavity”
-—<——
-1R=10
-8
-photons”
-were ee = =
-WL = 2x1d e-on
-cm
-- where do = come trom 2
-10
--@
-intinite # of wavelength modes: K 2
-—=-=-----. Nel
-E
-(axio"“ev-cmm)” 3b
-> ——10 10 16
-4
-3
-© IoeVv
-Ly fer each %
-infinite # of possible amplitudes
-a(me?) iB
-2(0.5 xi0% ev)
-10 “cm
-I
-E=NhwWy
-N= 0,1
-2
-a
-solve for E
-Particle
-V2 qK2
-harmonic potential: iKx%
-1S
-A\Y
-quantized ampk tudes
-t= Casey exact > N
-first quant ization
-7ZzSN
-‘\ quantum Field theory”
-=-Ka
-W
-ANY
-wave length 2 is quant ized
-\ phonons
-‘oY
-°
-l
-T*KN2
-approxinate: E 2 anu 9 Lz VIE/K
-Kinetic energy: E=
-dmL2 )
-t effective length
-hotons
-bosons
-a")
-yw
-obey standard wave equation
-Mvp
-dxu>
-— Wixt)=0
-phonons
-dt
-Unitary evolution
-elecrrons
-\ Sormions
-protons
-a)
-sy + const.
-neutrons
-bey Schrodinger equ ation
-bx?
-ex.)
-finite square well
-Ub) = 0
-V(X)=V,
-v(x=V
-yer i
-time - independent Schrodinger
-suppose. & > en
-w 2
-Wix)
-wd
-re
-4m
-} a a
-CV(x)
-_—_
-P(x) + U(x) Py)
-what if U(x) >¢2
-X=4
-tv)
-Xz
-aX
-Il
-nw
--iwt
-‘\9
-Y (x)
-\, Wo tx) = Rett% , Qo ik» ), (4): W(-4)
-+be
-“ke
-Wn WY
-guess Y(x) 4 etKs
-Y, (x)c are
-W($)= (3)
-a4
-Rew
-Wai) 4 ike - line
-su
-a>
-Mb
-=A
-Leys
-+ V(x) ¥/
-ax
-X27
-dX
--—
-"2
-sY4
-34,
-4x
-a-
--_—_—
->
-energy equation:
-.
-dx
-> tek? in middle region
-“tn
-tan Ka
-l special property
-UnKnowns NY amplitudes
-“Ke
--«
-i
-high K= high
--—-
-ki K
-5 boundary a) = 2 vk
-2+e@
-- bse
-Ka
-> 42K sin 7
-= +k
-Ly large kinetic energy
-bs: ta,
-leave overall amplitude
-eos (
-KQ
-2 cos ka
-i}
-free Av® Azi
-higher vibrational Frequency,
-normalization ")
-uK
-2 -
-(uk)
-@ 2
-KO
-( additional constraint
-[ ik)
-| ° Kye“
-% solve for k [4
-wk
-L, solve for
-case first; B=A
-mae
-N=3
--tka
-Ka -
-eo = Cos Bt isin g
-¥ iK et
--“@ 2
-)
-Ly kta
-2 -
-VB Kh
-Nel
-e8= cos@ +ising
-2isin ()= ~asin( )
-Pury
-Ka -
-a
-aN& acm
-L pace
-tan 7 = 00
-t odd
-=A = 24
-po
-XY
-tan J > 60
-w o3T ST
-when Cos @
-vo
-2,2
+Core equations
+Equation 1
+$$\psi_n(x)=\sqrt{\frac{2}{L}}\sin\!\left(\frac{n\pi x}{L}\right)$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 2
+$$k_n=\frac{n\pi}{L}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 3
+$$E_n=\frac{\hbar^2 k_n^2}{2m}=\frac{n^2\pi^2\hbar^2}{2mL^2}$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
+
+Equation 4
+$$V(x)=\frac{1}{2}Kx^2$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 5
+$$E_n=\hbar\omega\left(n+\frac12\right)$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
+
+Equation 6
+$$i\hbar\frac{\partial \psi}{\partial t}=\left(-\frac{\hbar^2}{2m}\frac{d^2}{dx^2}+U(x)\right)\psi$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 7
+$$\psi(x,t)=\psi(x)e^{-iEt/\hbar}$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 8
+$$\kappa=\sqrt{\frac{2m(U-E)}{\hbar^2}}$$
+This gives the functional form used to model the waveform or motion shown in the notes.
+
+Equation 9
+$$\tan\!\left(\frac{k a}{2}\right)=\frac{\sqrt{\beta^2-k^2}}{k}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 10
+$$N_n=0,1,2,\dots$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Context clues
+Title focus: Quantization.
+Category: notes.
+Page count: 1.
+
+Search terms
+Quantization, discrete, eigenstates, bound, systems, particle-in-a-box, states, harmonic, oscillators, finite, square, wells

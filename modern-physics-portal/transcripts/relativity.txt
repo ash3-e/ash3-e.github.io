@@ -1,181 +1,57 @@
 Relativity
-==========
+Overview
+Compact introductory relativity sheet covering Newtonian versus relativistic postulates, time dilation from light-clock reasoning, simultaneity offsets, and velocity addition across reference frames.
 
-Source PDF: Relativity.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-↳Intro
-Relativity
-time dilation :
--
-> putting this together we get the following
-Newtonian
-postulates :
-round trip time observed by A
-↳
-Golilean Transformations : At = At'+ vAt'
-x
-event
-1) All inertial reference frames
-are 'equivalent'
-* (s =si
-#
-↳ta = Ch
-=>
-At = Atl
--
-* V +s'v
-2) The speed of light is the same from any inertial reference frame
-- a
-T
-I
-o
-L
-1
-S sla event2
-As
--
->
-which we define by U
-=
-1 - (v)
-event: A
-B's =Y
-time to hit receiver from B's po
-vXt'
-At
-O
-·
-event:
-· receiver
-relativistic :
-non-relativistic:
-and arrive at the
-4.-dutVrel)
-x
-3
--
--
-↳+ =&
-, tri Ente str
-* At= Ato
-K
-AX
-2
-l
-A
-A d'1
-=> not simultaneous !
-!
-1 vX
-↑cove
-+Ve V
-equivalence : th
-= Uta
-where , for examples
-parallel motion :
-V =
-B
-B
--
->
-T
-Vy
-i
-202/2 , V = 2/53
--
-~
--
->
--v up:
-↑rear clock-ahead" effect :
-extra distance traveled by OL : (iv) -
-ar
-= C-
--
-B
-V
-musun
--
-> Up
-Vs2 + Vp2
--
-> v
-Up
--
-+
-so, from B's por -the round trip time observed
-L
-I
-time =*
-↳
-↳ah
--
-> Vp
-B
-isil
-so , speed
-w
-Ch + VG
-L
-7
-Vs
-- Vs
-tz=up
-tr-if-
-2
-- Vp
-t
-VSX
-↑USE-Vp
-↳-
-Cl' - ul
-*L from train's frame
-E
-O
--
-> v
-Ch -VS +vC-Va
-I
-platform
-i
-B
-P
-=L
-(assuming v<((c)
-object velocity
-:
-2 reference frames :
-S
--
-reference object's
-"rest frame"
-both
-sors" can be moving
-s
--
-moving object's rest frame
-S choice of s will det. relative
-3
-reference frames w/Av :
-frame
-speed of moving-
-speed of object measured
-V
-+
-y -
-frame S'U =
-[
-y
-1 +
-in moving frame SI
-speed
-of object
-measured
-in rest frames
+Core equations
+Equation 1
+$$\Delta x=\Delta x' + v\Delta t'$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 2
+$$\Delta t=\Delta t'$$
+This expresses a measurable probability, reflection coefficient, transmission coefficient, or rate.
+
+Equation 3
+$$c=\frac{2L}{t_A+t_B}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 4
+$$t_A=\gamma t_0$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
+
+Equation 5
+$$\gamma=\frac{1}{\sqrt{1-v^2/c^2}}$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
+
+Equation 6
+$$\Delta t=\gamma t_0$$
+This is a Lorentz transformation or time-dilation relation used to compare measurements between inertial frames.
+
+Equation 7
+$$\Delta t_{RL}=\frac{Lv}{c^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 8
+$$u'=\frac{v+u}{1+vu/c^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 9
+$$u_x=\frac{L}{t}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 10
+$$u=\sqrt{u_p^2+u_s^2}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Context clues
+Title focus: Relativity.
+Category: notes.
+Page count: 1.
+
+Search terms
+Relativity, Compact, introductory, sheet, covering, Newtonian, versus, relativistic, postulates, time, dilation, light-clock

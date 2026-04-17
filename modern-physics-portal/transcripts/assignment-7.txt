@@ -1,195 +1,57 @@
 Assignment 7
-============
+Overview
+Best-effort assignment metadata for quantum/statistical particle calculations involving characteristic energies, wavelengths, densities of states, and Fermi-scale estimates.
 
-Source PDF: Assignment 7.pdf
-Category: assignments
-Page count: 2
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a worked assignment set. The governing ideas are the problem statements, the main derivation paths, and the equations that would normally anchor a correct solution.
 
-Extracted text
---------------
-kE = lE-SeV
-E ...
-1
-P :
-a
-↑→
-( p +x
-mec
-? = 5E5ev
-k =
-amcE =
-aπt
-: m
-at
-hc- 2 E-FeVom
-ho
-λ
-2T J2E-7) ev. m
-=
-3 .974E - 8m
-4
-lE-3eV
-· 2(5E5er)
-=
-39.7 nm
-☆+
-o-
-kAr
-+o =to
-≠2 ' + (
-E- an) 3 .
-FE
--sm= O
-, 158 rad= 9 . 10
-En
-=
-N
- →
-N 21 +2( hc↑(
-mca)(
-z
-+
-GT (EFerm)(
-st
-5ev)(i 9)" =☆0v
-α
-1
+Core equations
+Equation 1
+$$E_F=\frac{\hbar^2}{2m}(3\pi^2 n)^{2/3}$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-EMtyE
-- Enp tEnytEnz
-⇒NH( )(
- : "T α ( aE
-- Tev'a (
-5E5ew)")IE -ama
-"
-E-
-ana
-"
-E-as
-=
-0 . 5lleV
-t:
-= h ÷→
-N - (2) 2 ↑↑uπ k = dk
-E
-↑
-density of partides :
- - ( :)
-total#of Teoste
-,tase
+Equation 2
+$$k_F=(3\pi^2 n)^{1/3}$$
+This equation is used for density-of-states counting, Fermi scales, or occupancy estimates.
 
+Equation 3
+$$\lambda=\frac{hc}{E}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-dEe dK
- (
-6
-^
- ( EF')
-^
->-( ) +
-dk ← kdt
- (
-5E5ev) 6
-E-Fevm)o(1 ev)
+Equation 4
+$$p=\hbar k$$
+This connects momentum to wave number, which is central in de Broglie matter-wave arguments.
 
-=4.22 x1027
-= ( ) mdt.
-K2
-earate
-num particles to natural energy
-ta = 2x10
--tev . m
- ε
-mat=50185 ev (foret
+Equation 5
+$$E=pc\quad\text{(relativistic photon)}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
- = 4.82 x 1027
-U
-= av
-"
- ε)
-s
-0,
-☆2"
-ε: ))
-N: ^^ "
-ε:)4(
-ε :^ h)→
- EF
-5 errober
-[ 12
-)
+Equation 6
+$$D(E)\propto E^{1/2}$$
+This equation is used for density-of-states counting, Fermi scales, or occupancy estimates.
 
-PAGE 2
+Equation 7
+$$N(E)=\int_0^E D(E')\,dE'$$
+This equation is used for density-of-states counting, Fermi scales, or occupancy estimates.
 
-Extracted text
---------------
-a
-. )(
- s (EF) →n *
+Equation 8
+$$n=\frac{N}{V}$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
- mec'
-)he
-.
-) (EF')
-&m3/2
-·m3
-if
-meet
-=
-smech
-An = n-n*
-= g
-=
-4 .22x1027m
-=
-1 .492x1027m=
-252
-density decreases by :
-4 .22 x 1027m-3
--
-1 .492x1027m3
-=
-2 :728x102tm-
-b)
-since
-the fermi-energy
-was given and
-assumed to be independent
-of
-mass, the energy/particle
-in this
-volume
-will stay
-the
-same
-grid : ( N N NZ)≠Kr5 w/ nr= O ,
-± 1 ,
-...
-- volume in K-space
-so, Akx= G
-=αm- 200π- 6 28+102m-1
-tf - (Pa () (
-2E-ter
+Equation 9
+$$\lambda_{dB}=\frac{h}{p}$$
+This relates wavelength, momentum, or energy in a way that sets the physical scale of the problem.
 
-ta = 2x10
--tev . m
-→
-255 E 5 ev)
-(, 6 .28×102m
+Equation 10
+$$E_{n_xn_yn_z}=\frac{\hbar^2\pi^2}{2mL^2}(n_x^2+n_y^2+n_z^2)$$
+This gives a quantized energy level or a discrete-state condition set by the boundary conditions.
 
-mat=50185 ev (foret
-↳
-=
-1 .DE-14 ev
- = 4.82 x 1027
-0 .2eV>) l . GE-1ev
-since
-a
-bandwidth of
-O. 2eV would
-allow for an insanely large amount of states
-across the width, treating the width
-as
-a continuum is physically accurate.
+Context clues
+Title focus: Assignment 7.
+Category: assignments.
+Page count: 2.
+
+Search terms
+Best-effort, quantum, statistical, particle, calculations, involving, characteristic, energies, wavelengths, densities, states, Fermi-scale

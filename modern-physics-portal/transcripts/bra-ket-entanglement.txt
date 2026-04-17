@@ -1,310 +1,57 @@
 Bra-ket - Entanglement
-======================
+Overview
+Quantum-information notes on bra-ket notation, inner products, polarization states, Bell/EPR experiments, and entangled two-photon states.
 
-Source PDF: Bra-ket - Entanglement.pdf
-Category: notes
-Page count: 1
-Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+Interpretive rewrite
+This rewritten transcript is an assumption-based cleanup of the original page. It keeps the physics context suggested by the title, summary, and legible formulas, while replacing OCR fragments with standard English prose and conventional mathematical notation.
 
-PAGE 1
+The page is treated as a compact study sheet. The governing ideas are the main definitions, physical interpretations, and the equations that organize the note into a coherent topic.
 
-Extracted text
---------------
-Bell's
-Inequality
-imagine a continuous function f(x)
-and the EPR experiment
-so :
-< uIv) : "dot product
-"
-is like
-a
-vector w/
-where:
--
-> interpretation : local hidden variables
-f(x+ dx)
-- f(x)
-dimensions
-inner product
-1
-<+f
-= ( 1 f(x)(dx
-: f = 4(x)
-f(x,)
-dx
-1'bra-ket'
-:
-(f)
-=
-f(x2)
-<u(v)
-= (v, 12 + 1vz1 + 1Vg12 + 1vy/2
-+ri
-=
-(i
-f(x)
-= + (f
-= ((4(x))dx
-e . g.=(),
-ulv = x+y
-bra
-= fl = ( ... f
-*( ,)dx , +
-*
-(x2)dx, f
-*
-(x3)dx,
-...)
-1v >= [viFuzus* vy
-*)
-P =
--it
-ket
--
-for the reflector :
-3)
-L
-Waves
-Polarization of ESM
-IV
-Bell's :
-pair
-of entangled
-*
-- E
-X
-photons
-General polarization Vector :
-(n) = &(H) + Blv)
-polarizer
--
-↓
-W
-↑
-L
-(1H(
--1
-output from the beamsplitter : 14) = Ell1< 10)
-+ 10711)
-complex number
-↑
-↑
-source
-Il
-Malus' Law
-leftetector
-right
-In)
-IV
-T
-detector
-"easy
-7
-X
-polarizer
-linear polarizer
-:
-input field has angle t
-· normalization : (414)=((1(01
-+ x0k :1) (10) + 10)(1)
-X(
-relatingtoeasy' polarizationit
--
-S
-* photons always have same polarization
-↓
-(1H)
--
-but polarization o
-can vary
-=(k
-, (1)(80) +
-< , (0)(0(1)
-intensity
-:&/Eocost)
-2
-↳If = IjCOS2(0)
-Il
-"
-O
-· introduce polarization measurement operator
-for theexpected'
-case
-Source
-Generates Entangled Pairs
-I pure random'
-S
-= /COSSince
-(4) = - ( ( H) (H) + (v)(v)
-↳We
-would expect : either (H)/H))50
-% of
-both
-↓
-↓
-or
-(v) (v
-leftward
-rightward
-1)
-e .g. p = (10) = cos20(
-%)
-particle
-Particle
-the reality is, due to entanglement,
-we resolve 0 %
-of both
-want : pi 14)
-= 14
-(4(4)
-= E(cos20+sin20)
-2
-= I
-Lif -, -02:)
-A ,
-214)
-= 14)
-3
-4")
-:COSCE
-ate of
-each photon
-getting through polarizer
-1
-1
-1
-B
-,
-Ba
--
-source
-Pi
-(A) = (H)
-&
-(B) = (v)
-Az
+Core equations
+Equation 1
+$$\langle u|v\rangle=\int u^*(x)v(x)\,dx$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
 
-OCR supplement
---------------
-Bell s Inequality
-a
-imagine 4 continuous function f(x)
-and the EPR experiment
-so: <ulv )=
-" det product
-is ike @ vector w/ 00
-interpretation: local hidden variables
-inner product
-dimensions
-pire dx)- f(x)
-where
-"i
-Flx,)
-dx
-<tlt) J Urey t= Vu)
-oO) bra- ket
-Vy
-Kulv >= ly l7+ Ival? + 1v3 17+ |vyl"
-f
-(x2)
-<vi=
-V3
-¢(x3)
-|
-bra
-Vu
-xX
-<tlty |
-Wool av
-e.g a
-Y
-t
-} dulv> ee ak
-<EIE (L$ x,)ax, Plva)ax, ftvsdde,...)
-ket
-lv> ( HK y
-3 Vy
-')
-J=- Ww
-fo the vetlector
-a
-Polarization of ESM Waves
-Bell's
-k
-pair of entangled
-General polarigation Neotor
-photons
-Iny= a|H)+Blv>
-J.
-polaviger
-1W>
-*
-Complex number
-[) output fron the beamspbiter: 1p > Al
-y]o) + Lodl1))
-Jource
-left
-\
-Iv'
-Malus' Law
-detector
-vignt
-detector
-linear polarizer: input field has angle &
-polavizer
-Centos to' easy' polarization
-* normakeation: LUP = Edel +<olci]) ( (1) 10) + toys)
-Eycos e
-photons aluays have same polarigation
-a
-cb)
-but polarization © can vary
-intensity: of (E,0058)°
-(<1 ]1Sgol 0) + <1 ool)
-tl
-L, Ip = Ticost(®)
-i}
-\
-0
-introduce. polarization measutement operator
-for the expected" cose
-Source Generates Entangled Pairs
-ester singycos
-er
-'pure random!
-Wpo=az ([H) y+ Iv>!v9)
-|
-sings = 3in2e"
-)
-Lowe would expect: either 1H) 1H)
-J
-rig htward
-or Iv) lv
-»
-leftward,
-particle
-\
-|» a
-Particle
-(
-i)
-) e6 B= (4)= eat (1)
-+ne reality is) due to entanglement, we resolve 0% of beth
-want pr) p> = |Y!
-CHI: 5 (cstossnta)*= 3
-alk,
-PoP | PD
-ly)
-'(2 @)
-JO "Nn
-getting through polarieer
-54
-Source
-De,
-Pi
-[AS
-JH)
-le)
-lv
-7 hy
+Equation 2
+$$|v\rangle=(v_1,v_2,\dots)^T$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 3
+$$\langle v|=(v_1^*,v_2^*,\dots)$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 4
+$$\langle \psi|\psi\rangle=1$$
+This relation describes the wavefunction, its normalization, or its boundary-condition behavior.
+
+Equation 5
+$$\mathbf{E}=\alpha|H\rangle+\beta|V\rangle$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 6
+$$I=I_0\cos^2\theta$$
+This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
+
+Equation 7
+$$|\Phi^+\rangle=\frac{1}{\sqrt2}(|HH\rangle+|VV\rangle)$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Equation 8
+$$P(H_{85})=\cos^2 85^\circ$$
+This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
+
+Equation 9
+$$E(a,b)=\cos 2(a-b)$$
+This trigonometric form captures polarization amplitudes, basis changes, or correlation probabilities.
+
+Equation 10
+$$S=E(a,b)-E(a,b')+E(a',b)+E(a',b')$$
+This is one of the main relations inferred from the page and kept in standard notation for rendering and search.
+
+Context clues
+Title focus: Bra-ket - Entanglement.
+Category: notes.
+Page count: 1.
+
+Search terms
+Bra-ket, Entanglement, Quantum-information, notation, inner, products, polarization, states, Bell, EPR, experiments, entangled
