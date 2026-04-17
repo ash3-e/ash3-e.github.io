@@ -1,7 +1,7 @@
-Particles
-=========
+Relativity
+==========
 
-Source PDF: Particles.pdf
+Source PDF: Relativity.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
@@ -10,306 +10,172 @@ PAGE 1
 
 Extracted text
 --------------
-11
-complex conjugates
-"
-particle counting & probability
-↑detector
-"
-WV
-detector plane
+↳Intro
+Relativity
+time dilation :
 -
-> avalanche
-mechanism
-↳matter wave
-excited w/ light
-u
-· escapes from bound state
-. "
-hu
-.....
--
-g
-detector
-photographic
-=↓t
-measurement'
-im M
-↓
-" macroscopic
-"
-=
-· typical currents 100 electrons
-Ist]
-· typical
-mass
-Ign 1023 atoms
-1
-measurement
-· "collapse of
-wavefunction"
-S
-tur
-It
-Instantaneous change of 4
-E = ntwo
-· Find A
-by
-normalization
-Infinite
-Squarewell
-V=
-* total probability must equal
-100%*
-* Born Rule : new empirical "law of physics"
-v = c
-bosons-"amplitude", quantization
-not derived
-from Schrodinger equation
-1
-=fdx(4(x)(
-= JdAsin2(#)dx
-fermions-
-O
-or 1
-probability of detecting a particle a J , E)
-1/
-try : sinto = 1-cos2: axcosbx= sink
-" Copenhagen Interpretation
-~
-14 (F ,E)12
-X= 0
-x= 2
--
-> I is not real, only probability amplitude'
--
-> x2(z - sin ! ) =1
-= APz
-+
-A =
-2
-1
-↑(x) = Asink
-↑
-*(X ,t)4(x, t)
-X= 21
-N22th
-T
-·ik
-e. g . Hweike
-.I
-· 4(x)= Asin
-= Asin()
-energy operator
-: En =
-2 mLl
-=> 1401
-E -
->
-Vo
-m
-matcha boundary :
-Esin(i)
--
->
-I
-region D : Heikx
-- kX
-I
-X= 0 : eikx = e
-,
-x = 0
-V= 0
-X=0
-V =0x=
-E B = A
-2
-region
-2 :
-Be-kx
-X = a:
-Ae
--ka
-= Ceika
-ur
-region
-: Ceikx
-"complex number"
-cosk = eiktei
-particle lux: #particles,Velocity lekap
-2
-V=
-Boundary o f= 0
-I
-#4
-= 4*t
-↑,
-= eik(0) + re-:k(0)!
-= teik(0)
--
-M
-=
-1 + r = t
-& numbersity) x velocity
-It
-derivative
-10)
-I
-unbound states" scattering"
-ikgik-ikrikto) ik'tesk(o)
-,
-R Reflection coefficient
-region 1:
-1
-K
-Il
-k
-↳Irl
-?
-= r
-* v
-is positive & Real
-En
-7
->
-I
--
->
-t = 2
-↓1
-=
-Aeik + Beikx
-r = t
-- 1
-↳ik(1-r) = ik't
-k + k
-k(1
-- St
-- 1)) = k't
-T
-k(1 - r) = k't
-N2 =
-teik + Like
-↳v = t- 1 =
-2k' - (k+ k))
-k(2- t)
-- kit = 0
-V
-k + k
-2k
-- (k+ k')t = 0
-O-input from left side only
-I
-2 unknowns
-I
+> putting this together we get the following
+Newtonian
+postulates :
+round trip time observed by A
 ↳
-2
-X=0
-tr2k2
-k =
-2m/E-Vo)
-E = Em
-tu
-recall flux :
-I : I
-,
-k is input
-Vo
-↑F74= =
-E
-7
-1412v =
-boundaries gives
-4
-conditions
-7
+Golilean Transformations : At = At'+ vAt'
+x
+event
+1) All inertial reference frames
+are 'equivalent'
+* (s =si
+#
+↳ta = Ch
+=>
+At = Atl
 -
-11
-where 4 = *
-* a
-& units?:
-normalization
-- Jdx 141
-= 1
-unitless
-boundary
-3
+* V +s'v
+2) The speed of light is the same from any inertial reference frame
+- a
+T
 I
-X=0X= a
--t
-Ok = 3
-2
-unknowns:
-v
-B
-= 2,8
-↳It has units it
-X = 0 :
-i
-①Lilgik + reike
-eik(0) + reck(o) = Aes + Be()
-*
-in 3-D:=3
-↳I +r = A+B
-area
--
+o
+L
 1
-ik(1)
-- rikSi) = AK(1)-BKsi)
-reflected
-2
-Aeik + Beik
-- units of flux : area
-At
-↓
-units of length
-&ka
-+ Bekater M
-flux in transmission : (need to square It) to resolve probability wave)
-3
-teikx
-↳KAe-Fa-kBeka
-= ik + eiKa
-- 2
-k =
-B2
-- k2
-(ItRkI) =E
-⑧values:
-A = 2
-flux in reflection:
-Kappa
-k = 3 fi
-traveling
-= LIRk)=
-B
-= 10
-= +2kk)
-add
-these:
-I
-cos(kx-wt)
-t= 0
-I
-(rkk + 171r=
-X= a
-wt = F2
-m
-↑
-X
-- 0
-cos(k)
-Ma
-input
-flux
-M
+S sla event2
+As
 -
-cos(kx-E
-, ei
-= cos+ ising
-11
+>
+which we define by U
+=
+1 - (v)
+event: A
+B's =Y
+time to hit receiver from B's po
+vXt'
+At
+O
+·
+event:
+· receiver
+relativistic :
+non-relativistic:
+and arrive at the
+4.-dutVrel)
+x
 3
+-
+-
+↳+ =&
+, tri Ente str
+* At= Ato
+K
+AX
+2
+l
+A
+A d'1
+=> not simultaneous !
+!
+1 vX
+↑cove
++Ve V
+equivalence : th
+= Uta
+where , for examples
+parallel motion :
+V =
+B
+B
+-
+>
+T
+Vy
+i
+202/2 , V = 2/53
+-
+~
+-
+>
+-v up:
+↑rear clock-ahead" effect :
+extra distance traveled by OL : (iv) -
+ar
+= C-
+-
+B
+V
+musun
+-
+> Up
+Vs2 + Vp2
+-
+> v
+Up
+-
++
+so, from B's por -the round trip time observed
+L
 I
-X
--0X= a
-classical waves: "impedance mismatch"
+time =*
+↳
+↳ah
+-
+> Vp
+B
+isil
+so , speed
+w
+Ch + VG
+L
+7
+Vs
+- Vs
+tz=up
+tr-if-
+2
+- Vp
+t
+VSX
+↑USE-Vp
+↳-
+Cl' - ul
+*L from train's frame
+E
+O
+-
+> v
+Ch -VS +vC-Va
+I
+platform
+i
+B
+P
+=L
+(assuming v<((c)
+object velocity
+:
+2 reference frames :
+S
+-
+reference object's
+"rest frame"
+both
+sors" can be moving
+s
+-
+moving object's rest frame
+S choice of s will det. relative
+3
+reference frames w/Av :
+frame
+speed of moving-
+speed of object measured
+V
++
+y -
+frame S'U =
+[
+y
+1 +
+in moving frame SI
+speed
+of object
+measured
+in rest frames

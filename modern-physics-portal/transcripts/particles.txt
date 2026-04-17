@@ -1,285 +1,315 @@
-Lorentz Transformation
-======================
+Particles
+=========
 
-Source PDF: Lorentz Transformation.pdf
+Source PDF: Particles.pdf
 Category: notes
-Page count: 6
+Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
 Extracted text
 --------------
-Lorentz
-Transformation
-(Time Pilation , Relativity)
-est
-my frame
-me
-에
-A×=γ(AX + VAtリ
-으H가
-으테H"
-Λ#HIVAt
-罒
-At =γ (At
-' + 品Axリ
-웃애
-^ _
-Ax÷ γ (Aγ - vAt)
-Your Frame
-Ar
-' =γ(cAt
-- vat)
-1
-speed of light seen by you
-:
-Aビ' -γ(AtA)
-At'
-←γ (At
-- 号2cbt
-)d :
-γ (cAt- vAt )
-γ(st
-- 品cnt) =
-velocity transformation:
-“
-感
-≤
-Fu
-'
-: c
-ム_(筑
-+ v)
-+ uji +
-c = 合
-ε ↑
-但,
-i
-timeilation
-(1 + 品) +酱
-suf
-length contraction :
-length
-uy叭注)器)
-contraction
-
-PAGE 2
-
-Extracted text
---------------
-example of an invariant :
-(As2)
-は
-= ( At)? -(A+
-)
-? -
-Z (AE' A+')- γ
-(Ax'+ vAt リュ
-: 2 γ [1At)
-+AZ 'At' +(Ar
-)}
--
-c[ 響+
-旨Ar 'At + 唱(At
-)]
-Ay
-> c2γ^{ Bt)
-= 最(At)] + cazz[
-瓷( Ar)㎡
-- ( A)]
-↑
-7 r2
-警( 怒- り/Azα
-X
-( A82)
-は= (cnt)_ 6Ax) 2 -
-響( -1 )/ Az)の“ space - time ”
-r2
-=(yz2)+ (yye)
-
-PAGE 3
-
-Extracted text
---------------
-spacetime diagram
-forward
-event
-occursorentz transform
-event from other
-minkowski diagram
-t
-(t , X , y, z)
-reference frame
-timelike
-light
-come
-( t' ,r '; g ; z
-( 4
--D)
-「
-¿
-7
-= ct
-t 比
-can be affected by me
-"light cone"
-⑥
-x
-'spacelike'
-can
-affect
-me
-&
--
-reverse
-light come
-
-PAGE 4
-
-Extracted text
---------------
-Λ
-↑LorentE transform
-X
-Λ
-K
-100m
+11
+complex conjugates
 "
-∞
-event 2
-いいいい納
-{ π
-- t : 0
-t : 0
-K
-50m
-λ
-∅
-event 1
-d
-θ
-lu)
-from
-one reference :
-X= o
-time dilation
-X- O
-XI
-= L
-from other :
-length
-contraction
-ti ' -810- r50) ) -
-x,
-' - γ10
-- 01 : 0
-tz
-' - γ (
-- 26L) )一は
-z'
-:
-γ ( L -Vol - γ L
-
-PAGE 5
-
-Extracted text
---------------
-V = o
-> *
-ev
-*
-invariant
-㎡
-time curve
-Cany pt
-on this curve experiences same universal time)
-emitting light
-C
-At' -(
-timefor1 s「pulse)
-" "
-n f
-; √
-一
-E
-UVT
->
-ome
-C
-Ate= UT'(emission of 2nd pulse)
-Λ
-Λ
-At
-ㆀ
-…
+particle counting & probability
+↑detector
+"
+WV
+detector plane
+-
+> avalanche
+mechanism
+↳matter wave
+excited w/ light
 u
-inframe of enter
-event
+· escapes from bound state
+. "
+hu
+.....
+-
+g
+detector
+photographic
+=↓t
+measurement'
+im M
+↓
+" macroscopic
+"
+=
+· typical currents 100 electrons
+Ist]
+· typical
+mass
+Ign 1023 atoms
+1
+measurement
+· "collapse of
+wavefunction"
+S
+tur
+It
+Instantaneous change of 4
+E = ntwo
+· Find A
+by
+normalization
+Infinite
+Squarewell
+V=
+* total probability must equal
+100%*
+* Born Rule : new empirical "law of physics"
+v = c
+bosons-"amplitude", quantization
+not derived
+from Schrodinger equation
+1
+=fdx(4(x)(
+= JdAsin2(#)dx
+fermions-
+O
+or 1
+probability of detecting a particle a J , E)
+1/
+try : sinto = 1-cos2: axcosbx= sink
+" Copenhagen Interpretation
+~
+14 (F ,E)12
+X= 0
+x= 2
+-
+> I is not real, only probability amplitude'
+-
+> x2(z - sin ! ) =1
+= APz
++
+A =
 2
-difference : T = UT'-
-emit 1:: ‰
-UT'x
-¤
-=γ( 1 - 号)+
-ㅣ
-t' - 0
-√
-*
-, 龄(
-1- 号)+^ *1+ 号)
-^
-Primetee
-emit 2 : 21
-=0
-}
-t
-' 二+
-our frame
-A
-바흡
+1
+↑(x) = Asink
 ↑
-emit 1 :
+*(X ,t)4(x, t)
+X= 21
+N22th
+T
+·ik
+e. g . Hweike
+.I
+· 4(x)= Asin
+= Asin()
+energy operator
+: En =
+2 mLl
+=> 1401
+E -
+>
+Vo
+m
+matcha boundary :
+Esin(i)
+-
+>
+I
+region D : Heikx
+- kX
+I
+X= 0 : eikx = e
+,
 x = 0
-frequency
-: F
-=F
-to
-emit 2 :
-x2
-= V(O+ vT)
-tc= ((T
-+o)
-
-PAGE 6
-
-Extracted text
---------------
-invariant :
-E 2 - (pc
-?
-⇒E =γmcn
-Taylor :f(80 +8 ) =f(ea ) ++ …
-↑
-P
-= 2mr
-↳ン
-→に主1 一- り+ …
-kinetic
-momentum
-- x
-energy
-L mu
-E = 喜
-Mca
-(πo - ')
-= 1 t 当x
-clarification!
-- Emul
-」
-応
-ご( け忙望men
+V= 0
+X=0
+V =0x=
+E B = A
 2
-二
-mc 2 + 文mv3
-"rest energy'
+region
+2 :
+Be-kx
+X = a:
+Ae
+-ka
+= Ceika
+ur
+region
+: Ceikx
+"complex number"
+cosk = eiktei
+particle lux: #particles,Velocity lekap
+2
+V=
+Boundary o f= 0
+I
+#4
+= 4*t
+↑,
+= eik(0) + re-:k(0)!
+= teik(0)
+-
+M
+=
+1 + r = t
+& numbersity) x velocity
+It
+derivative
+10)
+I
+unbound states" scattering"
+ikgik-ikrikto) ik'tesk(o)
+,
+R Reflection coefficient
+region 1:
+1
+K
+Il
+k
+↳Irl
+?
+= r
+* v
+is positive & Real
+En
+7
+>
+I
+-
+>
+t = 2
+↓1
+=
+Aeik + Beikx
+r = t
+- 1
+↳ik(1-r) = ik't
+k + k
+k(1
+- St
+- 1)) = k't
+T
+k(1 - r) = k't
+N2 =
+teik + Like
+↳v = t- 1 =
+2k' - (k+ k))
+k(2- t)
+- kit = 0
+V
+k + k
+2k
+- (k+ k')t = 0
+O-input from left side only
+I
+2 unknowns
+I
+↳
+2
+X=0
+tr2k2
+k =
+2m/E-Vo)
+E = Em
+tu
+recall flux :
+I : I
+,
+k is input
+Vo
+↑F74= =
+E
+7
+1412v =
+boundaries gives
+4
+conditions
+7
+-
+11
+where 4 = *
+* a
+& units?:
+normalization
+- Jdx 141
+= 1
+unitless
+boundary
+3
+I
+X=0X= a
+-t
+Ok = 3
+2
+unknowns:
+v
+B
+= 2,8
+↳It has units it
+X = 0 :
+i
+1Lilgik + reike
+eik(0) + reck(o) = Aes + Be()
+*
+in 3-D:=3
+↳I +r = A+B
+area
+-
+1
+ik(1)
+- rikSi) = AK(1)-BKsi)
+reflected
+2
+Aeik + Beik
+- units of flux : area
+At
+↓
+units of length
+&ka
++ Bekater M
+flux in transmission : (need to square It) to resolve probability wave)
+3
+teikx
+↳KAe-Fa-kBeka
+= ik + eiKa
+- 2
+k =
+B2
+- k2
+(ItRkI) =E
+8values:
+A = 2
+flux in reflection:
+Kappa
+k = 3 fi
+traveling
+= LIRk)=
+B
+= 10
+= +2kk)
+add
+these:
+I
+cos(kx-wt)
+t= 0
+I
+(rkk + 171r=
+X= a
+wt = F2
+m
+↑
+X
+- 0
+cos(k)
+Ma
+input
+flux
+M
+-
+cos(kx-E
+, ei
+= cos+ ising
+11
+3
+I
+X
+-0X= a
+classical waves: "impedance mismatch"

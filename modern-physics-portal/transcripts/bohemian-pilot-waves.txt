@@ -1,116 +1,349 @@
-Assignment 8
-============
+Bohemian Pilot Waves
+====================
 
-Source PDF: Assignment 8.pdf
-Category: assignments
-Page count: 2
+Source PDF: Bohemian Pilot Waves.pdf
+Category: notes
+Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
 Extracted text
 --------------
-↳
-,
-v =3
-volume per state in k-space (
-(블K
-3 )
-standing wave k-volume:allowedvolume:k 了
-(芒
-》一宫K
-的
-. 最一主新2 K 3 (
-3
-止最→
-U - 条NkBT
-⇒WI PV - NKBT →PENFBI
-~
-dU = ENKydT
-and
-dV = dQ-PdV w/dQ = o
-wegetdU = -
-BTN
-dU =
-- pdV
-andresolve : 夏NKB
-装心與dv
-→号d 5 = 号dv →↓步
-N =
-[
-KB+H
-3 版→☆- (KB
-+ )%→
-[ )-KB +→+ -
-座
-。和
-T= 2 N33(2/3
-a) p -= 2 N한
-ㅣ
--
-cNsnce
-+=c
-}☆: +弩
 "
-。賦
-b)
-「
-二( 合)"
-。店「
+Spontaneous Collapse
+"
+Bohmian Pilot waves
+entangledC relativistic ↓collapse
+explanation
+it
+d
+: -E24+ 04
+-R
+= -EmY2R+MRIXsk+ UR
+similar to velocity
+↳* H = Reis/h
+t
+I
+-
+E
+JR
+8
+Ol
+M
+Uz
+o
+= -(TR)
+. (s)
+-[mR2
+similar to phase
+-
+-
+I
+I
+·
+in an egh w/
+complex numbers
+can split into 2
+9
+= R2 -probabilitydensity'
+interpretation
+: both physical
+wavea particles
+V = I
+↑
+PE
+~ (spatial location)
+->
+riSpatial location)-Observis -
+observed
+first
+* caused collapse
+*
+3 ImIP
++T
+looks
+like
+Schrodinger
+--
+tuk-quantal
+KE
+Q
+frame 2 equal times
+particle
+. /
+Bohmian Term
+11
+- Uz
+-
 and
-" c (응)13
-usingP
-- 条NKB∵P
-- 条NKB号卡- - NK哈
-andP=一紫
+Bohmian particles
+"potential of something
+↓
+I
+frame 1 equal times
+2"weird behavior" of
+Bohmian particles
+(don't appear to
+conserve momentum)
+↳can't cross nodesm
+↓(Spatial location) +
+postulate : universal preferred
+reference frame
+3
+only accurate
+for particles
+with
+mass ,
+not accurate for photons, phonon
+X
+copernican principle , nospecial' reference frame
+1
+only solved for non-relativistic
+equation
 -
-一号NKB 噬号NKB 号吉
-- NKBE
+> not a narrativity,
+no unique predictions
+5
+doesn't say where randomness
+comes from
 -
-N與
-,
-thus : PU = NFBT
-⇒U 予NKBT,
-want : 予U ≠PV - 号O
-學U→NKB +80,PV - 号V- 装
-PV - NKBT }
+>
+future
+events
+can affect past in
+other reference frame
+Back 2 Many-worlds
+. 99F
+what are the equations/postulateso eis
+&
+&
+· matter waves
+Born Rule
+for probabity
+↓
+Schro
+P(measurement) + 1412
+DiraC
+> 0 . 01
+~ 0 ,99
++ Th
+Successive Measurements
+Bz-
+Spin equivalence
+BX
+T
+IvL
+-In
+1) start with 1v)-sets all vert.
++h
+insuperposition
+↑
++h
+-
+>
+of (H)
+& IV
+7
+1)
+polarization
+↑
+-
+>
+is
+-
+>
++h
+X
+X
+-
+>In
+2) polarizera 450
+after
+A
+Fi
++h
+-
+> kill Et
++h
+Vert
+xc
+-
+>
+-h -
+>
+&
+BE
+keep Ell + @450
+-
+>In
+IHL
+-
+> x
+> k
++h
+B
+magnetic field
+measurement
+3) 2nd polarizer along (H)
+-
+>
+-
+>In
+~ Hor
+for spin state
+· 50% gets through
+-> remaining part is
+along(H)
+after measurement 1
+measurement leads to projection of states
+onto the set
+↳40 % after end
+of
+possible
+measurement
+outcomes
+* inserting 450 polarizer
+in between
+1) and 2) results
+in greater flux at end
 
-PAGE 2
-
-Extracted text
+OCR supplement
 --------------
-N →
-V 弄z ( mkB+)eM/KB5
-。号
-M/FBT SCeB2
-= eM-M
-↳
-N = ce
-]
-2N = CeM/KBT
-Take
-m :
-m (a) -1
-p →µ-
-+
-KB+ n (2)
-,
-s0
-uwillhave
-to increase
-p -10ton/c
-' y= 前Pem/
-kB+ 2㎥に(KB+
-悲
-N℃ε ie
-と- 芝=
-V( mkB+)
-s
-eMlkpt
-。李
-_
-latom = 9 x 10 "e
-Ep
-= 901023cm3
-density of partickes "
-.3( 号EE' le)
+Bohmian Pilot waves
+" Spontaneous Collapse ""
+-
+ac
+-
+entangled @ relativistic P collapse explanation
+"EVs vy
+la wW = perk
+-p aS - -& 7p + am RIVS ie U2 similar to velocity
+$1
+oO
+ti
+S
+oO
+ta
+Wy
+r=
+ta
+Wy
+ae. -< (v a): (vs) ~akVs similar to phase
+in an eg? w/ complex numbers
+Can split into 2
+r =p * probability 'density'
+q: YS
+t
+¥ (spatial location) >
+V (spatial location) >
+t
+interpretation: both phusical wave & particles
+Observed first
+ti? VAR
+Observed first
+4¥_ problems
+--- +4
+|?
++U
+caused collapseTM
+caused coll apseTM
+Ky
+a -
+%
+am
+looks like Schrodinger
+- =
+© 2 ty pes of particles
+-
+WK - 'quanta !
+_ © frame 2 equal times
+--
+_--
+=~
+and
+Bohmian Term
+a
+"a
+oe
+"Bohmian particles"
+"potential of something "
+= tk,
+frame 4 equal times
+ky
+@ "weird behavior" of Bohmian particles (don't appear to Conserve momentum)
+ky
+Ly can't cross nodes Oo
+V (spatial location) >
+postulate: universal prefered
+@) only accurate for particles with mass, net accurate for photons, phonon
+teference frame
+X Copernican principle ! no special reference frame
+® only, solved for non-relativistic equation
+® doesn't Say where randomwess comes from
+> not a "narrativity | no unique predictions
+> future events can affect past in other reference frame
+a4
+Back 2 Many- Worlds
+ol
+o\
+a
+ol
+aa
+aa
+- what are the equations /Postulates of QM
+44
+ov
+a4
+ol
+44
+ol
+° matter waves
+4
+Born Rule for probabity
+Schvo
+P (measurement) -> |p |?
+Dirac
+i 0.0/
++7h
+Successive Measurements
+)
+i)
+Spin equi valence
+IvS
+TM)
+RP]
+1) start with Iv)- sets all vert:
+Bx " fe
+2
+eth
+pol aritation
+)
+i
+ot '
+N)
+ore
+9) polarizer 345°
++tk
+cA
+=> kill Ex
+(e's\)
+keep Ey 3 45°
+{=
+Be
+IWS
+eth
+ae
+8
+magnetic field measurement
+4) a" polarizer along IH)
+for spin state
+Ex
++ 50% gets through
+atter measurement 41
+> femaining part is along )H\
+40% after 34
+measurement leads to projection of states onto the set
+Of possible measurencat outcomes
+X inserting 45° polarizer in between
+\) and 2) results in greater flux at end

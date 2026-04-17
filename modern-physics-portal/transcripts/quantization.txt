@@ -1,266 +1,273 @@
-Waves
-=====
+Quantization
+============
 
-Source PDF: Waves.pdf
+Source PDF: Quantization.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
-Extracted text
+OCR supplement
 --------------
-making waves
-multi-dimensional
-waves (ei([ * -wtl)
-↑* = kx + kyy + kzz
-= (k)(x)cos
-10
-cost
-> is
-take is along
-Y
-~ i
-k = (1 , 0, 0)
-X -
-e . g. To
-Y = (x, y ,z)
-(x = kX
-(i ·*
-- wt)
-keep only part of along is
-Ef M
-waves
-kX = X
-Ikx/cos
-"vector field"
-Y=
-i
-↑wavelength
-= e
-E [2
-now,
-we have polarization
-LE
-B
-/
-/
-/
-Polarization angle
-E
-= (Ex , Ey , Ez)
-q =E
-,
-+ BE
-Ezy
-Y
-70
-phase angle
-v
-Make it Quantum
+particle in @ box
+from last frame
+write in terms ft
+--
+vty: -(¥ mee)
+dL
+—
+V (r)
+uTéor
+wx: 00
+u(x): 00
+2
+N
+eigenstate
+«(e)
+eo)
+proton
+equate potential energy Teduction
+Schrodinger
+AB=-0
+with the Kinetic energy gain
+Q(o)-0
+(Wet
+(Kk)*
+a
+‘rr
+(0),
+eu!
+)
+gir
+42
+—
+nt
+Cy
+AS
+on = omR= 2
+Le. re
+oh
+2
+2m
+dm
+ra
 1
-Schrodinger Equation
-Potential energy operator
-oscillating test-charge
-Sold : 4 (x,t)
-= Goe:(k* + wt + 4)
-=
-ind= dY
-+ ulx
-= (Heil
-... )
-id
-= it i Noel.
-Kinetis energy operator
-: Id d
--k2
-w = VI
-phase velocity
-De Broglie
-Relations
-p
-=-k
-E = tu
-↑planck's constant
-= itodet
-* d=
-um
-X
-1 operator" : p
-=
--it
-K
-v=
-(dispersion relation)
-↑X
-= -it(ik)4
-= (tk)4
-Regular Wave Equation:
-Hogilx
-+ wt) =dik
-~ y
-= ei(kx
-- wt)
-kwX =
--tek2
-=
-w=
-Im
-u(x) " eiwt
-C- iw)2
-(ii)2
-Il
-2m 4
-phasor :
-Schrdinger :
-itiw)ei)
-...)
-=
--[m)(ik)2
-W
-E = -tw
-tk
-= p
-= mr
-v=
-diagram
-O
-Re
-K
-↑
-Y(X ,t)
-cos(k* - wt) = ei(kx
--wt) + ei(kx
--wt)
-I
-P
-= trk
-m=
-↑Se int
-w =(vSt))k
-2
-E(t)
-"Unitary behind"
-phase
-very far away
--
-V
-m
--
--- "Fraunhofer" limit
-.
--
-↑
-wave phenomenon
-:
-ei(ke
--wt + 4)
-a
-KAN = ZiN
-Vg
-Ug
-=
-dw
-Schro : d==
-emitter
-a detector : sum
-- Casino : sin
+‘1m L?
+4 phase
+uTe
++m
+(5):
+am
 i
-ei(kAf-wt)
-+ ei(kAf-wt)
-in
-(0
-w
-02
-detector
-mee
-AX = AN -AX ,
-conditions for
-destructive
-interference
-↑
-2
-·Re port) : cos(kAx,
-- wi) + cos)kAx2-wel
-# X = asino
-:
-sin :/(a)N
-,
-N =
-0, ,
-.
-..
-EsinD = MN
-Intensity & A2-rule :
-first
-add 4
-condition for
-constructive interference
-↳sin: N
--
-then
-square result
-↳KAN = ZiN
-2
-0 = 0 : sin(0)
-= sin : (2)
--
--
-M
-d :
-D = 0
-im Sin
-phase'
-ei(kx
-- wt + b)
-↑
-boundary conditions"
-Does it satisfy 'Boundary
-conditions' ?
-guess solution : ei)kt-wt)
-- ei)
--kx - wt)
-guitar string A
-↓"standing wave"
-Fike-int
-sin kn = 0
-a X= 0
-44
-eintkeik)
-=
-Fintzisinke
-Sin KL =
-0
-& *IF
-:
-octaeeFifth
-L
-KL = TN
-9
-4(0) : 0
-4() = 0
-"Particle in
-Il
+ane/v
+I=
+4
+me
+ye
+natural units
+4
+mass of electron: me?= 0.6.x1D ev
+= 27k
+~ os ene N=3
+K nit of energy
+boundary Condition tor circular path,
+N
+“second” quantization
+optical cavity”
+—<——
+1R=10
+8
+photons”
+were ee = =
+WL = 2x1d e-on
+cm
+- where do = come trom 2
+10
+-@
+intinite # of wavelength modes: K 2
+—=-=-----. Nel
+E
+(axio"“ev-cmm)” 3b
+> ——10 10 16
+4
+3
+© IoeVv
+Ly fer each %
+infinite # of possible amplitudes
+a(me?) iB
+2(0.5 xi0% ev)
+10 “cm
 I
-A
-cosk + isink- [cosk-isiniz]
-=
-Zi sinke :
-uantized'X's
+E=NhwWy
+N= 0,1
+2
 a
-box
-diffraction :
-Huygen's "wavelets"
--
-> X = * integer
-/
-&
-sum - integral
-complex relation
-evy = cosy + isiny
-I
-/
--2
-dein eksinik
--
-ik Esino
+solve for E
+Particle
+V2 qK2
+harmonic potential: iKx%
+1S
+A\Y
+quantized ampk tudes
+t= Casey exact > N
+first quant ization
+7ZzSN
+‘\ quantum Field theory”
+=-Ka
+W
+ANY
+wave length 2 is quant ized
+\ phonons
+‘oY
+°
+l
+T*KN2
+approxinate: E 2 anu 9 Lz VIE/K
+Kinetic energy: E=
+dmL2 )
+t effective length
+hotons
+bosons
+a")
+yw
+obey standard wave equation
+Mvp
+dxu>
+— Wixt)=0
+phonons
+dt
+Unitary evolution
+elecrrons
+\ Sormions
+protons
+a)
+sy + const.
+neutrons
+bey Schrodinger equ ation
+bx?
+ex.)
+finite square well
+Ub) = 0
+V(X)=V,
+v(x=V
+yer i
+time - independent Schrodinger
+suppose. & > en
+w 2
+Wix)
+wd
+re
+4m
+} a a
+CV(x)
+_—_
+P(x) + U(x) Py)
+what if U(x) >¢2
+X=4
+tv)
+Xz
+aX
+Il
+nw
+-iwt
+‘\9
+Y (x)
+\, Wo tx) = Rett% , Qo ik» ), (4): W(-4)
++be
+“ke
+Wn WY
+guess Y(x) 4 etKs
+Y, (x)c are
+W($)= (3)
+a4
+Rew
+Wai) 4 ike - line
+su
+a>
+Mb
+=A
+Leys
++ V(x) ¥/
+ax
+X27
+dX
+-—
+"2
+sY4
+34,
+4x
+a-
+-_—_—
+>
+energy equation:
+.
+dx
+> tek? in middle region
+“tn
+tan Ka
+l special property
+UnKnowns NY amplitudes
+“Ke
+-«
+i
+high K= high
+-—-
+ki K
+5 boundary a) = 2 vk
+2+e@
+- bse
+Ka
+> 42K sin 7
+= +k
+Ly large kinetic energy
+bs: ta,
+leave overall amplitude
+eos (
+KQ
+2 cos ka
+i}
+free Av® Azi
+higher vibrational Frequency,
+normalization ")
+uK
+2 -
+(uk)
+@ 2
+KO
+( additional constraint
+[ ik)
+| ° Kye“
+% solve for k [4
+wk
+L, solve for
+case first; B=A
+mae
+N=3
+-tka
+Ka -
+eo = Cos Bt isin g
+¥ iK et
+-“@ 2
+)
+Ly kta
+2 -
+VB Kh
+Nel
+e8= cos@ +ising
+2isin ()= ~asin( )
+Pury
+Ka -
+a
+aN& acm
+L pace
+tan 7 = 00
+t odd
+=A = 24
+po
+XY
+tan J > 60
+w o3T ST
+when Cos @
+vo
+2,2

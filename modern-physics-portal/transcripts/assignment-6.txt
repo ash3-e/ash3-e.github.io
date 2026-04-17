@@ -1,379 +1,195 @@
-Assignment 5
+Assignment 6
 ============
 
-Source PDF: Assignment 5.pdf
+Source PDF: Assignment 6.pdf
 Category: assignments
-Page count: 4
+Page count: 2
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
 Extracted text
 --------------
-Infinite
-Squarewell
-· Find A
-by
-normalization
-v = 口
-V ∞
-* total probability must equal
-100%*
-1 =dx/NCATR =/drAsin)
-de
-XO
-張
-し
-try : sinao -
-「時
-20 : Narcos
-by - Bsinbr
-4A) - Asin kx
-6 A( 会sin 柴⑯)
-→
-1 -A
-時
-+ A
-そ
-入一
-。ψ(0) =Asin)
-= Asin (
-"⑦)
-P
-=
-↑AZzin
-(
-(*) drr
+I,
+If
+3
+If = ICOS2(0)
 1
-: Al是一ysin(]舞
-whereA-c
-나주[화-*sin/]]뉴미
-P - [ 是一品sin()
-Gp - 是[ 气)]
-→气( )年一刻
-4氏) - Asin kx
-normalization
-- JdvINR
-=
-λ 兕
-N
-。ψ(0) = Asin)- Asin (望) =
-Asin(型) : (! 'Asin
+.
+. 1v
+3 ]
+.
+*v
+*
+superposition
+→1 : FcoS(
+0) -
+B
+⇒
+ -300 = B
+→II : I ,cosz(30)
+11-(I)
+□
+\
+θ= BE
+0
+w
+
+\
+31 IH
+}
+→I } : IICOS
+2(300 ) -[ ( ) ] [ ]I I
+A
+B
+160%
+= cos(60% 0
++ sin(600190%
+"
+X*
+>erpost
+ω☆
+!!1^,)
+"
+lu*
+I
+Iimnsos(cos2 (
+)
+) ¤
+
+
+after
+so,ts: 1
+
+A
+N →∞
+
+i
+as N+,
+21
+and Ig
++ I
+30
+
+m2
+IH)
+1 H)
+}
+P =p-itrT/
+}
+B
+*
+entangled
+photons
+a. P(H185) = cos2 (H
+- 85% E COS2(85) 2
+.76%
+U
+(H) ~samemarin
+1850 p(U)
+m
+M
+b. PSboth)="cost(0)do · /"cos2(0-85)do]
+source
+*cosz(r) - (1 +cosa ) : √[1 + cos 20]
+0 [(+
+20 -170)
 (
-型) ar
-+: A「
-- Ios( 峡)]dr= 1
-Lsino
+cos
+] do]
+↳(1 +cos(20
+- 170)
++ cos20 + cos20(cos (20
+-170))do
+↳i[
+1 do
++S cos(20-170)de +j costode
++ ("cos20(0s(20
+-170))do)
+↳i
+30
+o
+ δ "cos2 θ. cos(28-
+A 0)dθ ]±U "cos(2
+θ
+-12
+2-170))+cos/ 2θ+ ( 20- 170))ao
+
+COSA
+ COSD [cos (A - B) +
+cos (AtB)] ↳ .Tcos(o)[
+cotNo'
+"cos( uo-1Ho)do}
+
+↳ ↑
+
+
+cos/4 - 1FO) do ⇒ cos(70) 15+ cos[ia0) ] cos(Ho1]- 0. 12680 r 12.688
+2 cases: 0 = 00 (1H))
+- J, through (H) = cos2(00) = 1
+}
+B$0th
+= 10 O.007
+Q =
+0.700
+U2 through 1857 = CoS2(85%: 0 . 0076
+=900
 -
-Jarcossinbr (A
-る。一当sin(峡)]:
-A2[室
-{ sin (u1 +)]-
-A 登-
-1 , A-汽
+U , through (H) = 0
+S0
+P final
+= 2(0 + 0 .0076) = 0 .0038 = 0 .38%
 
 PAGE 2
 
 Extracted text
 --------------
-outside well:
-Ψ5
-)
-E 最筑崎Ψ(x ) +ux)ψ (x)
-: ψ (o)eiwt
-↳Eに
-器+ U5) Ψ
-finite square well
-M
-. ()
-No
-Na(x)
-↑(/ eikfr = eilik)x = Be-ke
-uksio
-Vial - Vo
-)
-06t第
-erp
-,decaboundary
-where:
-x da usingimmetry!
-{
-K . Im
-(E - '
-wz
-a
-lowest energy state: V(X) = 0
-when U(X)(*
-엷
-K 2Ψ
-USX) : Vo
-when U/x))
--올
-outside the well :
-↳special property :
-Ψ (x)
-= Agk*
-+ Belr
-,
-for
-X-50 : 4 + 0 : must set A = 0
-B =
-さA
-ㅣ
-ㅇ
-ㅇ
-(from symmetry)-
-bz
-= 1 a,
-↳Be≈
-, ∞x 는용: ψ(올) - Be
--몇
-inSymmetric
-case :
-but, inside the well xE : 4
-.(i) = Asos(k*)
-B - A
-= @ r ={ : ψ0(号) - ψ;(号) - Be等Acos(kz),so
-: B - Acos(kz)」e-
-kaz←Acos(kr). ek程
-so we plug back into : 4(x) = BekY
-and
-resolve H(x= Acos(e*** = Acos(E)ek(x-
-@ boundary →γ - { : ψ(信)- Acos( 竺) e= Aco> (竺)
-w/ ai ☆, 을
-- 높,
-0
-l 、
-normalization
-constant :
-since by symmetry
-: 0-E= -0 : resolving
--
-1 = 2) Pax
-+2
-we multiply by 2
-A
-=lftRax+2Oppor
-A / !A cos TKA) dx + ที่A cose-
-*** - )
-and ! THAI dr =
-Hi)
-⇒A2
-c0」2(笠
-2
-) 「堂e
--2kSr- )ar +
-「0
-℃-
-k " n_ 崎( ℃" 最夜AC0s答拡
-U 二小一受
-∞++
-0 =∞, 남은] du -d↓
-Acos(k)dx
-= Add-cos2dx= X+
-*
-cosㆍ(k+) -
-" - cos(*)
-)
-ム答原tsin線
-in[o2 ] : 祭原
-"" ]
-。2 - A院
-+ 袋)
-together'
-、=A2( I +sn築)
-+cos
-(
-A
-[ 笠) ]-Az (+
-"
-崎" )
-30
-A - ( 是+ 8i
-+
-00s與法
-
-PAGE 3
-
-Extracted text
---------------
-Vo
-U(5) - Vo
-superposition principle
-:
 Ψ
-HE : 最臨崎ψ (x) + Ux)ψ(A)
-region 1:
-4 ,
--
-Aeikit Be
-' ikx
-i
-42 : 器Ψで+ U。E4z
-ーkX]
-ㅜ
-1
-Wikl=0 x=อ
-2
-器ψ。"→ψ %-
-K 2
-ψz = 0 =⇒Aekr
-+ Bekr
-- Ae
-0
-ψ
-, (0) =ψ,(0)
-↑
-Boundary o f= 0
-i
-2m(E-vo
-) E箭
-\
-↑= eik(0) + re-ik(0)!
-= teik(0)
-W
-⇒
-1 t r
-二t
-_
-λ^ 裂
-,
-kisinput
-@ X =0: /+1 = =A :
-ikgiklo_Kriko) ik'tesk(o)
-,
-1st derivative: ik)1-r) = KA
-and w/ A=
-H+r : ik(l-r) = k(1-r)
-G - ikfrr)-
--Ak
-Ls ik(- r) - ik't
-rit
-- 1
-→
-t ←브
+HE ψ (x) + 0ix)ψ (A)
+Ae-k*
++ BeFr
 ReflectionCoefficient R = Ir/
-K(1 _ (t
-- 」)) ) =
-K'
-K + ド
-に(、-r ) 二
-に'
-K (2
--t)
-- k
-'t = 0
-↳rit- に
-2K- ( K + にリ
-IK
-- (K + kリヒ= o
-↳rik - k
-K t に
-↳1!
-、
-tk'
-aka.
-
-PAGE 4
-
-Extracted text
---------------
-because U(X) is symmetric about
-X= 0
-we get def. parity
-whereH(x) = 01-X)
-about
-X = 0 for
-even
-UE ∞
-U - ∞
-and
-ขะย ~
-、
-when E) No
-ψ(+) - 465)
-about
-t - o for
-odd
-permitted :
-U
-= Uo
-~
-_
-eigenstates.
-~
-=
-U = V 0√
-Region I
-Region I
-when EC Vo + oscillating Λ
 I
-these
-へwhen E > Uo
-(AX
+
+outside the well : k=
+mE
+inside the well : g
 =
-a )
-( Ar - b - a)
-when EX Vo
-U = o
-n
-ㅂ
-states
-<
-↳
-↳tunneling
--b
--aa
-b
-can exist here
-a =0
-b
-symmetry allows us to
-ㅇ
-just won't
-⑥⑳
-Solve for [0 , b]
-and reflect for
-Ax= 1b
-decay thru
-) A ン= b
-[ 0- b]
-tunnel
-equations
-can be reduced
-to bregimes : ①determined by Ax = b andby
-a (where ECUo)
+ImJE+Vo)
+
+I : V : 0, x- a
+-
+U ,
+= Agik* + Beikx
+@
+- a : ψ .
+: 4z
+: Heika + Be
+ika
+= Ce: 9at De iga
+/
+}
+- iat
+
+:KAeika _ikBeika - igCeiaa
+- i 9 De
+-iaa
+U(X)
+#1 : U :
+- Vo ,
+-a(X2a
+- Hz = 2ei9*+ De
 and
-b
-Region: sinosuiodal if
-E) Vo
-Coscillating)
-(tunneling/evanescent)
-exp .
-if
-ECUo
-* because U= c
-@ b : ↑(b) = 0
-E) Vo
-ELV 0
-Region#
-sinosuidal
-exp. decay a
-0IX[ a
-scillating @
-a <Xb)
-in the well= Kシ쯤
-0
-ELVo : k =
-2m(Uo
--El
-& V= 0 : H + k34 = 0
-\
-(in RegionI)(
-and
-고
-h2
-↳need : H(b) = 0 : 41 = Asin(k (b
--x)
-@ E) Vo:
-9 = ·Cro
+}
+& V : 0
+, acx
+- H
+- Feira
+·
+Uz = Nz : Cei+ Deig= Feik
+and d
+:
+ '
+:
+igCeiar- De-iar : ikFeikr
+R = 1,

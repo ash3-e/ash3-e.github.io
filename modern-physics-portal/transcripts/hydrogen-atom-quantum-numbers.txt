@@ -1,7 +1,7 @@
-Fourier Series - Transform -Wave Addition
-=========================================
+Hydrogen Atom - Quantum Numbers
+===============================
 
-Source PDF: Fourier Series - Transform -Wave Addition.pdf
+Source PDF: Hydrogen Atom - Quantum Numbers.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
@@ -10,406 +10,440 @@ PAGE 1
 
 Extracted text
 --------------
-Fourier Series Th
-*conceptual :
-explain
-the
-Born Rule
-in terms of probability
-any
-function f(x) defined
-on interval (0,a)
-Special
-Case : "Gaussian wave packet"
-can be written as a sum of since and cosine waves
-real space
-vs.
-K-space
-normal
-11 distribution"
-(position)
-/possible solution of
-Schrodinger equation)
-Smomentum)
-ei(kx
--wt)
-f(x) = e-X2/202*
-width of packet
-small
-in real large in k
-eit!
-i
-- ko2/2
-f(x) =
-2 o'e
-f(x)=
-- ikne
-ng
+e periments
+on
+photoelectric effect
+Threshold Wavelength
+- minimum photon energy (HF-wave frequency)
+current 'turns on' instantaneously
+- regardless of light intensity
+current proportional
+to light intensity
 -
-Cne
---
-Il
-n =Tweight factor
-an=I sco
-e-k/20 widthinrace
-X= 0
-Y
-⑭(x
-bn= /sin
-A
-↳OK:
-inversely proportional
-whereeflekux de
-area under
-curve = 1
-↳
-A
-Ok
-kn = n(2)
-100, 0
-, 0, ...)
-f(x
-- Xo)
-f(x) = e-ikox
-F(k) = 2π((k -ko)
-E
-Fourier Transform Th
-* each contains
-real space
-f(=keikdk
-for allwell behaved' f(x)
-all of the information
-function
-T
-calculate F(x) : F(k)=
-de eikorax eit de
-I
-↳) if
-it
-doesn't have
-a pole'
-of the
-wave function:
-Co *weigut factor
--
-w
-M
-↓
-periodic function
-ach
-k- SP
--
-different representations
-f(x)
-f(x + 1) = f(x)
-L
-&
-function
-F(k) = of(x)eitax
-if
-k = ko + 0
-↑
-C
-- A
-of
-same
-function
-↑= dveilk-kolz
-va
-b
-if
-k = ko
-+ G
-period= boundary condition
-ei = cos + isin
-ei(0) = 1
-can convert between
-* Fourier series
-- special
-case of Fourier Transform
--
->
-finite of K's
-kspace/real
-space
-for
-a
-periodic function
-freely
-Probability example with
-Gaussian Wave Packet :
-=> General Property of 6-function :
-((k)6)K-Koldk
-= F(ko) if
-K , < kz < k
-Measurement
-Probabilities :
-(x) = (dxe+20x20
-Born Rule: probability of finding particle
-how do we normalize
-a plane
-wave?
-between
-a and b
-(n02 (n02 = normalization factor: (H()(()
-=
-1
-= (14()de
-ir
-ir
-multiply AxAk = I
--
-> 4(x) = Fe-kox
-/Held
-- p = nk = mu
-"incompatible measurements "
-for other measurements
-, do "weighted average" or expectation value
-3D : 4(5) = Feiko.
-↓
-=dre202 =
-E >tw
-(x) = (dx4+(x) x y(x)
-F(w) F(t)
-AEAt +
-Virtual particle
-X= 0
--0
-(nt52
-14(x)1=
-pairs
-= Jak4
-*(k)(tk)4(k)
-S
-mAsok)(AeFord =C
-arise
-from
-(p)
-= (dx4
-*(x))
--it)4(x)
-same for K-space :
-S
-natural properties of Fourier Transform
-I
-fourierform
-Il
-mi
-+ A = i
--
-> "uncertainty" A2 = "uncertainty"Ak=
-p' operator'
-Dirac Equation : Relativity + Quantum
-Mechanics
-unitary evolution
-In general,
-we want
-a
-Relativistic
-model of
-QM for
-fermions.
-N
-Invariant :
-Relativistic
-&
-recall,
-1
-E2 = (mc2)2 + (ps)2
-*&N
-+ Dirac
-wanted unitary dynamics
-e-iut
-4)E2 + 12)
-= 0
-linear derivative
-in time :
-plane of light has
-E
-= ha ++
-+ it
-E(F , t) = 0
-everywhere
-↳(E +x)(E
--A) = 0
-dt
-a
-some t
+> modern revelations/Updates to Understanding
+Spin
+E-Eigenstates
+particles
+rate of
+Vacuum Energyy There is actually aturn-on' time
+:~picosecond-still independent of intensity
+E = decoherence time!
+=(
++ Nf)
+Fermions It
+, 12
+...
+E-twN
+eptn, 9
+pane
+(phase scrambling time)
+O or 1
+Exclusion
+· Theory of Bands :
+electrons in wave states
+across whole crystal
+rate of
+i+ f
+Bosons
+0, 11 ,
+12, ...
+E = twN
+C, phononsC
++Nstimulated
+transitions
+·spontaneous'
+SES352
+transitions
 
 OCR supplement
 --------------
-Fourier Series hh"
-X conceptual: explain the Born Rule
-any function 4(44) defined on interval (0,4)
-in terms of probability
-Can be writen 25 a sum of sine and cosine waves
-Special Case: 'Gaussian wave packet "
-normal \ distribution"
-Teal spact vs.
-k-space
-eulke-wt)
-( possible solution of Schrodinger equation)
-(position)
-(momentum )
-git!
-f(x) =
-é 67/2 2 * width of packer
-small in veal <n ink
-A
-'
-nx
-f(x): Jaro
-rg ko"
-"oO
-Haile 5 caeitn"
--- dx
-A
-evo"
-width in
-om
-n=
-Gn= A J, S(a)cos
-e K/ 40,2 /
-K- space
-° {weight factor
-nix
-X=0
-where
+lz
+3D orbits
+finite barrier
+electronie orbits
+Hydrogen Atom
+vemember::
+orientation - direction that orbit points
+3 DoF
+-2e?
+P(r, @, 9)
+ly NAsamr> A= 20K
++ (quantum number n)
+Ly (ng, ny, he )
+U(r)~
+y
+(+)
+lx
+Vv
+_
+Kral - a0
+- =
+-rr
+air
+Spin (up number) - 'orientation + time'
+Ea yo principle quantum number
+-N
+extra protons
+(first quantum number)
+2Ller
+pears
+Nw |p
+bw
+( quantum number s)
+> + Core electrons
+" angular momentum quantum number "
+> states combined can lead to additional Quantum number
+Spectroscopy.
+9° order
+"ait
+\*
+Quontized
+«(IDS
+lie
+f
+order
+|
+|
+IN
+plane weve > |
+sind= NX
+statey cyrrespond
+'<-'sharp lines! - correspond
+level
+'spectrum' - © (2)
+10 eigenstotes
+I(@)
+diffraction
+oF electron
+igenstates
+grating
+(non quantum effect )
+aiomic model
+ap: Pix)erwet 2 )
+symm
+Symmetric
+middle region
+3
+ned
+Solution
 -
-\
-a
-Cn= A
-bn* ran F(2t) sin
-aw dx
-L Ont inversely proportional
-area under
-J
-, Hab)etko% de
-curve =1
-St
-Ky? n (2)
-(Cr Gi, Ca, ..)
-_ AON
-&(x-%X0)
-5(x) = eo
-Fourier Transform th
-E(k): an 5(k-ke)
-Xeach Contains egl spece
-All of the information
-function
-F(x)= + Sree SK Gor all 'well behaved! f(y)
-of the wave Function:
-°° \ weight factor
-L,* it it doesn't have a pole /
-calealate Fla): F(Ws \. bag eMedy gil gy
-YY
-tie" spat
-a
-eriodic function
-* gikerent representations
-(
-F(wec)= Fle)
-5(x)
-ot same function
-fone"
-FO: 7 solerae
-'
-if K7# ky PO
-wa
-a
-b
-= i" dy eilk- Ko)%
-if K=Ko 7%
-Can convert betvieen
-period = boundary Condition
-> Finite of k's
-ei = COSH + isingy
-elo).
-* Fourier Series- special case of Fourier Transform
-Kspace | real space
-freely
-for a periodic function
----------- ee ee eee ee Ke Kee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee er ee ee ee ee ee ee ee ee ee ee ee ee er ee er ee ee ee ee ee ee ee ee ee
-Measurement Probabilities:
-Probability example with Gaussian Wave Packet:
-> General Property of §- Function: i F(K) (keke) dk = $ (to) if KyC Kao ks
-Born Rule: probability oF finding particle
-tx: fare t@2e
-e
--8/2e
-how do we normalize @ plane wave?
-between a and b
-x
-(t5*)%
-i, Via) Ue) = 1
--
-'
-"
-(n 0) < normalization Factor:
-Y(x)=
--iKox%
-= J 1¥eo| se
-ur
-ur
-multiply bxSk> 3
-We
-Noy pzhke mv
-i, W(x) Wlw)dn =I
-4/2
-ot
-' inCompatible meas
-urements /
+Kb 9 2%
+n=.
+nea
+ds -
+bA
+e +B
+dp -
+Fmd
+net
+nel
+degenerate'
+Anti-Symmetric
+Is- de
+- a - bj a >
+Solution
+X In general, Symmetric
+anti
+--r-
+'Solution has lower energy than
+antisymmetric
+2 + + -
+_
+anti
+Ont
+sy frie has sligtly longer 4
+antisymen
+9s He
 4
-yi): tet
-for other measurements | do "weighted average" or expectation value
-"oO
-im
-ali-
-2 oS
-ert
-lim
-"%
-eet J dx W* (x) x Wx)
--~
-Fw) F(t)
-AC At > virtual particle
-L>%
-(rto*)
-arise from
-pairs
-"Wy
-(nebo )(ne MO) yy = at es eas
-: J av*ea(ee) V(x)
-fourier
-same for k-space:
-cp | dx P* (x) (5) 0
-p
-transform
-oO .
-"natural properties' of Fourier Transtoren
-Ar F
-mv
-p 'operator'
-"uncertainty!
-dk>s
-k= Go
-> "uncertainty! av 7G,
-ar'
-Dirac Equation: Relativity + Quantum Mechanics
-Unitary evolution
-\n general, we want a Relativistic model of QM for fermions.
-Relativistic, Invariant:
-recall,
-E> = (mc)* + (pe)?
-FA S05, 0, 2,0. - Dirac wanted unitary dynamics
-ewt
-\ineav derivative in time:
-(E2407) =0
-plane of light has
-E(X,t)=0 everywhere
-hw >
-ve sy
-ibw
-@ some t
+bonding
+ps
+oS on
+a ke
+X
+E=k2 Kk?
+Covalent
+bonds
+Ne Ie
+ator |
+|
+dm
+Sym
+dp
+es
+ji - +
+Symmetric
+*% <> force
+ay
+ds +t
+4 + tt bonding
+--<¥
+atom 92
+|
+y
+Fully ym
+ally filled
+u
+anti
+band
+pauli- exolusion - . fermi-sea
+-
+22
+nea
+Pel n
+9 band
+HUH 7
+Ly
+no gap for
+yy =s
+net
+nel
+wey
+===]
+band gap
+Nalence
+TM
+metal / conductor - topmost e~
+energy band !
+i!
+n=l band
+ond
+Fermi Pressure - associated Pauli exclusion
+® eavate num particles to natural energy
+energy
+© count fotal # of 'states' in volume V.
+@) count total number of fermion in the least states Y= total volume of K-sphere
+fe = XxlO "ev: em (Elon)
+Wolume per state in k-sphere
+(an?) #3
+=
+-
+why doesn't the electron energy fall to zero'
+divecti ion a
+QL
+> Ky
+- 2-
+> os
+= Nx=-
+ar
+-7
+= Nyx
+wks? 4
+wk
+_ hth?
+So
+L foke inverse: Ep = (n
+242 m2
+\"
+me?
+5 +10° ev (for e)
+aby
+am
+12
+2°93 Jaret
+am
+"typicay/
+23
+why things feel solid'
+==
+Ne
+46 _ Wk
+(3n2) (re) 3
+density
+_
+- V0
+cm3
+a)
+WD volume: ky:
+yy
+ny, Ke
+le
+total # oF
+electrons
+sein
+ra l
+one octet
+dk om
+oo
+= (n
+\y"
+of atoms
+state
+oF 3D space
+dE
+2 4 (mc2)
+Ke
+grid: (z= Nx, Tw, izNa)
+4K ak
+"10% engineer's method
+Er
+dk
+* 4c
+\
+ky
+@ - volume in k-space
+13
+im -- dE
+te
+Wk
+= Vint
+Pauli Exclusion Energy:
+_/
+ct
+ef
+fine Je
+10?
+a5
+23
+e-t-I
 at
-L (E+A)(E-d)=0
+Va
+7]
+(EXEE): =
+TT?
+10 evecm
+10%
+0°10 +10
+ak
+kx
+Ly volume per state in k-space
+3°10
+(2.
+¥ 9"? eve I-loev
+As octont
+10%
+Approximate stakes os standing waves
+lx
+dereity of particks: N-
+12.
+ee")
+(5+10% ev)"
+in & fixed vectangular box
+ame Ww?
+Suppose we compress V by 1% - low much pressure does that require?
+¥Pe- VU » total chonge in energy,
+experiments that Led to QM that hes 'Nothing to do w/ Particles /
+y Law oh se se
+aN
+total change in volume
+Summary oF solid QM Vp
+i.)
+mT?
+GK
+:
+U
+Pauli exclusion plays a major rule
+0) photoelectric Effect
+breakdown of 'classical '
+t weight the number
+the energy per
+par
+ntegra
+(0) Boundary of atoms in molecules
+OCLUYS a. QM effect of symm &
+- electrons fill these states from
+ale Lpe (Fore - \ength) ?: $y
+wave particle
+Area - length
+)
+antisysm superpositions
+lowest energy up ~ 'Fermi Sea!
+@ Planck's Radiation Spectrum
+a
+ww (31?) «3
+N"
+4P
+aes
+5
+ala * Dirac sea'
+Ve me
+(
+V ava m2
+Pa oop
+) compressibility" B= -V
+we 3
+P= onep
+b. charge transfer - ionic bond
+5
+Results from experiments on pholoelectric effect
+L. ope 8 (Av
+Vv
+): 4n€; (.0!)
+10
+Q) solids are buitt from molecules in
+*T<ouxi0%ev * Jz nem
+"
+some ways
+3) Semi Conductors have a gap
+©) Threshold wavelength - minimum photon energy (y 5 - Wave Frequency
+"ol
+2 fro
+between hi
+filled energy +
+Luei*
+as
+= 21023
+=
+3
+=
+3
+os
+Cm?
+"Opi saw) (0)
+= atomic orbitals overlap
+lowest uatilled, metals do not
+M 100cm
+cm?
+woed)(o1)=
+@ Current 'tums on' instontaneously - vegardless of light intensity
+\ abn
+> "bands" and 'bond gaps!
+Free electrons in Conduction band
+Ld 104 =
+10x.0l J
+cw
+=o
+cme
+1S
++ holes in Volume
+@) Current proportional to light intensity
+©) bands correspond to 'extended states!
++ shared by many atoms
+* loth carrying charge in a current
+> modern revelations / Updates +0 Understanding
+Sp in
+E - Eigenstates
+particles
+rate of
+* classically electrons are thought of a> jumping
+Ef
+Vacuum Energy
+* There is actually a tum-on' time : " picosecond - still independent of intensity
+Fermions +
++3
+--
+ot
+"2
+hwN
+0c (I+ Ng)
+between orbital chells, in QM- the movements
+work function
+UTS 'decoherence time!
+13,
+Pi 4
+are modeled os one uniform traveling wave
+(phase scrambling time)
+Ow 1
+pauli
+Exclusion
+in this extended state = a 'bumpy' plane wave
+* Theory of Bands: electrons n wave states across whole crystal
+Eg = Fermi Level
+tos
+photo-electric efhect
+Pal (9)
+'stimulated'
+Secs
+transitions
+SES362
+'Spontaneous
+transitions

@@ -1,217 +1,310 @@
-Bose-fermi Distributions
-========================
+Bra-ket - Entanglement
+======================
 
-Source PDF: Bose-fermi Distributions.pdf
+Source PDF: Bra-ket - Entanglement.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
+Extracted text
+--------------
+Bell's
+Inequality
+imagine a continuous function f(x)
+and the EPR experiment
+so :
+< uIv) : "dot product
+"
+is like
+a
+vector w/
+where:
+-
+> interpretation : local hidden variables
+f(x+ dx)
+- f(x)
+dimensions
+inner product
+1
+<+f
+= ( 1 f(x)(dx
+: f = 4(x)
+f(x,)
+dx
+1'bra-ket'
+:
+(f)
+=
+f(x2)
+<u(v)
+= (v, 12 + 1vz1 + 1Vg12 + 1vy/2
++ri
+=
+(i
+f(x)
+= + (f
+= ((4(x))dx
+e . g.=(),
+ulv = x+y
+bra
+= fl = ( ... f
+*( ,)dx , +
+*
+(x2)dx, f
+*
+(x3)dx,
+...)
+1v >= [viFuzus* vy
+*)
+P =
+-it
+ket
+-
+for the reflector :
+3)
+L
+Waves
+Polarization of ESM
+IV
+Bell's :
+pair
+of entangled
+*
+- E
+X
+photons
+General polarization Vector :
+(n) = &(H) + Blv)
+polarizer
+-
+↓
+W
+↑
+L
+(1H(
+-1
+output from the beamsplitter : 14) = Ell1< 10)
++ 10711)
+complex number
+↑
+↑
+source
+Il
+Malus' Law
+leftetector
+right
+In)
+IV
+T
+detector
+"easy
+7
+X
+polarizer
+linear polarizer
+:
+input field has angle t
+· normalization : (414)=((1(01
++ x0k :1) (10) + 10)(1)
+X(
+relatingtoeasy' polarizationit
+-
+S
+* photons always have same polarization
+↓
+(1H)
+-
+but polarization o
+can vary
+=(k
+, (1)(80) +
+< , (0)(0(1)
+intensity
+:&/Eocost)
+2
+↳If = IjCOS2(0)
+Il
+"
+O
+· introduce polarization measurement operator
+for theexpected'
+case
+Source
+Generates Entangled Pairs
+I pure random'
+S
+= /COSSince
+(4) = - ( ( H) (H) + (v)(v)
+↳We
+would expect : either (H)/H))50
+% of
+both
+↓
+↓
+or
+(v) (v
+leftward
+rightward
+1)
+e .g. p = (10) = cos20(
+%)
+particle
+Particle
+the reality is, due to entanglement,
+we resolve 0 %
+of both
+want : pi 14)
+= 14
+(4(4)
+= E(cos20+sin20)
+2
+= I
+Lif -, -02:)
+A ,
+214)
+= 14)
+3
+4")
+:COSCE
+ate of
+each photon
+getting through polarizer
+1
+1
+1
+B
+,
+Ba
+-
+source
+Pi
+(A) = (H)
+&
+(B) = (v)
+Az
+
 OCR supplement
 --------------
-=
-Tvansition Rates
-_
-(tn
-potas ti (wus fn Na (12Hs)(ten)
-=
-_
-Tse
-I+ Np) bosons
-) wee) de =
-Nor
-Ny No (1¢N3)(1+Ny)
-Ng Ny (1 N )(1+Nq)
-- bosons
-Tap © I- Ne)
-fermions
-Guess sol4: n(e)=
-) w(e) d(E) 4€
-Uter
-Bound States
-"
-vel @ ia + Fermions
-Boltzmann's argument of * detailed balance
-fermions
-' 7,-
-ores
-bosons 0,!!
-QM terms
-\
-\
-[13 aed
-a ee
-'\-
-RO, 08
-Forward Scattering Rate
-PEO +)
-RE,
-PE ta +)
-kgT
--
-----
-(
-\
-Ke
-ai
-"superflui d
-Cooper Pair
-superconductor
-condensate '/
-Ni No ( * Ns )(1+Ny)
-ae
-Be
-4He
-~» © fermions
-bound state of 2 fermions
-ky
-oo" So
-Tae (tas )
-(4+N3
-by law of
-kgT
-Spin: = 9
-t
-VN
-conservation
-' Wotrix Element
-numbers in states
-BE+% BE
-time symmetry *
-Ki and Ko
-Fens re ieee of Errt) of ¥ sue i E+ Ea= Eye Eyl
-yacuum
-Reverse Process
-=
-U(x)
-+ detailed balance
-4h ff
-equillibrium
-A Potential energy
-N(E) =
-ele cura
-* Bose - Einstein Distribution !/
-EF
-G)
-felt by electrons
-in equilibrium
-Tape (Maun) Na Ny (1N, )(1+Na)
-\
--- 7)
-es)
-vote Forward = reverse role
-'
-©U= 'chemical potential /
--
-eee
--- 1
-N(E) =
-V+ +
---/
-by time- reversal symmetry Miagy= Maya
-gle mnt
-* Fermi Dirac. Distribution!'
-\ +
-----
-\ diode."
-Diodes and Transistors
-energy
-p-n Junction
-La
-* doping "/
-Kp- Boltzmann's constant |
-"A
-->
-conduction
-band
-'
-i
-* dope w/ extra @ donor
-by
-vl-Jev
-ra, dopant
-'
-©, @ ©
-> donates tree electrons 1 type
-<1
----
-tr eates
-ket ¥ 25.6 meV for 1= 300k
-(room T
-!
-As
-Ga
-by
-valence
-© WO ®@ a
--_-Ss
-° dope w/ missing © 'acceptor'?
-2 OM OM
-by
---
-Pure
-- donates holes P type
-hole
-@™Yw® © &
-" -elval wy -(e)/Consver) » » "
-dopant
-majority " carrier - what sign is moving
-binding energy' - effective Pydberg - 20 meV
-Charge
-depletion
-* electrons moving LR
-Tegion
-ea
-e
-feel potential energy barrier
-> er
-(€y-qAv) v2 *Pplied Voltage
-% Selectric. constant
-°F VbeS 0.6V
-Bipol ar Transistor
-and Nee? Vbe
-lL then electors can
-dep letion
-ion
-o bias voltage
-wl be + Vee
-How from € to 8
-P-type
-Peer ere reer
-Ww Type
-ad)
-4 Tin
-eo
-© conduction
-a Some e" can Vecombine. wth
-O00 D/O :O © O}*
-~ t
-© 4
-metaphor:
-le, heles in base creating Tv
-TIp-
-water pi
-band
-Emitter
-O00 999909
-E
-Vout * stow e
-* some €° are pushed from B to
-by applied Vee and create Ic
-emitter base
-callector
-©0090 000
-OO O O1O :© © ©
-In --
-ee eee ccccrcccccees
-- <--Ile
-E from Vottage Bios
-Tyee dopants
-n Type dopants
-e etm holes
+Bell s Inequality
+a
+imagine 4 continuous function f(x)
+and the EPR experiment
+so: <ulv )=
+" det product
+is ike @ vector w/ 00
+interpretation: local hidden variables
+inner product
+dimensions
+pire dx)- f(x)
+where
+"i
+Flx,)
+dx
+<tlt) J Urey t= Vu)
+oO) bra- ket
+Vy
+Kulv >= ly l7+ Ival? + 1v3 17+ |vyl"
+f
+(x2)
+<vi=
+V3
+¢(x3)
 |
-extra electrons
-depletion region
-- no extra Carriers
-Half - wave
+bra
+Vu
+xX
+<tlty |
+Wool av
+e.g a
+Y
+t
+} dulv> ee ak
+<EIE (L$ x,)ax, Plva)ax, ftvsdde,...)
+ket
+lv> ( HK y
+3 Vy
+')
+J=- Ww
+fo the vetlector
+a
+Polarization of ESM Waves
+Bell's
+k
+pair of entangled
+General polarigation Neotor
+photons
+Iny= a|H)+Blv>
+J.
+polaviger
+1W>
+*
+Complex number
+[) output fron the beamspbiter: 1p > Al
+y]o) + Lodl1))
+Jource
+left
+\
+Iv'
+Malus' Law
+detector
+vignt
+detector
+linear polarizer: input field has angle &
+polavizer
+Centos to' easy' polarization
+* normakeation: LUP = Edel +<olci]) ( (1) 10) + toys)
+Eycos e
+photons aluays have same polarigation
+a
+cb)
+but polarization © can vary
+intensity: of (E,0058)°
+(<1 ]1Sgol 0) + <1 ool)
+tl
+L, Ip = Ticost(®)
+i}
+\
+0
+introduce. polarization measutement operator
+for the expected" cose
+Source Generates Entangled Pairs
+ester singycos
+er
+'pure random!
+Wpo=az ([H) y+ Iv>!v9)
+|
+sings = 3in2e"
+)
+Lowe would expect: either 1H) 1H)
+J
+rig htward
+or Iv) lv
+»
+leftward,
+particle
+\
+|» a
+Particle
+(
+i)
+) e6 B= (4)= eat (1)
++ne reality is) due to entanglement, we resolve 0% of beth
+want pr) p> = |Y!
+CHI: 5 (cstossnta)*= 3
+alk,
+PoP | PD
+ly)
+'(2 @)
+JO "Nn
+getting through polarieer
+54
+Source
+De,
+Pi
+[AS
+JH)
+le)
+lv
+7 hy

@@ -1,7 +1,7 @@
-Spin - Antimatter
-=================
+Waves
+=====
 
-Source PDF: Spin - Antimatter.pdf
+Source PDF: Waves.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
@@ -10,258 +10,257 @@ PAGE 1
 
 Extracted text
 --------------
-Dirac Equation : Relativity + Quantum
-Mechanics
-unitary evolution
-In general,
-we want
-a
-Relativistic
-model of
-QM for
-fermions.
-N
-Relativistic Invariant :
-&
-recall,
-↳
-&
-E2 = (mc2)2 + (ps)2
-&11
--
-> Dirac
-wanted unitary dynamics
-w
-V
-e-iut
-linear derivative
-in time :
-4)E2 + 12)
-= 0
-plane of light has
-↳(E +x)(E
--A) = 0
-ECF,t everywhere
-E
-=he + it
-Dirac: EF = (mc2)2 + (pc)2
-E = /mc2)" + (pc) = 0
-· =(6
-IE-tom-cp)(E
-+ come +cop)
--
-only
-works if
-matrices have
--
-it
-= (0)
-&is
-a 4x4 matrix
-(Po
-, (x,y , 92)
-the property:
-= -E
-if
--
-&
-=
-didj = a =
-[,x, ,z]
-=
-= 10)
-In general : &'s
-do not commute : ABFBA
-& . p =xpx + Eypy +z9z
-introduces
-new degree
-of
-freedom
-· positive energy
-some
-index
-which the relativistic
-= (j)
-E
-schrodinger egt
-spin up or down
-⑤
-relies
-on
-:
-Pauli Exclusion
-N = 1
-vacuum
--
-= (0
--i)
-- each state can have only
-"Spin"
-all negative
-⑤
-filled ent
-N= 0
-or
-N=
-mcG
-3
-P
-all positive
-mc2
-What is spin? angular
-momentum
-inQM ErrN
-·negativeenergya
-empty
-&
-1 = up
-To
-·......
-mole
-men
-↳spin statisticsth :
--
-boundary condition:
-=E units of angular momentum
-energy
-"Dirac sea"
-N = 1
-L = rp
-two values of
-N = 0
-or 1
-connected to
-is
-- so
-~ orbital angular'
-k==N
-4(x) = 4(x + 2πr)
-2
-choices of
-spin
-momentum
-in4(x)
-↑hole" - acts as a particle
-T=xj
-- X=
-(2π = N
-with positive charge
-QM:= -it
-+ positive mass
--
-antimatter
-position
-=>
-worked example
-: [Lx, (g)
-= [ypz-zPy , EPx-yPz]
-connection of spin to angular momentum
-* e .g.
-commutator of
-N
-, p
-T =x
-= YPEPYYPE
-=
-PEEPz(PY
-an operator
-&
-It
-- 1
-=[x,] +(x)
--
-in
-Q. M.:
--st
+making waves
+multi-dimensional
+waves (ei([ * -wtl)
+↑* = kx + kyy + kzz
+= (k)(x)cos
+10
+cost
+> is
+take is along
 Y
-ERXYPEEP
-4 = (x*
-- cx) f(x)
-"z
-↳[Lx, (y]
-= ih(z
-recall :
-many operators doNotcommute (AB = BH)
-= x& -[f(x)+=
-[A , BJ = AB-BA
-L= EN
-eigenstates are : (o)
-, (4)
-define spin matrix :
-sz = Elb-i)
-Pauli Matrices for Spin
-eigenenergies
-are: :
-S=x ,
-Sy=y , se :Etz
-o = (i)
-, 0x
-= (:)
+~ i
+k = (1 , 0, 0)
+X -
+e . g. To
+Y = (x, y ,z)
+(x = kX
+(i ·*
+- wt)
+keep only part of along is
+Ef M
+waves
+kX = X
+Ikx/cos
+"vector field"
+Y=
+i
+↑wavelength
+= e
+E [2
+now,
+we have polarization
+LE
+B
+/
+/
+/
+Polarization angle
+E
+= (Ex , Ey , Ez)
+q =E
 ,
-Oz = 10
--9)
-&
-· It
-=
-↳[Sx
-, Sy]=:z
-7
--
-spin(#1)
-·
-= it /EVz)
-:
-(ij)
-(ii)
-- - 2
-V
-↓(ei(x)
-define: anticommutator
-= ihSz
-operations
-:①measure particle
--
-80x
--0x8x( % 6)(0)
-- (0)( %
-=2) = 2
-↑TA , BY
-= AB + BA
-②
-↓
-2
-Copenhagen "knowledge
-leads to collapse"
-suppose[A , B)
-= 0
-2 full rotations for particle to return to starting position !?
-example of entangled state
--
-AB = -BA
-fermions (matter particles) :
-Spin t
-Local Hidden Variables :
--
-> disproves Bell's Theorem
-glasseam-splitter
-light pulse
-photodetector
--
-L
-=
-3)
-↑
-T
-amplitude
-normalized
-&
-to I
-V
-↑(x)4r(x)
-+ H,(x)42(x)
-SOMUTerSales
-T
++ BE
+Ezy
+Y
+70
+phase angle
+v
+Make it Quantum
 1
-ampl . = 1
-ampl . = 0
-"O
+Schrodinger Equation
+Potential energy operator
+oscillating test-charge
+Sold : 4 (x,t)
+= Goe:(k* + wt + 4)
+=
+ind= dY
++ ulx
+= (Heil
+... )
+id
+= it i Noel.
+Kinetis energy operator
+: Id d
+-k2
+w = VI
+phase velocity
+De Broglie
+Relations
+p
+=-k
+E = tu
+↑planck's constant
+= itodet
+* d=
+um
+X
+1 operator" : p
+=
+-it
+K
+v=
+(dispersion relation)
+↑X
+= -it(ik)4
+= (tk)4
+Regular Wave Equation:
+Hogilx
++ wt) =dik
+~ y
+= ei(kx
+- wt)
+kwX =
+-tek2
+=
+w=
+Im
+u(x) " eiwt
+C- iw)2
+(ii)2
+Il
+2m 4
+phasor :
+Schrdinger :
+itiw)ei)
+...)
+=
+-[m)(ik)2
+W
+E = -tw
+tk
+= p
+= mr
+v=
+diagram
+O
+Re
+K
+↑
+Y(X ,t)
+cos(k* - wt) = ei(kx
+-wt) + ei(kx
+-wt)
+I
+P
+= trk
+m=
+↑Se int
+w =(vSt))k
+2
+E(t)
+"Unitary behind"
+phase
+very far away
+-
+V
+m
+-
+-- "Fraunhofer" limit
+.
+-
+↑
+wave phenomenon
+:
+ei(ke
+-wt + 4)
+a
+KAN = ZiN
+Vg
+Ug
+=
+dw
+Schro : d==
+emitter
+a detector : sum
+- Casino : sin
+i
+ei(kAf-wt)
++ ei(kAf-wt)
+in
+(0
+w
+02
+detector
+mee
+AX = AN -AX ,
+conditions for
+destructive
+interference
+↑
+2
+·Re port) : cos(kAx,
+- wi) + cos)kAx2-wel
+# X = asino
+:
+sin :/(a)N
+,
+N =
+0, ,
+.
+..
+EsinD = MN
+Intensity & A2-rule :
+first
+add 4
+condition for
+constructive interference
+↳sin: N
+-
+then
+square result
+↳KAN = ZiN
+2
+0 = 0 : sin(0)
+= sin : (2)
+-
+-
+M
+d :
+D = 0
+im Sin
+phase'
+ei(kx
+- wt + b)
+↑
+boundary conditions"
+Does it satisfy 'Boundary
+conditions' ?
+guess solution : ei)kt-wt)
+- ei)
+-kx - wt)
+guitar string A
+↓"standing wave"
+Fike-int
+sin kn = 0
+a X= 0
+44
+eintkeik)
+=
+Fintzisinke
+Sin KL =
+0
+& *IF
+:
+octaeeFifth
+L
+KL = TN
+9
+4(0) : 0
+4() = 0
+"Particle in
+Il
+I
+A
+cosk + isink- [cosk-isiniz]
+=
+Zi sinke :
+uantized'X's
+a
+box
+diffraction :
+Huygen's "wavelets"
+-
+> X = * integer
+/
+&
+sum - integral
+complex relation
+evy = cosy + isiny
+I
+/
+-2
+dein eksinik
+-
+ik Esino

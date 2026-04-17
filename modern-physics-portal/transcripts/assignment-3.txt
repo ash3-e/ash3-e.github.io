@@ -1,352 +1,510 @@
-Assignment 2
+Assignment 3
 ============
 
-Source PDF: Assignment 2.pdf
+Source PDF: Assignment 3.pdf
 Category: assignments
-Page count: 7
+Page count: 12
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
 Extracted text
 --------------
-proof :
-from s
-the lorentz transform yields :
-1
-Vu =
-1
+A
+- true
+, if the two sources were not emitting o the same frequency
+then eventually the
+sources would not overlap perfectly
+:
+rm
++
+≠
+nn
+B
 -
-u2%e
-we find dt' = Undt
-Ir
-ady
-새
-새Y
-nthy
-fromthe lorentz transformation yields :
-⇒
-⇒
-E uF
-dt= Vo(dt-vdX/(e)
-가
-s"
-V = s
-where dx = 0
-, thus :
-S
-S
-아
-S
-dt
-= Uwdt'
-Vs
-= 0 frame
-putting
-these together by subbingdt' in S
-from
-your frame
-, the
-components of your
-horizontal velocity are added to the vertical
-gives
-usdt = JuUvdI
-velocity of the clock.
-Since c is relative, the
-addition of these components must be transformed
-and resolves
-= Und
-by the lorentz factor to not exceed this
-value.
+true, if two sources
+are not emitting o the same amplitude, their signal cannot
+Mn
+destructively interfere entirely
+: untfu
+* ignoring possibility
+of
+one
+source being farther andTe laws
+σ> B , B≠0
+C-False
+, if two sources were emitted of the same phase , they could only constructively
+interfere :
+
++
+ m
+rNM
+* unless the emitters were a such a distance apart from the node such that one path
+the wave travels isI longer,then this would be true!
 
 PAGE 2
 
 Extracted text
 --------------
-ㅣ
-√←
-3C15
->
-s
--IsTπ
-V=vo/e"
-1-3551/=
-k
-1 a)
-k
-12)
-i
-S : AXL-
-赤に号
-At
-= - り3c
-b.
-slope==5, thus : frames"=
-^
-t : 0
-0
-:;eiin
-.
-Vi = O
+shifting full amplitude
+key, :
+- "vertically
+
+25
+period
+σ
+1
+→
+t
+x
+originode
+....
+
+'
+horizontal shift
+.}
+-
+{
+f(x) = asin(b(x-c)]
++ d
+changing
+constructive
+amplitude
+b
+-...
+:
+destructive
+_
+_
+
++
+
+_
+_
+_
+_
+_
+t
+constructive
+...
+
+...
 
 PAGE 3
 
 Extracted text
 --------------
-W
-= V
-E= U3T
-Sand
-so
-on
-.!
-C
-YA E +
-&
-iv
-↑
-가
-∴
-2
-A
-A t 二(T+ t.) ttz
-…
-v = di
-i
-B
-B
-B
-t = ++ t ,
-event
-I
-event 2
-event 3
-event 3
-θ
-t= 82T
-tUT
-world frame
-event 2
-ㅇ
-"Observer"
-i
-event I
-∅
-t = t
-!oE
-)
-SUD)
-(8841
+examples from simple python graphical I made
+as the waves
+become increasingly out of
+phase , we see them destructively interfere
+and their superposition
+approaches zero.
+=
+oops!
+-
+accidentally did
+5 . 1
+.2
+, ignore next two :
 
 PAGE 4
 
 Extracted text
 --------------
-'
-*
-v
-dictates 0 of
-train
-in tunnel frame
-, o dictates max of rL
-as
-we
-can
-see,
-in order to
-resolve
-We find:
-the max value of r
-we need to set
-t 上and上-voti
-the equality of rL in terms
-of
-C
-usback)
--refront world frame
--
-↓, L
-, At
-, At
-, 0 and v
-)
-(signal)
-(exit)
-(tunnel)
-v(tunnentrance
-…
-北
-…
-D
-event 2 (exit) rL
-6 whentit
-'
--t 'r
--utandti
+a) if U = J and X = m
+,
+since 15= 1kgom252
+thenK must be in units of
+Kg
+.st
+,
+kg/st
+or N/m
 _
--
-t
-t
-"
-we seeirl = E-v() solvingforwegoi
-\
-EI,signal
-K Por
-…
-v(tunnel exit)
-けvoる
-=
-event Center)E
-→r(1+号) - 字→γ+℃)
-_
-…
-∴
-U : Fryesor
-: Eve:
-tro
-tunnel
-frame
-Xro
-x= 0 train frame
-" =r(
+↓USx) = [K*2 ,
+k(x) =
+- +Kz2= - kX
+c) The force experienced by the object is inversely
+proportial tothe potential energy it stores. It is positive when
+the potential
+is moving away
+from zero.
+ufx)
+d .) zero .
+2.)
+· F= + +
+ -
+0
+.
+F= +
+F
+
+
+X
+7) if the object begins a rest at some value
+F = O
+away
+from zero, it will instantaneously begin to move towards = 0 and oscillate,
+overshooting and returning to
+X=0 until all of it's potential
+is converted to Kinetic and
+so
+on
+while losing
+9) The object may describe
+a spring doorstop
+.
+energy to it's surroundings.
 
 PAGE 5
 
 Extracted text
 --------------
-a .)
-A frame:
-A
-C
-Av÷ 子(Ar - vAt)
-의례비했t
-옷
-C frame:
-At' - γ(At-
-doppler effect: AT = tc(c -vIrt':BDt
-A +
-- γ( A++ vAtリ
-AE
-= Z (At
-' +
-品Ax')
-- 酱t
-酱台β ' 管
-E
-nence, FIFA
-+ Y
-and
-by substituting be
-for fa
-infir
-in
-..
-一℃
-.
-. fr = fa
-weseeifi )
-↓
-since n =v
-B
-b. )"옷
-" →w. ( ! ! Csus
-uinte)
-mumerator:
-Pt :
+a) F = ma
+, k(x) =
+-k*
+,
+F = k(x) : ma = -kX =
+ma + ke = 0
+a= u(t) ,m °Cvit ) +kt =
+o, mtK =o
+ad
+'t Bo
+' t cD - 0
+(ato)
+y
+· se arch for a sol" of the form : 0(t) = ext, where i is constant
+_
+0
+" tpo + 90 - 0 ( p 9 )
+↳then :(oet)
+ad"+ bd+c = [ax+ bx + cetti
+↳mx" +KX = 0
+i.e. metx
+=
+- kx
+&(t) = eXt
+is
+a solution
+ax2 + bxx + c = 0 + characteristic equ
+
+X =
+- bI*
+490
++ characteristic root
+↳
+za
+· Euler's
+Formula
+r(t -sincto
+- sin
+then:
+=> 0, (t) = cost
+¢2(t)
+= sin t
+b (x(t) =cosst) No
+]
 -
-factor (1
-+ 2)
-2
--→12
-.
-잦
-+ 品+ 块_「]
-+
-1 +v
-1 + V중
-( 器憶ま合」
-denominator
-:..
-same process :(i)
+> eit = cus(t) + isin(t)
+& = a cost + Cesint
+X
+"(t) = -cos(t)*0
+Xi" =Esin
+int= x , (t)
+oV.( t ) :cicos
+γ 2ft ) -Casin
+5
+,so :rit ) -Asin () + Bcos( ) v
+A
+B
+^
+since the egts are
+in the form csin/cost and result inJoules/kg
+- m2/5? A andB must be
+in units of meters
+d) x (0) = Xo
+find Xp :...
+
+' (
 
 PAGE 6
 
 Extracted text
 --------------
-S
-㎡
-mg
-V パ
-'
-⇌
-sVα
-E= mua
-E - mud
-EE MU
-28
-.
-" 2mut
-.
-α
-E - γmua
-2
-U
-$
-speed of movingV
-+
-y
-speed of object measured
+a
+.)
+Z = 64tF0)
+(2
+- zi) ( 2+30)
+
+(2+ 30)
+⇒, .
+°C
+itCei-ai
+214: t12
+102
+
+⇒
+
+Gizzei
+°C
+G -13+
 ←
-frame S'
-U =
-메
-my
-1
-+ _
-inmovingframe sI
-Ux
-V パ
-'
-σ
-> Vα
-speed
-of
-object
-measured
-in
-rest frames
-AX
--
-AT - HAT
-'- WAt' ) }
-:vi
-':
-歳vor
-4 vi' =
-At
+- 1 +2i
+b. ) 1E
+1 + 4
+= 5
 ,
-at = Un(at= uAx*(2)
-vi = 毙, Ar
-+δ u(Ar1
-+ uxt)
-w/V,
-, Vea S' resolved we find the energy w/
-At = UnJSt' + UBXcr)
-= Va
-= nhor
-Gamma Identify :(v)
-= UuUv(1)
-such that
-E ,
-= Unfume2)-)
-&
-Ec
-= OuOme/+)
-so , EToT
-= OuJu mu2
+1 E
+C. )ZF
+()5
+iz4
+°C
+_- 1-Zi
+d .) (- 1 20)( -1 -20)
+≠1+20-20 -4i 251- 4 i 2
+= 1 + 4 - 5 :EE
+e .) It12
+- 5
+,
+181 - 5
 
 PAGE 7
 
 Extracted text
 --------------
-a)
+a) z = lezit) , eix = cosX + isinx
+e2it - cosf2t)
+y
+isin /2t)
+⇒
+1
+z1 - lezit
+-co2t)
+ts
+sin2(It)
+:T =
+1
+b Iz1 = 1e3i+
+1 =
+cos2(3t)+sinz(st)
+= 1
+c .) lezit + esit| - IZR - IEZT - | lezitte
+' it)(ezittezit) |
+5
+- felitezit ) +(ezitezit )+(ezie -H
++(eziteit ) - iteitte++ 1
+- 2 + fei++e
+-it)
+*(eit + eiH) = 220s(t) = (2
++2cos(t)) =
+2 +2cos(t)
+6) C changes , while
+a and bare constants
+·
+
+PAGE 8
+
+Extracted text
+--------------
+prove for any R(p and $) : Z = pe has
+9 .)/zl
+= 9
+and
+b: /K
+9) since z = N+ Oi
+, where zeK
+, XER
+, and Im = 0
+&
+IE) is defined
+as
+E= X+yit(z)
+=
+-=+y2
+we can substitute the components defined by z = X+Oi into IE1 :
+12 + 02
+= -2 and resolve
+(21 = 1x)
+such that1Z1 = / = p
+b .)
+Imagine
+any (x
+,y)
+point
+on the complex plane, we
+can form
+a right-angled triangle
+where the
+hypotenuse is the modulusp, the base is the Re(x) and the height is the Im(X)
+,
+which
+inturn gives us $
+gif = cos Ot isin 0
+↳where: cosk= =* EX = pcost
+sub into
+E = X+iy
+Im eic
+= cosce + isingf
+'i
+'in
+ann
+sind=:y
+= sind ]
+↳z = pcos+i(psing)+ z=p(cost
++ isink)
+and by Euler's Formula :
+*ei0 = cosO+ isin
+we get the exp. form :
+↳z = peid
+wlp =e +ye
+and sinceYpsingin arte
+so != arctant
+
+PAGE 9
+
+Extracted text
+--------------
+when only watching o X = 0 ,
+we
+observe
+a . )yS
+,,( .t):
+5
+[
+ )
+ ]
+1
+only the value oscillate
+between it's
+amplitude of y
+while the
+X values remain
+constant
+b .) in another isolated frame of X = 34, we observe the same y-value oscillation albeit
+phase shifted.
+t=o
+
++ evolves
+, Y(x) will begin to oscillate
+"
+ "
+back towards
+zero until t goes
+
+through an entire period of 2.
+X 4
+X34
+, Tshift: #x34
+d)
+sin(kx-wt)
+where
+e K = # and w
+wavelength : 2:
+period
+: + * )
+-
+3
+velocity v-
+- 2
+aka
+r
+: ( )
+2
+
+PAGE 10
+
+Extracted text
+--------------
+f(x,t)
+= z2sin(2t)
+a. )
+=
+2tsin (2t) @
++= 2 , t:
+Gy
+. l
+-
+4
+b.
+)
+cos(2t)
+=38 cos
+- 0
+C .) ~
+2 sin(t)≠2 ,
+)
+ - -4
+m2(Itsin
+1
+- 1le
+
+PAGE 11
+
+Extracted text
+--------------
+
+√
+a. ) x - 0.
+5
+ K -
+15, V -
+1
+O
+
+ -20Hz ,+ ‰ - 0rons
+b
+@ P10 .2, 10)
+, is + or- ?
+It is negative, represents the
+slope
+of the function & p
+or the tangent line which
+is oriented down.
+3) & P
+, is
++ or? it
+is positive,
+as time progresses the
+wave
+will
+move to the right
+-
+> a velocity v = 10
+, Shifing y ↑
+d) Asin (Kt- wt)
+, WI
+W - V . K
+-10 -UIT =UOT
+,so :ySo,t )
+-15sinfaito -40tt )orr 5sin4itt
+-
+1ot)]
+and A= 15
+e 15 sin [4
+n
++ (x+10t)]
+
+PAGE 12
+
+Extracted text
+--------------
+a
+) , Asinfkr -Iderivative
+terms.
+- WAcrs( kr- wt)"
+where
+kv = w
+↳Asin(kx - wt)
+ " KAcos (kr - ωt)
+putting these terms together we resolve :
+L>
+- ω2 Asin(ikx - wt) - 20
+- ω2Asin(kr - ωt) =-whAsin(kx
+-wt)
+G - KIv
+2
+=
+-K2Asin(kx
+-wt)

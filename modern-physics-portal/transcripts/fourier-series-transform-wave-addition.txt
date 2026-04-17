@@ -1,399 +1,415 @@
-Diffusion And Drift
-===================
+Fourier Series - Transform -Wave Addition
+=========================================
 
-Source PDF: Diffusion And Drift.pdf
+Source PDF: Fourier Series - Transform -Wave Addition.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
+Extracted text
+--------------
+Fourier Series Th
+*conceptual :
+explain
+the
+Born Rule
+in terms of probability
+any
+function f(x) defined
+on interval (0,a)
+Special
+Case : "Gaussian wave packet"
+can be written as a sum of since and cosine waves
+real space
+vs.
+K-space
+normal
+11 distribution"
+(position)
+/possible solution of
+Schrodinger equation)
+Smomentum)
+ei(kx
+-wt)
+f(x) = e-X2/202*
+width of packet
+small
+in real large in k
+eit!
+i
+- ko2/2
+f(x) =
+2 o'e
+f(x)=
+- ikne
+ng
+-
+Cne
+--
+Il
+n =Tweight factor
+an=I sco
+e-k/20 widthinrace
+X= 0
+Y
+14(x
+bn= /sin
+A
+↳OK:
+inversely proportional
+whereeflekux de
+area under
+curve = 1
+↳
+A
+Ok
+kn = n(2)
+100, 0
+, 0, ...)
+f(x
+- Xo)
+f(x) = e-ikox
+F(k) = 2π((k -ko)
+E
+Fourier Transform Th
+* each contains
+real space
+f(=keikdk
+for allwell behaved' f(x)
+all of the information
+function
+T
+calculate F(x) : F(k)=
+de eikorax eit de
+I
+↳) if
+it
+doesn't have
+a pole'
+of the
+wave function:
+Co *weigut factor
+-
+w
+M
+↓
+periodic function
+ach
+k- SP
+-
+different representations
+f(x)
+f(x + 1) = f(x)
+L
+&
+function
+F(k) = of(x)eitax
+if
+k = ko + 0
+↑
+C
+- A
+of
+same
+function
+↑= dveilk-kolz
+va
+b
+if
+k = ko
++ G
+period= boundary condition
+ei = cos + isin
+ei(0) = 1
+can convert between
+* Fourier series
+- special
+case of Fourier Transform
+-
+>
+finite of K's
+kspace/real
+space
+for
+a
+periodic function
+freely
+Probability example with
+Gaussian Wave Packet :
+=> General Property of 6-function :
+((k)6)K-Koldk
+= F(ko) if
+K , < kz < k
+Measurement
+Probabilities :
+(x) = (dxe+20x20
+Born Rule: probability of finding particle
+how do we normalize
+a plane
+wave?
+between
+a and b
+(n02 (n02 = normalization factor: (H()(()
+=
+1
+= (14()de
+ir
+ir
+multiply AxAk = I
+-
+> 4(x) = Fe-kox
+/Held
+- p = nk = mu
+"incompatible measurements "
+for other measurements
+, do "weighted average" or expectation value
+3D : 4(5) = Feiko.
+↓
+=dre202 =
+E >tw
+(x) = (dx4+(x) x y(x)
+F(w) F(t)
+AEAt +
+Virtual particle
+X= 0
+-0
+(nt52
+14(x)1=
+pairs
+= Jak4
+*(k)(tk)4(k)
+S
+mAsok)(AeFord =C
+arise
+from
+(p)
+= (dx4
+*(x))
+-it)4(x)
+same for K-space :
+S
+natural properties of Fourier Transform
+I
+fourierform
+Il
+mi
++ A = i
+-
+> "uncertainty" A2 = "uncertainty"Ak=
+p' operator'
+Dirac Equation : Relativity + Quantum
+Mechanics
+unitary evolution
+In general,
+we want
+a
+Relativistic
+model of
+QM for
+fermions.
+N
+Invariant :
+Relativistic
+&
+recall,
+1
+E2 = (mc2)2 + (ps)2
+*&N
++ Dirac
+wanted unitary dynamics
+e-iut
+4)E2 + 12)
+= 0
+linear derivative
+in time :
+plane of light has
+E
+= ha ++
++ it
+E(F , t) = 0
+everywhere
+↳(E +x)(E
+-A) = 0
+dt
+a
+some t
+
 OCR supplement
 --------------
-DifFusion
-3°
--#*fape
-° number current t .
-at
-1D Solution: n(x,t)=
--__
-Drift under F wl random scattering
-2
-=n
-t
-cuTtt)5
-CY
+Fourier Series hh"
+X conceptual: explain the Born Rule
+any function 4(44) defined on interval (0,4)
+in terms of probability
+Can be writen 25 a sum of sine and cosine waves
+Special Case: 'Gaussian wave packet "
+normal \ distribution"
+Teal spact vs.
+k-space
+eulke-wt)
+( possible solution of Schrodinger equation)
+(position)
+(momentum )
+git!
+f(x) =
+é 67/2 2 * width of packer
+small in veal <n ink
+A
+'
+nx
+f(x): Jaro
+rg ko"
+"oO
+Haile 5 caeitn"
+-- dx
+A
+evo"
+width in
+om
+n=
+Gn= A J, S(a)cos
+e K/ 40,2 /
+K- space
+° {weight factor
+nix
+X=0
+where
+-
+\
 a
-ed
-oe
->
-Classical Gas Case
-n- nlx) nt
-Continuity condition
-Gaussian
-ta
-Fz ma= ™
-dt
-aw
-Ge? $nvy
-e-\e-
-2
-in tne, [ve ES |
-dn
-- dg
-dn
-an
-co * Vane
-F
-\»
-drift velocity
-+ 'rms! velocity
-G-=4ngvy
--:
-dy ~
-D verd
-dx?
-spreads out
-width
-ve -(E)yu
-erm
-net Flow:
-dt ~
-dx
-vi VET
-dx 220
-t
-Potential E gradient
-9: ge- 9.
-di Fusion equation
-energy density: 4= En
-wobility
-Lvs
-Wl vate wong
-& +/
-We-Ns
-ave
-Nezalxedx)
-WD: dn
--.-
-a uM
-oat
-PT
-° gz nv
-ad
-n- =nlx-dx)
-at
-Vn
-C\4
-peu
-ax
-r\4
-=D
-dx
-da
-Gm? = 3 kt)
-z= - dn
-m= -D ay
-df
-heat capacity
-Ve -pie#
-D
-2dU-
-n dx
-* average velocity
-»
-dn
--
-define D
-RV
-du
-> dus SaT - recall
-vt Zi
-2 g:-
-dX
-Avy
-> diffusion const
-aT
-dT
-n(x)= noe"
--Dde
-¥ g:
-=
-ay
-Liuve -DVw
-+ mean Free path
-=v
-Aw
-where We Vie ay ig?
-=-DVn
-ce:
-* Wt
-3x
-£ avg. Velocity
-1.
-+ Wy:
-4/3
--DYVT
-Difherence Between Dritt and Diffusion
-Ae
-vet
-kav =
-= -KvTs kz D(S 2D
-zk
-2
-Diffusion - Scattering from random motion
-scattering | relaxation / decoherence time"
-¥ a
-"&
-Ket
-heat conductivity
-rit
-& y?
-3KQT/m
-~ Scottering trom external force
-Bose Cinstein Condensation
-Macroscopic Quantum States
-© macroscopic # of particles
-Liquid Heliuin
+Cn= A
+bn* ran F(2t) sin
+aw dx
+L Ont inversely proportional
+area under
+J
+, Hab)etko% de
+curve =1
+St
+Ky? n (2)
+(Cr Gi, Ca, ..)
+_ AON
+&(x-%X0)
+5(x) = eo
+Fourier Transform th
+E(k): an 5(k-ke)
+Xeach Contains egl spece
+All of the information
+function
+F(x)= + Sree SK Gor all 'well behaved! f(y)
+of the wave Function:
+°° \ weight factor
+L,* it it doesn't have a pole /
+calealate Fla): F(Ws \. bag eMedy gil gy
+YY
+tie" spat
+a
+eriodic function
+* gikerent representations
+(
+F(wec)= Fle)
+5(x)
+ot same function
+fone"
+FO: 7 solerae
 '
-bina single quantum state
-AV
-UHe - 2p, an, 2e
-RE distr. NO eon > Veo (tar) Sse.
-ere et.)
-3 number conservation, particles w) mass, bosons @ high density
-Ly integer spin: behaves like
-total number
-T=0'
-T=0:
-Cooper pair - 2¢
-+No
-ket
-T=0:
-Nev D(E)n(e)ae
-® condensate
-:
-ne)
-stim.
-suger current: Carries electric
-Ket
-'transition
-Current
-E% for particles
-(+n)
-wo] mass in 3D
-*
-Classical limit: 4
--( Be ror)
-73
-ee
-ef
-Yecall) for bosons:
-Pyog (14Nt) stimulation
-Fix N, Solve for T
-Macroscopic wave
-© 0% chemical potential
-Ms fo ground state energy
-(U0): excited state
-Pat % (1-0) decoherence,
-+ N has max value when
-Te =(const.) ( x) 3
-= ot
-x
-becomes more and more
-"20 (p20)
-"normal! 1
--1
-'quantiged circulation!
-'BEC! - live
-GI
-'Persistant current /
-Lasers - Light Amplification
-N= N eeeitea (TA) # No
-Te
-$-
-Cexcept & ground state |
-by stimulated emission radiation
------)
-W(e + atr)= V(o)
-© Adding more particles can
-Fignt at eritical density (No= 0)
-at
-@
--
-N= Neyeteg(T m20) "critical density "
-coment |
-Can satisfy with NA=20r
-ower (A.
-Ne
-© only other way fo force
-vt th
-°
-'Superconducting tote: lower T
-Fé
+if K7# ky PO
+wa
+a
+b
+= i" dy eilk- Ko)%
+if K=Ko 7%
+Can convert betvieen
+period = boundary Condition
+> Finite of k's
+ei = COSH + isingy
+elo).
+* Fourier Series- special case of Fourier Transform
+Kspace | real space
+freely
+for a periodic function
+---------- ee ee eee ee Ke Kee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee er ee ee ee ee ee ee ee ee ee ee ee ee er ee er ee ee ee ee ee ee ee ee ee
+Measurement Probabilities:
+Probability example with Gaussian Wave Packet:
+> General Property of §- Function: i F(K) (keke) dk = $ (to) if KyC Kao ks
+Born Rule: probability oF finding particle
+tx: fare t@2e
 e
-thermal cycles ("machines")
-ehgine efficiency
-Maxwell's Demon - Assume door costs negligible energy
-(nformation vs. entropy
-dw Work out
-recall,
-(4
-=
-equiv. states
---
-~ 9@y-dQr _ Thd5y- TS,
-=
-AS<o
-entropy: S= kg logn
-engine heat work
-Qo
-Flow from
-dQ) heat in
-TydSy
-partial sol® to paradox:
-define,
-'demon' has entropy cost
-shannon information: T= 10g, Mi, - log, i,
-Vefrigerator work > cold to hot
-* has: 4S
-iT
-i
-Ta
-engine
-S
-(* Law: dQg= dW + dQ,
-hot <= cold
-Ly can be Th
-5
-cheat How from To isto system
-Ly
-_--
-"1 'carnot
-x information Cost
-[9 bite
-dQ=TIS
-> raises pressure (St)
-dw = 4Q2- dQ,
-Th
-engine
-states that final state was determined from
-# states
-aQs
-model of "memory" - classical clouble well
-after measurement
-% 4a
-Be
-T
-+ turn off Flow trom Tp | piston vises
-(hot)
-adiabatic, does work (dw= pv)
-© heat How From system out Ty
-© actionable distinction" - ability to alter state based on
-available information couses actual state change
-allow piston to push back (adiabatic)
-veturn to start
-o
-v KgT
-1
-Vefrigerator © Compress - T goes up
-® comect to cool bath Ta
-"J
-° changing bit has minimum cost of KgT (av)
-> lose heat
-® alow it to expand by doing work on piston
-+ T drops below Ti
-® connect to Ty > heat Flow in
-"4 Law -~ globally, AS >0
-\ 7
-Srilard Engine - allow wall to be movable
-Operation of a machine follows 2° Law?
-x information -> work
-Machine itself exists
-- locally, AS >, wl exception @ an interface 7 Ny
-looks like 100% efficiency
-work
-in low entropy state
-_kepTa" done
-aie
-Tecatt: H- Th" -
-=-
-4s
-dt
-"Ky >» (all states ) (NN, - Nyy)
-Kp T, «_ neat
-each term in sum > 0
-Account ing for energy,
-2 KgT, - ket
-"detailed entropy increase' -
-Cost of demon
-Ket,
-Spontaneous pattern formation - Can machines appear spontaneously?
-a Th
-Cold
-ya?
-v
-tt eee
-oe
-aN
-(transistor ex.)
-| high pressure
-= y-T)
-convection cells"
-Iv
-fraction that
-interface
-!
-contributes
-ary
-We oe
-Ad
-800 |:
-"a°4 Law doesn't apply in!
-}
-dQ
-a closed system ?
-| low pfessure
-Origin of life - animal cell , 30,000 machines
-Philosophical Approaches to Entropy Problem
-Spontaneous Syemetry Breaking
-J- energy of alignment
-oad extremely low energy
-© Positivism
-ja
-1
-Beginning of Universe: a4 Law: ASYO
+-8/2e
+how do we normalize @ plane wave?
+between a and b
+x
+(t5*)%
+i, Via) Ue) = 1
+-
 '
-I
-® theiem - first cause
-o(t)
-Big Bang ar
-re]
-I
-!
-I
-® many- worlds of universes
-Consciousness, problem
-tt tt
-t
-Many subuniverses
-Kgl 9» T- random
-Oo 9
-Span all possibilities
-Lid
-O | anthropic principle
-ket ¢ I - aligned,
-Can Calculate probability
-ae)
-OF Spontaneous low
-vers
-- ob er [sek ..
-*bubble of non-random
-entropy state
-u-Ts
-(occam's razor )
-~-- @
-p(state) increases over larger
-tactuatone
-Tegions
-ho net spin - random
+"
+(n 0) < normalization Factor:
+Y(x)=
+-iKox%
+= J 1¥eo| se
+ur
+ur
+multiply bxSk> 3
+We
+Noy pzhke mv
+i, W(x) Wlw)dn =I
+4/2
+ot
+' inCompatible meas
+urements /
+4
+yi): tet
+for other measurements | do "weighted average" or expectation value
+"oO
+im
+ali-
+2 oS
+ert
+lim
+"%
+eet J dx W* (x) x Wx)
+-~
+Fw) F(t)
+AC At > virtual particle
+L>%
+(rto*)
+arise from
+pairs
+"Wy
+(nebo )(ne MO) yy = at es eas
+: J av*ea(ee) V(x)
+fourier
+same for k-space:
+cp | dx P* (x) (5) 0
+p
+transform
+oO .
+"natural properties' of Fourier Transtoren
+Ar F
+mv
+p 'operator'
+"uncertainty!
+dk>s
+k= Go
+> "uncertainty! av 7G,
+ar'
+Dirac Equation: Relativity + Quantum Mechanics
+Unitary evolution
+\n general, we want a Relativistic model of QM for fermions.
+Relativistic, Invariant:
+recall,
+E> = (mc)* + (pe)?
+FA S05, 0, 2,0. - Dirac wanted unitary dynamics
+ewt
+\ineav derivative in time:
+(E2407) =0
+plane of light has
+E(X,t)=0 everywhere
+hw >
+ve sy
+ibw
+@ some t
+at
+L (E+A)(E-d)=0

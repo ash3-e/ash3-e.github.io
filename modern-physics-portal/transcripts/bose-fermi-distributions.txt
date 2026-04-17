@@ -1,349 +1,217 @@
-Bohemian Pilot Waves
-====================
+Bose-fermi Distributions
+========================
 
-Source PDF: Bohemian Pilot Waves.pdf
+Source PDF: Bose-fermi Distributions.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
 
 PAGE 1
 
-Extracted text
---------------
-"
-Spontaneous Collapse
-"
-Bohmian Pilot waves
-entangledC relativistic ↓collapse
-explanation
-it
-d
-: -E24+ 04
--R
-= -EmY2R+MRIXsk+ UR
-similar to velocity
-↳* H = Reis/h
-t
-I
--
-E
-JR
-⑧
-Ol
-M
-Uz
-o
-= -(TR)
-. (s)
--[mR2
-similar to phase
--
--
-I
-I
-·
-in an egh w/
-complex numbers
-can split into 2
-9
-= R2 -probabilitydensity'
-interpretation
-: both physical
-wavea particles
-V = I
-↑
-PE
-~ (spatial location)
-->
-riSpatial location)-Observis -
-observed
-first
-* caused collapse
-*
-3 ImIP
-+T
-looks
-like
-Schrodinger
---
-tuk-quantal
-KE
-Q
-frame 2 equal times
-particle
-. /
-Bohmian Term
-11
-- Uz
--
-and
-Bohmian particles
-"potential of something
-↓
-I
-frame 1 equal times
-②"weird behavior" of
-Bohmian particles
-(don't appear to
-conserve momentum)
-↳can't cross nodesm
-↓(Spatial location) +
-postulate : universal preferred
-reference frame
-③
-only accurate
-for particles
-with
-mass ,
-not accurate for photons, phonon
-X
-copernican principle , nospecial' reference frame
-①
-only solved for non-relativistic
-equation
--
-> not a narrativity,
-no unique predictions
-⑤
-doesn't say where randomness
-comes from
--
->
-future
-events
-can affect past in
-other reference frame
-Back 2 Many-worlds
-. 99F
-what are the equations/postulateso eis
-&
-&
-· matter waves
-Born Rule
-for probabity
-↓
-Schro
-P(measurement) + 1412
-DiraC
-> 0 . 01
-~ 0 ,99
-+ Th
-Successive Measurements
-Bz-
-Spin equivalence
-BX
-T
-IvL
--In
-1) start with 1v)-sets all vert.
-+h
-insuperposition
-↑
-+h
--
->
-of (H)
-& IV
-7
-1)
-polarization
-↑
--
->
-is
--
->
-+h
-X
-X
--
->In
-2) polarizera 450
-after
-A
-Fi
-+h
--
-> kill Et
-+h
-Vert
-xc
--
->
--h -
->
-&
-BE
-keep Ell + @450
--
->In
-IHL
--
-> x
-> k
-+h
-B
-magnetic field
-measurement
-3) 2nd polarizer along (H)
--
->
--
->In
-~ Hor
-for spin state
-· 50% gets through
--> remaining part is
-along(H)
-after measurement 1
-measurement leads to projection of states
-onto the set
-↳40 % after end
-of
-possible
-measurement
-outcomes
-* inserting 450 polarizer
-in between
-1) and 2) results
-in greater flux at end
-
 OCR supplement
 --------------
-Bohmian Pilot waves
-" Spontaneous Collapse ""
+=
+Tvansition Rates
+_
+(tn
+potas ti (wus fn Na (12Hs)(ten)
+=
+_
+Tse
+I+ Np) bosons
+) wee) de =
+Nor
+Ny No (1¢N3)(1+Ny)
+Ng Ny (1 N )(1+Nq)
+- bosons
+Tap © I- Ne)
+fermions
+Guess sol4: n(e)=
+) w(e) d(E) 4€
+Uter
+Bound States
+"
+vel @ ia + Fermions
+Boltzmann's argument of * detailed balance
+fermions
+' 7,-
+ores
+bosons 0,!!
+QM terms
+\
+\
+[13 aed
+a ee
+'\-
+RO, 08
+Forward Scattering Rate
+PEO +)
+RE,
+PE ta +)
+kgT
 -
-ac
--
-entangled @ relativistic P collapse explanation
-"EVs vy
-la wW = perk
--p aS - -& 7p + am RIVS ie U2 similar to velocity
-$1
-oO
-ti
-S
-oO
-ta
-Wy
-r=
-ta
-Wy
-ae. -< (v a): (vs) ~akVs similar to phase
-in an eg? w/ complex numbers
-Can split into 2
-r =p * probability 'density'
-q: YS
-t
-¥ (spatial location) >
-V (spatial location) >
-t
-interpretation: both phusical wave & particles
-Observed first
-ti? VAR
-Observed first
-4¥_ problems
---- +4
-|?
-+U
-caused collapse™
-caused coll apse™
-Ky
-a -
-%
-am
-looks like Schrodinger
-- =
-© 2 ty pes of particles
--
-WK - 'quanta !
-_ © frame 2 equal times
---
-_--
-=~
-and
-Bohmian Term
-a
-"a
-oe
-"Bohmian particles"
-"potential of something "
-= tk,
-frame 4 equal times
-ky
-@ "weird behavior" of Bohmian particles (don't appear to Conserve momentum)
-ky
-Ly can't cross nodes Oo
-V (spatial location) >
-postulate: universal prefered
-@) only accurate for particles with mass, net accurate for photons, phonon
-teference frame
-X Copernican principle ! no special reference frame
-® only, solved for non-relativistic equation
-® doesn't Say where randomwess comes from
-> not a "narrativity | no unique predictions
-> future events can affect past in other reference frame
-a4
-Back 2 Many- Worlds
-ol
-o\
-a
-ol
-aa
-aa
-- what are the equations /Postulates of QM
-44
-ov
-a4
-ol
-44
-ol
-° matter waves
-4
-Born Rule for probabity
-Schvo
-P (measurement) -> |p |?
-Dirac
-i 0.0/
-+7h
-Successive Measurements
-)
-i)
-Spin equi valence
-IvS
-™)
-RP]
-1) start with Iv)- sets all vert:
-Bx " fe
-2
-eth
-pol aritation
-)
-i
-ot '
-N)
-ore
-9) polarizer 345°
-+tk
-cA
-=> kill Ex
-(e's\)
-keep Ey 3 45°
-{=
-Be
-IWS
-eth
+----
+(
+\
+Ke
+ai
+"superflui d
+Cooper Pair
+superconductor
+condensate '/
+Ni No ( * Ns )(1+Ny)
 ae
-8
-magnetic field measurement
-4) a" polarizer along IH)
-for spin state
-Ex
-+ 50% gets through
-atter measurement 41
-> femaining part is along )H\
-40% after 34
-measurement leads to projection of states onto the set
-Of possible measurencat outcomes
-X inserting 45° polarizer in between
-\) and 2) results in greater flux at end
+Be
+4He
+~» © fermions
+bound state of 2 fermions
+ky
+oo" So
+Tae (tas )
+(4+N3
+by law of
+kgT
+Spin: = 9
+t
+VN
+conservation
+' Wotrix Element
+numbers in states
+BE+% BE
+time symmetry *
+Ki and Ko
+Fens re ieee of Errt) of ¥ sue i E+ Ea= Eye Eyl
+yacuum
+Reverse Process
+=
+U(x)
++ detailed balance
+4h ff
+equillibrium
+A Potential energy
+N(E) =
+ele cura
+* Bose - Einstein Distribution !/
+EF
+G)
+felt by electrons
+in equilibrium
+Tape (Maun) Na Ny (1N, )(1+Na)
+\
+-- 7)
+es)
+vote Forward = reverse role
+'
+©U= 'chemical potential /
+-
+eee
+-- 1
+N(E) =
+V+ +
+--/
+by time- reversal symmetry Miagy= Maya
+gle mnt
+* Fermi Dirac. Distribution!'
+\ +
+----
+\ diode."
+Diodes and Transistors
+energy
+p-n Junction
+La
+* doping "/
+Kp- Boltzmann's constant |
+"A
+->
+conduction
+band
+'
+i
+* dope w/ extra @ donor
+by
+vl-Jev
+ra, dopant
+'
+©, @ ©
+> donates tree electrons 1 type
+<1
+---
+tr eates
+ket ¥ 25.6 meV for 1= 300k
+(room T
+!
+As
+Ga
+by
+valence
+© WO ®@ a
+-_-Ss
+° dope w/ missing © 'acceptor'?
+2 OM OM
+by
+--
+Pure
+- donates holes P type
+hole
+@TMYw® © &
+" -elval wy -(e)/Consver) » » "
+dopant
+majority " carrier - what sign is moving
+binding energy' - effective Pydberg - 20 meV
+Charge
+depletion
+* electrons moving LR
+Tegion
+ea
+e
+feel potential energy barrier
+> er
+(€y-qAv) v2 *Pplied Voltage
+% Selectric. constant
+°F VbeS 0.6V
+Bipol ar Transistor
+and Nee? Vbe
+lL then electors can
+dep letion
+ion
+o bias voltage
+wl be + Vee
+How from € to 8
+P-type
+Peer ere reer
+Ww Type
+ad)
+4 Tin
+eo
+© conduction
+a Some e" can Vecombine. wth
+O00 D/O :O © O}*
+~ t
+© 4
+metaphor:
+le, heles in base creating Tv
+TIp-
+water pi
+band
+Emitter
+O00 999909
+E
+Vout * stow e
+* some €° are pushed from B to
+by applied Vee and create Ic
+emitter base
+callector
+©0090 000
+OO O O1O :© © ©
+In --
+ee eee ccccrcccccees
+- <--Ile
+E from Vottage Bios
+Tyee dopants
+n Type dopants
+e etm holes
+|
+extra electrons
+depletion region
+- no extra Carriers
+Half - wave

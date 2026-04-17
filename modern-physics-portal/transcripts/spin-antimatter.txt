@@ -1,7 +1,7 @@
-Relativity
-==========
+Spin - Antimatter
+=================
 
-Source PDF: Relativity.pdf
+Source PDF: Spin - Antimatter.pdf
 Category: notes
 Page count: 1
 Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
@@ -10,172 +10,258 @@ PAGE 1
 
 Extracted text
 --------------
-↳Intro
-Relativity
-time dilation :
--
-> putting this together we get the following
-Newtonian
-postulates :
-round trip time observed by A
+Dirac Equation : Relativity + Quantum
+Mechanics
+unitary evolution
+In general,
+we want
+a
+Relativistic
+model of
+QM for
+fermions.
+N
+Relativistic Invariant :
+&
+recall,
 ↳
-Golilean Transformations : At = At'+ vAt'
-x
-event
-1) All inertial reference frames
-are 'equivalent'
-* (s =si
-#
-↳ta = Ch
-=>
-At = Atl
+&
+E2 = (mc2)2 + (ps)2
+&11
 -
-* V +s'v
-2) The speed of light is the same from any inertial reference frame
-- a
-T
-I
-o
-L
-1
-S sla event2
-As
--
->
-which we define by U
-=
-1 - (v)
-event: A
-B's =Y
-time to hit receiver from B's po
-vXt'
-At
-O
-·
-event:
-· receiver
-relativistic :
-non-relativistic:
-and arrive at the
-4.-dutVrel)
-x
-3
--
--
-↳+ =&
-, tri Ente str
-* At= Ato
-K
-AX
-2
-l
-A
-A d'1
-=> not simultaneous !
-!
-1 vX
-↑cove
-+Ve V
-equivalence : th
-= Uta
-where , for examples
-parallel motion :
-V =
-B
-B
--
->
-T
-Vy
-i
-⑳2/2 , V = 2/53
--
-~
--
->
--v up:
-↑rear clock-ahead" effect :
-extra distance traveled by OL : (iv) -
-ar
-= C-
--
-B
-V
-musun
--
-> Up
-Vs2 + Vp2
--
-> v
-Up
--
-+
-so, from B's por -the round trip time observed
-L
-I
-time =*
-↳
-↳ah
--
-> Vp
-B
-isil
-so , speed
+> Dirac
+wanted unitary dynamics
 w
-Ch + VG
-L
-7
-Vs
-- Vs
-tz=up
-tr-if-
-2
-- Vp
-t
-VSX
-↑USE-Vp
-↳-
-Cl' - ul
-*L from train's frame
-E
-O
--
-> v
-Ch -VS +vC-Va
-I
-platform
-i
-B
-P
-=L
-(assuming v<((c)
-object velocity
-:
-2 reference frames :
-S
--
-reference object's
-"rest frame"
-both
-sors" can be moving
-s
--
-moving object's rest frame
-S choice of s will det. relative
-3
-reference frames w/Av :
-frame
-speed of moving-
-speed of object measured
 V
-+
-y -
-frame S'U =
-[
-y
-1 +
-in moving frame SI
-speed
-of object
-measured
-in rest frames
+e-iut
+linear derivative
+in time :
+4)E2 + 12)
+= 0
+plane of light has
+↳(E +x)(E
+-A) = 0
+ECF,t everywhere
+E
+=he + it
+Dirac: EF = (mc2)2 + (pc)2
+E = /mc2)" + (pc) = 0
+· =(6
+IE-tom-cp)(E
++ come +cop)
+-
+only
+works if
+matrices have
+-
+it
+= (0)
+&is
+a 4x4 matrix
+(Po
+, (x,y , 92)
+the property:
+= -E
+if
+-
+&
+=
+didj = a =
+[,x, ,z]
+=
+= 10)
+In general : &'s
+do not commute : ABFBA
+& . p =xpx + Eypy +z9z
+introduces
+new degree
+of
+freedom
+· positive energy
+some
+index
+which the relativistic
+= (j)
+E
+schrodinger egt
+spin up or down
+5
+relies
+on
+:
+Pauli Exclusion
+N = 1
+vacuum
+-
+= (0
+-i)
+- each state can have only
+"Spin"
+all negative
+5
+filled ent
+N= 0
+or
+N=
+mcG
+3
+P
+all positive
+mc2
+What is spin? angular
+momentum
+inQM ErrN
+·negativeenergya
+empty
+&
+1 = up
+To
+·......
+mole
+men
+↳spin statisticsth :
+-
+boundary condition:
+=E units of angular momentum
+energy
+"Dirac sea"
+N = 1
+L = rp
+two values of
+N = 0
+or 1
+connected to
+is
+- so
+~ orbital angular'
+k==N
+4(x) = 4(x + 2πr)
+2
+choices of
+spin
+momentum
+in4(x)
+↑hole" - acts as a particle
+T=xj
+- X=
+(2π = N
+with positive charge
+QM:= -it
++ positive mass
+-
+antimatter
+position
+=>
+worked example
+: [Lx, (g)
+= [ypz-zPy , EPx-yPz]
+connection of spin to angular momentum
+* e .g.
+commutator of
+N
+, p
+T =x
+= YPEPYYPE
+=
+PEEPz(PY
+an operator
+&
+It
+- 1
+=[x,] +(x)
+-
+in
+Q. M.:
+-st
+Y
+ERXYPEEP
+4 = (x*
+- cx) f(x)
+"z
+↳[Lx, (y]
+= ih(z
+recall :
+many operators doNotcommute (AB = BH)
+= x& -[f(x)+=
+[A , BJ = AB-BA
+L= EN
+eigenstates are : (o)
+, (4)
+define spin matrix :
+sz = Elb-i)
+Pauli Matrices for Spin
+eigenenergies
+are: :
+S=x ,
+Sy=y , se :Etz
+o = (i)
+, 0x
+= (:)
+,
+Oz = 10
+-9)
+&
+· It
+=
+↳[Sx
+, Sy]=:z
+7
+-
+spin(#1)
+·
+= it /EVz)
+:
+(ij)
+(ii)
+- - 2
+V
+↓(ei(x)
+define: anticommutator
+= ihSz
+operations
+:1measure particle
+-
+80x
+-0x8x( % 6)(0)
+- (0)( %
+=2) = 2
+↑TA , BY
+= AB + BA
+2
+↓
+2
+Copenhagen "knowledge
+leads to collapse"
+suppose[A , B)
+= 0
+2 full rotations for particle to return to starting position !?
+example of entangled state
+-
+AB = -BA
+fermions (matter particles) :
+Spin t
+Local Hidden Variables :
+-
+> disproves Bell's Theorem
+glasseam-splitter
+light pulse
+photodetector
+-
+L
+=
+3)
+↑
+T
+amplitude
+normalized
+&
+to I
+V
+↑(x)4r(x)
++ H,(x)42(x)
+SOMUTerSales
+T
+1
+ampl . = 1
+ampl . = 0
+"O
