@@ -1,0 +1,217 @@
+Bose-fermi Distributions
+========================
+
+Source PDF: Bose-fermi Distributions.pdf
+Category: notes
+Page count: 1
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+OCR supplement
+--------------
+=
+Tvansition Rates
+_
+(tn
+potas ti (wus fn Na (12Hs)(ten)
+=
+_
+Tse
+I+ Np) bosons
+) wee) de =
+Nor
+Ny No (1¢N3)(1+Ny)
+Ng Ny (1 N )(1+Nq)
+- bosons
+Tap © I- Ne)
+fermions
+Guess sol4: n(e)=
+) w(e) d(E) 4€
+Uter
+Bound States
+"
+vel @ ia + Fermions
+Boltzmann's argument of * detailed balance
+fermions
+' 7,-
+ores
+bosons 0,!!
+QM terms
+\
+\
+[13 aed
+a ee
+'\-
+RO, 08
+Forward Scattering Rate
+PEO +)
+RE,
+PE ta +)
+kgT
+-
+----
+(
+\
+Ke
+ai
+"superflui d
+Cooper Pair
+superconductor
+condensate '/
+Ni No ( * Ns )(1+Ny)
+ae
+Be
+4He
+~» © fermions
+bound state of 2 fermions
+ky
+oo" So
+Tae (tas )
+(4+N3
+by law of
+kgT
+Spin: = 9
+t
+VN
+conservation
+' Wotrix Element
+numbers in states
+BE+% BE
+time symmetry *
+Ki and Ko
+Fens re ieee of Errt) of ¥ sue i E+ Ea= Eye Eyl
+yacuum
+Reverse Process
+=
+U(x)
++ detailed balance
+4h ff
+equillibrium
+A Potential energy
+N(E) =
+ele cura
+* Bose - Einstein Distribution !/
+EF
+G)
+felt by electrons
+in equilibrium
+Tape (Maun) Na Ny (1N, )(1+Na)
+\
+-- 7)
+es)
+vote Forward = reverse role
+'
+©U= 'chemical potential /
+-
+eee
+-- 1
+N(E) =
+V+ +
+--/
+by time- reversal symmetry Miagy= Maya
+gle mnt
+* Fermi Dirac. Distribution!'
+\ +
+----
+\ diode."
+Diodes and Transistors
+energy
+p-n Junction
+La
+* doping "/
+Kp- Boltzmann's constant |
+"A
+->
+conduction
+band
+'
+i
+* dope w/ extra @ donor
+by
+vl-Jev
+ra, dopant
+'
+©, @ ©
+> donates tree electrons 1 type
+<1
+---
+tr eates
+ket ¥ 25.6 meV for 1= 300k
+(room T
+!
+As
+Ga
+by
+valence
+© WO ®@ a
+-_-Ss
+° dope w/ missing © 'acceptor'?
+2 OM OM
+by
+--
+Pure
+- donates holes P type
+hole
+@™Yw® © &
+" -elval wy -(e)/Consver) » » "
+dopant
+majority " carrier - what sign is moving
+binding energy' - effective Pydberg - 20 meV
+Charge
+depletion
+* electrons moving LR
+Tegion
+ea
+e
+feel potential energy barrier
+> er
+(€y-qAv) v2 *Pplied Voltage
+% Selectric. constant
+°F VbeS 0.6V
+Bipol ar Transistor
+and Nee? Vbe
+lL then electors can
+dep letion
+ion
+o bias voltage
+wl be + Vee
+How from € to 8
+P-type
+Peer ere reer
+Ww Type
+ad)
+4 Tin
+eo
+© conduction
+a Some e" can Vecombine. wth
+O00 D/O :O © O}*
+~ t
+© 4
+metaphor:
+le, heles in base creating Tv
+TIp-
+water pi
+band
+Emitter
+O00 999909
+E
+Vout * stow e
+* some €° are pushed from B to
+by applied Vee and create Ic
+emitter base
+callector
+©0090 000
+OO O O1O :© © ©
+In --
+ee eee ccccrcccccees
+- <--Ile
+E from Vottage Bios
+Tyee dopants
+n Type dopants
+e etm holes
+|
+extra electrons
+depletion region
+- no extra Carriers
+Half - wave

@@ -1,0 +1,285 @@
+Lorentz Transformation
+======================
+
+Source PDF: Lorentz Transformation.pdf
+Category: notes
+Page count: 6
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+Extracted text
+--------------
+Lorentz
+Transformation
+(Time Pilation , Relativity)
+est
+my frame
+me
+에
+A×=γ(AX + VAtリ
+으H가
+으테H"
+Λ#HIVAt
+罒
+At =γ (At
+' + 品Axリ
+웃애
+^ _
+Ax÷ γ (Aγ - vAt)
+Your Frame
+Ar
+' =γ(cAt
+- vat)
+1
+speed of light seen by you
+:
+Aビ' -γ(AtA)
+At'
+←γ (At
+- 号2cbt
+)d :
+γ (cAt- vAt )
+γ(st
+- 品cnt) =
+velocity transformation:
+“
+感
+≤
+Fu
+'
+: c
+ム_(筑
++ v)
++ uji +
+c = 合
+ε ↑
+但,
+i
+timeilation
+(1 + 品) +酱
+suf
+length contraction :
+length
+uy叭注)器)
+contraction
+
+PAGE 2
+
+Extracted text
+--------------
+example of an invariant :
+(As2)
+は
+= ( At)? -(A+
+)
+? -
+Z (AE' A+')- γ
+(Ax'+ vAt リュ
+: 2 γ [1At)
++AZ 'At' +(Ar
+)}
+-
+c[ 響+
+旨Ar 'At + 唱(At
+)]
+Ay
+> c2γ^{ Bt)
+= 最(At)] + cazz[
+瓷( Ar)㎡
+- ( A)]
+↑
+7 r2
+警( 怒- り/Azα
+X
+( A82)
+は= (cnt)_ 6Ax) 2 -
+響( -1 )/ Az)の“ space - time ”
+r2
+=(yz2)+ (yye)
+
+PAGE 3
+
+Extracted text
+--------------
+spacetime diagram
+forward
+event
+occursorentz transform
+event from other
+minkowski diagram
+t
+(t , X , y, z)
+reference frame
+timelike
+light
+come
+( t' ,r '; g ; z
+( 4
+-D)
+「
+¿
+7
+= ct
+t 比
+can be affected by me
+"light cone"
+⑥
+x
+'spacelike'
+can
+affect
+me
+&
+-
+reverse
+light come
+
+PAGE 4
+
+Extracted text
+--------------
+Λ
+↑LorentE transform
+X
+Λ
+K
+100m
+"
+∞
+event 2
+いいいい納
+{ π
+- t : 0
+t : 0
+K
+50m
+λ
+∅
+event 1
+d
+θ
+lu)
+from
+one reference :
+X= o
+time dilation
+X- O
+XI
+= L
+from other :
+length
+contraction
+ti ' -810- r50) ) -
+x,
+' - γ10
+- 01 : 0
+tz
+' - γ (
+- 26L) )一は
+z'
+:
+γ ( L -Vol - γ L
+
+PAGE 5
+
+Extracted text
+--------------
+V = o
+> *
+ev
+*
+invariant
+㎡
+time curve
+Cany pt
+on this curve experiences same universal time)
+emitting light
+C
+At' -(
+timefor1 s「pulse)
+" "
+n f
+; √
+一
+E
+UVT
+>
+ome
+C
+Ate= UT'(emission of 2nd pulse)
+Λ
+Λ
+At
+ㆀ
+…
+u
+inframe of enter
+event
+2
+difference : T = UT'-
+emit 1:: ‰
+UT'x
+¤
+=γ( 1 - 号)+
+ㅣ
+t' - 0
+√
+*
+, 龄(
+1- 号)+^ *1+ 号)
+^
+Primetee
+emit 2 : 21
+=0
+}
+t
+' 二+
+our frame
+A
+바흡
+↑
+emit 1 :
+x = 0
+frequency
+: F
+=F
+to
+emit 2 :
+x2
+= V(O+ vT)
+tc= ((T
++o)
+
+PAGE 6
+
+Extracted text
+--------------
+invariant :
+E 2 - (pc
+?
+⇒E =γmcn
+Taylor :f(80 +8 ) =f(ea ) ++ …
+↑
+P
+= 2mr
+↳ン
+→に主1 一- り+ …
+kinetic
+momentum
+- x
+energy
+L mu
+E = 喜
+Mca
+(πo - ')
+= 1 t 当x
+clarification!
+- Emul
+」
+応
+ご( け忙望men
+2
+二
+mc 2 + 文mv3
+"rest energy'

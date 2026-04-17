@@ -1,0 +1,405 @@
+Thermodynamics - Statistical Mechanics
+======================================
+
+Source PDF: Thermodynamics - Statistical Mechanics.pdf
+Category: notes
+Page count: 1
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+OCR supplement
+--------------
+Thermodynamics R, Statistical Mechanics
+T
+- temperature
+Boltemann's H- Theorem
+(0) Change of Variables k+€ :
+if AB
+Four Laws of Thermodynamics
+Berc
+then Ae
+dk = 4k dk for isotropic average over angle
+eneray, heat flow
+‘proof of 9" Law’ * same tools as detailed balance
+bb direction doesn't matter-
+©) equilibrium ( implies irreversibility )
+‘2 k2
+Asymmetry in time
+[v : Jp (e)w(e)-€ at]
+S
+-
+=
+% (43k = k2dk sngdoag): Ex=
+—
+am
+u, dk Wk
+Ek
+tk
+dk
+A ~ Chemical potential
+“kp 2 Nk log Nk ~" classical limit’ of QM Entropy
+d
+umber flow (atoms, particles)
+as
+9" Law: so 2
+_—
+at
+= -kg >
+INK in Ak + Ne & In Ne }
+- k= ¥ImEx
+dk
+Wk
+= de
+@) energy conservation ww = 40
+[N= Sce)w(e) se]
+.)
+k
+(
+at
+Qz= internal enemy Awork = Bheat
+Fax-a
++ Wk
+©
+> randomized- heat’
+Fz kx
+hk
+Mee
+jox(B
+total change \)
+dw: F-dy 2 We= £kx?
+=0 iF
+= Sum of work done on system + heat flow
+~“Y
+Tecall) rate of change:
+inFlow }
+N is conserved
+N= (on)
+3 a iaketeatg "eat
+e(t)
+always stays the same
+i lied
+oNk
+— %*
+>
+= Nic Nie? (IE Nie, )(1N,) # Nis kg (12 Ne sue)
+%m
+de etltat 2° gr
+@) entropy (
+or increases over
+ta
+at
+KY Ki ky
+|
+* Gn)
+2 Ut} k Rk
+As20
+log A. counts 4
+4
+t outflow
+Ske log ne of equivalent states
+in
+of
+“bite! needled MUS \SU
+” dome =
+dey Ek
+Nv
+lL
+to describe the
+KV 0%
+ey)
+(any*
+we wv
+hegr >
+(an) e
+S is a measure of “degree of disorder’
+states
+at
+In Nx
+wh ket ) a m
+w
+KY kik;
+v
+wh (vgr?
+> $= -Kglog & > probability oF being in any specific unique state
+co —
+-(€-p)/kyT
+= (am etlket
+% what if states are not equally probable? > weighted average
+k’ o” *o ky
+> terms including 4 particular set of Kk, K', ky, Ka
+3
+}
+°
+t
+°S= ZPSi= kg Z Pi loghs > S=-kp ZNi log
+(\n Nie - In Nie- tn Ne, \n Nx )( Nk, Ni.> Nk Ne’)
+QmE
+“von Neumann Entropy’
+. Qtr“ Diagonal Entropy ”
+——__—__—"
+= N
+dé
+hb?
+¢/ kgl
+(any?
+« elilker j
+¥E= ir
+AS 20 ~- change in entropy always positive
+N
+k Ne’
+Cumulative term
+Prot: Boltzmann ‘s H-Theorem
+wl
+Nk, Nic, J(Nk, Niey Nic Ne?
+)
+I relation is ALWAYS
+° us grip | see Ew/ker,
+PE =EkeT
+Soo -
+entvopy always increases
+D(e) ae e*6
+Lime
+- e/ kgT
+dt
+if this is larger | then tog must
+Negative !
+elt /kgt J
+= Gn elk gr fae
+w
+> term is positive ® be. negative!
+Temember: 22 20
+density
+9
+«>
+® Absolute Zero, Absolute Limit
+of
+5 Units of E
+wt
+-
+=
+(
+S=0 @ T=0
+ky
+Ideal Classical Gas
+states
+,;™
+= onre
+T
+ese
+QM.
+ky
+~ for a given T, what is average energy
+wt ui ata
+\og( = I)=o
+Wee) - complex |Wle
+._. eee
+rr
+(3 of states falling between (E, E+JE)
+© 4.
+adn
+both methods
+re
+rr
+per particle 2
+w
+%
+ket f
+ce
+ti
+N(x) o¢ |Pcxy |?
+lose system
+rr ed
+Vv
+wh (vgr2
+Poincare! Cycles (2) - appears to disagree
+y (2) (%)
+information
+re
+re
+2 NV
+Sku (Er)
+4 N= (on ether
+h3
+“oer / particle =
+with Boltzmann's H- Theory
+rr
+ee ee
+amt)?
+(Ex) /kgt
+)
+°
+eet ye! - ft
+Kt ui
+ky Classical: Velocity oF individual
+ky
+Lang. value N(E)=e
+Particles unknown - course grained
+Volume per k-
+Space is
+(any
+= (_tlkgt) ¢&/ter
+@® Poincare’ time is 1ong for even simple systems
+Total Momentum per Unit Time
+\deal Gas Law - relation of pressure, T, and A
+(ginvx)
+ZA\A
+Ray ise
+Be
+wit)
+~>
+F. tap
+% equipartition:
+2
+G) where did Boltzmann's equations gp wrong?
+Pz
+BA Qn
+Py, Pe
+density
+E= om
+Vv
+x
++ [mvyet eve. 23,7
+ket
+» Aw
+LX)
+= wN
+isotropic. system:
+Loss of Information
+ae
+~~
+° Px contributes to Fx
+1V
+one can prove ( beth classically and w/ gn)
+ket
+Vx? = Vy? = V2 4 Bl? )=A yr
+Kev
+in any Yinite system that has tine reversible dynamics: all behaviors repeat in cycles
+N particles hitting wall per unit time
+A=vyAt
+¥Q=Nake
+Pv
+NkgT= net
+Connection between Entropy (s) and Heat ( a)
+Heat Capacity, % Heat Flow
+Heat Capacity of Photons and Phonons
+Ea)
+val)
+high heat,
+Small AT
+= amy wn) J k? dk -N(Ex) Ex
+ka
+* hes eltlkeT _tlker
+Ley: d@
+dtlv
+Capacity
+ria
+'
+Kmax
+° Serkel Ni log Nk
+SQ
+recall, Us ding Ja Nx Ex
+o Sete
+eclkeT-, change &= E/kgt ) d= dE/Kgr
+*k
+220
+oS
+ar
+2k? 4
+—— =
+e
+mv?
+o—
+p?
+»)
+max =
+Amex
+gl
+——
+(-€+u)
+work done is zero: dW = PdV=
+dx
+£ (Ady)
+where Ex=tck for photons, not: Ey =
+e
+=
+fick
+dm
+K max
+at
+a 3: -KyD oem) leer |
+KgT
+f
+‘\
+= Fdx
+Nk
+E
+E
+“Ue ( ker)" J eae Fa E= €kpT
+* Y=
+=
+energy outflow Pressure
+'
+Can't use NkY eo (EW) /kegT
+dU
+gr ) kak NKEK
+N+
+> dW =Tds
+Fa.
+from system
+'
+'
+V) o ( ket)" * stephan - Boltzmann Law’ » Cy
+aly
+T
+* are photons cutott in k2
+ket
+* AS20
+ke
+> AF 40 @ constant U
+- 4
+-
+planck: Nx= eft/ kT
+‘planck distance!
+low T Wit > CyoeT?:
+aTSs=:
+“MAN +U
+equilibrium — minimizing F
+Le
+v=
+aT
+and in an ideal gas: U
+=
+Kmax
+kar
+Kmax
+(A= for system with N not conserved )
+—
+Ex
+2X
+ordered states:
+-3
+-_—
+= or
+kg) )
+° kdk = sae
+LN = U-TS
+Cy
+Nkg
+He
+(very few equilibrium states)
+Ye e 2.- wavelength
+high T wit ¢
+F - Free energy
+© low S
+© high F
+|
+|
+wu
+KgT
+Ex
+Ng = ekk/et-) = (ee
+kgT
++ ) od ~
+AN
+Taylor Series for exp . F(x)

@@ -1,0 +1,216 @@
+Assignment 4
+============
+
+Source PDF: Assignment 4.pdf
+Category: assignments
+Page count: 4
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+Extracted text
+--------------
+deBroglie wavelength : X =F
+(6 . 626x10-341
+m2)
+=
+1.0155x10- 34m
+=
+(0 .145kg)(45m/s)
+9) this is due to the principles
+of quantization
+which arises
+from the conditions
+of our boundaries where
+Sin(nit) = 0
+6) If
+n =0 were true then the particle simply would not exist sin(0) = 0
+c.) negative integer values suggest the shape
+and phase of
+our
+wavefunction would change and
+since probability 141
+& this can't be the case (
+57
+ピ畿,
+☆41)
+燕(*
+装)o
+: razu
+ㅇ
+X 르자
+
+PAGE 2
+
+Extracted text
+--------------
+a.
+l ψ *1
+E
+= - 춤ψ(a ) + 0ψ
+)서
+N = P()eint
+"
+int
+guess 4(X) & gike
+nw'
+<24 =-ti
++ UN) 4
+W
+ε
+Bi)
+↳ε= 巡+ U
+2m
+o
+· Find A
+by
+normalization
+* total probability must equal
+100%*
+↑(x) = Asink + Bcosk
+λ 兕
+1
+…√
+d+|ψ(x) |
+P
+=√∵drA=sinz
+(*) dr
+try :
+sin2o :
+1 「: Naxcosbr
+- Bsinbr
+→AI (
+会sin始) →
+1 一時
++
+A , sin(kl )- 0 ⇒K
+c(d
+.)
+e .) It
+is similar except for the
+N((x)
+= Agik + Beike
+4 , (0) = 42(0)
+U(X) term
+which
+we can limit
+=>
+boundary X = 0
+: Jecko
++ eiko)
+= by
+↑, (x) = a . ekx + b , et
+: Yz(z) = 43())
+tothe constant Vo
+Yz(x) = aze
++ byk 0= = 0
+E =tVo
+紫以紫社
+(器)
+-E -1 E 0二二器( 型);E - U0+品
+
+PAGE 3
+
+Extracted text
+--------------
+(00
+x 20
+器毙+ U( +)ψ - E 4
+U (
+=
+700EXSL
+(020)
+b
+⑳-J ( -E] ψ
+200
+x와
+b)
+a .) ①ψ
+… - 씀/ U0
+- t)ψ
+4 , ( +)- AekixtBe
+-Kix 入
+where K1 Em 20 -
+→淼K
+,ψ
+asx →∞,ψ ,(r ) =Aekv+ Q
+②
+②森瓷( -
+E)ψ
+2U 。
+Hc(x)= asin(k2)+ becos(kx)
+①
+③Where K=
+E so d=
+C.) Band as must
+③箱
+Ψ - 瓷(
+- E)ψ
+200
+be zero
+, because
+asAtc
+43 (r)- eka,Etbe-kt
+Ek,
+and -Est + 0
+where K=
+OE)> d =*34
+as *tc
+, 4(x)"
+=bekst
+and
+are non-normalizable
+
+PAGE 4
+
+Extracted text
+--------------
+9) If U = 0
+, the particle cannot exist there
+, so : N(x) = 0 w/ condition U(O) =0
+b. )
+@느러드(
+, U -o
+General
+so: dh
+= -k2H
+,
+k =
+Em
+thus: 4c(x : Asin)kx + BcoCk s
+↑2(0) = Asin0 + BrosO = B = 0
+so : He() : Asin(kx)
+@ ทะ↳, ปะบอ
+so α -
+K 2
+ψ,
+k -
+2mthus
+: ψ s( t)-Cekt+De-
+kx
+and
+as fet co we find: C=0
+, so : Iz: De
+**
+C.) B = 0
+and
+C=0
+↓
+normalizing as X - c
+from 41(0) =0
+d) to satisfy 3, we must find H2(c) = 43(1) : AsinSKL)
+= De-FL
+,
+D= Asin)kL)eth
+where d
+= AKcoskx Ed
+: AcosSkL)
+AKCoSkL) : -kDe
+}
+and for k:, k =
+- KtanS+()
+dψ3- KDe-Cx
+≠d - KDe
+- kc
+↳tanJkL)
+= *

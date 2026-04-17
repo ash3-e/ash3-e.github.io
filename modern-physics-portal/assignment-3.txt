@@ -1,0 +1,352 @@
+Assignment 2
+============
+
+Source PDF: Assignment 2.pdf
+Category: assignments
+Page count: 7
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+Extracted text
+--------------
+proof :
+from s
+the lorentz transform yields :
+1
+Vu =
+1
+-
+u2%e
+we find dt' = Undt
+Ir
+ady
+새
+새Y
+nthy
+fromthe lorentz transformation yields :
+⇒
+⇒
+E uF
+dt= Vo(dt-vdX/(e)
+가
+s"
+V = s
+where dx = 0
+, thus :
+S
+S
+아
+S
+dt
+= Uwdt'
+Vs
+= 0 frame
+putting
+these together by subbingdt' in S
+from
+your frame
+, the
+components of your
+horizontal velocity are added to the vertical
+gives
+usdt = JuUvdI
+velocity of the clock.
+Since c is relative, the
+addition of these components must be transformed
+and resolves
+= Und
+by the lorentz factor to not exceed this
+value.
+
+PAGE 2
+
+Extracted text
+--------------
+ㅣ
+√←
+3C15
+>
+s
+-IsTπ
+V=vo/e"
+1-3551/=
+k
+1 a)
+k
+12)
+i
+S : AXL-
+赤に号
+At
+= - り3c
+b.
+slope==5, thus : frames"=
+^
+t : 0
+0
+:;eiin
+.
+Vi = O
+
+PAGE 3
+
+Extracted text
+--------------
+W
+= V
+E= U3T
+Sand
+so
+on
+.!
+C
+YA E +
+&
+iv
+↑
+가
+∴
+2
+A
+A t 二(T+ t.) ttz
+…
+v = di
+i
+B
+B
+B
+t = ++ t ,
+event
+I
+event 2
+event 3
+event 3
+θ
+t= 82T
+tUT
+world frame
+event 2
+ㅇ
+"Observer"
+i
+event I
+∅
+t = t
+!oE
+)
+SUD)
+(8841
+
+PAGE 4
+
+Extracted text
+--------------
+'
+*
+v
+dictates 0 of
+train
+in tunnel frame
+, o dictates max of rL
+as
+we
+can
+see,
+in order to
+resolve
+We find:
+the max value of r
+we need to set
+t 上and上-voti
+the equality of rL in terms
+of
+C
+usback)
+-refront world frame
+-
+↓, L
+, At
+, At
+, 0 and v
+)
+(signal)
+(exit)
+(tunnel)
+v(tunnentrance
+…
+北
+…
+D
+event 2 (exit) rL
+6 whentit
+'
+-t 'r
+-utandti
+_
+-
+t
+t
+"
+we seeirl = E-v() solvingforwegoi
+\
+EI,signal
+K Por
+…
+v(tunnel exit)
+けvoる
+=
+event Center)E
+→r(1+号) - 字→γ+℃)
+_
+…
+∴
+U : Fryesor
+: Eve:
+tro
+tunnel
+frame
+Xro
+x= 0 train frame
+" =r(
+
+PAGE 5
+
+Extracted text
+--------------
+a .)
+A frame:
+A
+C
+Av÷ 子(Ar - vAt)
+의례비했t
+옷
+C frame:
+At' - γ(At-
+doppler effect: AT = tc(c -vIrt':BDt
+A +
+- γ( A++ vAtリ
+AE
+= Z (At
+' +
+品Ax')
+- 酱t
+酱台β ' 管
+E
+nence, FIFA
++ Y
+and
+by substituting be
+for fa
+infir
+in
+..
+一℃
+.
+. fr = fa
+weseeifi )
+↓
+since n =v
+B
+b. )"옷
+" →w. ( ! ! Csus
+uinte)
+mumerator:
+Pt :
+-
+factor (1
++ 2)
+2
+-→12
+.
+잦
++ 品+ 块_「]
++
+1 +v
+1 + V중
+( 器憶ま合」
+denominator
+:..
+same process :(i)
+
+PAGE 6
+
+Extracted text
+--------------
+S
+㎡
+mg
+V パ
+'
+⇌
+sVα
+E= mua
+E - mud
+EE MU
+28
+.
+" 2mut
+.
+α
+E - γmua
+2
+U
+$
+speed of movingV
++
+y
+speed of object measured
+←
+frame S'
+U =
+메
+my
+1
++ _
+inmovingframe sI
+Ux
+V パ
+'
+σ
+> Vα
+speed
+of
+object
+measured
+in
+rest frames
+AX
+-
+AT - HAT
+'- WAt' ) }
+:vi
+':
+歳vor
+4 vi' =
+At
+,
+at = Un(at= uAx*(2)
+vi = 毙, Ar
++δ u(Ar1
++ uxt)
+w/V,
+, Vea S' resolved we find the energy w/
+At = UnJSt' + UBXcr)
+= Va
+= nhor
+Gamma Identify :(v)
+= UuUv(1)
+such that
+E ,
+= Unfume2)-)
+&
+Ec
+= OuOme/+)
+so , EToT
+= OuJu mu2
+
+PAGE 7
+
+Extracted text
+--------------
+a)

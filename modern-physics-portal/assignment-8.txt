@@ -1,0 +1,195 @@
+Assignment 7
+============
+
+Source PDF: Assignment 7.pdf
+Category: assignments
+Page count: 2
+Transcript scope: page-complete plaintext assembled from embedded PDF text extraction and OCR supplementation where needed.
+
+PAGE 1
+
+Extracted text
+--------------
+kE = lE-SeV
+E器箭…
+1
+P :
+a
+↑→晶家裂
+( p +x
+mec
+? = 5E5ev
+k =
+amcE =
+aπt
+: m皆
+at
+hc- 2 E-FeVom
+ho
+λ
+2T J2E-7) ev. m
+=
+3 .974E - 8m
+4
+lE-3eV
+· 2(5E5er)
+=
+39.7 nm
+☆+
+o-
+kAr
++o 。=to
+≠2 ' + (
+E- an) 3 .
+FE
+-sm= O
+, 158 rad= 9 . 10
+En
+=
+N
+鼠學→
+N 21 +2( hc↑(
+mca)(
+z
++
+GT (EFerm)(
+st
+5ev)(i心9)" 、=☆0v
+α
+1
+ㅣ
+EMtyE
+- Enp tEnytEnz
+⇒NH( 品)(
+は: "T α ( aE
+- Tev'a (
+5E5ew)")IE -ama
+"
+E-
+ana
+"
+E-as
+=
+0 . 5lleV
+t:
+= h箭÷→
+N - (2) 2京↑↑uπ k = dk
+E二比器
+↑
+density of partides :
+是- 酱(号:)
+total#of Teoste
+,tase
+水一崎
+임
+dEe舞dK
+の二(
+6
+^照災
+。( EF')
+^
+>-( 歳) 方+築北
+dk ←쁨kdt
+二(
+5E5ev)る6
+E-Fevm)o(1 ev)
+阪
+=4.22 x1027
+= ( 前) 広「洲mdt.
+K2
+earate
+num particles to natural energy
+ta = 2x10
+-tev . m
+观能器ε司
+mat=50185 ev (foret
+ㅣ
+ท = 4.82 x 1027
+U
+= av瓷
+"
+信ε)
+s
+0,
+☆②"
+ε: ))
+N: ^^的瓷"得
+ε:)4(
+ε :^ h)→
+号EF
+5 号errober
+[부12
+)
+
+PAGE 2
+
+Extracted text
+--------------
+a
+. )(
+りs (EF) →n *二
+。
+当mec'
+)he
+.
+) (EF')
+&m3/2
+·m3
+if
+meet
+=
+smech
+An = n-n*
+= g
+=
+4 .22x1027m
+=
+1 .492x1027m=
+252
+density decreases by :
+4 .22 x 1027m-3
+-
+1 .492x1027m3
+=
+2 :728x102tm-
+b)
+since
+the fermi-energy
+was given and
+assumed to be independent
+of
+mass, the energy/particle
+in this
+volume
+will stay
+the
+same
+grid : (恐N、恐N筑NZ)≠Kr5 w/ nr= O ,
+± 1 、さる,
+…
+- volume in K-space
+so, Akx= G
+=αm- 200π- 6 。28+102m-1
+tf -心(Pa () 及(
+2E-ter
+器
+ta = 2x10
+-tev . m
+→
+255 E 5 ev)
+(, 6 .28×102m
+이
+mat=50185 ev (foret
+↳
+=
+1 .DE-14 ev
+ท = 4.82 x 1027
+0 .2eV>) l . GE-1ev
+since
+a
+bandwidth of
+O. 2eV would
+allow for an insanely large amount of states
+across the width, treating the width
+as
+a continuum is physically accurate.
