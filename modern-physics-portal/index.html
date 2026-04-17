@@ -28,6 +28,7 @@
   --radius-lg:24px;
   --radius-md:18px;
   --site-pad:16px;
+  --topbar-space:0px;
   --pdf-zoom:1;
   --pdf-fit-scale:1;
   --pdf-total-zoom:1;
@@ -67,7 +68,7 @@ body::before{
   height:100vh;
   overflow:hidden;
   display:grid;
-  grid-template-rows:auto minmax(0,1fr);
+  grid-template-rows:minmax(0,1fr);
   gap:0;
   align-items:stretch;
 }
@@ -86,20 +87,17 @@ body::before{
   z-index:12;
   padding:var(--site-pad);
   padding-bottom:0;
+  pointer-events:none;
 }
 .portal-header{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) minmax(420px,1.35fr);
   gap:10px;
   align-items:center;
   padding:12px 16px 14px;
   border-radius:20px;
-  background:rgba(38,49,72,.96);
-  border:1px solid rgba(168,140,255,.22);
-  box-shadow:0 14px 36px rgba(0,0,0,.28);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
+  pointer-events:auto;
 }
 .portal-title{
   margin:0;
@@ -108,6 +106,7 @@ body::before{
   letter-spacing:.02em;
   line-height:1;
   color:#f5f8ff;
+  align-self:center;
 }
 .search-shell{
   position:relative;
@@ -143,6 +142,7 @@ body::before{
 .search-input::placeholder{color:rgba(31,36,48,.46)}
 .search-input:focus{box-shadow:0 0 0 3px rgba(155,214,255,.16)}
 .meta-row{display:flex;flex-wrap:wrap;gap:10px}
+.portal-pills{grid-column:1 / -1}
 .pill{
   padding:9px 13px;
   border-radius:999px;
@@ -480,6 +480,7 @@ mark{
 .hidden{display:none !important}
 body.portal-split-view .portal-header{
   padding:10px 12px 12px;
+  grid-template-columns:minmax(0,1fr) minmax(360px,1.18fr);
   gap:12px;
 }
 body.portal-split-view .portal-title{font-size:1.2rem}
@@ -499,16 +500,20 @@ body.portal-mobile-view .app{
   min-height:100vh;
   height:auto;
   overflow:visible;
+  padding-top:var(--topbar-space);
 }
 body.portal-mobile-view .portal-topbar{
-  position:sticky;
+  position:fixed;
   top:0;
+  left:0;
+  right:0;
   z-index:16;
   padding:10px;
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
 }
 body.portal-mobile-view .portal-header{
+  grid-template-columns:1fr;
   padding:10px 12px 12px;
   gap:10px;
   border-radius:16px;
@@ -588,7 +593,7 @@ body.portal-mobile-view .zoom-dock{
   <canvas id="waveCanvas" aria-hidden="true"></canvas>
   <div class="app">
     <header class="portal-topbar">
-      <section class="portal-header">
+      <section class="portal-header glass">
         <h1 class="portal-title">Modern Portal</h1>
         <div class="search-shell">
           <div class="search-row">
@@ -596,7 +601,7 @@ body.portal-mobile-view .zoom-dock{
             <input id="query" class="search-input" type="search" placeholder="Search" aria-label="Search within documents">
           </div>
         </div>
-        <div class="meta-row">
+        <div class="meta-row portal-pills">
           <div class="pill" id="resultPill">21 documents ready</div>
           <div class="pill" id="notesPill">13 notes</div>
           <div class="pill" id="assignmentsPill">8 assignments</div>
@@ -1001,7 +1006,8 @@ function fitViewerToViewport(preserveCenter = false) {
   const prevTotal = Math.max(0.001, (state.viewerFitScale || 1) * (state.viewerZoom || 1));
   const availableWidth = Math.max(120, viewport.clientWidth - 56);
   const availableHeight = Math.max(120, viewport.clientHeight - 56);
-  const nextFit = Math.max(0.1, Math.min(availableWidth / pageWidth, availableHeight / pageHeight));
+  const mobile = document.body.classList.contains("portal-mobile-view");
+  const nextFit = Math.max(0.1, mobile ? (availableHeight / pageHeight) : Math.min(availableWidth / pageWidth, availableHeight / pageHeight));
   if (preserveCenter) {
     const centerX = viewport.scrollLeft + viewport.clientWidth / 2;
     const centerY = viewport.scrollTop + viewport.clientHeight / 2;
@@ -1212,6 +1218,13 @@ function animateWaves() {
   requestAnimationFrame(draw);
 }
 
+function syncTopbarOffset() {
+  const topbar = document.querySelector(".portal-topbar");
+  const height = Math.ceil(topbar?.offsetHeight || 0);
+  const mobile = document.body.classList.contains("portal-mobile-view");
+  document.documentElement.style.setProperty("--topbar-space", mobile ? `${Math.max(72, height)}px` : "0px");
+}
+
 document.getElementById("query").addEventListener("input", (e) => {
   state.query = e.target.value;
   ensureSelection();
@@ -1225,8 +1238,10 @@ document.getElementById("mobilePreviewClose").addEventListener("click", () => {
 bindViewer();
 animateWaves();
 syncResponsiveMode();
+syncTopbarOffset();
 window.addEventListener("resize", () => {
   syncResponsiveMode();
+  syncTopbarOffset();
   fitPreviewContentOnMobile();
   if (state.viewerDoc) fitViewerToViewport(true);
 });
