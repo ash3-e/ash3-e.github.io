@@ -71,6 +71,7 @@ body::before{
   grid-template-rows:minmax(0,1fr);
   gap:0;
   align-items:stretch;
+  padding-top:var(--topbar-space);
 }
 .glass{
   background:
@@ -82,7 +83,10 @@ body::before{
   box-shadow:var(--shadow);
 }
 .portal-topbar{
-  position:static;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
   z-index:12;
   padding:var(--site-pad);
   padding-bottom:0;
@@ -91,12 +95,13 @@ body::before{
 .portal-header{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(0,1fr) clamp(240px, 24vw, 360px);
+  grid-template-columns:minmax(170px,max-content) clamp(480px, 48vw, 760px);
   gap:12px 20px;
   align-items:center;
   padding:12px 16px 14px;
   border-radius:20px;
   pointer-events:auto;
+  justify-content:space-between;
 }
 .portal-title{
   margin:0;
@@ -109,6 +114,7 @@ body::before{
 }
 .search-shell{
   position:relative;
+  width:100%;
   border-radius:16px;
   padding:4px;
   background:
@@ -156,7 +162,7 @@ body::before{
   outline:none;
 }
 .search-input::placeholder{color:rgba(245,248,255,.66)}
-.search-input:focus{box-shadow:0 0 0 3px rgba(155,214,255,.16)}
+.search-input:focus{box-shadow:none}
 .search-submit{
   position:absolute;
   right:6px;
@@ -178,6 +184,10 @@ body::before{
   grid-column:2;
   justify-self:center;
   justify-content:center;
+  flex-wrap:nowrap;
+  gap:8px;
+  width:max-content;
+  max-width:none;
 }
 .pill{
   padding:9px 13px;
@@ -186,6 +196,7 @@ body::before{
   border:1px solid rgba(255,255,255,.10);
   color:var(--muted);
   font-size:.88rem;
+  white-space:nowrap;
 }
 .content-shell{min-height:0;padding:var(--site-pad)}
 .content{
@@ -516,7 +527,7 @@ mark{
 .hidden{display:none !important}
 body.portal-split-view .portal-header{
   padding:10px 12px 12px;
-  grid-template-columns:minmax(0,1fr) clamp(220px, 22vw, 300px);
+  grid-template-columns:minmax(150px,max-content) clamp(420px, 44vw, 620px);
   gap:12px;
 }
 body.portal-split-view .portal-title{font-size:1.2rem}
@@ -537,13 +548,8 @@ body.portal-mobile-view .app{
   min-height:100vh;
   height:auto;
   overflow:visible;
-  padding-top:var(--topbar-space);
 }
 body.portal-mobile-view .portal-topbar{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
   z-index:16;
   padding:10px;
   backdrop-filter:blur(14px);
@@ -1265,8 +1271,7 @@ function animateWaves() {
 function syncTopbarOffset() {
   const topbar = document.querySelector(".portal-topbar");
   const height = Math.ceil(topbar?.offsetHeight || 0);
-  const mobile = document.body.classList.contains("portal-mobile-view");
-  document.documentElement.style.setProperty("--topbar-space", mobile ? `${Math.max(72, height)}px` : "0px");
+  document.documentElement.style.setProperty("--topbar-space", `${Math.max(72, height + 8)}px`);
 }
 
 function runSearch() {
