@@ -168,7 +168,7 @@ body::before{
 .search-input:focus{box-shadow:none}
 .search-clear{
   position:absolute;
-  right:50px;
+  right:52px;
   top:50%;
   width:30px;
   height:30px;
@@ -198,7 +198,8 @@ body::before{
   top:50%;
   transform:translateY(-50%);
   height:30px;
-  padding:0 12px;
+  width:40px;
+  padding:0;
   border-radius:10px;
   border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.10);
@@ -372,12 +373,39 @@ mark{
 }
 .preview-wrap{display:flex;flex-direction:column;gap:14px;min-height:0}
 .preview-empty{min-height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);padding:24px}
+.mobile-hint-card{
+  display:none;
+  padding:12px 16px;
+  border-radius:20px;
+  color:#f5f8ff;
+  font-size:.86rem;
+  font-weight:800;
+  letter-spacing:.01em;
+  line-height:1;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .preview-block{
   padding:14px 16px;
   border-radius:18px;
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.10);
 }
+.selected-doc-block{position:relative;padding-right:72px}
+.selected-save-btn{
+  position:absolute;
+  top:14px;
+  right:16px;
+  width:44px;
+  height:44px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+}
+.selected-save-btn img{width:17px;height:17px}
 .section-label{
   font-size:.76rem;
   font-weight:700;
@@ -490,6 +518,7 @@ mark{
   cursor:pointer;
 }
 .icon-btn:hover{background:rgba(255,255,255,.10)}
+.icon-btn img{width:17px;height:17px;filter:brightness(0) invert(1)}
 .viewer-body{position:relative;min-height:0;overflow:hidden}
 .viewer-viewport{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;cursor:grab;padding:28px 20px 110px}
 .viewer-viewport.dragging{cursor:grabbing;user-select:none}
@@ -587,8 +616,8 @@ body.portal-split-view .portal-title{font-size:1.2rem}
 body.portal-split-view .pill{font-size:.76rem;padding:7px 11px}
 body.portal-split-view .search-input{height:40px;font-size:.9rem}
 body.portal-split-view .search-icon{left:12px;width:16px;height:16px}
-body.portal-split-view .search-clear{height:28px;width:28px;right:46px}
-body.portal-split-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
+body.portal-split-view .search-clear{height:28px;width:28px;right:50px}
+body.portal-split-view .search-submit{height:28px;width:38px;font-size:.72rem}
 body.portal-split-view .content{grid-template-columns:minmax(320px,.92fr) minmax(420px,1.28fr)}
 body.portal-split-view .list-stack{
   display:grid;
@@ -625,7 +654,7 @@ body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
 body.portal-mobile-view .search-input{height:40px;font-size:.92rem;padding-left:38px;padding-right:110px}
 body.portal-mobile-view .search-clear{right:48px;width:28px;height:28px}
-body.portal-mobile-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
+body.portal-mobile-view .search-submit{height:28px;width:36px;font-size:.72rem}
 body.portal-mobile-view .content-shell{
   min-height:0;
   padding-top:12px;
@@ -645,6 +674,8 @@ body.portal-mobile-view .list-stack{
 body.portal-mobile-view .preview-card{display:none}
 body.portal-mobile-view.mobile-preview-open .preview-card{display:grid}
 body.portal-mobile-view .mobile-preview-close{display:inline-flex}
+body.portal-mobile-view .mobile-hint-card{display:block}
+body.portal-mobile-view.mobile-hint-hidden .mobile-hint-card{display:none}
 body.portal-mobile-view .card{height:auto;min-height:0}
 body.portal-mobile-view .mobile-section-toggle{display:grid}
 body.portal-mobile-view .collapsible-card.is-open .mobile-section-toggle svg,
@@ -686,6 +717,14 @@ body.portal-mobile-view .eq-plain{
   word-break:break-word;
 }
 body.portal-mobile-view .preview-block{overflow:hidden}
+body.portal-mobile-view .selected-doc-block{padding-right:68px}
+body.portal-mobile-view .action-row .btn{
+  width:100%;
+  min-height:44px;
+  justify-content:center;
+  font-size:.78rem;
+  line-height:1;
+}
 body.portal-mobile-view .eq-render,
 body.portal-mobile-view .transcript-math{
   width:100%;
@@ -768,6 +807,8 @@ body.portal-mobile-view .zoom-dock{
           </article>
         </div>
 
+        <div class="mobile-hint-card glass" id="mobileHintCard">Tap Assignment/Document to open Document Preview</div>
+
         <article class="card glass preview-card" id="previewCard">
           <div class="card-head preview-card-head">
             <div>
@@ -792,7 +833,7 @@ body.portal-mobile-view .zoom-dock{
           <div class="viewer-sub" id="viewerSub">Loading...</div>
         </div>
         <div class="viewer-actions">
-          <a class="btn" id="viewerSave" download href="#"><img src="assets/floppy.svg" alt="" aria-hidden="true"><span>Save PDF</span></a>
+          <a class="icon-btn" id="viewerSave" download href="#" aria-label="Download PDF"><img src="assets/floppy.svg" alt="" aria-hidden="true"></a>
           <button class="icon-btn" id="viewerClose" aria-label="Close preview">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
@@ -860,6 +901,7 @@ const state = {
     notes: false,
     assignments: false,
   },
+  landingTouched: false,
   viewerDoc: null,
   viewerPdf: null,
   viewerFitScale: 1,
@@ -904,6 +946,13 @@ function syncSearchState() {
   document.body.classList.toggle("mobile-search-active", document.body.classList.contains("portal-mobile-view") && hasQuery);
 }
 
+function syncMobileHintState() {
+  const mobile = document.body.classList.contains("portal-mobile-view");
+  const closed = !state.mobileSections.notes && !state.mobileSections.assignments;
+  const show = mobile && closed && !state.query.trim() && !state.mobilePreviewOpen && !state.landingTouched;
+  document.body.classList.toggle("mobile-hint-hidden", !show);
+}
+
 function syncMobileSectionState() {
   const mobile = document.body.classList.contains("portal-mobile-view");
   const searching = Boolean(state.query.trim());
@@ -916,6 +965,7 @@ function syncMobileSectionState() {
     button?.setAttribute("aria-expanded", String(open));
   }
   syncSearchState();
+  syncMobileHintState();
 }
 
 function getDoc(id) {
@@ -978,7 +1028,11 @@ function renderList(category, mountId) {
       </div>
     </button>`).join("")}</div>`;
   $$("button[data-id]", mount).forEach((btn) => btn.addEventListener("click", (e) => {
-    if (e.target.closest("a")) return;
+    state.landingTouched = true;
+    if (e.target.closest("a")) {
+      syncMobileHintState();
+      return;
+    }
     state.selectedId = btn.dataset.id;
     if (document.body.classList.contains("portal-mobile-view")) state.mobilePreviewOpen = true;
     renderAll();
@@ -1134,7 +1188,8 @@ function renderPreview() {
       ${renderTranscriptText(previewTranscriptText(doc.transcriptText))}
     </div>` : "";
   mount.innerHTML = `
-    <div class="preview-block">
+    <div class="preview-block selected-doc-block">
+      <a class="btn selected-save-btn" download href="${encodeURI(doc.pdf)}" aria-label="Download PDF">${iconSave()}</a>
       <div class="section-label">Selected document</div>
       <h2 style="margin:0;font-size:1.5rem;line-height:1.12">${escapeHtml(doc.title)}</h2>
       <div class="kv">
@@ -1143,7 +1198,6 @@ function renderPreview() {
       <div class="action-row">
         <button class="btn primary" id="openViewerBtn" type="button">${iconOpen()}<span>Open full-screen preview</span></button>
         <a class="btn" href="${encodeURI(doc.pdf)}" target="_blank" rel="noopener noreferrer">${iconOpen()}<span>Open in new tab</span></a>
-        <a class="btn" download href="${encodeURI(doc.pdf)}">${iconSave()}<span>Save PDF</span></a>
       </div>
     </div>
     <div class="preview-block">
@@ -1275,7 +1329,7 @@ async function openViewer(id) {
       $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"} | page 1 of ${doc.pages}`;
     });
   } catch (err) {
-    stage.innerHTML = `<div class="viewer-error">Unable to load the in-browser PDF renderer right now. The rest of the portal still works, and you can use the Save PDF button above to open the file directly.<br><br>${escapeHtml(err?.message || String(err))}</div>`;
+    stage.innerHTML = `<div class="viewer-error">Unable to load the in-browser PDF renderer right now. The rest of the portal still works, and you can use the download icon above to open the file directly.<br><br>${escapeHtml(err?.message || String(err))}</div>`;
     $("#viewerSub").textContent = "Preview unavailable";
   }
 }
@@ -1364,6 +1418,31 @@ function animateWaves() {
   const ctx = canvas.getContext("2d");
   const DPR = Math.max(1, window.devicePixelRatio || 1);
   const colors = ["#ff3b30", "#ff6a00", "#ff9800", "#ffd000", "#d2ff43", "#70ff8b", "#3fd8ff", "#3188ff", "#6a5cff", "#a54dff"];
+  const mouse = {
+    active: false,
+    x: innerWidth / 2,
+    y: innerHeight / 2,
+    lastY: innerHeight / 2,
+    lastT: performance.now(),
+    movingUntil: 0,
+    targetPluck: 0,
+    pluck: 0,
+    noise: 0,
+  };
+  const lerp = (a, b, n) => a + (b - a) * n;
+  addEventListener("pointermove", (event) => {
+    const now = performance.now();
+    const dt = Math.max(16, now - mouse.lastT);
+    const dy = event.clientY - mouse.lastY;
+    const speed = Math.min(1, Math.abs(dy) / dt * 1000 / Math.max(1, innerHeight));
+    mouse.active = true;
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+    mouse.targetPluck = speed > 0.012 ? Math.sign(dy || 1) * speed : 0;
+    mouse.movingUntil = speed > 0.012 ? now + 180 : mouse.movingUntil;
+    mouse.lastY = event.clientY;
+    mouse.lastT = now;
+  }, { passive: true });
   function resize() {
     canvas.width = Math.round(innerWidth * DPR);
     canvas.height = Math.round(innerHeight * DPR);
@@ -1374,6 +1453,10 @@ function animateWaves() {
   resize();
   addEventListener("resize", resize);
   function draw(t) {
+    const now = performance.now();
+    const moving = mouse.active && now < mouse.movingUntil && Math.abs(mouse.targetPluck) > 0.012;
+    mouse.pluck = lerp(mouse.pluck, moving ? mouse.targetPluck : 0, moving ? 0.22 : 0.075);
+    mouse.noise = lerp(mouse.noise, mouse.active && !moving ? 0.25 : 0, moving ? 0.18 : 0.035);
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     for (let i = 0; i < 10; i++) {
       const y = (innerHeight / 11) * (i + 1);
@@ -1386,27 +1469,47 @@ function animateWaves() {
         const nx = x / innerWidth;
         const envelope = Math.sin(Math.PI * nx);
         const standing = Math.sin((Math.PI * mode * nx) + phase) * Math.cos(phase * (1.4 + i * 0.13));
-        const yy = y + standing * envelope * amp;
+        const dx = nx - (mouse.x / Math.max(1, innerWidth));
+        const dy = mouse.y - y;
+        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.006) * Math.exp(-(dy * dy) / 18000) : 0;
+        const modalCoupling = 0.68 + 0.32 * Math.sin((Math.PI * mode * nx) + phase);
+        const pluck = mouse.pluck * 34 * mouseField * envelope * modalCoupling;
+        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 7));
+        const noise = mouse.noise * noiseGate * amp * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
+        const yy = y + standing * envelope * amp + pluck + noise;
         if (x === 0) ctx.moveTo(x, yy);
         else ctx.lineTo(x, yy);
       }
       ctx.strokeStyle = colors[i];
       ctx.lineWidth = 2.2;
       ctx.globalAlpha = 0.92;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = colors[i];
       ctx.stroke();
+      ctx.shadowBlur = 0;
       ctx.beginPath();
       for (let x = 0; x <= innerWidth; x += 8) {
         const nx = x / innerWidth;
         const envelope = Math.sin(Math.PI * nx);
         const standing = Math.sin((Math.PI * mode * nx) + phase) * Math.cos(phase * (1.4 + i * 0.13));
-        const yy = y + standing * envelope * amp;
+        const dx = nx - (mouse.x / Math.max(1, innerWidth));
+        const dy = mouse.y - y;
+        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.006) * Math.exp(-(dy * dy) / 18000) : 0;
+        const modalCoupling = 0.68 + 0.32 * Math.sin((Math.PI * mode * nx) + phase);
+        const pluck = mouse.pluck * 34 * mouseField * envelope * modalCoupling;
+        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 7));
+        const noise = mouse.noise * noiseGate * amp * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
+        const yy = y + standing * envelope * amp + pluck + noise;
         if (x === 0) ctx.moveTo(x, yy);
         else ctx.lineTo(x, yy);
       }
       ctx.strokeStyle = colors[i];
-      ctx.lineWidth = 7;
-      ctx.globalAlpha = 0.065;
+      ctx.lineWidth = 9;
+      ctx.globalAlpha = 0.09;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = colors[i];
       ctx.stroke();
+      ctx.shadowBlur = 0;
     }
     ctx.globalAlpha = 1;
     requestAnimationFrame(draw);
@@ -1422,12 +1525,14 @@ function syncTopbarOffset() {
 
 function runSearch() {
   const query = document.getElementById("query");
+  state.landingTouched = true;
   state.query = query.value;
   ensureSelection();
   renderAll();
 }
 
 document.getElementById("query").addEventListener("input", (e) => {
+  state.landingTouched = true;
   state.query = e.target.value;
   ensureSelection();
   renderAll();
@@ -1440,6 +1545,7 @@ document.getElementById("query").addEventListener("keydown", (e) => {
 document.getElementById("searchSubmit").addEventListener("click", runSearch);
 document.getElementById("searchClear").addEventListener("click", () => {
   const query = document.getElementById("query");
+  state.landingTouched = true;
   query.value = "";
   state.query = "";
   state.mobileSections.notes = false;
@@ -1449,13 +1555,16 @@ document.getElementById("searchClear").addEventListener("click", () => {
   query.focus();
 });
 document.getElementById("mobilePreviewClose").addEventListener("click", () => {
+  state.landingTouched = true;
   state.mobilePreviewOpen = false;
   syncMobilePreviewState();
+  syncMobileHintState();
 });
 $$(".mobile-section-toggle").forEach((button) => {
   button.addEventListener("click", () => {
     const section = button.dataset.section;
     if (!section) return;
+    state.landingTouched = true;
     state.mobileSections[section] = !state.mobileSections[section];
     syncMobileSectionState();
   });
