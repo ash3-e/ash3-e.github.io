@@ -47,7 +47,6 @@ body{
   background:
     radial-gradient(circle at 15% 14%, rgba(95,175,255,.18), transparent 22%),
     radial-gradient(circle at 82% 12%, rgba(192,134,255,.14), transparent 24%),
-    radial-gradient(circle at 76% 76%, rgba(90,227,255,.10), transparent 24%),
     linear-gradient(180deg,#030508 0%,#07101c 44%,#03070d 100%);
 }
 body::before{
@@ -375,17 +374,17 @@ mark{
 .preview-empty{min-height:100%;display:grid;place-items:center;text-align:center;color:var(--muted);padding:24px}
 .mobile-hint-card{
   display:none;
-  padding:12px 16px;
+  padding:11px 10px;
   border-radius:20px;
   color:#f5f8ff;
-  font-size:.86rem;
+  font-size:clamp(.58rem, 2.7vw, .78rem);
   font-weight:800;
-  letter-spacing:.01em;
+  letter-spacing:0;
   line-height:1;
   text-align:center;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:ellipsis;
+  text-overflow:clip;
 }
 .preview-block{
   padding:14px 16px;
@@ -674,7 +673,15 @@ body.portal-mobile-view .list-stack{
 body.portal-mobile-view .preview-card{display:none}
 body.portal-mobile-view.mobile-preview-open .preview-card{display:grid}
 body.portal-mobile-view .mobile-preview-close{display:inline-flex}
-body.portal-mobile-view .mobile-hint-card{display:block}
+body.portal-mobile-view .mobile-hint-card{
+  display:block;
+  position:fixed;
+  left:10px;
+  right:10px;
+  bottom:max(10px, env(safe-area-inset-bottom));
+  z-index:15;
+  pointer-events:none;
+}
 body.portal-mobile-view.mobile-hint-hidden .mobile-hint-card{display:none}
 body.portal-mobile-view .card{height:auto;min-height:0}
 body.portal-mobile-view .mobile-section-toggle{display:grid}
@@ -686,7 +693,7 @@ body.portal-mobile-view .card-body{
   overscroll-behavior:auto;
 }
 body.portal-mobile-view .collapsible-card .card-body{
-  max-height:1800px;
+  max-height:5600px;
   opacity:1;
   overflow:hidden;
   transition:max-height .34s ease, opacity .22s ease, padding .28s ease;
@@ -698,7 +705,7 @@ body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
   padding-bottom:0;
 }
 body.portal-mobile-view.mobile-search-active .collapsible-card .card-body{
-  max-height:1800px;
+  max-height:5600px;
   opacity:1;
   padding-top:12px;
   padding-bottom:14px;
@@ -953,6 +960,12 @@ function syncMobileHintState() {
   document.body.classList.toggle("mobile-hint-hidden", !show);
 }
 
+function markLandingTouched() {
+  if (state.landingTouched) return;
+  state.landingTouched = true;
+  syncMobileHintState();
+}
+
 function syncMobileSectionState() {
   const mobile = document.body.classList.contains("portal-mobile-view");
   const searching = Boolean(state.query.trim());
@@ -1028,7 +1041,7 @@ function renderList(category, mountId) {
       </div>
     </button>`).join("")}</div>`;
   $$("button[data-id]", mount).forEach((btn) => btn.addEventListener("click", (e) => {
-    state.landingTouched = true;
+    markLandingTouched();
     if (e.target.closest("a")) {
       syncMobileHintState();
       return;
@@ -1037,11 +1050,22 @@ function renderList(category, mountId) {
     if (document.body.classList.contains("portal-mobile-view")) state.mobilePreviewOpen = true;
     renderAll();
     if (document.body.classList.contains("portal-mobile-view")) {
-      requestAnimationFrame(() => {
-        document.getElementById("previewCard")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+      requestAnimationFrame(scrollMobilePreviewIntoPlace);
     }
   }));
+}
+
+function scrollMobilePreviewIntoPlace() {
+  const preview = document.getElementById("previewCard");
+  const topbar = document.querySelector(".portal-topbar");
+  if (!preview) return;
+  const topbarBottom = topbar?.getBoundingClientRect().bottom || 0;
+  const previewTop = preview.getBoundingClientRect().top + window.scrollY;
+  const gap = 18;
+  window.scrollTo({
+    top: Math.max(0, previewTop - topbarBottom - gap),
+    behavior: "smooth",
+  });
 }
 
 function renderEquation(tex = "") {
@@ -1434,12 +1458,12 @@ function animateWaves() {
     const now = performance.now();
     const dt = Math.max(16, now - mouse.lastT);
     const dy = event.clientY - mouse.lastY;
-    const speed = Math.min(1, Math.abs(dy) / dt * 1000 / Math.max(1, innerHeight));
+    const speed = Math.min(1.15, Math.abs(dy) / dt * 1000 / Math.max(1, innerHeight));
     mouse.active = true;
     mouse.x = event.clientX;
     mouse.y = event.clientY;
-    mouse.targetPluck = speed > 0.012 ? Math.sign(dy || 1) * speed : 0;
-    mouse.movingUntil = speed > 0.012 ? now + 180 : mouse.movingUntil;
+    mouse.targetPluck = speed > 0.008 ? Math.sign(dy || 1) * speed : 0;
+    mouse.movingUntil = speed > 0.008 ? now + 220 : mouse.movingUntil;
     mouse.lastY = event.clientY;
     mouse.lastT = now;
   }, { passive: true });
@@ -1454,9 +1478,9 @@ function animateWaves() {
   addEventListener("resize", resize);
   function draw(t) {
     const now = performance.now();
-    const moving = mouse.active && now < mouse.movingUntil && Math.abs(mouse.targetPluck) > 0.012;
-    mouse.pluck = lerp(mouse.pluck, moving ? mouse.targetPluck : 0, moving ? 0.22 : 0.075);
-    mouse.noise = lerp(mouse.noise, mouse.active && !moving ? 0.25 : 0, moving ? 0.18 : 0.035);
+    const moving = mouse.active && now < mouse.movingUntil && Math.abs(mouse.targetPluck) > 0.008;
+    mouse.pluck = lerp(mouse.pluck, moving ? mouse.targetPluck : 0, moving ? 0.32 : 0.09);
+    mouse.noise = lerp(mouse.noise, mouse.active && !moving ? 1.05 : 0, moving ? 0.22 : 0.045);
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     for (let i = 0; i < 10; i++) {
       const y = (innerHeight / 11) * (i + 1);
@@ -1471,11 +1495,11 @@ function animateWaves() {
         const standing = Math.sin((Math.PI * mode * nx) + phase) * Math.cos(phase * (1.4 + i * 0.13));
         const dx = nx - (mouse.x / Math.max(1, innerWidth));
         const dy = mouse.y - y;
-        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.006) * Math.exp(-(dy * dy) / 18000) : 0;
+        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.014) * Math.exp(-(dy * dy) / 34000) : 0;
         const modalCoupling = 0.68 + 0.32 * Math.sin((Math.PI * mode * nx) + phase);
-        const pluck = mouse.pluck * 34 * mouseField * envelope * modalCoupling;
-        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 7));
-        const noise = mouse.noise * noiseGate * amp * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
+        const pluck = mouse.pluck * 150 * mouseField * envelope * modalCoupling;
+        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 4));
+        const noise = mouse.noise * noiseGate * amp * 1.35 * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
         const yy = y + standing * envelope * amp + pluck + noise;
         if (x === 0) ctx.moveTo(x, yy);
         else ctx.lineTo(x, yy);
@@ -1494,11 +1518,11 @@ function animateWaves() {
         const standing = Math.sin((Math.PI * mode * nx) + phase) * Math.cos(phase * (1.4 + i * 0.13));
         const dx = nx - (mouse.x / Math.max(1, innerWidth));
         const dy = mouse.y - y;
-        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.006) * Math.exp(-(dy * dy) / 18000) : 0;
+        const mouseField = mouse.active ? Math.exp(-(dx * dx) / 0.014) * Math.exp(-(dy * dy) / 34000) : 0;
         const modalCoupling = 0.68 + 0.32 * Math.sin((Math.PI * mode * nx) + phase);
-        const pluck = mouse.pluck * 34 * mouseField * envelope * modalCoupling;
-        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 7));
-        const noise = mouse.noise * noiseGate * amp * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
+        const pluck = mouse.pluck * 150 * mouseField * envelope * modalCoupling;
+        const noiseGate = Math.max(0, 1 - Math.min(1, Math.abs(mouse.pluck) * 4));
+        const noise = mouse.noise * noiseGate * amp * 1.35 * mouseField * Math.sin((Math.PI * mode * nx) + phase + t * 0.003);
         const yy = y + standing * envelope * amp + pluck + noise;
         if (x === 0) ctx.moveTo(x, yy);
         else ctx.lineTo(x, yy);
@@ -1525,18 +1549,19 @@ function syncTopbarOffset() {
 
 function runSearch() {
   const query = document.getElementById("query");
-  state.landingTouched = true;
+  markLandingTouched();
   state.query = query.value;
   ensureSelection();
   renderAll();
 }
 
 document.getElementById("query").addEventListener("input", (e) => {
-  state.landingTouched = true;
+  markLandingTouched();
   state.query = e.target.value;
   ensureSelection();
   renderAll();
 });
+document.getElementById("query").addEventListener("focus", markLandingTouched);
 document.getElementById("query").addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
@@ -1545,7 +1570,7 @@ document.getElementById("query").addEventListener("keydown", (e) => {
 document.getElementById("searchSubmit").addEventListener("click", runSearch);
 document.getElementById("searchClear").addEventListener("click", () => {
   const query = document.getElementById("query");
-  state.landingTouched = true;
+  markLandingTouched();
   query.value = "";
   state.query = "";
   state.mobileSections.notes = false;
@@ -1555,7 +1580,7 @@ document.getElementById("searchClear").addEventListener("click", () => {
   query.focus();
 });
 document.getElementById("mobilePreviewClose").addEventListener("click", () => {
-  state.landingTouched = true;
+  markLandingTouched();
   state.mobilePreviewOpen = false;
   syncMobilePreviewState();
   syncMobileHintState();
@@ -1564,7 +1589,7 @@ $$(".mobile-section-toggle").forEach((button) => {
   button.addEventListener("click", () => {
     const section = button.dataset.section;
     if (!section) return;
-    state.landingTouched = true;
+    markLandingTouched();
     state.mobileSections[section] = !state.mobileSections[section];
     syncMobileSectionState();
   });
@@ -1580,6 +1605,10 @@ window.addEventListener("resize", () => {
   fitPreviewContentOnMobile();
   if (state.viewerDoc) fitViewerToViewport(true);
 });
+window.addEventListener("scroll", () => {
+  if (document.body.classList.contains("portal-mobile-view") && window.scrollY > 4) markLandingTouched();
+}, { passive: true });
+document.querySelector(".content-shell")?.addEventListener("touchstart", markLandingTouched, { passive: true });
 renderAll();
   </script>
 </body>
