@@ -153,16 +153,45 @@ body::before{
   width:100%;
   min-width:0;
   height:42px;
-  padding:0 78px 0 40px;
+  padding:0 116px 0 40px;
   border-radius:12px;
   border:none;
   background:transparent;
   color:#f5f8ff;
   font-size:.97rem;
   outline:none;
+  appearance:none;
+  -webkit-appearance:none;
 }
+.search-input::-webkit-search-cancel-button{display:none}
 .search-input::placeholder{color:rgba(245,248,255,.66)}
 .search-input:focus{box-shadow:none}
+.search-clear{
+  position:absolute;
+  right:50px;
+  top:50%;
+  width:30px;
+  height:30px;
+  padding:8px;
+  transform:translateY(-50%);
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  cursor:pointer;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease, background .18s ease;
+}
+.search-clear img{
+  width:100%;
+  height:100%;
+  display:block;
+  filter:brightness(0) invert(1);
+}
+.search-shell.search-has-query .search-clear{opacity:1;pointer-events:auto}
+.search-clear:hover{background:rgba(255,255,255,.14)}
 .search-submit{
   position:absolute;
   right:6px;
@@ -219,9 +248,33 @@ body::before{
   grid-template-rows:auto minmax(0,1fr);
 }
 .card-head{padding:16px 18px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.collapsible-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .preview-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .card-title{margin:0 0 4px;font-size:1.25rem;line-height:1.1}
 .card-sub{margin:0;color:var(--muted-2);font-size:.88rem;line-height:1.35}
+.mobile-section-toggle{
+  display:none;
+  flex:0 0 auto;
+  width:34px;
+  height:30px;
+  padding:0;
+  place-items:center;
+  border-radius:10px;
+  color:#f5f8ff;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.04)),
+    linear-gradient(135deg, rgba(95,175,255,.14), rgba(192,134,255,.16));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 8px 20px rgba(0,0,0,.20);
+  cursor:pointer;
+}
+.mobile-section-toggle svg{
+  width:17px;
+  height:17px;
+  transition:transform .28s ease;
+}
 .mobile-preview-close{
   appearance:none;
   border:none;
@@ -534,6 +587,7 @@ body.portal-split-view .portal-title{font-size:1.2rem}
 body.portal-split-view .pill{font-size:.76rem;padding:7px 11px}
 body.portal-split-view .search-input{height:40px;font-size:.9rem}
 body.portal-split-view .search-icon{left:12px;width:16px;height:16px}
+body.portal-split-view .search-clear{height:28px;width:28px;right:46px}
 body.portal-split-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
 body.portal-split-view .content{grid-template-columns:minmax(320px,.92fr) minmax(420px,1.28fr)}
 body.portal-split-view .list-stack{
@@ -569,7 +623,8 @@ body.portal-mobile-view .portal-pills{
 }
 body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
-body.portal-mobile-view .search-input{height:40px;font-size:.92rem;padding-left:38px}
+body.portal-mobile-view .search-input{height:40px;font-size:.92rem;padding-left:38px;padding-right:110px}
+body.portal-mobile-view .search-clear{right:48px;width:28px;height:28px}
 body.portal-mobile-view .search-submit{height:28px;padding:0 10px;font-size:.72rem}
 body.portal-mobile-view .content-shell{
   min-height:0;
@@ -591,10 +646,31 @@ body.portal-mobile-view .preview-card{display:none}
 body.portal-mobile-view.mobile-preview-open .preview-card{display:grid}
 body.portal-mobile-view .mobile-preview-close{display:inline-flex}
 body.portal-mobile-view .card{height:auto;min-height:0}
+body.portal-mobile-view .mobile-section-toggle{display:grid}
+body.portal-mobile-view .collapsible-card.is-open .mobile-section-toggle svg,
+body.portal-mobile-view.mobile-search-active .collapsible-card .mobile-section-toggle svg{transform:rotate(180deg)}
 body.portal-mobile-view .card-body{
   height:auto;
   overflow:visible;
   overscroll-behavior:auto;
+}
+body.portal-mobile-view .collapsible-card .card-body{
+  max-height:1800px;
+  opacity:1;
+  overflow:hidden;
+  transition:max-height .34s ease, opacity .22s ease, padding .28s ease;
+}
+body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
+  max-height:0;
+  opacity:0;
+  padding-top:0;
+  padding-bottom:0;
+}
+body.portal-mobile-view.mobile-search-active .collapsible-card .card-body{
+  max-height:1800px;
+  opacity:1;
+  padding-top:12px;
+  padding-bottom:14px;
 }
 body.portal-mobile-view .preview-wrap,
 body.portal-mobile-view .preview-empty{min-height:0}
@@ -648,6 +724,9 @@ body.portal-mobile-view .zoom-dock{
           <div class="search-row">
             <img class="search-icon" src="assets/magnify.svg" alt="" aria-hidden="true">
             <input id="query" class="search-input" type="search" placeholder="Search" aria-label="Search within documents">
+            <button class="search-clear" id="searchClear" type="button" aria-label="Clear search">
+              <img src="assets/x.svg" alt="" aria-hidden="true">
+            </button>
             <button class="search-submit" id="searchSubmit" type="button">Go</button>
           </div>
         </div>
@@ -662,18 +741,28 @@ body.portal-mobile-view .zoom-dock{
     <main class="content-shell">
       <section class="content">
         <div class="list-stack">
-          <article class="card glass">
-            <div class="card-head">
-              <h2 class="card-title">Notes</h2>
-              <p class="card-sub">Handwritten note sheets, each rewritten into searchable plaintext.</p>
+          <article class="card glass collapsible-card is-collapsed" id="notesCard">
+            <div class="card-head collapsible-head">
+              <div>
+                <h2 class="card-title">Notes</h2>
+                <p class="card-sub">Handwritten note sheets, each rewritten into searchable plaintext.</p>
+              </div>
+              <button class="mobile-section-toggle" data-section="notes" type="button" aria-label="Toggle notes" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
             </div>
             <div class="card-body" id="notesList"></div>
           </article>
 
-          <article class="card glass">
-            <div class="card-head">
-              <h2 class="card-title">Assignments</h2>
-              <p class="card-sub">Homework PDFs preserved locally for download and full-screen preview.</p>
+          <article class="card glass collapsible-card is-collapsed" id="assignmentsCard">
+            <div class="card-head collapsible-head">
+              <div>
+                <h2 class="card-title">Assignments</h2>
+                <p class="card-sub">Homework PDFs preserved locally for download and full-screen preview.</p>
+              </div>
+              <button class="mobile-section-toggle" data-section="assignments" type="button" aria-label="Toggle assignments" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
             </div>
             <div class="card-body" id="assignmentsList"></div>
           </article>
@@ -767,6 +856,10 @@ const state = {
   query: "",
   selectedId: DOCS[0]?.id || null,
   mobilePreviewOpen: false,
+  mobileSections: {
+    notes: false,
+    assignments: false,
+  },
   viewerDoc: null,
   viewerPdf: null,
   viewerFitScale: 1,
@@ -802,6 +895,27 @@ function syncResponsiveMode() {
   if (mobile && !wasMobile) state.mobilePreviewOpen = false;
   if (!mobile) state.mobilePreviewOpen = true;
   syncMobilePreviewState();
+  syncMobileSectionState();
+}
+
+function syncSearchState() {
+  const hasQuery = Boolean(state.query.trim());
+  $(".search-shell")?.classList.toggle("search-has-query", hasQuery);
+  document.body.classList.toggle("mobile-search-active", document.body.classList.contains("portal-mobile-view") && hasQuery);
+}
+
+function syncMobileSectionState() {
+  const mobile = document.body.classList.contains("portal-mobile-view");
+  const searching = Boolean(state.query.trim());
+  for (const section of ["notes", "assignments"]) {
+    const card = document.getElementById(`${section}Card`);
+    const button = $(`.mobile-section-toggle[data-section="${section}"]`);
+    const open = !mobile || searching || Boolean(state.mobileSections[section]);
+    card?.classList.toggle("is-collapsed", mobile && !open);
+    card?.classList.toggle("is-open", mobile && open);
+    button?.setAttribute("aria-expanded", String(open));
+  }
+  syncSearchState();
 }
 
 function getDoc(id) {
@@ -951,6 +1065,39 @@ function renderTranscriptText(text = "") {
   return `<div class="transcript">${parts.join("")}</div>`;
 }
 
+function previewTranscriptText(text = "") {
+  return String(text || "").split(/\n\s*Recovered page cues\b/i)[0].trim();
+}
+
+function equationTitle(tex = "") {
+  const raw = String(tex || "");
+  const plain = stripLatex(raw);
+  const left = raw.split("=")[0] || raw;
+  if (/V\s*=/.test(raw) && /L\s*\^?\s*3/.test(raw)) return "Volume - Length Relation";
+  if (/\\gamma|gamma/i.test(left)) return "Lorentz Factor";
+  if (/\bx\s*'/.test(left)) return "Position Transform";
+  if (/\bt\s*'|\\Delta\s*t|dt/i.test(left)) return "Time Relation";
+  if (/\\lambda|lambda/i.test(left)) return "Wavelength Relation";
+  if (/\\psi|psi/i.test(left)) return "Wave Function Relation";
+  if (/\\omega|omega/i.test(left)) return "Angular Frequency Relation";
+  if (/\\theta|theta/i.test(left)) return "Angle Relation";
+  if (/\bp\b/.test(left)) return "Momentum Relation";
+  if (/\bE\b/.test(left)) return "Energy Relation";
+  if (/\bF\b/.test(left)) return "Force Relation";
+  if (/\bL\b/.test(left)) return "Length Relation";
+  const label = (plain.split("=")[0] || plain || "Equation")
+    .replace(/\bDelta\b/gi, "Change in")
+    .replace(/\bfrac\b/gi, "")
+    .replace(/[^A-Za-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .slice(0, 4)
+    .map((word) => word ? word[0].toUpperCase() + word.slice(1).toLowerCase() : "")
+    .join(" ");
+  return `${label || "Equation"} Relation`;
+}
+
 function fitPreviewContentOnMobile() {
   const mobile = document.body.classList.contains("portal-mobile-view");
   const containers = $$(".eq-render, .transcript-math");
@@ -984,22 +1131,19 @@ function renderPreview() {
   const transcriptBlock = doc.transcriptText ? `
     <div class="preview-block">
       <div class="section-label">Plaintext transcript</div>
-      ${renderTranscriptText(doc.transcriptText)}
+      ${renderTranscriptText(previewTranscriptText(doc.transcriptText))}
     </div>` : "";
   mount.innerHTML = `
     <div class="preview-block">
       <div class="section-label">Selected document</div>
       <h2 style="margin:0;font-size:1.5rem;line-height:1.12">${escapeHtml(doc.title)}</h2>
       <div class="kv">
-        <div class="k-chip">${doc.category === "notes" ? "Note transcript included" : "Assignment PDF included"}</div>
         <div class="k-chip">${doc.pages} page${doc.pages === 1 ? "" : "s"}</div>
-        ${doc.transcriptPath ? '<div class="k-chip">Transcript file saved</div>' : ""}
       </div>
       <div class="action-row">
         <button class="btn primary" id="openViewerBtn" type="button">${iconOpen()}<span>Open full-screen preview</span></button>
         <a class="btn" href="${encodeURI(doc.pdf)}" target="_blank" rel="noopener noreferrer">${iconOpen()}<span>Open in new tab</span></a>
         <a class="btn" download href="${encodeURI(doc.pdf)}">${iconSave()}<span>Save PDF</span></a>
-        ${doc.transcriptPath ? `<a class="btn" download href="${encodeURI(doc.transcriptPath)}">${iconSave()}<span>Save transcript</span></a>` : ""}
       </div>
     </div>
     <div class="preview-block">
@@ -1011,7 +1155,7 @@ function renderPreview() {
       <ol class="equation-list">${(doc.equations || []).slice(0, 10).map((eq) => `
         <li class="eq-card">
           <div class="eq-render">${renderEquation(eq)}</div>
-          <div class="eq-plain">${escapeHtml(stripLatex(eq) || eq)}</div>
+          <div class="eq-plain">${escapeHtml(equationTitle(eq))}</div>
         </li>`).join("") || '<li class="eq-card">No equation set available.</li>'}</ol>
     </div>
     ${transcriptBlock}`;
@@ -1025,12 +1169,14 @@ function renderAll() {
   renderList("notes", "notesList");
   renderList("assignments", "assignmentsList");
   renderPreview();
+  syncMobileSectionState();
   const noteCount = filteredDocs("notes").length;
   const assnCount = filteredDocs("assignments").length;
   const total = noteCount + assnCount;
   $("#resultPill").textContent = state.query.trim() ? `${total} matches` : `${DOCS.length} documents ready`;
   $("#notesPill").textContent = `${noteCount} note${noteCount === 1 ? "" : "s"}`;
   $("#assignmentsPill").textContent = `${assnCount} assignment${assnCount === 1 ? "" : "s"}`;
+  syncTopbarOffset();
 }
 
 function updateViewerZoomUI() {
@@ -1292,9 +1438,27 @@ document.getElementById("query").addEventListener("keydown", (e) => {
   runSearch();
 });
 document.getElementById("searchSubmit").addEventListener("click", runSearch);
+document.getElementById("searchClear").addEventListener("click", () => {
+  const query = document.getElementById("query");
+  query.value = "";
+  state.query = "";
+  state.mobileSections.notes = false;
+  state.mobileSections.assignments = false;
+  ensureSelection();
+  renderAll();
+  query.focus();
+});
 document.getElementById("mobilePreviewClose").addEventListener("click", () => {
   state.mobilePreviewOpen = false;
   syncMobilePreviewState();
+});
+$$(".mobile-section-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    const section = button.dataset.section;
+    if (!section) return;
+    state.mobileSections[section] = !state.mobileSections[section];
+    syncMobileSectionState();
+  });
 });
 
 bindViewer();
