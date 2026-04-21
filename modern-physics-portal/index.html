@@ -389,8 +389,13 @@ mark{
 .preview-block{
   padding:14px 16px;
   border-radius:18px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+    linear-gradient(135deg, rgba(92,177,255,.09), transparent 34%, rgba(186,128,255,.09));
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  border:1px solid var(--edge);
+  box-shadow:var(--shadow);
 }
 .selected-doc-block{position:relative;padding-right:72px}
 .selected-save-btn{
@@ -444,7 +449,17 @@ mark{
 .btn svg{width:16px;height:16px;opacity:.95}
 .btn img{width:16px;height:16px;opacity:.95;filter:brightness(0) invert(1);flex:0 0 auto}
 .equation-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
-.eq-card{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.eq-card{
+  padding:12px 14px;
+  border-radius:16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
+    linear-gradient(135deg, rgba(92,177,255,.08), transparent 36%, rgba(186,128,255,.08));
+  backdrop-filter:blur(calc(var(--blur) * .72)) saturate(145%);
+  -webkit-backdrop-filter:blur(calc(var(--blur) * .72)) saturate(145%);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 10px 28px rgba(0,0,0,.22);
+}
 .eq-render{min-height:32px;color:#f7fbff}
 .eq-plain{margin-top:8px;color:var(--muted-2);font-size:.78rem;line-height:1.35;word-break:break-word}
 .transcript{
@@ -481,6 +496,9 @@ mark{
   transition:opacity .22s ease, visibility .22s ease;
 }
 .viewer-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+body:not(.portal-mobile-view) .viewer-overlay.open{
+  background:rgba(3,5,9,.36);
+}
 .viewer-shell{
   position:absolute;
   inset:18px;
@@ -491,6 +509,11 @@ mark{
   background:rgba(9,12,18,.94);
   border:1px solid rgba(255,255,255,.12);
   box-shadow:0 24px 80px rgba(0,0,0,.55);
+}
+body:not(.portal-mobile-view) .viewer-shell{
+  background:rgba(9,12,18,.78);
+  backdrop-filter:blur(6px) saturate(135%);
+  -webkit-backdrop-filter:blur(6px) saturate(135%);
 }
 .viewer-top{
   display:flex;
@@ -505,7 +528,6 @@ mark{
 .viewer-title{margin:0;font-size:1.2rem;line-height:1.15}
 .viewer-sub{margin-top:4px;color:var(--muted);font-size:.88rem}
 .viewer-actions{display:flex;gap:10px;align-items:center}
-.viewer-save-inline{display:none}
 .icon-btn{
   width:44px;
   height:44px;
@@ -759,15 +781,12 @@ body.portal-mobile-view .viewer-title-wrap{
 }
 body.portal-mobile-view .viewer-title{font-size:1.04rem;line-height:1.12}
 body.portal-mobile-view .viewer-sub{grid-column:1 / -1;font-size:.78rem}
-body.portal-mobile-view #viewerSave{
-  display:none;
+body.portal-mobile-view .viewer-actions{
+  width:auto;
+  justify-content:flex-end;
+  gap:12px;
 }
-body.portal-mobile-view .viewer-save-inline{
-  display:grid;
-  width:40px;
-  height:40px;
-}
-body.portal-mobile-view .viewer-actions{width:auto;justify-content:flex-end}
+body.portal-mobile-view #viewerSave,
 body.portal-mobile-view #viewerClose{
   width:40px;
   height:40px;
@@ -786,6 +805,16 @@ body.portal-mobile-view .zoom-dock{
   .portal-topbar{padding:12px;padding-bottom:0}
   .content-shell{padding:12px}
   .viewer-viewport{padding:16px 12px 124px}
+}
+@media (max-width: 859px){
+  .collapsible-card.is-collapsed .card-body{
+    max-height:0;
+    opacity:0;
+    padding-top:0;
+    padding-bottom:0;
+    overflow:hidden;
+    transition:none;
+  }
 }
   </style>
 </head>
@@ -866,7 +895,6 @@ body.portal-mobile-view .zoom-dock{
       <div class="viewer-top">
         <div class="viewer-title-wrap">
           <h2 class="viewer-title" id="viewerTitle">Document preview</h2>
-          <a class="icon-btn viewer-save-inline" id="viewerSaveInline" download href="#" aria-label="Download PDF"><img src="assets/floppy.svg" alt="" aria-hidden="true"></a>
           <div class="viewer-sub" id="viewerSub">Loading...</div>
         </div>
         <div class="viewer-actions">
@@ -1085,7 +1113,9 @@ function renderList(category, mountId) {
 
 function scheduleMobilePreviewScroll() {
   requestAnimationFrame(() => requestAnimationFrame(scrollMobilePreviewIntoPlace));
+  setTimeout(scrollMobilePreviewIntoPlace, 60);
   setTimeout(scrollMobilePreviewIntoPlace, 180);
+  setTimeout(scrollMobilePreviewIntoPlace, 420);
 }
 
 function scrollMobilePreviewIntoPlace() {
@@ -1096,10 +1126,11 @@ function scrollMobilePreviewIntoPlace() {
   const topbarBottom = topbar?.getBoundingClientRect().bottom || 0;
   const assignmentsBottom = assignments?.getBoundingClientRect().bottom;
   const targetEdge = Number.isFinite(assignmentsBottom) ? assignmentsBottom + window.scrollY : preview.getBoundingClientRect().top + window.scrollY;
-  window.scrollTo({
-    top: Math.max(0, targetEdge - topbarBottom + 1),
-    behavior: "smooth",
-  });
+  const top = Math.max(0, targetEdge - topbarBottom + 1);
+  const scroller = document.scrollingElement || document.documentElement;
+  if (scroller?.scrollTo) scroller.scrollTo({ top, behavior: "smooth" });
+  else window.scrollTo({ top, behavior: "smooth" });
+  document.body.scrollTop = top;
 }
 
 function renderEquation(tex = "") {
@@ -1346,7 +1377,6 @@ async function openViewer(id) {
   $("#viewerTitle").textContent = doc.title;
   $("#viewerSub").textContent = `Loading ${doc.pages} page${doc.pages === 1 ? "" : "s"}...`;
   $("#viewerSave").href = encodeURI(doc.pdf);
-  $("#viewerSaveInline").href = encodeURI(doc.pdf);
   const stage = $("#viewerStage");
   const viewport = $("#viewerViewport");
   stage.innerHTML = '<div class="viewer-loading">Loading PDF pages...</div>';
@@ -1625,6 +1655,10 @@ $$(".mobile-section-toggle").forEach((button) => {
     const section = button.dataset.section;
     if (!section) return;
     markLandingTouched();
+    if (document.body.classList.contains("portal-mobile-view")) {
+      state.mobilePreviewOpen = false;
+      syncMobilePreviewState();
+    }
     state.mobileSections[section] = !state.mobileSections[section];
     syncMobileSectionState();
   });
