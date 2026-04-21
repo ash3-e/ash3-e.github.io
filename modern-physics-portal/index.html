@@ -505,6 +505,7 @@ mark{
 .viewer-title{margin:0;font-size:1.2rem;line-height:1.15}
 .viewer-sub{margin-top:4px;color:var(--muted);font-size:.88rem}
 .viewer-actions{display:flex;gap:10px;align-items:center}
+.viewer-save-inline{display:none}
 .icon-btn{
   width:44px;
   height:44px;
@@ -742,13 +743,41 @@ body.portal-mobile-view .eq-render .katex-display,
 body.portal-mobile-view .transcript-math .katex-display{margin:0}
 body.portal-mobile-view .transcript{max-height:none;padding-right:0}
 body.portal-mobile-view .viewer-shell{inset:0;border-radius:0}
-body.portal-mobile-view .viewer-top{flex-wrap:wrap;align-items:flex-start}
-body.portal-mobile-view .viewer-actions{width:100%;justify-content:space-between}
+body.portal-mobile-view .viewer-top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  gap:10px 12px;
+  padding:14px 12px;
+}
+body.portal-mobile-view .viewer-title-wrap{
+  display:grid;
+  grid-template-columns:minmax(0,max-content) auto;
+  align-items:start;
+  gap:4px 10px;
+  min-width:0;
+}
+body.portal-mobile-view .viewer-title{font-size:1.04rem;line-height:1.12}
+body.portal-mobile-view .viewer-sub{grid-column:1 / -1;font-size:.78rem}
+body.portal-mobile-view #viewerSave{
+  display:none;
+}
+body.portal-mobile-view .viewer-save-inline{
+  display:grid;
+  width:40px;
+  height:40px;
+}
+body.portal-mobile-view .viewer-actions{width:auto;justify-content:flex-end}
+body.portal-mobile-view #viewerClose{
+  width:40px;
+  height:40px;
+}
 body.portal-mobile-view .zoom-dock{
-  left:12px;
-  right:12px;
+  left:calc(12px + 5%);
+  right:calc(12px + 5%);
   bottom:max(12px, env(safe-area-inset-bottom));
   width:auto;
+  padding:12px 14px;
 }
 @media (max-width: 1120px){
   body:not(.portal-split-view):not(.portal-mobile-view) .content{grid-template-columns:1fr;height:100%}
@@ -837,6 +866,7 @@ body.portal-mobile-view .zoom-dock{
       <div class="viewer-top">
         <div class="viewer-title-wrap">
           <h2 class="viewer-title" id="viewerTitle">Document preview</h2>
+          <a class="icon-btn viewer-save-inline" id="viewerSaveInline" download href="#" aria-label="Download PDF"><img src="assets/floppy.svg" alt="" aria-hidden="true"></a>
           <div class="viewer-sub" id="viewerSub">Loading...</div>
         </div>
         <div class="viewer-actions">
@@ -956,7 +986,7 @@ function syncSearchState() {
 function syncMobileHintState() {
   const mobile = document.body.classList.contains("portal-mobile-view");
   const closed = !state.mobileSections.notes && !state.mobileSections.assignments;
-  const show = mobile && closed && !state.query.trim() && !state.mobilePreviewOpen && !state.landingTouched;
+  const show = mobile && closed && !state.query.trim() && !state.mobilePreviewOpen;
   document.body.classList.toggle("mobile-hint-hidden", !show);
 }
 
@@ -1049,21 +1079,25 @@ function renderList(category, mountId) {
     state.selectedId = btn.dataset.id;
     if (document.body.classList.contains("portal-mobile-view")) state.mobilePreviewOpen = true;
     renderAll();
-    if (document.body.classList.contains("portal-mobile-view")) {
-      requestAnimationFrame(scrollMobilePreviewIntoPlace);
-    }
+    if (document.body.classList.contains("portal-mobile-view")) scheduleMobilePreviewScroll();
   }));
+}
+
+function scheduleMobilePreviewScroll() {
+  requestAnimationFrame(() => requestAnimationFrame(scrollMobilePreviewIntoPlace));
+  setTimeout(scrollMobilePreviewIntoPlace, 180);
 }
 
 function scrollMobilePreviewIntoPlace() {
   const preview = document.getElementById("previewCard");
+  const assignments = document.getElementById("assignmentsCard");
   const topbar = document.querySelector(".portal-topbar");
   if (!preview) return;
   const topbarBottom = topbar?.getBoundingClientRect().bottom || 0;
-  const previewTop = preview.getBoundingClientRect().top + window.scrollY;
-  const gap = 18;
+  const assignmentsBottom = assignments?.getBoundingClientRect().bottom;
+  const targetEdge = Number.isFinite(assignmentsBottom) ? assignmentsBottom + window.scrollY : preview.getBoundingClientRect().top + window.scrollY;
   window.scrollTo({
-    top: Math.max(0, previewTop - topbarBottom - gap),
+    top: Math.max(0, targetEdge - topbarBottom + 1),
     behavior: "smooth",
   });
 }
@@ -1312,6 +1346,7 @@ async function openViewer(id) {
   $("#viewerTitle").textContent = doc.title;
   $("#viewerSub").textContent = `Loading ${doc.pages} page${doc.pages === 1 ? "" : "s"}...`;
   $("#viewerSave").href = encodeURI(doc.pdf);
+  $("#viewerSaveInline").href = encodeURI(doc.pdf);
   const stage = $("#viewerStage");
   const viewport = $("#viewerViewport");
   stage.innerHTML = '<div class="viewer-loading">Loading PDF pages...</div>';
