@@ -2633,19 +2633,22 @@ function animateScope() {
       name: "CH 9  COAX ECHO",
       vDiv: "1V/div", vScale: 3.0,
       fn: (xn, t) => {
-        const period = 1.6;
-        const tt = ((t * 0.55) % period + period) % period;
-        function pulse(x0, w, amp) {
-          const d = (xn - x0) / w;
-          return Math.exp(-d * d) * amp;
+        const period = 2.2;
+        const tt = ((t * 0.50) % period + period) % period;
+        const A = 0.88, w = 0.026;
+        const xStart = 0.05, xTerm = 0.90;
+        const dist = xTerm - xStart;
+        const tRef = period * 0.42;
+        const spd = dist / tRef;
+        function gauss(center) {
+          const d = (xn - center) / w;
+          return A * Math.exp(-d * d * 2.5);
         }
-        let y = 0;
-        const xOut = 0.10 + (tt / period) * 0.42;
-        y += pulse(xOut, 0.022, 0.88);
-        if (tt > period * 0.55) {
-          const tau = (tt - period * 0.55) / (period * 0.45);
-          const xRef = 0.92 - tau * 0.55;
-          y += pulse(xRef, 0.028, 0.45);
+        const xOut = xStart + spd * tt;
+        let y = gauss(xOut);
+        if (tt >= tRef) {
+          const xRef = xTerm - spd * (tt - tRef);
+          y -= gauss(xRef);
         }
         return y;
       }
