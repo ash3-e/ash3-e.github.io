@@ -284,24 +284,23 @@
           name: "CH9   COAX ECHO",
           // Lab 4 — pulse + reflection from terminated transmission line
           fn: (xn, t) => {
-            const period = 2.2;
+            const period = 2.4;
             const tt = ((t * 0.50) % period + period) % period;
             const A = 0.88, w = 0.026;
-            const xStart = 0.05, xTerm = 0.90;
-            const dist = xTerm - xStart;
-            const tRef = period * 0.42;
-            const spd = dist / tRef;
+            const xOff = -0.05, xFar = 1.05;  // spawn off-screen to avoid pop
+            const tHit  = period * 0.40;       // outgoing exits screen
+            const tMeet = period * 0.60;       // pulses meet at x=0.50; sum=0 → cut to flat
+            const spd = (xFar - xOff) / tHit;
             function gauss(center) {
               const d = (xn - center) / w;
               return A * Math.exp(-d * d * 2.5);
             }
-            const xOut = xStart + spd * tt;
-            let y = gauss(xOut);
-            if (tt >= tRef) {
-              const xRef = xTerm - spd * (tt - tRef);
-              y -= gauss(xRef);
+            if (tt < tHit)  return gauss(xOff + spd * tt);
+            if (tt < tMeet) {
+              const dt = tt - tHit;
+              return gauss(xOff + spd * dt) - gauss(xFar - spd * dt);
             }
-            return y;
+            return 0;
           }
         },
         {
