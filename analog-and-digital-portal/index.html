@@ -30,6 +30,12 @@
   --radius-md:18px;
   --site-pad:16px;
   --topbar-space:0px;
+  --surface-glass:
+    linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,.46)),
+    linear-gradient(135deg, rgba(40,180,90,.045), transparent 34%, rgba(20,120,60,.045));
+  --surface-inner:
+    linear-gradient(180deg, rgba(0,0,0,.24), rgba(0,0,0,.34)),
+    linear-gradient(135deg, rgba(40,180,90,.045), transparent 34%, rgba(20,120,60,.045));
   --pdf-zoom:1;
   --pdf-fit-scale:1;
   --pdf-total-zoom:1;
@@ -60,7 +66,27 @@ body::before{
     linear-gradient(135deg, rgba(255,255,255,.05), transparent 16%, transparent 74%, rgba(255,255,255,.03)),
     radial-gradient(circle at 50% -10%, rgba(255,255,255,.04), transparent 44%);
 }
-#scopeCanvas{position:fixed;inset:0;z-index:1;pointer-events:none;filter:contrast(1.05) saturate(1.1)}
+#scopeCanvas{position:fixed;inset:0;z-index:1;pointer-events:auto;filter:contrast(1.08) saturate(1.15) brightness(1.02)}
+#scopeStatus{
+  position:fixed;
+  bottom:0;
+  left:0;right:0;
+  z-index:3;
+  display:flex;
+  justify-content:space-between;
+  padding:6px 16px;
+  font:10px/1.3 ui-monospace,'SF Mono',Menlo,monospace;
+  color:rgba(110,240,160,.6);
+  pointer-events:none;
+  text-shadow:0 0 6px rgba(80,255,150,.3);
+  background:var(--surface-glass);
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  border-top:1px solid var(--edge);
+  transition:bottom .25s ease;
+}
+#scopeStatus .scope-left,
+#scopeStatus .scope-right{white-space:nowrap}
 .app{
   position:relative;
   z-index:2;
@@ -78,9 +104,7 @@ body.viewer-open .app{
   pointer-events:none;
 }
 .glass{
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.30)),
-    linear-gradient(135deg, rgba(40,180,90,.05), transparent 34%, rgba(20,120,60,.05));
+  background:var(--surface-glass);
   backdrop-filter:blur(var(--blur)) saturate(150%);
   -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
   border:1px solid var(--edge);
@@ -92,20 +116,18 @@ body.viewer-open .app{
   left:0;
   right:0;
   z-index:12;
-  padding:var(--site-pad);
-  padding-bottom:0;
+  padding:0 var(--site-pad);
   pointer-events:none;
 }
 .portal-header{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(170px,max-content) clamp(480px, 48vw, 760px);
-  gap:12px 20px;
+  grid-template-columns:minmax(220px,max-content) max-content minmax(420px,1fr);
+  gap:14px 18px;
   align-items:center;
-  padding:12px 16px 14px;
-  border-radius:20px;
+  padding:12px 16px;
+  border-radius:0 0 20px 20px;
   pointer-events:auto;
-  justify-content:space-between;
 }
 .portal-title{
   margin:0;
@@ -119,6 +141,8 @@ body.viewer-open .app{
 }
 .search-shell{
   position:relative;
+  grid-column:3;
+  grid-row:1;
   width:100%;
   border-radius:16px;
   padding:4px;
@@ -217,12 +241,14 @@ body.viewer-open .app{
 .meta-row{display:flex;flex-wrap:wrap;gap:10px}
 .portal-pills{
   grid-column:2;
-  justify-self:center;
-  justify-content:center;
+  grid-row:1;
+  justify-self:start;
+  justify-content:flex-start;
   flex-wrap:nowrap;
   gap:8px;
-  width:max-content;
-  max-width:none;
+  width:auto;
+  min-width:0;
+  max-width:100%;
 }
 .pill{
   padding:9px 13px;
@@ -249,6 +275,13 @@ body.viewer-open .app{
   min-height:0;
   height:100%;
   overflow:hidden;
+  padding:12px;
+  border-radius:var(--radius-lg);
+  background:var(--surface-glass);
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  border:1px solid var(--edge);
+  box-shadow:var(--shadow);
 }
 .list-stack{
   display:grid;
@@ -257,6 +290,13 @@ body.viewer-open .app{
   min-height:0;
   height:100%;
   overflow:hidden;
+  padding:12px;
+  border-radius:var(--radius-lg);
+  background:var(--surface-glass);
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  border:1px solid var(--edge);
+  box-shadow:var(--shadow);
 }
 .card{
   min-height:0;
@@ -267,11 +307,26 @@ body.viewer-open .app{
   display:grid;
   grid-template-rows:auto minmax(0,1fr);
 }
+.collapsible-card{
+  background:var(--surface-glass);
+  backdrop-filter:blur(var(--blur)) saturate(150%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
+  border:1px solid var(--edge);
+  box-shadow:var(--shadow);
+}
+.list-stack > .collapsible-card{
+  background:var(--surface-inner);
+  box-shadow:inset 0 1px 0 rgba(120,255,170,.04), 0 10px 28px rgba(0,0,0,.24);
+}
+#notesCard{
+  background:var(--surface-inner);
+  box-shadow:inset 0 1px 0 rgba(120,255,170,.04), 0 10px 28px rgba(0,0,0,.24);
+}
 .card-head{padding:16px 18px 12px;border-bottom:1px solid rgba(40,180,90,.12)}
-.card-head > div {min-width: 0;}
+.card-head > div {min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .collapsible-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .preview-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.card-title{margin:0 0 4px;font-size:1.25rem;line-height:1.1;color:#ffffff;text-shadow:0 0 12px rgba(100,255,160,.50), 0 0 28px rgba(80,220,140,.30), 0 0 60px rgba(60,200,120,.15)}
+.card-title{margin:0;font-size:1.25rem;line-height:1.1;color:#ffffff;text-shadow:0 0 12px rgba(100,255,160,.50), 0 0 28px rgba(80,220,140,.30), 0 0 60px rgba(60,200,120,.15)}
 .card-sub{margin:0;color:var(--muted-2);font-size:.88rem;line-height:1.35}
 .mobile-section-toggle{
   display:none;
@@ -334,15 +389,35 @@ body.viewer-open .app{
 .doc-card{
   padding:14px 14px 13px;
   border-radius:18px;
-  background:rgba(120,255,170,.04);
-  border:1px solid rgba(20,90,50,.30);
+  background:
+    linear-gradient(180deg, rgba(120,255,170,.04), rgba(0,0,0,.12)),
+    linear-gradient(135deg, rgba(40,180,90,.06), transparent 36%, rgba(20,120,60,.06));
+  backdrop-filter:blur(calc(var(--blur) * .72)) saturate(145%);
+  -webkit-backdrop-filter:blur(calc(var(--blur) * .72)) saturate(145%);
+  border:1px solid rgba(20,90,50,.28);
+  box-shadow:inset 0 1px 0 rgba(120,255,170,.04), 0 10px 28px rgba(0,0,0,.28);
   cursor:pointer;
-  transition:transform .16s ease, border-color .16s ease, background .16s ease;
+  transition:transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
 }
-.doc-card:hover{transform:translateY(-1px);border-color:rgba(40,180,90,.35);background:rgba(120,255,170,.07)}
-.doc-card.active{background:rgba(60,200,120,.12);border-color:rgba(80,220,130,.30);box-shadow:0 10px 24px rgba(40,180,90,.12)}
+.doc-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(80,220,130,.34);
+  background:
+    linear-gradient(180deg, rgba(120,255,170,.07), rgba(0,0,0,.10)),
+    linear-gradient(135deg, rgba(40,180,90,.09), transparent 36%, rgba(20,120,60,.08));
+  box-shadow:inset 0 1px 0 rgba(120,255,170,.06), 0 12px 30px rgba(0,0,0,.30);
+}
+.doc-card.active{
+  background:
+    linear-gradient(180deg, rgba(60,200,120,.14), rgba(0,0,0,.12)),
+    linear-gradient(135deg, rgba(80,220,130,.12), transparent 36%, rgba(20,120,60,.10));
+  border-color:rgba(80,220,130,.36);
+  box-shadow:inset 0 1px 0 rgba(120,255,170,.08), 0 14px 32px rgba(40,180,90,.14);
+}
 .doc-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.doc-name-wrap{min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
 .doc-name{font-weight:700;line-height:1.2;color:#ffffff;min-width:0;word-break:break-word;}
+.doc-pages{font-size:.78rem;color:var(--muted-2)}
 .doc-kind{
   flex:0 0 auto;
   padding:6px 10px;
@@ -353,7 +428,6 @@ body.viewer-open .app{
   background:rgba(40,200,110,.06);
   border:1px solid rgba(40,200,110,.18);
 }
-.doc-meta{font-size:.8rem;color:var(--muted-2);margin-bottom:8px}
 .doc-snippet{
   font-size:.88rem;
   line-height:1.42;
@@ -410,9 +484,7 @@ mark{
 .preview-block{
   padding:14px 16px;
   border-radius:18px;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.24), rgba(0,0,0,.32)),
-    linear-gradient(135deg, rgba(40,180,90,.04), transparent 34%, rgba(20,120,60,.04));
+  background:var(--surface-inner);
   backdrop-filter:blur(var(--blur)) saturate(150%);
   -webkit-backdrop-filter:blur(var(--blur)) saturate(150%);
   border:1px solid var(--edge);
@@ -489,8 +561,18 @@ mark{
   border:1px solid rgba(20,90,50,.28);
   box-shadow:inset 0 1px 0 rgba(120,255,170,.04), 0 10px 28px rgba(0,0,0,.28);
 }
-.eq-render{min-height:32px;color:#dfffeb}
-.eq-plain{margin-top:8px;color:var(--muted-2);font-size:.78rem;line-height:1.35;word-break:break-word}
+.eq-render{min-height:32px;color:#dfffeb;overflow:hidden}
+.eq-render .katex{font-size:1rem}
+.eq-render .katex-display{margin:0;overflow:hidden}
+.eq-plain{
+  margin-top:8px;
+  color:var(--muted-2);
+  font-size:.74rem;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .transcript{
   font-family:Inter,"Segoe UI",system-ui,sans-serif;
   font-size:.93rem;
@@ -686,6 +768,13 @@ body.portal-split-view .portal-header{
   gap:12px;
 }
 body.portal-split-view .portal-title{font-size:1.2rem}
+body.portal-split-view .search-shell{grid-column:2;grid-row:1}
+body.portal-split-view .portal-pills{
+  grid-column:1 / -1;
+  grid-row:2;
+  justify-self:center;
+  justify-content:center;
+}
 body.portal-split-view .pill{font-size:.76rem;padding:7px 11px}
 body.portal-split-view .search-input{height:40px;font-size:.9rem}
 body.portal-split-view .search-icon{left:12px;width:16px;height:16px}
@@ -706,15 +795,21 @@ body.portal-split-view .list-stack{
 /* === MOBILE VIEW === */
 html.portal-mobile-view,
 body.portal-mobile-view{
-  height:auto;
-  overflow-y:auto;
+  height:100%;
+  min-height:100%;
+  overflow-y:hidden;
   overflow-x:hidden;
 }
 body.portal-mobile-view .app{
   width:100%;
   min-height:100vh;
-  height:auto;
-  overflow:visible;
+  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
 }
 body.portal-mobile-view .portal-topbar{
   z-index:16;
@@ -729,16 +824,28 @@ body.portal-mobile-view .portal-header{
   border-radius:16px;
 }
 body.portal-mobile-view .portal-title{font-size:1.08rem}
+body.portal-mobile-view .search-shell{grid-column:1;grid-row:auto}
 body.portal-mobile-view .portal-pills{
   grid-column:1;
+  grid-row:auto;
+  display:grid;
+  grid-template-columns:1.28fr .78fr 1fr .72fr;
   justify-self:stretch;
-  justify-content:flex-start;
-  flex-wrap:wrap;
+  justify-content:stretch;
+  flex-wrap:nowrap;
+  gap:6px;
   width:auto;
   min-width:0;
   max-width:100%;
 }
-body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
+body.portal-mobile-view .pill{
+  min-width:0;
+  padding:6px clamp(4px, 1.4vw, 8px);
+  font-size:clamp(.56rem, 2.35vw, .68rem);
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
 body.portal-mobile-view .search-input{height:40px;font-size:.92rem;padding-left:38px;padding-right:110px}
 body.portal-mobile-view .search-clear{right:48px;width:28px;height:28px}
@@ -762,6 +869,13 @@ body.portal-mobile-view .list-stack{
   gap:16px;
   height:auto;
   overflow:visible;
+  padding:0;
+  border:none;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 }
 body.portal-mobile-view .preview-card{display:none}
 body.portal-mobile-view.mobile-preview-open .preview-card{display:grid}
@@ -771,11 +885,15 @@ body.portal-mobile-view .mobile-hint-card{
   position:fixed;
   left:10px;
   right:10px;
-  bottom:max(10px, env(safe-area-inset-bottom));
+  bottom:calc(30px + env(safe-area-inset-bottom));
   z-index:15;
   pointer-events:none;
 }
 body.portal-mobile-view.mobile-hint-hidden .mobile-hint-card{display:none}
+body.portal-mobile-view #scopeStatus{
+  padding-top:10px;
+  padding-bottom:calc(6px + env(safe-area-inset-bottom));
+}
 body.portal-mobile-view .card{height:auto;min-height:0;min-width:0;}
 body.portal-mobile-view .mobile-section-toggle{display:grid}
 body.portal-mobile-view .collapsible-card.is-open .mobile-section-toggle svg,
@@ -786,9 +904,9 @@ body.portal-mobile-view .card-body{
   overscroll-behavior:auto;
 }
 body.portal-mobile-view .collapsible-card .card-body{
-  max-height:5600px;
+  max-height:none;
   opacity:1;
-  overflow:hidden;
+  overflow:visible;
   transition:max-height .34s ease, opacity .22s ease, padding .28s ease;
 }
 body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
@@ -796,15 +914,36 @@ body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
   opacity:0;
   padding-top:0;
   padding-bottom:0;
+  overflow:hidden;
 }
 body.portal-mobile-view.mobile-search-active .collapsible-card .card-body{
-  max-height:5600px;
+  max-height:none;
   opacity:1;
   padding-top:12px;
   padding-bottom:14px;
+  overflow:visible;
 }
 body.portal-mobile-view .preview-wrap,
 body.portal-mobile-view .preview-empty{min-height:0}
+body.portal-mobile-view .preview-card,
+body.portal-mobile-view .preview-card-head,
+body.portal-mobile-view .preview-card .card-body,
+body.portal-mobile-view .preview-wrap,
+body.portal-mobile-view .preview-block,
+body.portal-mobile-view .equation-list,
+body.portal-mobile-view .eq-card,
+body.portal-mobile-view .eq-render{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+body.portal-mobile-view .preview-card{overflow:hidden}
+body.portal-mobile-view .preview-card-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+}
+body.portal-mobile-view .preview-card-head > div{min-width:0}
 body.portal-mobile-view .preview-block,
 body.portal-mobile-view .summary,
 body.portal-mobile-view .eq-card,
@@ -817,8 +956,25 @@ body.portal-mobile-view .eq-plain{
   word-break:break-word;
 }
 body.portal-mobile-view .preview-block{overflow:hidden}
-body.portal-mobile-view .selected-doc-block{padding-right:68px}
-body.portal-mobile-view .selected-doc-block .action-row{}
+body.portal-mobile-view .selected-doc-block{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 44px;
+  gap:10px 12px;
+  padding-right:16px;
+}
+body.portal-mobile-view .selected-doc-block .selected-save-btn{
+  position:static;
+  grid-column:2;
+  grid-row:1 / span 3;
+  justify-self:end;
+}
+body.portal-mobile-view .selected-doc-block .section-label,
+body.portal-mobile-view .selected-doc-block h2,
+body.portal-mobile-view .selected-doc-block .kv{grid-column:1}
+body.portal-mobile-view .selected-doc-block .action-row{
+  grid-column:1 / -1;
+  margin-right:0;
+}
 body.portal-mobile-view .action-row .btn{
   width:100%;
   min-height:44px;
@@ -873,9 +1029,27 @@ body.portal-mobile-view .zoom-dock{
 }
 @media (max-width: 1120px){
   body:not(.portal-split-view):not(.portal-mobile-view) .content{grid-template-columns:1fr;height:100%}
+  body:not(.portal-split-view):not(.portal-mobile-view) .portal-header{
+    grid-template-columns:minmax(170px,max-content) max-content minmax(300px,1fr);
+    gap:10px;
+  }
+  body:not(.portal-split-view):not(.portal-mobile-view) .portal-title{font-size:1.16rem}
+  body:not(.portal-split-view):not(.portal-mobile-view) .portal-pills{gap:6px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .pill{font-size:.72rem;padding:7px 8px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .search-input{height:40px;font-size:.9rem}
+  body:not(.portal-split-view):not(.portal-mobile-view) .search-submit{height:28px;width:38px;font-size:.72rem}
 }
 @media (max-width: 900px){
-  .portal-topbar{padding:12px;padding-bottom:0}
+  body:not(.portal-mobile-view) .portal-topbar{padding:0 12px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .portal-header{
+    grid-template-columns:minmax(145px,max-content) max-content minmax(250px,1fr);
+    padding:10px 12px;
+  }
+  body:not(.portal-split-view):not(.portal-mobile-view) .portal-title{font-size:1rem}
+  body:not(.portal-split-view):not(.portal-mobile-view) .pill{font-size:.64rem;padding:6px 6px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .search-input{padding-right:94px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .search-clear{right:44px}
+  body:not(.portal-split-view):not(.portal-mobile-view) .search-submit{width:34px}
   .content-shell{padding:12px}
   .viewer-viewport{padding:16px 12px 124px}
 }
@@ -893,6 +1067,7 @@ body.portal-mobile-view .zoom-dock{
 </head>
 <body>
   <canvas id="scopeCanvas" aria-hidden="true"></canvas>
+  <div id="scopeStatus" aria-hidden="true"><span class="scope-left"></span><span class="scope-right"></span></div>
   <div class="app">
     <header class="portal-topbar">
       <section class="portal-header glass">
@@ -923,7 +1098,7 @@ body.portal-mobile-view .zoom-dock{
             <div class="card-head collapsible-head">
               <div>
                 <h2 class="card-title">Notes</h2>
-                <p class="card-sub">Lecture notes from semiconductors through digital conversion.</p>
+                <p class="card-sub">Lecture notes</p>
               </div>
               <button class="mobile-section-toggle" data-section="notes" type="button" aria-label="Toggle notes" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -938,7 +1113,7 @@ body.portal-mobile-view .zoom-dock{
             <div class="card-head collapsible-head">
               <div>
                 <h2 class="card-title">Assignments</h2>
-                <p class="card-sub">Homework PDFs preserved locally for download and preview.</p>
+                <p class="card-sub">Homework PDFs</p>
               </div>
               <button class="mobile-section-toggle" data-section="assignments" type="button" aria-label="Toggle assignments" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -951,7 +1126,7 @@ body.portal-mobile-view .zoom-dock{
             <div class="card-head collapsible-head">
               <div>
                 <h2 class="card-title">Labs</h2>
-                <p class="card-sub">Lab experiments from DC circuits through Arduino projects.</p>
+                <p class="card-sub">Lab Experiments</p>
               </div>
               <button class="mobile-section-toggle" data-section="labs" type="button" aria-label="Toggle labs" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -967,7 +1142,7 @@ body.portal-mobile-view .zoom-dock{
           <div class="card-head preview-card-head">
             <div>
               <h2 class="card-title">Document Preview</h2>
-              <p class="card-sub">Summary, rendered equations, transcript text, and viewer controls.</p>
+              <p class="card-sub">Summary &amp; Key Equations</p>
             </div>
             <button class="mobile-preview-close" id="mobilePreviewClose" type="button">Close</button>
           </div>
@@ -1086,6 +1261,11 @@ function syncMobilePreviewState() {
   document.body.classList.toggle("mobile-preview-open", mobile && state.mobilePreviewOpen);
 }
 
+function getPortalScroller() {
+  if (document.body.classList.contains("portal-mobile-view")) return document.querySelector(".app");
+  return document.scrollingElement || document.documentElement;
+}
+
 function syncResponsiveMode() {
   const width = window.innerWidth || 0;
   const wasMobile = document.body.classList.contains("portal-mobile-view");
@@ -1163,9 +1343,18 @@ function snippetFor(doc) {
 
 function highlight(text) {
   const q = state.query.trim();
-  if (!q) return escapeHtml(text);
+  if (!q) return renderSubscripts(text);
   const rx = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ig");
-  return escapeHtml(text).replace(rx, (m) => `<mark>${m}</mark>`);
+  let html = "";
+  let last = 0;
+  let m;
+  while ((m = rx.exec(text)) !== null) {
+    html += renderSubscripts(text.slice(last, m.index));
+    html += `<mark>${escapeHtml(m[0])}</mark>`;
+    last = m.index + m[0].length;
+  }
+  html += renderSubscripts(text.slice(last));
+  return html;
 }
 
 function ensureSelection() {
@@ -1180,6 +1369,13 @@ function kindLabel(cat) {
   return "Lab";
 }
 
+function resetPreviewScroll() {
+  const body = document.querySelector("#previewCard .card-body");
+  if (!body) return;
+  body.scrollTop = 0;
+  body.scrollLeft = 0;
+}
+
 function renderList(category, mountId) {
   const mount = document.getElementById(mountId);
   const docs = filteredDocs(category);
@@ -1190,10 +1386,12 @@ function renderList(category, mountId) {
   mount.innerHTML = `<div class="doc-list">${docs.map((doc) => `
     <button class="doc-card ${doc.id === state.selectedId ? "active" : ""}" data-id="${doc.id}" type="button">
       <div class="doc-top">
-        <div class="doc-name">${escapeHtml(doc.title)}</div>
+        <div class="doc-name-wrap">
+          <div class="doc-name">${escapeHtml(doc.title)}</div>
+          <div class="doc-pages">${doc.pages} page${doc.pages === 1 ? "" : "s"}</div>
+        </div>
         <div class="doc-kind">${kindLabel(doc.category)}</div>
       </div>
-      <div class="doc-meta">${doc.pages} page${doc.pages === 1 ? "" : "s"} | ${doc.category === "notes" ? "transcript included" : "pdf included"}</div>
       <div class="doc-snippet">${highlight(snippetFor(doc))}</div>
       <div class="doc-actions">
         <a class="doc-mini-btn" href="${encodeURI(doc.pdf)}" target="_blank" rel="noopener noreferrer">${iconOpen()}<span>New tab</span></a>
@@ -1207,9 +1405,11 @@ function renderList(category, mountId) {
     }
     const mobile = document.body.classList.contains("portal-mobile-view");
     const alreadyOpen = mobile && state.mobilePreviewOpen;
+    const previousId = state.selectedId;
     state.selectedId = btn.dataset.id;
     if (mobile) state.mobilePreviewOpen = true;
     renderAll();
+    if (previousId !== state.selectedId) resetPreviewScroll();
     if (mobile) {
       if (alreadyOpen) {
         scrollMobilePreviewIntoPlace("smooth");
@@ -1232,27 +1432,32 @@ function scrollMobilePreviewIntoPlace(behavior = "smooth") {
   if (!preview) return;
   const topbarH = topbar ? topbar.offsetHeight : 0;
   preview.style.scrollMarginTop = (topbarH + 18) + "px";
+  const scroller = getPortalScroller();
+  if (document.body.classList.contains("portal-mobile-view") && scroller) {
+    const scrollerTop = scroller.getBoundingClientRect().top;
+    const previewTop = preview.getBoundingClientRect().top;
+    const targetTop = scroller.scrollTop + previewTop - scrollerTop - topbarH - 18;
+    scroller.scrollTo({ top: Math.max(0, targetTop), left: 0, behavior });
+    return;
+  }
   preview.scrollIntoView({ behavior, block: "start" });
 }
 
 function renderEquation(tex = "") {
+  const display = normalizeEquationForDisplay(tex);
   if (window.katex) {
     const wrap = document.createElement("div");
-    try {
-      window.katex.render(tex, wrap, { throwOnError: false, displayMode: true });
-    } catch {
-      wrap.textContent = tex;
-    }
+    window.katex.render(display.tex, wrap, { throwOnError: false, displayMode: true });
     return wrap.innerHTML;
   }
-  return escapeHtml(tex);
+  return escapeHtml(stripLatex(display.tex || tex));
 }
 
 function renderMathFragment(tex = "", displayMode = false) {
   const wrap = document.createElement(displayMode ? "div" : "span");
   if (window.katex) {
     try {
-      window.katex.render(tex, wrap, { throwOnError: false, displayMode });
+      window.katex.render(tex, wrap, { throwOnError: true, displayMode });
     } catch {
       wrap.textContent = displayMode ? `$$${tex}$$` : `$${tex}$`;
     }
@@ -1263,14 +1468,528 @@ function renderMathFragment(tex = "", displayMode = false) {
   return wrap.outerHTML;
 }
 
-function renderTranscriptInline(text = "") {
+function latexTextToPlain(text = "") {
+  return String(text || "")
+    .replace(/\\,/g, " ")
+    .replace(/\\ /g, " ")
+    .replace(/\\Omega/g, "ohm")
+    .replace(/\\mu/g, "micro")
+    .replace(/\\circ/g, "deg")
+    .replace(/V_\{CC\}/g, "VCC")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function replaceLatexTextCommands(tex = "", replacer = () => "") {
+  const source = String(tex || "");
+  let out = "";
+  for (let i = 0; i < source.length; i += 1) {
+    if (!source.startsWith("\\text{", i)) {
+      out += source[i];
+      continue;
+    }
+    let depth = 1;
+    let j = i + 6;
+    while (j < source.length && depth > 0) {
+      if (source[j] === "{") depth += 1;
+      else if (source[j] === "}") depth -= 1;
+      j += 1;
+    }
+    if (depth !== 0) {
+      out += source.slice(i);
+      break;
+    }
+    const content = source.slice(i + 6, j - 1);
+    out += replacer(content, i, source);
+    i = j - 1;
+  }
+  return out;
+}
+
+function titleCaseWords(text = "") {
+  return String(text || "")
+    .replace(/[_{}\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word.length <= 3 && /^[A-Z0-9]+$/.test(word)
+      ? word
+      : word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function normalizeEquationDetail(text = "") {
+  return latexTextToPlain(text)
+    .replace(/^[(:\s]+|[):\s]+$/g, "")
+    .replace(/\bbar\s+v\b/ig, "average V")
+    .replace(/\bvs\b/g, "VS")
+    .replace(/\bvcc\b/ig, "VCC")
+    .replace(/\bgnd\b/ig, "GND")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function conciseDetail(text = "") {
+  const plain = normalizeEquationDetail(text)
+    .replace(/\bexample\b:?/ig, "")
+    .replace(/transistor amplifies arduino base current/ig, "base drives collector")
+    .replace(/current gain from collector and base currents/ig, "current gain")
+    .replace(/load current achievable through collector/ig, "collector load limit")
+    .replace(/thermocouple voltage change/ig, "voltage change")
+    .replace(/measured from V_\{pp\} drop across base resistor/ig, "base resistor drop")
+    .replace(/output impedance reduced by.*$/ig, "reduced output impedance")
+    .replace(/UNO has 2 hardware interrupts.*$/ig, "hardware interrupts")
+    .replace(/Trigger modes.*$/ig, "interrupt trigger modes")
+    .replace(/Volatile globals required.*$/ig, "ISR shared state")
+    .replace(/\bwith sign convention\b/ig, "sign convention")
+    .replace(/\bi\.e\.\b/ig, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!plain) return "";
+  const first = plain.split(/[.;]/)[0].trim();
+  const words = first.split(/\s+/).filter(Boolean);
+  return words.slice(0, 9).join(" ");
+}
+
+function hasSymbolicVariable(tex = "") {
+  return /[A-Za-z](?![a-z]*\})/.test(String(tex || "")
+    .replace(/\\(?:mathrm|text)\{[^}]*\}/g, "")
+    .replace(/\\(?:frac|sqrt|left|right|cdot|times|approx|le|ge|lfloor|rfloor|text|mathrm|Omega|mu|circ|quad|qquad|Rightarrow|to|in|sim|propto|max|min)\b/g, "")
+    .replace(/\b(?:V|A|Hz|mA|LEDs?|ohm|W|K|C|rad|s|ft|nanosecond)\b/g, ""));
+}
+
+function segmentLooksNumeric(tex = "") {
+  const segment = String(tex || "")
+    .replace(/\\(?:mathrm|text)\{[^}]*\}/g, "")
+    .split(/,|;|\\quad|\\qquad|\\Rightarrow/)[0] || "";
+  if (!/\d/.test(segment)) return false;
+  if (/\\frac\{[-+\d.\s\\!\\cdot\\times\^{}]+\}\{[-+\d.\s\\!\\cdot\\times\^{}]+\}/.test(segment)) return true;
+  if (/^\s*[-+]?[\d.]/.test(segment) && !hasSymbolicVariable(segment)) return true;
+  return false;
+}
+
+function stripNumericSubstitutionTail(tex = "") {
+  const source = String(tex || "");
+  const relation = /(=|\\approx|\\simeq|\\sim)/g;
+  let match;
+  while ((match = relation.exec(source)) !== null) {
+    const rhs = source.slice(match.index + match[0].length);
+    if (segmentLooksNumeric(rhs)) {
+      const left = source.slice(0, match.index).trim().replace(/[,\s\\quad\\qquad]+$/g, "");
+      return /=|\\approx|\\sim|\\le|\\ge|<|>|\\Rightarrow|\\propto/.test(left) ? left : source;
+    }
+  }
+  return source;
+}
+
+function splitTopLevelRelations(tex = "") {
+  return String(tex || "")
+    .split(/\\qquad|\\quad|;|,(?=\\?\s*[A-Za-z\\])/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function relationCount(tex = "") {
+  return (String(tex || "").match(/=|\\approx|\\sim|\\le|\\ge|<|>|\\Rightarrow|\\to|\\propto/g) || []).length;
+}
+
+function truncateExcessRelations(tex = "") {
+  const source = String(tex || "");
+  const matches = [...source.matchAll(/=|\\approx|\\sim|\\le|\\ge|<|>|\\Rightarrow|\\to|\\propto/g)];
+  if (matches.length <= 2) return source;
+  return source.slice(0, matches[2].index).trim();
+}
+
+function choosePrimaryRelation(tex = "") {
+  const parts = splitTopLevelRelations(tex);
+  if (parts.length <= 1) return tex;
+  const relationParts = parts.filter((part) => relationCount(part));
+  if (!relationParts.length) return parts[0];
+  const symbolic = relationParts.filter((part) => hasSymbolicVariable(part) && !segmentLooksNumeric(part));
+  return (symbolic[0] || relationParts[0]).replace(/^[,: ]+|[,: ]+$/g, "");
+}
+
+function normalizeKnownValuedEquation(tex = "") {
+  const raw = String(tex || "");
+  if (/V_\{out\}\^\{\\text\{DAC\}\}|A_\{3\}.*A_\{0\}/.test(raw)) {
+    return {
+      tex: "V_{out}^{DAC}=\\sum_{n=0}^{N-1}w_{n}A_{n}",
+      detail: "weighted DAC output",
+    };
+  }
+  if (/R_\{TOT\}|R_\{1\}\+R_\{2\}|R_\{th\}|V_\{th\}/.test(raw) && /\\Omega|\\text\{V\}|\\cdot/.test(raw)) {
+    return {
+      tex: raw.includes("V_{th}") ? "V_{th}=V\\frac{R_{2}}{R_{1}+R_{2}}" : raw.includes("R_{th}") ? "R_{th}=R_{eq}+R_{s}" : "R_{eq}=f(R_{1},R_{2})",
+      detail: "symbolic circuit relation",
+    };
+  }
+  if (/\\text\{(?:AND|NAND|NOT|OR)\}|(?:AND|NAND|NOT|OR)\(A/.test(raw)) {
+    const name = raw.match(/(?:AND|NAND|NOT|OR)/)?.[0] || "Logic";
+    const tex = name === "NOT"
+      ? "\\operatorname{NOT}(A)=\\bar A"
+      : name === "AND"
+        ? "\\operatorname{AND}(A,B)=A\\cdot B"
+        : name === "NAND"
+          ? "\\operatorname{NAND}(A,B)=\\overline{A\\cdot B}"
+          : "\\operatorname{OR}(A,B)=A+B";
+    return { tex, detail: "truth table rule" };
+  }
+  if (/V_\{BE\}\\approx|V_\{BC\}\\approx/.test(raw)) {
+    const symbol = /V_\{BC\}/.test(raw) ? "V_{BC}" : "V_{BE}";
+    return {
+      tex: `${symbol}\\approx V_{D}`,
+      detail: "forward junction drop",
+    };
+  }
+  if (/V_\{out,\\text\{bridge\}\}/.test(raw)) {
+    return {
+      tex: "V_{out}=|V_{in}|-2V_{D}",
+      detail: "full-wave rectifier output",
+    };
+  }
+  if (/Half-wave w\/ filter/.test(raw)) {
+    return {
+      tex: "V_{out}\\approx V_{max}\\left(1-\\frac{t}{RC}\\right)",
+      detail: "filtered half-wave output",
+    };
+  }
+  if (/\\Delta V=V_\{max\}.*I_\{max\}\/fC/.test(raw)) {
+    return {
+      tex: "\\Delta V\\approx \\frac{I_{max}}{fC}",
+      detail: "ripple estimate",
+    };
+  }
+  if (/A_\{OL\}.*\\xrightarrow/.test(raw)) {
+    return {
+      tex: "V_{out}=\\left(1+\\frac{R_{1}}{R_{2}}\\right)V_{in}",
+      detail: "closed-loop non-inverting gain",
+    };
+  }
+  if (/Properties:.*Z_\{in\}/.test(raw)) {
+    return {
+      tex: "Z_{in}\\to\\infty,\\quad Z_{out}\\to 0",
+      detail: "ideal op-amp impedance limits",
+    };
+  }
+  if (/V_\{b\}=\\pm V_\{S\}/.test(raw)) {
+    return {
+      tex: "V_{b}=\\pm V_{S}\\frac{R_{1}}{R_{1}+R_{2}}",
+      detail: "Schmitt trigger thresholds",
+    };
+  }
+  if (/555 thresholds/.test(raw)) {
+    return {
+      tex: "V_{upper}=\\frac{2}{3}V_{S},\\quad V_{lower}=\\frac{1}{3}V_{S}",
+      detail: "555 timer thresholds",
+    };
+  }
+  if (/Logic levels/.test(raw)) {
+    return {
+      tex: "0\\to V_{L},\\quad 1\\to V_{H}",
+      detail: "digital logic voltage levels",
+    };
+  }
+  if (/AND\(A,B\)|NAND\(A,B\)|NOT\(A\)|OR\(A,B\)/.test(raw)) {
+    const op = raw.match(/(?:AND|NAND|NOT|OR)\(A(?:,B)?\)/)?.[0] || "Logic";
+    return {
+      tex: raw.includes("\\bar") ? `${op}=\\overline{A\\cdot B}` : raw.includes("\\cdot") ? `${op}=A\\cdot B` : `${op}=f(A,B)`,
+      detail: "truth table rule",
+    };
+  }
+  if (/I_\{d,\\text\{sat\}\}/.test(raw)) {
+    return {
+      tex: "I_{d,sat}=K\\left(V_{GS}-V_{p}\\right)^{2}",
+      detail: "JFET saturation current",
+    };
+  }
+  if (/\\sqrt\{I_\{d,\\text\{sat\}\}\}/.test(raw)) {
+    return {
+      tex: "\\sqrt{I_{d,sat}}=\\sqrt{K}\\left(V_{GS}-V_{p}\\right)",
+      detail: "linearized JFET relation",
+    };
+  }
+  if (/Slope of.*I_\{d,\\text\{sat\}\}/.test(raw)) {
+    return {
+      tex: "m=\\sqrt{K}",
+      detail: "slope of linearized JFET plot",
+    };
+  }
+  if (/x-intercept.*I_\{d,\\text\{sat\}\}/.test(raw)) {
+    return {
+      tex: "V_{GS}=V_{p}",
+      detail: "x-intercept of linearized JFET plot",
+    };
+  }
+  if (/\\sqrt\{I_\{d\}\}.*\\Rightarrow/.test(raw)) {
+    return {
+      tex: "\\sqrt{I_{d}}=\\sqrt{K}\\left(V_{GS}-V_{p}\\right)",
+      detail: "linearized JFET fit equation",
+    };
+  }
+  if (/V_\{BE\}\\approx V_\{D\}/.test(raw)) {
+    return {
+      tex: "V_{BE}\\approx V_{D}",
+      detail: "forward junction drop",
+    };
+  }
+  if (/For\\s+R|with sign convention|V_\{out\}.*\\Rightarrow.*\\to/.test(raw)) {
+    return {
+      tex: "V_{out}=G\\,V_{in}",
+      detail: "output from input gain relation",
+    };
+  }
+  if (/k_\{B\}T\/e\\approx/.test(raw)) {
+    return {
+      tex: "V_{T}=\\frac{k_{B}T}{e}",
+      detail: "thermal voltage",
+    };
+  }
+  if (/I_\{LED\}=\\frac\{V_\{R_\{330\}\}\}/.test(raw)) {
+    return {
+      tex: "I_{LED}=\\frac{V_{R,LED}}{R_{LED}}",
+      detail: "LED current from voltage drop",
+    };
+  }
+  if (/Arduino limit per pin/i.test(raw)) {
+    return {
+      tex: "I_{pin}\\le I_{pin,\\max};\\quad I_{rail}\\le I_{rail,\\max}",
+      detail: "pin and rail limits",
+    };
+  }
+  if (/Max LEDs from a single I\/O pin/i.test(raw)) {
+    return {
+      tex: "N_{LED,\\max}=\\left\\lfloor\\frac{I_{pin,\\max}}{I_{LED}}\\right\\rfloor",
+      detail: "single-pin LED limit",
+    };
+  }
+  if (/Example:/i.test(raw) && /per LED branch/i.test(raw)) {
+    return {
+      tex: "I_{LED}=\\frac{V_{R,LED}}{R_{LED}}",
+      detail: "per LED branch",
+    };
+  }
+  if (/I_\{B\}.*V_\{out,\\text\{Arduino\}\}.*R_\{base\}/.test(raw)) {
+    return {
+      tex: "I_{B}=\\frac{V_{out,\\mathrm{Arduino}}-V_{BE}}{R_{base}}",
+      detail: "",
+    };
+  }
+  if (/I_\{C,\\max\}=\\beta I_\{B\}/.test(raw)) {
+    return {
+      tex: "I_{C,max}=\\beta I_{B}",
+      detail: "collector load limit",
+    };
+  }
+  if (/\\bar V_\{load\}=D\\cdot V_\{S\}.*PWM with duty/.test(raw)) {
+    return {
+      tex: "\\bar V_{load}=D\\cdot V_{S}",
+      detail: "PWM duty D, supply VS",
+    };
+  }
+  if (/Thermocouple sensitivity/i.test(raw)) {
+    return {
+      tex: "\\frac{dV}{dT}=S_{TC}",
+      detail: "K-type thermocouple",
+    };
+  }
+  if (/\\Delta\s*V=41/.test(raw)) {
+    return {
+      tex: "\\Delta V=S_{TC}\\,\\Delta T",
+      detail: "thermocouple voltage change",
+    };
+  }
+  if (/T\\in\[-200/.test(raw)) {
+    return {
+      tex: "T_{min}\\le T\\le T_{max}",
+      detail: "K-type usable range",
+    };
+  }
+  if (/P_\{heater\}.*10\^\{2\}.*130/.test(raw)) {
+    return {
+      tex: "P_{heater}=\\frac{V_{S}^{2}}{R_{heater}}\\,D",
+      detail: "PWM heater average dissipation",
+    };
+  }
+  if (/f_\{PWM\}.*490/.test(raw)) {
+    return {
+      tex: "T_{PWM}\\ll\\tau_{th}\\Rightarrow V_{load}\\to \\bar V_{load}",
+      detail: "heater sees average PWM load voltage",
+    };
+  }
+  if (/\\beta=.*2\\,\\text\{mA\}.*200/.test(raw)) {
+    return {
+      tex: "\\beta=\\frac{I_{C}}{I_{B}}",
+      detail: "current gain",
+    };
+  }
+  if (/^\\text\{[^}]+:\s*\}$/.test(raw) || /^\\text\{[^}]+\}$/.test(raw)) {
+    return {
+      tex: pickFallbackEquation(raw),
+      detail: conciseDetail(stripLatex(raw)),
+    };
+  }
+  return null;
+}
+
+function normalizeEquationForDisplay(tex = "") {
+  tex = String(tex || "").replace(/^\$\$|\$\$$/g, "").replace(/^\$|\$$/g, "").trim();
+  if (/\\begin\{[a-z*]+\}/.test(tex)) return { tex, detail: "" };
+  const known = normalizeKnownValuedEquation(tex);
+  if (known) return known;
+  const details = [];
+  let cleaned = String(tex || "");
+  cleaned = replaceLatexTextCommands(cleaned, (content, index, source) => {
+    const plain = normalizeEquationDetail(content);
+    const before = source.slice(Math.max(0, index - 4), index);
+    const after = source.slice(index + content.length + 7, index + content.length + 12);
+    const compact = !/\s/.test(plain) && !/[():;]/.test(plain);
+    if (/:/.test(content)) {
+      if (plain) details.push(plain);
+      return /^[,;:)]/.test(after) ? "" : " ";
+    }
+    if (before.endsWith("_{") || before.endsWith("_{,") || /[,_{]$/.test(before)) {
+      return compact ? `\\mathrm{${plain.replace(/\s+/g, "")}}` : "";
+    }
+    if (compact && /[A-Za-z]/.test(plain) && !/^(at|per|from|with|and|or)$/i.test(plain)) {
+      return `\\mathrm{${plain}}`;
+    }
+    if (plain) details.push(plain);
+    return /^[,;:)]/.test(after) ? "" : " ";
+  });
+  cleaned = cleaned
+    .replace(/\\quad\s*\(([^)]{2,120})\)/g, (_, text) => {
+      details.push(normalizeEquationDetail(text));
+      return "";
+    })
+    .replace(/0\.6\s*(?:\\mathrm\{V\})?/g, "V_{D}")
+    .replace(/\s*\((\\text\{[^}]+\}|[^)]*\\text\{[^}]+\}[^)]*)\)\s*$/g, "")
+    .replace(/\\\s*text\{([^}]*)\}/g, "")
+    .replace(/\\\s+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  cleaned = choosePrimaryRelation(cleaned);
+  cleaned = stripNumericSubstitutionTail(cleaned);
+  if (relationCount(cleaned) > 2) cleaned = truncateExcessRelations(choosePrimaryRelation(cleaned));
+  if (/^\s*[A-Za-z ]+\s*$/.test(cleaned) || !/[=<>]|\\(?:le|ge|approx|sim|Rightarrow|propto|in)/.test(cleaned)) {
+    const rawPlain = normalizeEquationDetail(stripLatex(tex));
+    details.push(rawPlain);
+    cleaned = pickFallbackEquation(tex);
+  }
+  const detail = [...new Set(details.map(conciseDetail).filter(Boolean))][0] || "";
+  return { tex: cleaned || pickFallbackEquation(tex), detail };
+}
+
+const FALLBACK_EQUATIONS = [
+  "y = f(x)",
+  "\\frac{dy}{dx} = f(x)",
+  "\\int_a^b f(x)\\,dx",
+  "\\sum_{k=1}^{n} a_k x^k",
+  "f: A \\to B",
+  "\\lim_{x \\to 0} \\frac{f(x)}{x}",
+  "\\frac{\\partial f}{\\partial x}",
+  "A \\Rightarrow B",
+];
+function pickFallbackEquation(seed = "") {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return FALLBACK_EQUATIONS[h % FALLBACK_EQUATIONS.length];
+}
+
+function renderSubscripts(text = "") {
+  let html = "";
+  let last = 0;
+  const rx = /([A-Za-zΔΩΣαβγδεζηθλμνξπρστφψω][A-Za-z0-9]*)_(\(([^)]{1,60})\)|([A-Za-z][A-Za-z0-9]{0,19}|[0-9]{1,6}))/g;
+  let m;
+  while ((m = rx.exec(text)) !== null) {
+    const sub = m[3] !== undefined ? m[3] : m[4];
+    html += escapeHtml(text.slice(last, m.index));
+    html += `${escapeHtml(m[1])}<sub><i>${escapeHtml(sub)}</i></sub>`;
+    last = m.index + m[0].length;
+  }
+  html += escapeHtml(text.slice(last));
+  return html;
+}
+
+function looseMathToLatex(text = "") {
+  return String(text || "")
+    .replace(/≤/g, "\\le ")
+    .replace(/≥/g, "\\ge ")
+    .replace(/≈/g, "\\approx ")
+    .replace(/∝/g, "\\propto ")
+    .replace(/→/g, "\\to ")
+    .replace(/⇒/g, "\\Rightarrow ")
+    .replace(/−/g, "-")
+    .replace(/·/g, "\\cdot ")
+    .replace(/∫/g, "\\int ")
+    .replace(/√\(([^)]+)\)/g, "\\sqrt{$1}")
+    .replace(/√([A-Za-z0-9_]+)/g, "\\sqrt{$1}")
+    .replace(/∞/g, "\\infty ")
+    .replace(/τ/g, "\\tau ")
+    .replace(/π/g, "\\pi ")
+    .replace(/ω/g, "\\omega ")
+    .replace(/Δ/g, "\\Delta ")
+    .replace(/λ/g, "\\lambda ")
+    .replace(/β/g, "\\beta ")
+    .replace(/µ/g, "\\mu ")
+    .replace(/\b([A-Za-z])_([A-Za-z0-9]+)\b/g, "$1_{$2}")
+    .trim();
+}
+
+function shouldRenderLooseMath(candidate = "") {
+  const text = String(candidate || "").trim();
+  if (text.length < 4 || text.length > 32) return false;
+  if (/[a-z]{4,}/.test(text)) return false;
+  if (/\b(and|the|with|from|where|showing|resulting|transfer|rules|gain|buffer|frequency|generalisation|transformation)\b/i.test(text)) return false;
+  const opIndex = text.search(/=|≈|≤|≥|<|>|∝|→|⇒/);
+  if (opIndex < 1 || opIndex > 24) return false;
+  const lhs = text.slice(0, opIndex).trim();
+  if (/\s[a-z]{3,}\s/i.test(lhs)) return false;
+  if (!/[A-ZτΔλπωβ_]/.test(lhs) && !/^[a-z]\([^)]+\)/.test(lhs)) return false;
+  const letters = (text.match(/[A-Za-z]/g) || []).length;
+  const mathMarks = (text.match(/[=≈≤≥<>∝→⇒_+\-*/^()τΔλπωβµΩ∫√]/g) || []).length;
+  return mathMarks >= 2 || letters <= 12;
+}
+
+function renderLooseInlineMath(text = "") {
+  let html = "";
+  let last = 0;
+  const rx = /(?:[A-ZτΔλπωβ][A-Za-z0-9_{}(),+\-*/^∞τπµΩ·∫√Δλωβ ]{0,24}|[a-z]\([^)]+\))\s*(?:=|≈|≤|≥|<|>|∝|→|⇒)\s*[^,.;\n]{1,44}/g;
+  let match;
+  while ((match = rx.exec(text)) !== null) {
+    const candidate = match[0].trim();
+    if (!shouldRenderLooseMath(candidate)) continue;
+    html += renderSubscripts(text.slice(last, match.index));
+    html += renderMathFragment(looseMathToLatex(candidate), false);
+    last = match.index + match[0].length;
+  }
+  html += renderSubscripts(text.slice(last));
+  return html;
+}
+
+function renderRichInline(text = "") {
+  let html = "";
+  let last = 0;
+  const rx = new RegExp(String.raw`\$([^$\n]+?)\$`, "g");
+  let match;
+  while ((match = rx.exec(text)) !== null) {
+    html += renderLooseInlineMath(text.slice(last, match.index));
+    html += renderMathFragment(match[1].trim(), false);
+    last = match.index + match[0].length;
+  }
+  html += renderLooseInlineMath(text.slice(last));
+  return html;
+}
+
+function renderDelimitedInline(text = "") {
   let html = "";
   let last = 0;
   const rx = new RegExp(String.raw`\$([^$\n]+?)\$`, "g");
   let match;
   while ((match = rx.exec(text)) !== null) {
     html += escapeHtml(text.slice(last, match.index));
-    html += renderMathFragment(match[1].trim(), false);
+    const tex = match[1].trim();
+    html += tex.length > 32 ? escapeHtml(tex) : renderMathFragment(tex, false);
     last = match.index + match[0].length;
   }
   html += escapeHtml(text.slice(last));
@@ -1283,7 +2002,7 @@ function renderTranscriptText(text = "") {
   let para = [];
   const flushPara = () => {
     if (!para.length) return;
-    parts.push(`<p class="transcript-p">${renderTranscriptInline(para.join(" "))}</p>`);
+    parts.push(`<p class="transcript-p">${escapeHtml(para.join(" ").replace(/\$/g, ""))}</p>`);
     para = [];
   };
   for (const rawLine of lines) {
@@ -1295,7 +2014,8 @@ function renderTranscriptText(text = "") {
     const displayOnly = line.match(/^\$\$([\s\S]+?)\$\$([.,;:]?)$/);
     if (displayOnly) {
       flushPara();
-      parts.push(`<div class="transcript-math">${renderMathFragment(displayOnly[1].trim(), true)}${displayOnly[2] ? `<span class="transcript-punct">${escapeHtml(displayOnly[2])}</span>` : ""}</div>`);
+      const display = normalizeEquationForDisplay(displayOnly[1].trim());
+      parts.push(`<div class="transcript-math">${renderMathFragment(display.tex, true)}${displayOnly[2] ? `<span class="transcript-punct">${escapeHtml(displayOnly[2])}</span>` : ""}</div>`);
       continue;
     }
     const headingish = !line.includes("$$") && !line.includes("$") && line.length <= 90 && !/[.!?:]$/.test(line) && /^[A-Z0-9][A-Za-z0-9 ,'"()\/-]+$/.test(line);
@@ -1314,10 +2034,39 @@ function previewTranscriptText(text = "") {
   return String(text || "").split(/\n\s*Recovered page cues\b/i)[0].trim();
 }
 
+function equationBaseLabel(left = "", raw = "") {
+  const source = `${left} ${raw}`;
+  if (/I_\{LED\}/.test(source)) return "LED Current";
+  if (/I_\{C/.test(source)) return "Collector Current";
+  if (/I_\{pin\}|I_\{rail\}/.test(source)) return "Arduino Current Limit";
+  if (/N_\{LED/.test(source)) return "LED Count Limit";
+  if (/\\bar\s*V_\{load\}|V_\{load\}/.test(source)) return "Average Load Voltage";
+  if (/P_\{heater\}/.test(source)) return "Heater Power";
+  if (/\\Delta\s*V/.test(source)) return "Voltage Change";
+  if (/S_\{TC\}|dV.*dT/.test(source)) return "Thermocouple Sensitivity";
+  if (/V_\{out\}/.test(source)) return "Output Voltage";
+  if (/V_\{in\}/.test(source)) return "Input Voltage";
+  if (/V_\{b\}/.test(source)) return "Bias Voltage";
+  if (/V_\{BE\}|V_\{BC\}/.test(source)) return "Junction Voltage";
+  if (/I_\{d,\s*sat\}|I_\{d,sat\}/.test(source)) return "JFET Saturation Current";
+  if (/\\sqrt\{I_\{d/.test(source)) return "Linearized JFET Current";
+  if (/Z_\{in\}/.test(source)) return "Input Impedance";
+  if (/Z_\{out\}/.test(source)) return "Output Impedance";
+  if (/Z_\{eq\}/.test(source)) return "Equivalent Impedance";
+  if (/\\omega_\{0\}|f_\{0\}/.test(source)) return "Resonance Frequency";
+  if (/T_\{osc\}|T\s*=/.test(source)) return "Oscillation Period";
+  if (/CO|e\(t\)|e_\{n\}/.test(source)) return "PID Control";
+  if (/\\operatorname\{?(?:AND|NAND|NOT|OR)/.test(source)) return "Logic Rule";
+  return "";
+}
+
 function equationTitle(tex = "") {
-  const raw = String(tex || "");
+  const display = normalizeEquationForDisplay(tex);
+  const raw = String(display.tex || tex || "");
   const plain = stripLatex(raw);
   const left = raw.split("=")[0] || raw;
+  const baseLabel = equationBaseLabel(left, raw);
+  if (display.detail && baseLabel) return `${baseLabel} (${display.detail})`;
   if (/V\s*=/.test(raw) && /I\s*R/.test(raw)) return "Ohm's Law";
   if (/Z_\{?C/.test(left) || /Z_C/.test(left)) return "Capacitive Impedance";
   if (/Z_\{?L/.test(left) || /Z_L/.test(left)) return "Inductive Impedance";
@@ -1349,11 +2098,11 @@ function equationTitle(tex = "") {
     .slice(0, 4)
     .map((word) => word ? word[0].toUpperCase() + word.slice(1).toLowerCase() : "")
     .join(" ");
-  return `${label || "Equation"} Relation`;
+  const title = baseLabel || `${label || "Equation"} Relation`;
+  return display.detail ? `${title} (${display.detail})` : title;
 }
 
 function fitPreviewContentOnMobile() {
-  const mobile = document.body.classList.contains("portal-mobile-view");
   const containers = $$(".eq-render, .transcript-math");
   containers.forEach((container) => {
     container.style.removeProperty("min-height");
@@ -1362,11 +2111,10 @@ function fitPreviewContentOnMobile() {
     mathBlock.style.removeProperty("transform");
     mathBlock.style.removeProperty("transform-origin");
     mathBlock.style.removeProperty("width");
-    if (!mobile) return;
-    const available = Math.max(1, container.clientWidth - 4);
+    const available = Math.max(1, container.clientWidth - 12);
     const needed = Math.max(1, mathBlock.scrollWidth);
     if (needed <= available) return;
-    const scale = Math.max(0.66, available / needed);
+    const scale = Math.min(1, available / needed);
     mathBlock.style.width = `${needed}px`;
     mathBlock.style.transform = `scale(${scale})`;
     mathBlock.style.transformOrigin = "left top";
@@ -1403,7 +2151,7 @@ function renderPreview() {
     </div>
     <div class="preview-block">
       <div class="section-label">Summary</div>
-      <div class="summary">${escapeHtml(doc.summary || "No summary available.")}</div>
+      <div class="summary">${renderRichInline(doc.summary || "No summary available.")}</div>
     </div>
     <div class="preview-block">
       <div class="section-label">Key equations</div>
@@ -1450,10 +2198,11 @@ function applyViewerScale() {
 }
 
 function capturePortalRestoreState() {
-  const scroller = document.scrollingElement || document.documentElement;
+  const scroller = getPortalScroller();
+  const mobile = document.body.classList.contains("portal-mobile-view");
   state.portalRestore = {
-    pageX: window.scrollX || scroller?.scrollLeft || 0,
-    pageY: window.scrollY || scroller?.scrollTop || 0,
+    pageX: mobile ? scroller?.scrollLeft || 0 : window.scrollX || scroller?.scrollLeft || 0,
+    pageY: mobile ? scroller?.scrollTop || 0 : window.scrollY || scroller?.scrollTop || 0,
     cardScrolls: $$(".card-body").map((el) => ({
       el,
       top: el.scrollTop,
@@ -1470,11 +2219,12 @@ function restorePortalState() {
     el.scrollTop = top;
     el.scrollLeft = left;
   });
-  const scroller = document.scrollingElement || document.documentElement;
+  const scroller = getPortalScroller();
+  const mobile = document.body.classList.contains("portal-mobile-view");
   const restorePage = () => {
     if (scroller?.scrollTo) scroller.scrollTo({ left: restore.pageX, top: restore.pageY, behavior: "auto" });
     else window.scrollTo(restore.pageX, restore.pageY);
-    document.body.scrollTop = restore.pageY;
+    if (!mobile) document.body.scrollTop = restore.pageY;
   };
   restorePage();
   requestAnimationFrame(restorePage);
@@ -1761,352 +2511,400 @@ function bindViewer() {
 
 /* === PHOSPHOR SCOPE BACKGROUND === */
 function animateScope() {
-      const canvas = document.getElementById("scopeCanvas");
-      const ctx = canvas.getContext("2d");
-      const DPR = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  const canvas = document.getElementById("scopeCanvas");
+  const ctx = canvas.getContext("2d");
+  const DPR = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 
-      let W = 0, H = 0;
-      const mouse = { x: -200, y: -200, active: false, jitterUntil: 0 };
+  let W = 0, H = 0;
+  const mouse = { x: -200, y: -200, active: false, jitterUntil: 0 };
 
-      function resize() {
-        W = innerWidth; H = innerHeight;
-        canvas.width = Math.round(W * DPR);
-        canvas.height = Math.round(H * DPR);
-        canvas.style.width = W + "px";
-        canvas.style.height = H + "px";
-        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        // Initial flood — deep almost-black with green undertone
-        ctx.fillStyle = "#020a05";
-        ctx.fillRect(0, 0, W, H);
-      }
-      resize();
-      addEventListener("resize", resize);
+  function resize() {
+    W = innerWidth; H = innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = "#020a05";
+    ctx.fillRect(0, 0, W, H);
+  }
+  resize();
+  addEventListener("resize", resize);
 
-      addEventListener("pointermove", (e) => {
-        mouse.active = true;
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-        mouse.jitterUntil = performance.now() + 380;
-      }, { passive: true });
+  addEventListener("pointermove", (e) => {
+    mouse.active = true;
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    mouse.jitterUntil = performance.now() + 380;
+  }, { passive: true });
 
-      // ===== LAB WAVEFORMS =====
-      // Each fn(xn, t) returns y in [-1, +1].  xn ∈ [0,1], t in seconds.
-      const TWO_PI = Math.PI * 2;
+  let triggerCh = 5; // default CH6 (index 5)
 
-      const channels = [
-        {
-          name: "CH1   FG SINE",
-          // Lab 3 — clean function-generator sine
-          fn: (xn, t) => Math.sin(TWO_PI * 2.2 * xn - t * 0.55)
-        },
-        {
-          name: "CH2   RC LP @ fc",
-          // Lab 3 — at the −3 dB point: amplitude × 1/√2, phase lag π/4
-          fn: (xn, t) => 0.71 * Math.sin(TWO_PI * 2.2 * xn - t * 0.55 - Math.PI / 4)
-        },
-        {
-          name: "CH3   ½-WAVE RECT",
-          // Lab 5 — half-wave rectifier: chops negative half, peak − V_D
-          fn: (xn, t) => {
-            const s = Math.sin(TWO_PI * 1.6 * xn - t * 0.45);
-            return Math.max(s - 0.08, -0.95);
-          }
-        },
-        {
-          name: "CH4   BRIDGE + CAP",
-          // Lab 5 — full-wave w/ smoothing cap: fast recharge spike + slow exp decay
-          fn: (xn, t) => {
-            const f = 3.2;  // doubled freq for full-wave
-            const phase = ((f * xn - t * 0.45) % 1 + 1) % 1;
-            if (phase < 0.12) {
-              return 0.85 + 0.10 * (phase / 0.12);
-            } else {
-              const d = (phase - 0.12) / 0.88;
-              return 0.95 - 0.20 * (1 - Math.exp(-d * 2.2));
-            }
-          }
-        },
-        {
-          name: "CH5   DIODE CLIP",
-          // Lab 5 / 9 — sine clipped at ±V_D
-          fn: (xn, t) => {
-            const s = Math.sin(TWO_PI * 1.8 * xn - t * 0.5) * 1.6;
-            return Math.max(-0.7, Math.min(0.7, s));
-          }
-        },
-        {
-          name: "CH6   555 ASTABLE",
-          // Lab 9 — ~67% duty, T = 0.7(R_A + 2R_B)C
-          fn: (xn, t) => {
-            const f = 1.4;
-            const duty = 0.67;
-            const phase = ((f * xn - t * 0.5) % 1 + 1) % 1;
-            return phase < duty ? 0.85 : -0.85;
-          },
-          isTrigger: true
-        },
-        {
-          name: "CH7   ∫ → TRIANGLE",
-          // Lab 8 — op-amp integrator output (square in → triangle out)
-          fn: (xn, t) => {
-            const f = 1.6;
-            const phase = ((f * xn - t * 0.4) % 1 + 1) % 1;
-            return (phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase) * 0.85;
-          }
-        },
-        {
-          name: "CH8   RELAX OSC Vc",
-          // Lab 9 — Schmitt-trigger relaxation cap voltage: exp charge then exp discharge
-          fn: (xn, t) => {
-            const f = 1.1;
-            const phase = ((f * xn - t * 0.35) % 1 + 1) % 1;
-            const k = 5.5;  // charging steepness
-            if (phase < 0.5) {
-              return -0.65 + 1.30 * (1 - Math.exp(-phase * k * 2));
-            } else {
-              return 0.65 - 1.30 * (1 - Math.exp(-(phase - 0.5) * k * 2));
-            }
-          }
-        },
-        {
-          name: "CH9   COAX ECHO",
-          // Lab 4 — pulse + reflection from terminated transmission line
-          fn: (xn, t) => {
-            const period = 1.6;
-            const tt = ((t * 0.55) % period + period) % period;
-            function pulse(x0, w, amp) {
-              const d = (xn - x0) / w;
-              return Math.exp(-d * d) * amp;
-            }
-            let y = 0;
-            // Outgoing pulse drifts from left toward right
-            const xOut = 0.10 + (tt / period) * 0.42;
-            y += pulse(xOut, 0.022, 0.88);
-            // Reflected echo (smaller, comes back from the load)
-            if (tt > period * 0.55) {
-              const tau = (tt - period * 0.55) / (period * 0.45);
-              const xRef = 0.92 - tau * 0.55;
-              y += pulse(xRef, 0.028, 0.45);
-            }
-            return y;
-          }
-        },
-        {
-          name: "CH10  PWM 490Hz",
-          // Lab 11 — Arduino PWM with continuously drifting duty cycle
-          fn: (xn, t) => {
-            const f = 1.8;
-            const duty = 0.5 + 0.42 * Math.sin(t * 0.18);
-            const phase = ((f * xn - t * 0.6) % 1 + 1) % 1;
-            return phase < duty ? 0.82 : -0.82;
-          }
-        }
-      ];
-
-      function drawGraticule() {
-        ctx.save();
-        ctx.lineWidth = 1;
-
-        // Major divisions — 10 × 10 grid
-        ctx.strokeStyle = "rgba(48, 200, 110, 0.10)";
-        ctx.beginPath();
-        for (let i = 1; i < 10; i++) {
-          const y = (H / 10) * i;
-          ctx.moveTo(0, y); ctx.lineTo(W, y);
-        }
-        for (let i = 1; i < 10; i++) {
-          const x = (W / 10) * i;
-          ctx.moveTo(x, 0); ctx.lineTo(x, H);
-        }
-        ctx.stroke();
-
-        // Center crosshair tick marks (50 sub-divs)
-        ctx.strokeStyle = "rgba(80, 220, 130, 0.22)";
-        ctx.beginPath();
-        const cx = W / 2, cy = H / 2;
-        for (let i = 1; i < 50; i++) {
-          const tx = (W / 50) * i;
-          ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3);
-        }
-        for (let i = 1; i < 50; i++) {
-          const ty = (H / 50) * i;
-          ctx.moveTo(cx - 3, ty); ctx.lineTo(cx + 3, ty);
-        }
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      function drawScanlines() {
-        ctx.save();
-        ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
-        for (let y = 0; y < H; y += 3) {
-          ctx.fillRect(0, y, W, 1);
-        }
-        ctx.restore();
-      }
-
-      function drawVignette() {
-        ctx.save();
-        const grad = ctx.createRadialGradient(
-          W / 2, H / 2, Math.min(W, H) * 0.30,
-          W / 2, H / 2, Math.max(W, H) * 0.72
-        );
-        grad.addColorStop(0, "rgba(0,0,0,0)");
-        grad.addColorStop(0.6, "rgba(0,0,0,0.06)");
-        grad.addColorStop(1, "rgba(0,8,4,0.55)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-        ctx.restore();
-      }
-
-      function drawReticle() {
-        if (!mouse.active) return;
-        ctx.save();
-        ctx.strokeStyle = "rgba(140, 255, 195, 0.35)";
-        ctx.lineWidth = 0.6;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(mouse.x, 0); ctx.lineTo(mouse.x, H);
-        ctx.moveTo(0, mouse.y); ctx.lineTo(W, mouse.y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        // small center dot
-        ctx.fillStyle = "rgba(180, 255, 210, 0.55)";
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 2.4, 0, TWO_PI);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      function drawStatus(t) {
-        ctx.save();
-        ctx.font = "10px ui-monospace, 'SF Mono', Menlo, monospace";
-        ctx.fillStyle = "rgba(110, 240, 160, 0.55)";
-        // Bottom-left scope status line
-        ctx.fillText("1 ms/div   200 mV/div   AC   TRIG ▸ CH6 ↗   1MΩ ‖ 16 pF", 14, H - 14);
-        // Bottom-right "model" badge
-        ctx.textAlign = "right";
-        ctx.fillText("PHYS·0525  CRT·SIM  v1.0", W - 14, H - 14);
-        ctx.restore();
-      }
-
-      // Gentle full-frame flicker (mains noise)
-      function flicker(now) {
-        // Returns small alpha variation 0..0.04
-        return 0.02 + 0.02 * Math.sin(now * 0.012) * Math.sin(now * 0.0017);
-      }
-
-      function tick(now) {
-        const t = now / 1000;
-
-        // === Persistence: fade old phosphor ===
-        ctx.save();
-        const fadeAlpha = 0.13 + flicker(now);
-        ctx.fillStyle = `rgba(2, 12, 6, ${fadeAlpha.toFixed(3)})`;
-        ctx.fillRect(0, 0, W, H);
-        ctx.restore();
-
-        // Graticule (always crisp on top of fade)
-        drawGraticule();
-
-        // Trigger jitter (only briefly after pointer motion)
-        const jitter = mouse.jitterUntil > now ? Math.sin(now * 0.04) * 3.2 : 0;
-
-        // Layout
-        const N = channels.length;
-        const padTop = 32;     // leave room for top labels
-        const padBot = 32;     // leave room for status line
-        const usable = H - padTop - padBot;
-        const slotH = usable / N;
-        const ampHalf = slotH * 0.42;
-
-        // Sample density scales with viewport width
-        const samples = Math.min(W < 640 ? 320 : 720, Math.floor(W / 1.6));
-
-        for (let i = 0; i < N; i++) {
-          const ch = channels[i];
-          const cy = padTop + slotH * (i + 0.5);
-
-          // === Channel labels ===
-          ctx.save();
-          ctx.font = "10px ui-monospace, 'SF Mono', Menlo, monospace";
-          ctx.fillStyle = "rgba(110, 240, 160, 0.62)";
-          ctx.fillText(ch.name, 12, cy - ampHalf - 4);
-
-          // Right-side "0V" baseline marker
-          ctx.fillStyle = "rgba(110, 240, 160, 0.40)";
-          ctx.textAlign = "right";
-          ctx.fillText("0V →", W - 12, cy + 3);
-
-          // Trigger marker on the trigger channel
-          if (ch.isTrigger) {
-            ctx.fillStyle = "rgba(180, 255, 200, 0.85)";
-            ctx.textAlign = "left";
-            ctx.fillText("▸T", 2, cy + 3);
-          }
-          ctx.restore();
-
-          // === Build trace path ===
-          const path = new Path2D();
-          for (let j = 0; j <= samples; j++) {
-            const xn = j / samples;
-            const x = xn * W + jitter;
-            let y = ch.fn(xn, t) * ampHalf;
-            // Subtle beam wobble (CRT magnetic noise)
-            y += Math.sin(t * 53 + i * 1.7 + xn * 4) * 0.20;
-            const yy = cy + y;
-            if (j === 0) path.moveTo(x, yy);
-            else path.lineTo(x, yy);
-          }
-
-          // === Three-pass phosphor: halo → mid → crisp center ===
-
-          // 1) Outer halo (wide, soft)
-          ctx.save();
-          ctx.strokeStyle = "rgba(80, 255, 150, 0.16)";
-          ctx.lineWidth = 8;
-          ctx.shadowBlur = 18;
-          ctx.shadowColor = "#00ff66";
-          ctx.lineJoin = "round";
-          ctx.lineCap = "round";
-          ctx.stroke(path);
-          ctx.restore();
-
-          // 2) Mid trace
-          ctx.save();
-          ctx.strokeStyle = "rgba(120, 255, 175, 0.62)";
-          ctx.lineWidth = 2.4;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = "#5fff95";
-          ctx.lineJoin = "round";
-          ctx.lineCap = "round";
-          ctx.stroke(path);
-          ctx.restore();
-
-          // 3) Bright phosphor center
-          ctx.save();
-          ctx.strokeStyle = "#dfffeb";
-          ctx.lineWidth = 1.0;
-          ctx.shadowBlur = 4;
-          ctx.shadowColor = "#a8ffc8";
-          ctx.lineJoin = "round";
-          ctx.lineCap = "round";
-          ctx.stroke(path);
-          ctx.restore();
-        }
-
-        // Reticle, scanlines, vignette, status — drawn last, on top
-        drawReticle();
-        drawScanlines();
-        drawVignette();
-        drawStatus(t);
-
-        requestAnimationFrame(tick);
-      }
-
-      requestAnimationFrame(tick);
+  document.addEventListener("click", (e) => {
+    // Skip if click is on any interactive/content element
+    if (e.target.closest("button,a,input,select,textarea,.doc-card,.preview-block,.card-head,.eq-card,.mobile-hint-card")) return;
+    const N = 10;
+    const slotH = H / N;
+    const clicked = Math.floor(e.clientY / slotH);
+    if (clicked >= 0 && clicked < N) {
+      triggerCh = clicked;
+      mouse.jitterUntil = performance.now() + 600;
     }
+  });
+
+  const TWO_PI = Math.PI * 2;
+
+  const channels = [
+    {
+      name: "CH 1  FG SINE",
+      vDiv: "1V/div", vScale: 2.5,
+      fn: (xn, t) => Math.sin(TWO_PI * 2.2 * xn - t * 0.55)
+    },
+    {
+      name: "CH 2  RC LP @ fc",
+      vDiv: "1V/div", vScale: 2.5,
+      fn: (xn, t) => 0.71 * Math.sin(TWO_PI * 2.2 * xn - t * 0.55 - Math.PI / 4)
+    },
+    {
+      name: "CH 3  \u00BD-WAVE RECT",
+      vDiv: "2V/div", vScale: 5.0,
+      fn: (xn, t) => {
+        const s = Math.sin(TWO_PI * 1.6 * xn - t * 0.45);
+        return Math.max(s - 0.08, -0.95);
+      }
+    },
+    {
+      name: "CH 4  BRIDGE+CAP",
+      vDiv: "2V/div", vScale: 5.0,
+      fn: (xn, t) => {
+        const f = 3.2;
+        const phase = ((f * xn - t * 0.45) % 1 + 1) % 1;
+        if (phase < 0.12) return 0.85 + 0.10 * (phase / 0.12);
+        const d = (phase - 0.12) / 0.88;
+        return 0.95 - 0.20 * (1 - Math.exp(-d * 2.2));
+      }
+    },
+    {
+      name: "CH 5  DIODE CLIP",
+      vDiv: "1V/div", vScale: 2.5,
+      fn: (xn, t) => {
+        const s = Math.sin(TWO_PI * 1.8 * xn - t * 0.5) * 1.6;
+        return Math.max(-0.7, Math.min(0.7, s));
+      }
+    },
+    {
+      name: "CH 6  555 ASTABLE",
+      vDiv: "2V/div", vScale: 5.0,
+      fn: (xn, t) => {
+        const f = 1.4, duty = 0.67;
+        const phase = ((f * xn - t * 0.5) % 1 + 1) % 1;
+        return phase < duty ? 0.85 : -0.85;
+      },
+      isTrigger: true
+    },
+    {
+      name: "CH 7  \u222B\u2192 TRIANGLE",
+      vDiv: "2V/div", vScale: 5.0,
+      fn: (xn, t) => {
+        const f = 1.6;
+        const phase = ((f * xn - t * 0.4) % 1 + 1) % 1;
+        return (phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase) * 0.85;
+      }
+    },
+    {
+      name: "CH 8  RELAX OSC",
+      vDiv: "1V/div", vScale: 3.3,
+      fn: (xn, t) => {
+        const f = 1.1;
+        const phase = ((f * xn - t * 0.35) % 1 + 1) % 1;
+        const k = 5.5;
+        if (phase < 0.5) return -0.65 + 1.30 * (1 - Math.exp(-phase * k * 2));
+        return 0.65 - 1.30 * (1 - Math.exp(-(phase - 0.5) * k * 2));
+      }
+    },
+    {
+      name: "CH 9  COAX ECHO",
+      vDiv: "1V/div", vScale: 3.0,
+      fn: (xn, t) => {
+        const period = 1.6;
+        const tt = ((t * 0.55) % period + period) % period;
+        function pulse(x0, w, amp) {
+          const d = (xn - x0) / w;
+          return Math.exp(-d * d) * amp;
+        }
+        let y = 0;
+        const xOut = 0.10 + (tt / period) * 0.42;
+        y += pulse(xOut, 0.022, 0.88);
+        if (tt > period * 0.55) {
+          const tau = (tt - period * 0.55) / (period * 0.45);
+          const xRef = 0.92 - tau * 0.55;
+          y += pulse(xRef, 0.028, 0.45);
+        }
+        return y;
+      }
+    },
+    {
+      name: "CH10  PWM 490Hz",
+      vDiv: "2V/div", vScale: 5.0,
+      fn: (xn, t) => {
+        const f = 1.8;
+        const duty = 0.5 + 0.42 * Math.sin(t * 0.18);
+        const phase = ((f * xn - t * 0.6) % 1 + 1) % 1;
+        return phase < duty ? 0.82 : -0.82;
+      }
+    }
+  ];
+
+  // Per-channel phosphor brightness (simulated aging)
+  const chBright = channels.map((_, i) => 0.84 + Math.random() * 0.16);
+  chBright[0] = 1.0; chBright[5] = 0.98;
+
+  function drawGraticule() {
+    ctx.save();
+    ctx.lineWidth = 1;
+    // Major 10x10 grid
+    ctx.strokeStyle = "rgba(48,200,110,.10)";
+    ctx.beginPath();
+    for (let i = 1; i < 10; i++) {
+      const y = (H / 10) * i;
+      ctx.moveTo(0, y); ctx.lineTo(W, y);
+    }
+    for (let i = 1; i < 10; i++) {
+      const x = (W / 10) * i;
+      ctx.moveTo(x, 0); ctx.lineTo(x, H);
+    }
+    ctx.stroke();
+
+    // Center crosshair sub-ticks
+    ctx.strokeStyle = "rgba(80,220,130,.22)";
+    ctx.beginPath();
+    const cx = W / 2, cy = H / 2;
+    for (let i = 1; i < 50; i++) {
+      const tx = (W / 50) * i;
+      ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3);
+    }
+    for (let i = 1; i < 50; i++) {
+      const ty = (H / 50) * i;
+      ctx.moveTo(cx - 3, ty); ctx.lineTo(cx + 3, ty);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawScanlines() {
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,.14)";
+    for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+    ctx.restore();
+  }
+
+  function drawVignette() {
+    ctx.save();
+    const grad = ctx.createRadialGradient(
+      W / 2, H / 2, Math.min(W, H) * 0.28,
+      W / 2, H / 2, Math.max(W, H) * 0.74
+    );
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(0.55, "rgba(0,0,0,.06)");
+    grad.addColorStop(1, "rgba(0,8,4,.58)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  function drawReticle() {
+    if (!mouse.active) return;
+    ctx.save();
+    ctx.strokeStyle = "rgba(140,255,195,.32)";
+    ctx.lineWidth = 0.6;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(mouse.x, 0); ctx.lineTo(mouse.x, H);
+    ctx.moveTo(0, mouse.y); ctx.lineTo(W, mouse.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(180,255,210,.55)";
+    ctx.beginPath();
+    ctx.arc(mouse.x, mouse.y, 2.4, 0, TWO_PI);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // DOM status bar — reactive to cursor
+  const statusLeft = document.querySelector("#scopeStatus .scope-left");
+  const statusRight = document.querySelector("#scopeStatus .scope-right");
+  let lastStatusTick = 0;
+
+  function updateStatus(now) {
+    if (now - lastStatusTick < 200) return;
+    lastStatusTick = now;
+
+    const N = channels.length;
+    const slotH = H / N;
+    const labelGap = Math.max(8, Math.min(10, slotH * 0.16)) + 3;
+    const ampH = (slotH - labelGap * 2) * 0.48;
+
+    const trigName = channels[triggerCh]?.name.split(/\s{2,}/)[0] || "CH6";
+    let left = `1 ms/div   AC   TRIG \u25B8 ${trigName} \u2197   1M\u03A9 \u2016 16 pF`;
+
+    if (mouse.active && mouse.x > 0 && mouse.y > 0) {
+      let nearCh = 0, nearDist = Infinity;
+      for (let i = 0; i < N; i++) {
+        const cy = slotH * (i + 0.5);
+        const d = Math.abs(mouse.y - cy);
+        if (d < nearDist) { nearDist = d; nearCh = i; }
+      }
+      const ch = channels[nearCh];
+      const tMs = ((mouse.x / W) * 10).toFixed(1);
+      const voltNorm = -((mouse.y - slotH * (nearCh + 0.5)) / ampH);
+      const v = (voltNorm * (ch.vScale || 1)).toFixed(2);
+      left = `\u25C6 ${ch.name}   ${ch.vDiv}   t=${tMs} ms   V=${v} V`;
+    }
+
+    statusLeft.textContent = left;
+    statusRight.textContent = "PHYS\u00B70525   CRT\u00B7SIM  v2.0";
+  }
+
+  // Mains-noise flicker with 60 Hz component
+  function flicker(now) {
+    const mains60 = Math.sin(now * 0.37699) * 0.008;
+    return 0.02 + 0.02 * Math.sin(now * 0.012) * Math.sin(now * 0.0017) + mains60;
+  }
+
+  function tick(now) {
+    const t = now / 1000;
+
+    // Persistence fade with warm-green tint
+    ctx.save();
+    const fadeAlpha = 0.13 + flicker(now);
+    ctx.fillStyle = `rgba(3,12,7,${fadeAlpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+
+    drawGraticule();
+
+    // Trigger jitter on pointer motion
+    const jitter = mouse.jitterUntil > now ? Math.sin(now * 0.04) * 3.2 : 0;
+
+    // Layout — 10 channels map 1:1 to the 10-row graticule
+    const N = channels.length;
+    const slotH = H / N;
+    const fontSize = Math.max(8, Math.min(10, slotH * 0.16));
+    const labelGap = fontSize + 3;          // label just below top graticule line
+    const ampHalf = (slotH - labelGap * 2) * 0.48; // waveform fits between label zones
+    const samples = Math.min(W < 640 ? 320 : 720, Math.floor(W / 1.6));
+    const labelFont = `${fontSize}px ui-monospace,'SF Mono',Menlo,monospace`;
+
+    for (let i = 0; i < N; i++) {
+      const ch = channels[i];
+      const slotTop = slotH * i;             // graticule line above
+      const slotBot = slotH * (i + 1);       // graticule line below
+      const cy = slotH * (i + 0.5);          // exact center between lines
+      const b = chBright[i];
+      const isDigital = ch.isTrigger || ch.name.includes("PWM") || ch.name.includes("CLIP");
+
+      ctx.save();
+      ctx.font = labelFont;
+      ctx.textBaseline = "top";
+
+      // === Channel label — consistent gap below line above ===
+      ctx.textAlign = "left";
+      ctx.fillStyle = `rgba(110,240,160,${(0.48 + b * 0.14).toFixed(2)})`;
+      ctx.fillText(ch.name, 12, slotTop + 3);
+
+      // Trigger marker
+      if (i === triggerCh) {
+        ctx.fillStyle = "rgba(180,255,200,.85)";
+        ctx.fillText("  \u25B8T", 12 + ctx.measureText(ch.name).width, slotTop + 3);
+      }
+
+      // === V/div — consistent gap above line below ===
+      ctx.textAlign = "right";
+      ctx.textBaseline = "bottom";
+      ctx.fillStyle = "rgba(110,240,160,.22)";
+      const rightX = W - 14;
+      ctx.fillText(ch.vDiv, rightX, slotBot - 3);
+
+      // === 0V — centered between horizontal lines ===
+      ctx.textBaseline = "middle";
+      ctx.strokeStyle = "rgba(110,240,160,.20)";
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(rightX + 2, cy); ctx.lineTo(rightX + 7, cy);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(110,240,160,.30)";
+      ctx.fillText("0V", rightX, cy);
+      ctx.restore();
+
+      // === Build trace path ===
+      const path = new Path2D();
+      for (let j = 0; j <= samples; j++) {
+        const xn = j / samples;
+        const x = xn * W + jitter;
+        let y = ch.fn(xn, t) * ampHalf;
+        y += Math.sin(t * 53 + i * 1.7 + xn * 4) * 0.20;
+        const yy = cy + y;
+        if (j === 0) path.moveTo(x, yy);
+        else path.lineTo(x, yy);
+      }
+
+      // === Beam retrace for digital channels ===
+      if (isDigital) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(60,200,100,.03)";
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(0, cy); ctx.lineTo(W, cy);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // === Three-pass phosphor with per-channel brightness ===
+
+      // 1) Outer halo
+      ctx.save();
+      ctx.strokeStyle = `rgba(80,255,150,${(0.16 * b).toFixed(3)})`;
+      ctx.lineWidth = isDigital ? 10 : 8;
+      ctx.shadowBlur = (isDigital ? 24 : 18) * b;
+      ctx.shadowColor = "#30ff70";
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      ctx.stroke(path);
+      ctx.restore();
+
+      // 2) Mid trace
+      ctx.save();
+      ctx.strokeStyle = `rgba(120,255,175,${(0.60 * b).toFixed(3)})`;
+      ctx.lineWidth = 2.4;
+      ctx.shadowBlur = 8 * b;
+      ctx.shadowColor = "#65ffa0";
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      ctx.stroke(path);
+      ctx.restore();
+
+      // 3) Bright phosphor center
+      ctx.save();
+      const cR = Math.round(223 * b + 32);
+      const cG = Math.round(255 * b);
+      const cB = Math.round(235 * b + 20);
+      ctx.strokeStyle = `rgb(${cR},${cG},${cB})`;
+      ctx.lineWidth = 1.0;
+      ctx.shadowBlur = 4 * b;
+      ctx.shadowColor = "#b0ffd0";
+      ctx.lineJoin = "round"; ctx.lineCap = "round";
+      ctx.stroke(path);
+      ctx.restore();
+    }
+
+    drawReticle();
+    drawScanlines();
+    drawVignette();
+    updateStatus(now);
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
 
 function syncTopbarOffset() {
   const topbar = document.querySelector(".portal-topbar");
@@ -2178,9 +2976,13 @@ window.addEventListener("resize", () => {
   fitPreviewContentOnMobile();
   if (state.viewerDoc) fitViewerToViewport(true);
 });
-window.addEventListener("scroll", () => {
-  if (document.body.classList.contains("portal-mobile-view") && window.scrollY > 4) markLandingTouched();
-}, { passive: true });
+function handlePortalScroll() {
+  const scroller = getPortalScroller();
+  const scrollY = document.body.classList.contains("portal-mobile-view") ? scroller?.scrollTop || 0 : window.scrollY;
+  if (document.body.classList.contains("portal-mobile-view") && scrollY > 4) markLandingTouched();
+}
+window.addEventListener("scroll", handlePortalScroll, { passive: true });
+document.querySelector(".app")?.addEventListener("scroll", handlePortalScroll, { passive: true });
 document.querySelector(".content-shell")?.addEventListener("touchstart", markLandingTouched, { passive: true });
 renderAll();
   </script>

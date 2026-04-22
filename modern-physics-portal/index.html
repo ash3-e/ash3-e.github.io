@@ -693,6 +693,10 @@ body.portal-mobile-view .portal-pills{
   grid-column:1;
   justify-self:stretch;
   justify-content:flex-start;
+  flex-wrap:wrap;
+  width:auto;
+  min-width:0;
+  max-width:100%;
 }
 body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
@@ -759,6 +763,25 @@ body.portal-mobile-view.mobile-search-active .collapsible-card .card-body{
 }
 body.portal-mobile-view .preview-wrap,
 body.portal-mobile-view .preview-empty{min-height:0}
+body.portal-mobile-view .preview-card,
+body.portal-mobile-view .preview-card-head,
+body.portal-mobile-view .preview-card .card-body,
+body.portal-mobile-view .preview-wrap,
+body.portal-mobile-view .preview-block,
+body.portal-mobile-view .equation-list,
+body.portal-mobile-view .eq-card,
+body.portal-mobile-view .eq-render{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+body.portal-mobile-view .preview-card{overflow:hidden}
+body.portal-mobile-view .preview-card-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+}
+body.portal-mobile-view .preview-card-head > div{min-width:0}
 body.portal-mobile-view .preview-block,
 body.portal-mobile-view .summary,
 body.portal-mobile-view .eq-card,
@@ -771,8 +794,25 @@ body.portal-mobile-view .eq-plain{
   word-break:break-word;
 }
 body.portal-mobile-view .preview-block{overflow:hidden}
-body.portal-mobile-view .selected-doc-block{padding-right:68px}
-body.portal-mobile-view .selected-doc-block .action-row{margin-right:-52px}
+body.portal-mobile-view .selected-doc-block{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 44px;
+  gap:10px 12px;
+  padding-right:16px;
+}
+body.portal-mobile-view .selected-doc-block .selected-save-btn{
+  position:static;
+  grid-column:2;
+  grid-row:1 / span 3;
+  justify-self:end;
+}
+body.portal-mobile-view .selected-doc-block .section-label,
+body.portal-mobile-view .selected-doc-block h2,
+body.portal-mobile-view .selected-doc-block .kv{grid-column:1}
+body.portal-mobile-view .selected-doc-block .action-row{
+  grid-column:1 / -1;
+  margin-right:0;
+}
 body.portal-mobile-view .action-row .btn{
   width:100%;
   min-height:44px;
@@ -1299,10 +1339,10 @@ function fitPreviewContentOnMobile() {
     mathBlock.style.removeProperty("transform-origin");
     mathBlock.style.removeProperty("width");
     if (!mobile) return;
-    const available = Math.max(1, container.clientWidth - 4);
+    const available = Math.max(1, container.clientWidth - 12);
     const needed = Math.max(1, mathBlock.scrollWidth);
     if (needed <= available) return;
-    const scale = Math.max(0.66, available / needed);
+    const scale = Math.min(1, available / needed);
     mathBlock.style.width = `${needed}px`;
     mathBlock.style.transform = `scale(${scale})`;
     mathBlock.style.transformOrigin = "left top";
