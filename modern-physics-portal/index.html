@@ -660,15 +660,21 @@ body.portal-split-view .list-stack{
 }
 html.portal-mobile-view,
 body.portal-mobile-view{
-  height:auto;
-  overflow-y:auto;
+  height:100%;
+  min-height:100%;
+  overflow-y:hidden;
   overflow-x:hidden;
 }
 body.portal-mobile-view .app{
   width:100%;
   min-height:100vh;
-  height:auto;
-  overflow:visible;
+  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
 }
 body.portal-mobile-view .portal-topbar{
   z-index:16;
@@ -732,9 +738,9 @@ body.portal-mobile-view .card-body{
   overscroll-behavior:auto;
 }
 body.portal-mobile-view .collapsible-card .card-body{
-  max-height:5600px;
+  max-height:none;
   opacity:1;
-  overflow:hidden;
+  overflow:visible;
   transition:max-height .34s ease, opacity .22s ease, padding .28s ease;
 }
 body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
@@ -742,12 +748,14 @@ body.portal-mobile-view .collapsible-card.is-collapsed:not(.is-open) .card-body{
   opacity:0;
   padding-top:0;
   padding-bottom:0;
+  overflow:hidden;
 }
 body.portal-mobile-view.mobile-search-active .collapsible-card .card-body{
-  max-height:5600px;
+  max-height:none;
   opacity:1;
   padding-top:12px;
   padding-bottom:14px;
+  overflow:visible;
 }
 body.portal-mobile-view .preview-wrap,
 body.portal-mobile-view .preview-empty{min-height:0}
@@ -1010,6 +1018,11 @@ function syncMobilePreviewState() {
   document.body.classList.toggle("mobile-preview-open", mobile && state.mobilePreviewOpen);
 }
 
+function getPortalScroller() {
+  if (document.body.classList.contains("portal-mobile-view")) return document.querySelector(".app");
+  return document.scrollingElement || document.documentElement;
+}
+
 function syncResponsiveMode() {
   const width = window.innerWidth || 0;
   const wasMobile = document.body.classList.contains("portal-mobile-view");
@@ -1156,6 +1169,14 @@ function scrollMobilePreviewIntoPlace(behavior = "smooth") {
      computes the correct position regardless of scroller quirks. */
   const topbarH = topbar ? topbar.offsetHeight : 0;
   preview.style.scrollMarginTop = (topbarH + 18) + "px";
+  const scroller = getPortalScroller();
+  if (document.body.classList.contains("portal-mobile-view") && scroller) {
+    const scrollerTop = scroller.getBoundingClientRect().top;
+    const previewTop = preview.getBoundingClientRect().top;
+    const targetTop = scroller.scrollTop + previewTop - scrollerTop - topbarH - 18;
+    scroller.scrollTo({ top: Math.max(0, targetTop), left: 0, behavior });
+    return;
+  }
   preview.scrollIntoView({ behavior, block: "start" });
 }
 
@@ -1361,10 +1382,11 @@ function applyViewerScale() {
 }
 
 function capturePortalRestoreState() {
-  const scroller = document.scrollingElement || document.documentElement;
+  const scroller = getPortalScroller();
+  const mobile = document.body.classList.contains("portal-mobile-view");
   state.portalRestore = {
-    pageX: window.scrollX || scroller?.scrollLeft || 0,
-    pageY: window.scrollY || scroller?.scrollTop || 0,
+    pageX: mobile ? scroller?.scrollLeft || 0 : window.scrollX || scroller?.scrollLeft || 0,
+    pageY: mobile ? scroller?.scrollTop || 0 : window.scrollY || scroller?.scrollTop || 0,
     cardScrolls: $$(".card-body").map((el) => ({
       el,
       top: el.scrollTop,
@@ -1381,11 +1403,12 @@ function restorePortalState() {
     el.scrollTop = top;
     el.scrollLeft = left;
   });
-  const scroller = document.scrollingElement || document.documentElement;
+  const scroller = getPortalScroller();
+  const mobile = document.body.classList.contains("portal-mobile-view");
   const restorePage = () => {
     if (scroller?.scrollTo) scroller.scrollTo({ left: restore.pageX, top: restore.pageY, behavior: "auto" });
     else window.scrollTo(restore.pageX, restore.pageY);
-    document.body.scrollTop = restore.pageY;
+    if (!mobile) document.body.scrollTop = restore.pageY;
   };
   restorePage();
   requestAnimationFrame(restorePage);
@@ -1736,9 +1759,13 @@ window.addEventListener("resize", () => {
   fitPreviewContentOnMobile();
   if (state.viewerDoc) fitViewerToViewport(true);
 });
-window.addEventListener("scroll", () => {
-  if (document.body.classList.contains("portal-mobile-view") && window.scrollY > 4) markLandingTouched();
-}, { passive: true });
+function handlePortalScroll() {
+  const scroller = getPortalScroller();
+  const scrollY = document.body.classList.contains("portal-mobile-view") ? scroller?.scrollTop || 0 : window.scrollY;
+  if (document.body.classList.contains("portal-mobile-view") && scrollY > 4) markLandingTouched();
+}
+window.addEventListener("scroll", handlePortalScroll, { passive: true });
+document.querySelector(".app")?.addEventListener("scroll", handlePortalScroll, { passive: true });
 document.querySelector(".content-shell")?.addEventListener("touchstart", markLandingTouched, { passive: true });
 renderAll();
   </script>
