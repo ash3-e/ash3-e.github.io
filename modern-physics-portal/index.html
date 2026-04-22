@@ -658,7 +658,12 @@ body.portal-split-view .list-stack{
   gap:16px;
   min-height:0;
 }
-body.portal-mobile-view{overflow:auto}
+html.portal-mobile-view,
+body.portal-mobile-view{
+  height:auto;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
 body.portal-mobile-view .app{
   width:100%;
   min-height:100vh;
@@ -691,7 +696,7 @@ body.portal-mobile-view .search-submit{height:28px;width:36px;font-size:.72rem}
 body.portal-mobile-view .content-shell{
   min-height:0;
   padding-top:12px;
-  padding-bottom:24px;
+  padding-bottom:calc(48px + env(safe-area-inset-bottom));
 }
 body.portal-mobile-view .content{
   height:auto;
@@ -1009,6 +1014,7 @@ function syncResponsiveMode() {
   const wasMobile = document.body.classList.contains("portal-mobile-view");
   const mobile = width < 860;
   const split = !mobile && isSplitView();
+  document.documentElement.classList.toggle("portal-mobile-view", mobile);
   document.body.classList.toggle("portal-mobile-view", mobile);
   document.body.classList.toggle("portal-split-view", split);
   if (mobile && !wasMobile) state.mobilePreviewOpen = false;
