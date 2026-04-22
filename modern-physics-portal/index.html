@@ -72,6 +72,10 @@ body::before{
   align-items:stretch;
   padding-top:var(--topbar-space);
 }
+body.viewer-open .app{
+  visibility:hidden;
+  pointer-events:none;
+}
 .glass{
   background:
     linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
@@ -471,6 +475,11 @@ mark{
   overflow:auto;
   padding-right:6px;
 }
+body:not(.portal-mobile-view) .transcript{
+  max-height:none;
+  overflow:visible;
+  padding-right:0;
+}
 .transcript-heading{margin:0 0 10px;font-size:1rem;line-height:1.25;font-weight:800;color:#ffffff}
 .transcript-p{margin:0 0 12px;color:rgba(244,248,255,.92)}
 .transcript-math{
@@ -497,7 +506,9 @@ mark{
 }
 .viewer-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
 body:not(.portal-mobile-view) .viewer-overlay.open{
-  background:rgba(3,5,9,.36);
+  background:rgba(3,5,9,.24);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 }
 .viewer-shell{
   position:absolute;
@@ -967,6 +978,7 @@ const state = {
     assignments: false,
   },
   landingTouched: false,
+  portalRestore: null,
   viewerDoc: null,
   viewerPdf: null,
   viewerFitScale: 1,
@@ -1104,33 +1116,40 @@ function renderList(category, mountId) {
       syncMobileHintState();
       return;
     }
+    const mobile = document.body.classList.contains("portal-mobile-view");
+    const alreadyOpen = mobile && state.mobilePreviewOpen;
     state.selectedId = btn.dataset.id;
-    if (document.body.classList.contains("portal-mobile-view")) state.mobilePreviewOpen = true;
+    if (mobile) state.mobilePreviewOpen = true;
     renderAll();
-    if (document.body.classList.contains("portal-mobile-view")) scheduleMobilePreviewScroll();
+    if (mobile) {
+      if (alreadyOpen) {
+        /* Preview card is already visible – just smooth-scroll to it */
+        scrollMobilePreviewIntoPlace("smooth");
+      } else {
+        /* Preview card is being shown for the first time – wait for layout */
+        scheduleMobilePreviewScroll();
+      }
+    }
   }));
 }
 
 function scheduleMobilePreviewScroll() {
-  requestAnimationFrame(() => requestAnimationFrame(scrollMobilePreviewIntoPlace));
-  setTimeout(scrollMobilePreviewIntoPlace, 60);
-  setTimeout(scrollMobilePreviewIntoPlace, 180);
-  setTimeout(scrollMobilePreviewIntoPlace, 420);
+  /* Wait for DOM/layout to settle (two rAF frames + small delay)
+     then do a single smooth scroll to the preview card. */
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    setTimeout(() => scrollMobilePreviewIntoPlace("smooth"), 80);
+  }));
 }
 
-function scrollMobilePreviewIntoPlace() {
+function scrollMobilePreviewIntoPlace(behavior = "smooth") {
   const preview = document.getElementById("previewCard");
-  const assignments = document.getElementById("assignmentsCard");
   const topbar = document.querySelector(".portal-topbar");
   if (!preview) return;
-  const topbarBottom = topbar?.getBoundingClientRect().bottom || 0;
-  const assignmentsBottom = assignments?.getBoundingClientRect().bottom;
-  const targetEdge = Number.isFinite(assignmentsBottom) ? assignmentsBottom + window.scrollY : preview.getBoundingClientRect().top + window.scrollY;
-  const top = Math.max(0, targetEdge - topbarBottom + 1);
-  const scroller = document.scrollingElement || document.documentElement;
-  if (scroller?.scrollTo) scroller.scrollTo({ top, behavior: "smooth" });
-  else window.scrollTo({ top, behavior: "smooth" });
-  document.body.scrollTop = top;
+  /* Use native scrollIntoView with scroll-margin-top so the browser
+     computes the correct position regardless of scroller quirks. */
+  const topbarH = topbar ? topbar.offsetHeight : 0;
+  preview.style.scrollMarginTop = (topbarH + 18) + "px";
+  preview.scrollIntoView({ behavior, block: "start" });
 }
 
 function renderEquation(tex = "") {
@@ -1334,6 +1353,38 @@ function applyViewerScale() {
   updateViewerZoomUI();
 }
 
+function capturePortalRestoreState() {
+  const scroller = document.scrollingElement || document.documentElement;
+  state.portalRestore = {
+    pageX: window.scrollX || scroller?.scrollLeft || 0,
+    pageY: window.scrollY || scroller?.scrollTop || 0,
+    cardScrolls: $$(".card-body").map((el) => ({
+      el,
+      top: el.scrollTop,
+      left: el.scrollLeft,
+    })),
+  };
+}
+
+function restorePortalState() {
+  const restore = state.portalRestore;
+  if (!restore) return;
+  restore.cardScrolls.forEach(({ el, top, left }) => {
+    if (!el?.isConnected) return;
+    el.scrollTop = top;
+    el.scrollLeft = left;
+  });
+  const scroller = document.scrollingElement || document.documentElement;
+  const restorePage = () => {
+    if (scroller?.scrollTo) scroller.scrollTo({ left: restore.pageX, top: restore.pageY, behavior: "auto" });
+    else window.scrollTo(restore.pageX, restore.pageY);
+    document.body.scrollTop = restore.pageY;
+  };
+  restorePage();
+  requestAnimationFrame(restorePage);
+  state.portalRestore = null;
+}
+
 function fitViewerToViewport(preserveCenter = false) {
   if (!state.viewerDoc) return;
   const viewport = $("#viewerViewport");
@@ -1366,11 +1417,13 @@ function fitViewerToViewport(preserveCenter = false) {
 async function openViewer(id) {
   const doc = getDoc(id);
   if (!doc) return;
+  capturePortalRestoreState();
   state.viewerDoc = doc;
   state.viewerFitScale = 1;
   state.viewerZoom = 1;
   state.renderToken += 1;
   const token = state.renderToken;
+  document.body.classList.add("viewer-open");
   $("#viewer").classList.add("open");
   $("#viewer").setAttribute("aria-hidden", "false");
   applyViewerScale();
@@ -1429,9 +1482,11 @@ function closeViewer() {
   state.viewerDoc = null;
   state.viewerFitScale = 1;
   state.drag = null;
+  document.body.classList.remove("viewer-open");
   $("#viewer").classList.remove("open");
   $("#viewer").setAttribute("aria-hidden", "true");
   $("#viewerViewport").classList.remove("dragging");
+  restorePortalState();
 }
 
 function setZoom(value, preserveCenter = true) {
