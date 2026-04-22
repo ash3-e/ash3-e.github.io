@@ -1,0 +1,56 @@
+Analog and Digital Conversion
+Overview
+Single-page lecture notes covering analog-to-digital and digital-to-analog conversion, the data converters that implement them, and the digital signal processing concepts (Nyquist sampling, FPGA implementation, feedback control) that surround them, finishing with thermal Johnson-Nyquist noise as the physical limit on resolution. The page works through 1-bit comparators, multi-bit flash A/D, summing-amplifier DAC, successive approximation register (SAR), sigma-delta and ramp converters, oversampling, then crosses into DSP architecture and noise measurement. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on the conversion between analog and digital domains and how to bound the resolution. The page clearly includes the mapping V_in ∈ [−V_max, V_max] → 0 to 2^N − 1 for an N-bit converter, the least-significant-bit (LSB) interpretation that for ±1 V and N = 4 the LSB equals 0.125 V and an analog ±10 V signal digitized at 16 bits has 300 µV LSB, the 1-bit comparator V_out = +1 (V_in > 0) or 0 (V_in < 0), a 2-bit flash A/D using three comparators feeding XOR/AND logic to recover Q₁Q₀, the summing-amplifier DAC V_out = (R/2R)A₃ + (R/4R)A₂ + (R/8R)A₁ + (R/16R)A₀ = ½A₃ + ¼A₂ + ⅛A₁ + 1/16 A₀, the SAR doing a binary search comparator-step by comparator-step, the sigma-delta idea of varying pulse width and pulse rate near 50 % duty cycle, the ramp converter pairing with a counter, oversampling adding 1 extra bit per 4 averages, the Nyquist condition that sampling rate must be ≥ 2× signal frequency, an FPGA capable of taking analog in → converting to digital → transforming → returning analog, the general digital filter y_(n+1) = Σ a_i x_i + Σ b_i y_i, feedback control with set-point/error/controller/system/measurement, and Johnson-Nyquist noise √⟨V_n²⟩ = √(4k_BTRΔf) yielding ≈ 1 mV for a 1 MΩ resistor at 100 MHz bandwidth.
+
+Key equations
+
+$$V_{in}\in[-V_{max},+V_{max}]\ \to\ \{0,1,\ldots,2^{N}-1\}\quad\text{(N-bit ADC)}$$
+
+$$\text{LSB}=\frac{2V_{max}}{2^{N}}=\frac{V_{max}}{2^{N-1}}$$
+
+$$\text{Example: }\pm 1\ \text{V},\ N=4\Rightarrow \text{LSB}=\frac{2}{16}=0.125\ \text{V}$$
+
+$$\text{Example: }\pm 10\ \text{V},\ N=16\Rightarrow \text{LSB}\approx 300\ \mu\text{V}$$
+
+$$\text{Comparator: }V_{out}=\begin{cases}1 & V_{in}>0\\ 0 & V_{in}<0\end{cases}$$
+
+$$\text{Flash A/D thresholds: }\pm V_{max},\ \pm V_{max}/2$$
+
+$$V_{out}^{\text{DAC}}=\frac{R}{2R}A_{3}+\frac{R}{4R}A_{2}+\frac{R}{8R}A_{1}+\frac{R}{16R}A_{0}=\tfrac{1}{2}A_{3}+\tfrac{1}{4}A_{2}+\tfrac{1}{8}A_{1}+\tfrac{1}{16}A_{0}$$
+
+$$\text{SAR: starting guess }1000=V_{max}/2\ \text{then refine bit by bit}$$
+
+$$\text{If }V_{in}<\frac{V_{max}}{2}\Rightarrow Q_{i}=0;\ \text{if }V_{in}>\frac{V_{max}}{2}\Rightarrow Q_{i}=1$$
+
+$$f_{s}\ge 2 f_{\text{signal}}\quad\text{(Nyquist sampling theorem)}$$
+
+$$\text{Oversampling: }4^{n}\ \text{averages}\Rightarrow n\ \text{extra bits of resolution}$$
+
+$$y_{n+1}=\sum_{i=1}^{n}a_{i}x_{i}+\sum_{i=1}^{n}b_{i}y_{i}\quad\text{(general digital filter)}$$
+
+$$\langle V_{n}^{2}\rangle=4k_{B}T\,R\,\Delta f\quad\text{(Johnson–Nyquist thermal noise)}$$
+
+$$k_{B}=1.38\!\times\!10^{-23}\ \text{J/K},\ T=300\ \text{K}$$
+
+$$R=1\ \text{k}\Omega,\ \Delta f=1\ \text{MHz}\Rightarrow\sqrt{\langle V_{n}^{2}\rangle}=4\!\times\!10^{-6}=4\ \mu\text{V}$$
+
+$$R=10^{6}\ \Omega,\ \Delta f=100\ \text{MHz}\Rightarrow\sqrt{\langle V_{n}^{2}\rangle}\approx 1\ \text{mV}$$
+
+$$\omega_{0}=\sqrt{\frac{k}{m}}\quad\text{(LRC harmonic-oscillator analog)}$$
+
+$$\omega_{0}=\frac{1}{\sqrt{LC}}\quad\text{(LRC circuit resonance)}$$
+
+$$F(t)=-kx(t)-m\Gamma\frac{dx}{dt}+F_{\text{test}}+F_{\text{feedback}}$$
+
+$$F_{\text{feedback}}=-k_{p}x(t)-k_{D}\frac{dx}{dt}\Rightarrow F(t)=-(k+k_{p})x(t)-(m\Gamma+k_{D})\frac{dx}{dt}+F_{\text{test}}$$
+
+$$\text{Sigma-delta: vary pulse width + pulse rate near 50}\%\ \text{duty}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: mapping analog amplitudes onto N digital bins (LSB, range, dynamic range), implementing that mapping with comparators / summing amplifiers / a SAR feedback loop, choosing the sampling rate from Nyquist and improving resolution by oversampling, or computing the noise floor that ultimately limits how fine the bins can be. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Analog ⇔ Digital conversion; Goal for Analog/Digital Converter — Take V_in and convert to a stream of N-bit binary #s; V_in ∈ {−V_max, V_max} → 0 → 2^N − 1; LSB = least significant bit; A/D for N = 1 bit — use a comparator; V_out = {1 for V_in > 0, 0 for V_in < 0}; * continuous frequency of sine-wave; Quantization Error = rounding error; ex) V_in ∈ {−1V, 1V}, 2V ⇔ 16 binary values; 2V/16 = 0.125V ⇔ LSB; Error on a ±10V signal digitized at 16 bit = 300 mV; N = 2 Flash A/D Converter; Design a Digital Logic Gate that corresponds V_in to a 2-bit binary # Q₁Q₀; start w/ truth table; A/B/C comparators with V_max/2, 0V, −V_max/2 references → XOR/AND logic; D/A (DAC) — Summing Amplifier; A = A₃A₂A₁A₀, A ∈ 0..15; 4-bit binary; V_out = R/2R · A₃ + R/4R · A₂ + R/8R · A₁ + R/16R · A₀ = ½A₃ + ¼A₂ + ⅛A₁ + 1/16 A₀; Successive Approximation Register; use a binary search to find each bit; assume V_in ∈ (0, V_max); starting guess 1000 = V_max/2; Look @ comparator output: if V_in < V_max/2 comp = 1, Q = 11000 ⇔ 1V_max/4; if V_in < V_max/2 comp = 0, Q = 01000 ⇔ 1V_max/4; → Look @ comparator output again & update guess of Q; w/ each iteration we nail down 1 bit; Fancier Idea (than PWM) for D/A Conversion — Sigma Converter (ΔΣ); * vary pulse width + pulse rate; * switch faster wherever possible (near 50% duty cycle); * when low pass filter, switching noise is reduced (smaller steps); Ramp Converter — high res, but slow; V_in vs V_ramp, comparator stops counter; Counter Q₃Q₂Q₁Q₀; V_max/V_in, V_max ramp(t); Comparator stops; Over Sampling — turn fast — low res, turn slow — high res; * average a bunch of fast samples; 4 avgs ⇒ 1 extra bit of res; only works if signal is a little noisy; ex V_in = 2.2V; 0111 ⇔ 1.6V, 1000 ⇔ 2.0V, 1001 ⇔ 2.4V; with no noise, will always measure the same thing — averaging doesn't help; But if you add ~0.2V noise → sometimes you get 1000, sometimes you get 1001 → average 1000.1; Digital Signal Processing (DSP); Nyquist Theorem — Sampling Rate should be twice as fast as the signal frequency; Digital Samples — x₁, x₂, x₃, …, x_n; Output — y₁, y₂, y₃, …, y_n; in class example: Field Programmable Gate Array (FPGA) → capable of taking analog signal in → converting to digital → transforming digital signal → returning analog signal (emulated Low Pass / High Pass filters, etc.); In General: y_(n+1) = Σᵢ aᵢxᵢ + Σᵢ bᵢyᵢ where aᵢ, bᵢ are weighting coefficients; Feedback Control — use negative feedback to stabilize stuff (like signals); * use positive feedback to make things oscillate; ex: relaxation oscillator; In General: set point — error signal — controller — system — measurement — measured value (loop); example: laser → photodetector — V_out ∝ x; out / FPGA / in; H.O. look LRC circuits; F(t) = −kx(t) − mΓ dx/dt + F_test + F_feedback (restoring force, viscous damping, A sin(ωt)); ω₀ = √(k/m), ω₀ = √(k/m) → ω₀ = 1/√(LC); ex: −k_p x(t) − k_p dx/dt → F(t) = −(k + k_p)x(t) − (mΓ + k_p)dx/dt + F_test; Thermal Noise in Resistors @ Room Temperature, noise is random (and @ all frequencies); √⟨V_n²⟩ = √(4k_B T · R · Δf), measurement frequency; k_B = 1.38×10⁻²³ J/K, T = 300 K; ex) R = 1 kΩ, Δf = 1 MHz for our oscilloscope in lab; √⟨V_n²⟩ = 4×10⁻⁶ = 4 µV; Δf = 100 MHz, R = 10⁶ → √⟨V_n²⟩ ≈ 1 mV; noisy current source → R, "measure noise in this resistor"; Johnson-Nyquist Noise, vertical shift, increases V_pp and causes vertical shift; +100°C noise sketch; vs frequency sketches at −88 dB and −90 dB ranges.

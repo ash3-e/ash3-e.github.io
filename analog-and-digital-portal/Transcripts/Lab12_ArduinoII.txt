@@ -1,0 +1,56 @@
+Lab 12: Arduino II (Debouncing, Interrupts, Libraries, Serial Communication)
+Overview
+Second Arduino lab covering software debouncing of mechanical pushbuttons (a closed switch's contacts vibrate over a few ms producing a random number of HIGH/LOW pulses, leaving the LED toggle in an unpredictable state — fixed by adding a small post-edge delay() to mask the bounce), hardware interrupts via attachInterrupt(0, ISR, mode) on digital pins 2 and 3 of the UNO with modes LOW / CHANGE / RISING / FALLING, the difference between polling (loop checks the pin) and interrupt-driven (CPU is free until the pin changes), installation and use of an external library (TimerOne) for precisely-timed periodic interrupts, parallel vs. serial communication (parallel uses one wire per bit and is fast but wire-heavy; serial uses a single line and is slower but cheap), and the I²C and SPI low-level serial protocols, demonstrated with a 16×2 LCD wired first in parallel and then with a serial backpack. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on robust digital input and on serial vs. parallel communication. The pages clearly include the button-LED toggle sketch where buttonState transitions LOW → HIGH flip ledState, the failure rate of about 50 % without debouncing because of the contact bounce, the cure with delay(200) (or with a software flag tracking the time since the last edge), the bouncing waveform on the oscilloscope (zoom horizontal axis, normal trigger mode), the comparison sketch for polling versus interrupt where the polling sketch wastes the CPU in a 100×delay(10) loop and misses fast button presses while the interrupt sketch responds immediately, the syntax attachInterrupt(0, bEvent, CHANGE) tying the ISR bEvent() to digital pin 2 and the volatile keyword required on any global variable accessed inside the ISR, the four supported triggering modes LOW, CHANGE, RISING, FALLING, the explanation that delay()/millis() rely on interrupts and so won't work inside an ISR (use delayMicroseconds), the Arduino library system (Sketch > Include Library > Add .ZIP Library) and the TimerOne library that lets a periodic ISR be attached every 500 000 µs = 0.5 s independent of what the loop is doing, the parallel-vs-serial intro (8 wires for one byte vs 1 wire serially), the I²C ("I two C") and SPI low-level serial protocols, the 16×2 LCD wired first as a parallel interface (lots of wires, easy to make wiring mistakes) and then again with the LiquidCrystal_I2C library on a 4-wire I²C backpack.
+
+Key equations
+
+$$\text{Button state: }\text{buttonState}=\text{digitalRead(buttonPin)}$$
+
+$$\text{Edge detection: }\text{toggle iff buttonState}=\text{HIGH AND lastButtonState}=\text{LOW}$$
+
+$$\text{Bounce duration: }\Delta t_{bounce}\sim 1\text{–}10\ \text{ms}$$
+
+$$\text{Software debounce delay: }t_{db}\gtrsim \Delta t_{bounce}\quad\text{(typically 50–200 ms by hand)}$$
+
+$$\text{Polling latency: }t_{lat}^{poll}=t_{loop}\quad\text{(time around the main loop)}$$
+
+$$\text{Interrupt latency: }t_{lat}^{ISR}\sim 4\text{–}16\ \text{clock cycles}\approx \frac{4\!-\!16}{16\ \text{MHz}}\sim 1\ \mu\text{s}$$
+
+$$\text{ISR syntax: }\text{attachInterrupt}(\text{interruptNumber, ISR, mode})$$
+
+$$\text{UNO has 2 hardware interrupts: 0 on Digital Pin 2, 1 on Digital Pin 3}$$
+
+$$\text{Trigger modes: LOW, CHANGE, RISING, FALLING}$$
+
+$$\text{Volatile globals required to share data between ISR and loop()}$$
+
+$$\text{TimerOne period: }T_{ISR}\ \text{set by Timer1.initialize}(T_{\mu s})$$
+
+$$\text{Example: Timer1.initialize}(500{,}000)\Rightarrow T_{ISR}=0.5\ \text{s}$$
+
+$$\text{Parallel: }N_{wires}=N_{bits}+\text{ground}+\text{clock}$$
+
+$$\text{Serial: }N_{wires}\sim 2\text{–}4\quad\text{(SDA/SCL or MOSI/MISO/SCK/SS)}$$
+
+$$\text{Bit time: }T_{bit}=\frac{1}{f_{clock}}\quad\text{(one bit per clock period in synchronous serial)}$$
+
+$$\text{Baud rate (asynchronous): }B=\frac{1}{T_{bit}}\quad\text{(bits per second)}$$
+
+$$\text{Time to transmit 8-bit byte (parallel): }T_{byte}=T_{clock}$$
+
+$$\text{Time to transmit 8-bit byte (serial): }T_{byte}=8T_{bit}=\frac{8}{B}$$
+
+$$\text{ASCII 'A' = 65 = 01000001}_{2}\Rightarrow 8\ \text{bits}$$
+
+$$\text{I}^{2}\text{C: 2 wires (SDA, SCL), open-drain, multiple devices via 7-bit address}$$
+
+$$\text{SPI: 4 wires (MOSI, MISO, SCK, SS), full-duplex master/slave}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: deciding whether to use polling or an interrupt based on how time-critical the input is, masking switch bounce with a software delay or a debouncing edge counter, attaching an ISR to the right pin with the right mode and remembering to mark its globals volatile, or estimating how long it takes to send N bits in parallel versus serially given a clock or baud rate. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 12; Arduino II; Equipment: Arduino, Sparkfun Inventor's Kit, laptop computer with the Arduino IDE; In the previous lab you were introduced to the Arduino and the concept of physical computing: Building interactive systems by the use of software and hardware that can sense and respond to the outside (physical) world; This time you will learn about debouncing mechanical switches, hardware and software interrupts, parallel vs. serial communication, and how to install external libraries in the Arduino software; Part 1: Debouncing Mechanical Switches; Build the circuit shown in Figure 1; The push button with pull-down resistor is connected to input pin 2 of the Arduino; The LED is connected to output on pin 13; What is the voltage on the Arduino digital pin 2 when Button is not pressed / Button is pressed; Remember that the button is "normally open" and the input impedance of the Arduino digital pins is extremely large; 10 kΩ, Arduino pin 2, Arduino pin 13, 5 V, 330 Ω, 0.01; Copy and paste the sketch from Figure 2 into a blank sketch and upload it; Push the button repeatedly. Each button press should toggle the LED on or off; Figure 2: Debounce button sketch; const int buttonPin = 2; const int ledPin = 13; int buttonState = 0; int lastButtonState = 0; int ledState = 0; void setup() { pinMode(buttonPin, INPUT); pinMode(ledPin, OUTPUT); } void loop() { buttonState = digitalRead(buttonPin); if (buttonState == HIGH && lastButtonState == LOW) { ledState = !ledState; digitalWrite(ledPin, ledState); /* delay(200); */ } lastButtonState = buttonState; }; Mechanical switches are prone to bouncing; that is, when a switch is closed the contacts vibrate making and breaking contacts for a short time which might last several milliseconds after closure; You may actually press the button only once, but the bouncing produces a random number of high/low pulses; ~20 failure rate, 50 %; The reliability of the button has increased dramatically — the switch always seems to work as expected; The delay function adds a cooldown interval between the check state function, ensuring vibrations in the mechanical trigger prevent overwriting the final state assignment; Part 2: Hardware Interrupts; this is called polling but this is not very efficient way to deal with an external input; the microcontroller cannot do anything else otherwise it may miss the input; Interrupts allow the microcontroller to respond to events immediately without having to poll continuously; Figure 3: Interrupt demo sketches: Left with polling, right with interrupt; const int bPin = 2; const int lPin = 13; volatile int bState = 0; void setup() { ... attachInterrupt(0, bEvent, CHANGE); } void loop() { for (int i = 0; i < 100; i++) { delay(20); } } void bEvent() { bState = digitalRead(bPin); digitalWrite(lPin, bState); }; The syntax for enabling an interrupt is attachInterrupt(interrupt, ISR, mode); The Arduino UNO has two hardware interrupts: 0 (on digital pin 2) and 1 (on digital pin 3); Interrupt Service Routine (ISR) is a user defined function which is executed when an interrupt is detected; Generally, an ISR should be as short and fast as possible; If your sketch uses multiple ISRs, only one can run at a time, other interrupts will be ignored (turned off) until the current one is finished; Since delay() and millis() both rely on interrupts, they will not work while an ISR is running; delayMicroseconds(), which does not rely on interrupts, will work as expected; Typically global variables are used to pass data between an ISR and the main program; To make sure global variables used in an ISR are updated correctly, declare them as volatile; Mode determines how the interrupt is triggered: LOW to trigger the interrupt whenever the pin is low, CHANGE to trigger the interrupt whenever the pin changes value, RISING to trigger when the pin goes from low to high, FALLING for when the pin goes from high to low; Toggles in off state thus ensuring the LED is always on when pressed and always off when not; Part 3: Libraries; Libraries are collections of useful software functions; The Arduino IDE comes preloaded with many libraries; LiquidCrystal (for alphanumeric LCD displays), SD (for reading and writing SD flash memory cards), Stepper (for controlling stepper motors); To use a library in your sketch you need the #include directive; Download TimerOne-r11.zip file from Canvas; Sketch > Include Library > Add .ZIP Library; Part 4: Timer Interrupts; suppose you want the LED to blink on and off every 0.5 second by changing the delay; Suppose you add an additional task in the loop that takes 1.5 seconds to complete; The delay() function is described as a blessing and a curse; you can also trigger an ISR at regular intervals using the TimerOne library; #include <TimerOne.h>; Timer1.initialize(500000); Timer1.attachInterrupt(toggleOutput); void toggleOutput() { digitalWrite(lPin, lState); lState = !lState; }; The events will be precisely timed; Part 5: Parallel vs. Serial Communication; transmit the character 'A' between two chips; ASCII representation of 'A' is 01000001; eight bits of information; In the parallel method shown on the left, all eight bits are transferred simultaneously; In the serial method the bits are transferred one at a time; The serial method is slower but requires fewer wires; Two common protocols for such low-level serial communication are I²C (Inter-Integrated Circuit and pronounced "I two C") and SPI (Serial Peripheral Interface); Parallel Method: 16×2 LCD Display circuit described in the centerfold of the Sparkfun Inventor's Guide; This is the parallel interface circuit; Watch out! There are lots of wires and many opportunities to make mistakes; Run Blink and describe what happens; If you see a message and the cursor flashes you have wired it correctly; Serial method: same LCD but with an I²C backpack reduces wire count to 4 (V_CC, GND, SDA, SCL); LiquidCrystal_I2C library used in the I²C version.

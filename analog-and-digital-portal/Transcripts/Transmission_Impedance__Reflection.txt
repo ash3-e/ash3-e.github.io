@@ -1,0 +1,58 @@
+Transmission, Impedance, and Reflection
+Overview
+Single-page lecture notes that derive coaxial-cable transmission lines from a chain of small LC segments, set up traveling-wave solutions V(x,t) = V_0 cos(kx − ωt), recover the wave equation ∂²V/∂x² = (1/c²)∂²V/∂t², compute the characteristic impedance Z_0 = √(L_0/C_0), evaluate it for a coaxial geometry (Z_0 ≈ 50 Ω lab cable, 75 Ω cable TV), then move to reflections at a load Z_L using the boundary conditions for V and I and finishes with PHYS0525 transmission-line practice problems where Γ = (Z_L − Z_0)/(Z_L + Z_0) is applied for matched, mismatched, open-circuit, and short-circuit terminations. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on signal propagation on lossless transmission lines and their reflection algebra. The page clearly includes the agenda (Transmission Line Impedance / E and H waves / Reflection-Transmission), the impedance review Z_R = R, Z_C = 1/(iωC), Z_L = iωL with v(t) = Re{ṽ}, the series and parallel rules for impedance, the cable-as-LC-ladder picture with inductance per length L_0 and capacitance per length C_0, the discrete loop V_n−1 − V_n = iωL_0 ∂I_n/∂x and junction I_n+1 − I_n = iωC_0 ∂V_n/∂x continuumized into ∂V/∂x = L_0 ∂I/∂t and ∂I/∂x = C_0 ∂V/∂t, the second-derivative combination giving the wave equation 1/(L_0 C_0) ∂²V/∂x² = ∂²V/∂t², the traveling wave V(x,t) = V_0 cos(kx − ωt) with k = 2π/λ, ω = 2πf, speed c = ω/k = λf, c = 3×10⁸ m/s = 1 ft/ns for vacuum, the coax expressions L_0 = (μ_0/2π)ln(b/a), C_0 = (2πε_0)/ln(b/a) leading to Z_0 = √(L_0/C_0) = √(μ_0/ε_0)·ln(b/a)/(2π), the dielectric-filled real coax with k_R ≈ 2 → 3 (cable TV uses Z_0 = 75 Ω), the propagation speed c = 1/√(L_0 C_0) reduced by √k_R, the characteristic impedance interpretation that "a long cable looks like a resistive load with R = Z_0," the load termination V_L = Î_L Z_L with the boundary conditions V_0 = V_in + V_R and I_0 = (V_in/Z_0) − (V_R/Z_0) collapsing into Γ = V_R/V_in = (Z_L − Z_0)/(Z_L + Z_0), the open-circuit (Z_L → ∞) Γ = 1 limit, the short-circuit (Z_L = 0) Γ = −1 limit, three practice problems with Z_0 = 50 Ω terminated by Z_L = 75 Ω (problem 1) giving |V_R/V_0| = (75 − 50)/(75 + 50) = 25/125 = 1/5, an RLC termination with R, L, C in series (problem 2) sketched as a function of frequency with a notch at ω = 1/√(LC), and a power-delivery problem with Γ_L = 0.2, P_in = V_0²/Z_0, P_ref = (0.2 V_0)²/Z_0 = 0.04 P_in = 0.04 mW, P_trans = P_in − P_ref = 0.96 mW, and V_load = √(Z_L · P_load) ≈ √((0.96E−3)·75) ≈ 0.268 V.
+
+Key equations
+
+$$Z_{R}=R,\qquad Z_{C}=\frac{1}{i\omega C},\qquad Z_{L}=i\omega L$$
+
+$$\hat v=\hat I\,Z,\qquad v(t)=\text{Re}\{\hat v\},\qquad I(t)=\text{Re}\{\hat I\}$$
+
+$$\text{Series: }Z_{eq}=Z_{1}+Z_{2}\qquad \text{Parallel: }\frac{1}{Z_{eq}}=\frac{1}{Z_{1}}+\frac{1}{Z_{2}}$$
+
+$$V_{n-1}-V_{n}=i\omega L_{0}\frac{\partial I_{n}}{\partial x},\qquad I_{n+1}-I_{n}=i\omega C_{0}\frac{\partial V_{n}}{\partial x}$$
+
+$$\frac{\partial V}{\partial x}=L_{0}\frac{\partial I}{\partial t},\qquad \frac{\partial I}{\partial x}=C_{0}\frac{\partial V}{\partial t}$$
+
+$$\frac{\partial^{2}V}{\partial x^{2}}=L_{0}C_{0}\frac{\partial^{2}V}{\partial t^{2}}\quad\Longleftrightarrow\quad \frac{1}{L_{0}C_{0}}\frac{\partial^{2}V}{\partial x^{2}}=\frac{\partial^{2}V}{\partial t^{2}}$$
+
+$$V(x,t)=V_{0}\cos(kx-\omega t),\qquad k=\frac{2\pi}{\lambda},\ \omega=2\pi f$$
+
+$$c=\frac{\omega}{k}=\lambda f=\frac{1}{\sqrt{L_{0}C_{0}}}$$
+
+$$c=3\!\times\!10^{8}\ \text{m/s}=1\ \text{ft/nanosecond}\quad\text{(vacuum)}$$
+
+$$L_{0}=\frac{\mu_{0}}{2\pi}\ln\!\left(\frac{b}{a}\right),\qquad C_{0}=\frac{2\pi\varepsilon_{0}}{\ln(b/a)}$$
+
+$$Z_{0}=\sqrt{\frac{L_{0}}{C_{0}}}=\frac{\ln(b/a)}{2\pi}\sqrt{\frac{\mu_{0}}{\varepsilon_{0}}}\approx 50\ \Omega\ (\text{lab})$$
+
+$$Z_{0}=\sqrt{\frac{L_{0}}{C_{0}}}=\sqrt{\frac{\mu\mu_{0}}{\varepsilon\varepsilon_{0}}}\cdot\frac{\ln(b/a)}{2\pi},\qquad k_{R}\approx 2\text{–}3\ \text{for cable insulation}$$
+
+$$\text{For cable TV: }Z_{0}=75\ \Omega\quad\text{(propagation speed reduced by }\sqrt{k_{R}}\text{)}$$
+
+$$\text{Long cable looks like resistive load with }R=Z_{0}\quad\text{(characteristic impedance interpretation)}$$
+
+$$V_{0}=V_{in}+V_{R},\qquad I_{0}=\frac{V_{in}}{Z_{0}}-\frac{V_{R}}{Z_{0}}\quad\text{(boundary conditions at load)}$$
+
+$$\Gamma=\frac{V_{R}}{V_{in}}=\frac{Z_{L}-Z_{0}}{Z_{L}+Z_{0}}$$
+
+$$\text{Open circuit (}Z_{L}\to\infty\text{): }\Gamma=+1\quad\text{(reflected wave in phase, }V_{0}\text{ doubled at end)}$$
+
+$$\text{Short circuit (}Z_{L}=0\text{): }\Gamma=-1\quad\text{(reflected wave inverted, }V_{0}=0\text{ at end)}$$
+
+$$\text{Practice 1: }Z_{0}=50\ \Omega,\ Z_{L}=75\ \Omega\Rightarrow \Gamma=\frac{75-50}{75+50}=\frac{25}{125}=\frac{1}{5}$$
+
+$$\text{Practice 2: }Z_{L}=R+i\omega L+\frac{1}{i\omega C},\ \text{notch at }\omega=\frac{1}{\sqrt{LC}}\ (\Gamma=0)$$
+
+$$\text{Practice 3: }P_{in}=\frac{V_{0}^{2}}{Z_{0}},\ P_{ref}=|\Gamma|^{2}P_{in}=0.04\ P_{in},\ P_{trans}=0.96\ P_{in}$$
+
+$$V_{load}=\sqrt{Z_{L}\,P_{load}}=\sqrt{(0.96\!\times\!10^{-3})(75)}\approx 0.268\ \text{V}\quad\text{(RMS, P_in = 1 mW)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: deriving the wave equation by chaining the inductor and capacitor of an infinitesimal cable segment, dressing the resulting traveling wave with a characteristic impedance Z_0 = √(L_0/C_0), enforcing matching of voltage and current at a load to extract the reflection coefficient Γ = (Z_L − Z_0)/(Z_L + Z_0), or auditing power so that incident equals reflected plus transmitted along the line. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Today's Agenda; Transmission Line Impedance; E & H waves; Reflection Transmission; Review Impedance; Z_R = R, Z_C = 1/(iωC), Z_L = iωL; ṽ = Î Z, v(t) = Re{ṽ}, I(t) = Re{Î}; Z's in series add: Z_eq = Z_1 + Z_2; Z's in parallel: 1/Z_eq = 1/Z_1 + 1/Z_2; coaxial cable; L₀ = (μ₀/2π) ln(b/a) · l; C₀ = (2πε₀)/(l · ln(b/a)); Transmission Lines; sketch with shield and inner conductor; traveling waves V = V_0 cos(kx − ωt); k = wave number = 2π/λ; ω = angular frequency = 2πf; speed C = ω/k = λf; * c = 3×10⁸ m/s = 1 ft/nanosecond; consider cables as many small segments dx; v(x,t) = V_0 cos(kx − ωt) and ṽ(x,t) = V_0 e^(i(kx − ωt)); ∂²ṽ/∂x² = V_0(ik)² e^(i(kx−ωt)) = −k²ṽ(x,t); ∂²ṽ/∂t² = V_0(iω)² e^(i(kx−ωt)) = −ω² ṽ(x,t); 1/(L_0 C_0)(−k²)ṽ = −(ω²)ṽ ⇒ (ω/k)² = (L_0 C_0)⁻¹; speed of wave; 1/(L_0 C_0) = 1/((μ₀/2π) ln(b/a) · (2πε₀)/ln(b/a)) = 1/(μ₀ε₀) = c²; * c = 1/√(L_0 C_0); Solutions: Traveling Waves; v(x,t) = v_0 cos(kx − ωt); ∂²v/∂x² = v_0(ik)² e^(i(kx−ωt)) = −k² v(x,t); ∂²v/∂t² = v_0(iω)² e^(i(kx−ωt)) = −ω² v(x,t); 1/(L_0C_0)(−k²)v = −ω² v; ω²/k² = c² = 1/(L_0C_0); ω/k = 1/√(L_0C_0) = c; wave equation: 1/(L_0C_0) ∂²V/∂x² = ∂²V/∂t²; coaxial cable; real coaxial cable (with insulation); Z_0 = √(L_0/C_0) = ln(b/a)/(2π) · √(μ₀/ε₀) ≈ 50 Ω; for L = 2.3a; for cable TV: Z_0 = 75 Ω; (and propagation speed goes down); C → V = 1/√(μ₀ε₀) = 1/√(μμ₀ε₀) = 1/√(μ₀ε₀) · 1/√k_R = c/n; → Z_0 = √(L_0/C_0); * "characteristic impedance"; * a long cable looks like a resistive load w/ R = Z_0; R_0 = Resistance/unit length; resistance from metal; energy absorbed by dielectric; energy radiated away; V(x,t) = V_0 e^((α/2)x) cos(kx − ωt), 1/α = attenuation length; The End of the Line; "Load Impedance" or "termination" Z_L; same energy is absorbed; same is reflected back; ṽ_in = V_0 e^(i(kx−ωt)); ṽ_R = V_0 e^(i(kx−ωt)); ṽ_R = V_R e^(i(kx−ωt)); Î_in = V_0/(iωL_0)(ik)e^(i(kx−ωt)) = V_0/Z_0 e^(i(kx−ωt)); Î_R = V_R(−i)/iωL_0(−ik)e^(i(kx−ωt)) = −V_R/Z_0 e^(i(kx−ωt)); ṽ_L = V_0 e^(i(kx−ωt)) + V_R(x,t); * assume load is @ x = 0; ṽ_L = V_0(x = 0,t) + V_R(x = 0,t); Î_L = Î_0(0,t) + Î_R(0,t); → for a Load Impedance Z_L must be that Z_L = ṽ_L/Î_L = (V_0 + V_R)/((V_0/Z_0) − V_R/Z_0); ⇒ V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0); examples: open-circuit (Z_L → ∞) V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0) = Z_L/Z_L = 1; short-circuit (Z_L = 0) V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0) = −Z_0/Z_0 = −1; PHYS0525 Transmission Lines Practice Problems; Problem #1: A 1 volt amplitude wave is traveling down a coaxial cable with characteristic impedance of Z_0 = 50 Ω; The cable is terminated in a load Z_L = 75 Ω; What is the amplitude of the reflected wave?; 1) V_R/V_L = (Z_L − Z_0)/(Z_L + Z_0) = 25Ω/125Ω = 1/5; Problem #2: A 1 volt amplitude wave is traveling down a coaxial cable with characteristic impedance Z_0 = 50 Ω; The cable is terminated in a load Z_L consisting of an RLC series circuit with R = 50 Ω, L = 1 mH, and C = 1 nF; Sketch the amplitude of the reflected wave as function of frequency; |Z_L|, |V_R/V_0|, ω = 1/√(LC), notch sketch; Problem #3: A wave carrying a power of 1 mW is traveling down a 50 Ω coaxial cable; This cable is connected to second 75 Ω coaxial cable, which is terminated in a 75 Ω load; How much power is dissipated by the load resistor?; What is the RMS voltage across the load?; via problem #1: V_R/V_0 = 0.2, P_in = V_0²/Z_0; P_ref = (0.2 V_0)²/Z_0 = (0.2)²·V_0²/Z_0 = 0.04 P_in = 0.04 mW; P_trans = P_in − P_ref = 0.96 mW; so P_load = V_RMS²/Z_L; V_load = √(Z_L · P_load) = √((0.96E−3)·75) = √0.072 ≈ 0.268 V; * Because the load is a 75Ω AND the 2ND line is 75Ω, there is no reflection @ the load.

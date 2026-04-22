@@ -1,0 +1,54 @@
+Assignment 2
+Overview
+Homework on AC reactive networks and complex impedance: combining capacitances in series and parallel, computing the AC voltage across a capacitor and the average power dissipated in the series resistor, decomposing a series RC impedance into real, imaginary, magnitude, and phase parts, and a two-capacitor charge-sharing problem with a resistor in between, including the energy balance. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on first-pass AC analysis with phasors. The pages clearly include an equivalent capacitance reduction with mixed series and parallel groupings, an RC voltage-divider driven by a 1 V source where the capacitor voltage and the time-averaged dissipation in R must be found, a complex impedance Z = R + 1/(iωC) with R = 100 Ω, C = 160 nF, ω = 2π × 10 kHz that has to be split into real, imaginary, magnitude, and phase, and finally a switched two-capacitor problem (C₁ initially at V₀, C₂ at zero, single resistor between them) where V_C1(t), V_C2(t), and the total resistive energy loss are required. The assignment is using these problems to drill the same reflex: write Z, then take Ohm's law in the complex plane.
+
+Key equations
+
+$$\frac{1}{C_{eq,\text{series}}}=\frac{1}{C_{1}}+\frac{1}{C_{2}}$$
+
+$$C_{eq,\text{parallel}}=C_{1}+C_{2}$$
+
+$$Z_{C}=\frac{1}{i\omega C}$$
+
+$$X_{C}=\frac{1}{\omega C},\qquad X_{C}=\frac{1}{2\pi(60\,\text{Hz})(0.2\,\mu\text{F})}\approx 5305\ \Omega$$
+
+$$|Z|=\sqrt{R^{2}+X_{C}^{2}}\approx 13210\ \Omega$$
+
+$$V_{C}=V_{0}\cdot\frac{X_{C}}{|Z|}=1\cdot\frac{5305}{13210}\approx 0.4486\ \text{V}$$
+
+$$P_{avg}=I_{rms}^{2}R,\qquad I_{rms}=\frac{I_{peak}}{\sqrt{2}}$$
+
+$$P_{avg}=\left(\frac{V_{0}/|Z|}{\sqrt{2}}\right)^{2}R\approx 3.9\ \mu\text{W}$$
+
+$$Z=R+\frac{1}{i\omega C}=R-\frac{i}{\omega C}$$
+
+$$\text{Re}(Z)=100\ \Omega,\qquad \text{Im}(Z)=-\frac{1}{(2\pi\cdot 10^{4})(160\cdot 10^{-9})}\approx -99.47\ \Omega$$
+
+$$|Z|=\sqrt{R^{2}+\text{Im}(Z)^{2}}=\sqrt{100^{2}+99.47^{2}}\approx 141.05\ \Omega$$
+
+$$\varphi=\arctan\!\left(\frac{\text{Im}(Z)}{\text{Re}(Z)}\right)=\arctan\!\left(\frac{-99.47}{100}\right)\approx -0.7826\ \text{rad}$$
+
+$$C_{eq}=\frac{C_{1}C_{2}}{C_{1}+C_{2}}=\frac{C}{2}$$
+
+$$\text{Initial: }V_{C_{1}}(0)=V_{0},\quad V_{C_{2}}(0)=0$$
+
+$$\text{Charge conservation: }CV_{0}=CV_{1}+CV_{2}\ \Rightarrow\ V_{1}+V_{2}=V_{0}$$
+
+$$V_{C_{1}}(\infty)=V_{C_{2}}(\infty)=\tfrac{V_{0}}{2}$$
+
+$$v(t)=V_{C_{1}}(t)-V_{C_{2}}(t)=V_{0}\,e^{-t/(R C_{eq})}=V_{0}\,e^{-2t/(RC)}$$
+
+$$V_{C_{1}}(t)=\tfrac{V_{0}}{2}+\tfrac{V_{0}}{2}e^{-2t/(RC)}$$
+
+$$V_{C_{2}}(t)=\tfrac{V_{0}}{2}-\tfrac{V_{0}}{2}e^{-2t/(RC)}$$
+
+$$E_{R}=E_{i}-E_{f}=\tfrac{1}{2}CV_{0}^{2}-2\cdot\tfrac{1}{2}C\!\left(\tfrac{V_{0}}{2}\right)^{2}=\tfrac{1}{4}CV_{0}^{2}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: combining components into an equivalent C or Z, splitting a phasor with the divider rule, taking magnitude/phase of a complex impedance, or writing an exponential decay between an initial and final state. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 2; Due Monday, Feb 2, 2026; Find the equivalent capacitance of the circuit drawn below; Assuming the amplitude of the voltage source in the circuit below is 1 V, what is the amplitude of the voltage across the capacitor; What is the average power dissipated by the resistor (averaged over many cycles of the voltage source); I have a circuit element with complex impedance Z = R + 1/(iωC), where R = 100 Ω, C = 160 nF, and ω = 2π × 10 kHz; Compute the real and imaginary parts of Z; Also compute the magnitude and phase of Z; C_eq series, C_eq parallel; C₁₂eq series = (C₁⁻¹ + C₂⁻¹)⁻¹; C₃ = C₄ = 1.35 µF; C_eq = 1.33 µF; V_C = V_0 · X_C/Z; X_C = 1/(2π(60 Hz)·0.2 µF) = 5305.16 Ω; |Z| = √(X_C² + R²) = √(5305.16²) ≈ 13210 Ω; V_C = 5305/13210 ≈ 0.4486 V; P_avg = (I_rms)²R, I_rms = I_peak/√2; P_avg ≈ 3.9 µW; Z = R + 1/(iωC) ⇒ Z = R − i/(ωC); for ω = 2π·10⁴ Hz and C = 160·10⁻⁹ F: Z = 100 − i(99.471); magnitude |Z| = √(Re² + Im²) ≈ 141.05; phase arctan(Im/Re) = arctan(−99.471/100) ≈ −0.7826 rad; In the circuit below, C₁ is initially charged to a voltage of V_C1(t=0) = V₀ and C₂ initially has no charge V_C2(t=0) = 0 and the switch is open; At time t = 0 the switch is closed; Sketch V_C1(t) and V_C2(t) and compute the total amount of energy dissipated in the resistor; Assume the capacitance of the two capacitors is the same C₁ = C₂ = C; C_eq = C/2; charge conservation; v(t) = V_C1(t) − V_C2(t) = V_0 · e^(−2t/RC); V_C1(t) = V_0/2 + V_0/2 · e^(−t/RC_eq); V_C2(t) = V_0/2 − V_0/2 · e^(−t/RC_eq); energy dissipated.

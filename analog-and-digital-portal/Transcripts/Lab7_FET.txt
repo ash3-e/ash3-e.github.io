@@ -1,0 +1,54 @@
+Lab 7: Field-Effect Transistor (FET)
+Overview
+Lab on the n-channel JFET (2N5485) used to extract the device's pinch-off voltage V_P, the saturation drain current I_DSS at V_GS = 0, and the I_D vs V_GS characteristic; then to build a common-source amplifier and a constant-current source. The student measures V_P at the gate voltage where I_D drops to zero, records I_DSS at V_GS = 0, plots I_D versus V_GS over the active range, fits the square-law model I_D = K(V_GS − V_P)² to recover K, and exploits the gate's reverse bias (no DC current → input impedance up to 10¹⁴ Ω). The common-source amplifier with an R_S source resistor and an R_D drain resistor yields a self-biased operating point; the constant-current source ties V_GS = 0 (gate to source) so I_D is fixed at I_DSS independent of the load up to the onset of pinch-off. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on JFET dc characterisation and bias-point design. The pages clearly include the n-channel JFET conventions (drain held more positive than source, gate biased negative relative to source, no gate DC current), the pinch-off voltage definition V_P as the V_GS at which I_D ≈ 0 (typically around −3 V), the maximum saturation current I_DSS measured with V_GS = 0 (gate tied to source) in the saturation region, the I_D vs V_GS table swept from V_P to 0 V and the square-law fit I_D = K(V_GS − V_P)² (linearised by √I_D = √K(V_GS − V_P) with x-intercept V_P and slope √K), the ohmic-region resistance R_DS = V_DS/I_D for V_DS ≤ |V_P| at fixed V_GS, the common-source amplifier where the source resistor R_S provides self-bias (V_GS = −I_D R_S) and the drain resistor R_D sets the gain G = −g_m R_D with g_m = 2K(V_GS − V_P), the constant-current source where V_GS = 0 fixes I_D = I_DSS up to the load that pulls V_DS below V_DS,sat ≈ |V_P|, and the maximum-load condition V_RL,max = V_S − V_DS,sat giving R_L,max = V_RL,max/I_DSS.
+
+Key equations
+
+$$I_{D}=K(V_{GS}-V_{P})^{2}\quad\text{(JFET square-law in saturation)}$$
+
+$$\sqrt{I_{D}}=\sqrt{K}\,(V_{GS}-V_{P})\quad\text{(linearised form)}$$
+
+$$V_{P}\approx -3\ \text{V (typical 2N5485)},\quad I_{DSS}=I_{D}|_{V_{GS}=0}$$
+
+$$g_{m}=\frac{dI_{D}}{dV_{GS}}=2K(V_{GS}-V_{P})\quad\text{(transconductance)}$$
+
+$$g_{m,max}=2\sqrt{K\,I_{DSS}}\quad\text{(at }V_{GS}=0\text{)}$$
+
+$$\text{Self-bias: }V_{GS}=-I_{D}R_{S}\quad\text{(source resistor pulls gate negative)}$$
+
+$$\text{Operating point from intersection of }I_{D}=K(V_{GS}-V_{P})^{2}\text{ and }V_{GS}=-I_{D}R_{S}$$
+
+$$\text{Common-source gain: }G=-g_{m}R_{D}$$
+
+$$\text{Ohmic region: }0\le V_{DS}\le |V_{P}|\quad\text{(at fixed }V_{GS}\text{)}$$
+
+$$R_{DS}=\frac{V_{DS}}{I_{D}}\bigg|_{\text{ohmic}}\quad\text{(linear resistance estimate)}$$
+
+$$R_{DS,on}=\frac{1}{2K(V_{GS}-V_{P})}\quad\text{(small-signal on-resistance)}$$
+
+$$\text{Constant-current source: }V_{GS}=0\Rightarrow I_{D}=I_{DSS}\ \text{(independent of }V_{DS}\text{ in saturation)}$$
+
+$$V_{DS,sat}\approx |V_{P}|\quad\text{(boundary between ohmic and saturation)}$$
+
+$$V_{RL,max}=V_{S}-V_{DS,sat}\quad\text{(headroom for the load)}$$
+
+$$R_{L,max}=\frac{V_{RL,max}}{I_{DSS}}\quad\text{(largest load before current droops)}$$
+
+$$Z_{in}^{\text{gate}}\sim 10^{14}\ \Omega\quad\text{(gate is reverse-biased pn junction)}$$
+
+$$I_{G}\approx 0\quad\text{(gate leakage only)}$$
+
+$$\Delta V_{GS}=-\Delta I_{D}\,R_{S}\quad\text{(small-signal source-degeneration)}$$
+
+$$|G_{degen}|=\frac{R_{D}}{R_{S}+1/g_{m}}\quad\text{(degenerated gain)}$$
+
+$$P_{trans}=V_{DS}\cdot I_{D}\quad\text{(JFET power dissipation)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: extracting V_P and I_DSS from the I-V data and fitting K through the square-law, deciding whether the JFET is in ohmic or saturation operation by comparing V_DS to |V_P|, designing a self-biased common-source stage by intersecting the device curve with the load line V_GS = −I_D R_S, or running the device as a constant-current source by tying V_GS = 0 and reading I_DSS directly. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 7; Field-Effect Transistor (FET); Equipment: breadboard, DMM's (2), function generator, oscilloscope, JFET (2N5485), decade resistor box, capacitors, resistors; Preliminaries: As the name suggest, field-effect transistors work by controlling a current with an electric field produced by a voltage applied to one of its leads, rather than with a base current in the case of a bipolar transistor; A common type of FET is the junction field-effect transistor (JFET) which is available in two varieties: n-channel and p-channel; In an n-channel JFET, a conducting channel is created using n-doped semiconductor bar with two electric contacts, called drain and source, attached to its opposite ends; In the middle of the channel a p-doped semiconductor is diffused to form the gate; A voltage applied to the gate controls the number of charge carriers in the conducting channel; The rule of thumb for normal operation of an n-channel JFET (polarities have to be reversed for p-channel JFET); (1) The drain is held more positive than the source (V_D > V_S); (2) The JFET is ON, i.e. current flows from the drain to source, when the gate voltage is the same as the source voltage (V_G = V_S); (3) The drain-source current decreases as the gate voltage becomes more negative relative to the source voltage and the JFET eventually turns OFF, i.e. the drain-source current will stop, below the pinch-off voltage of about V_GS ≈ −3 V; Note that the JFET is always operated with its gate reverse biased relative to the source (and drain), so there is no current flowing through the gate (except a tiny leakage current); This results in a super high input impedance (as large as 10¹⁴ Ω) at the gate of the transistor; Identify the leads on your FETs; Note that the pattern is not the same as on the BJT transistors; D, S, G; Figure 1: 2N5485 n-channel JFET; Drain, Source, Gate; Part 1: JFET Characteristics; The circuit in Figure 2 will be used to measure several characteristics of JFET transistors; Use two DMMs to measure the gate-to-source voltage V_GS (use Agilent 34450A DMM) and the drain current I_D (use the Keithley 179A DMM); Note that the decade resistor box is part of a voltage divider that controls the gate voltage; The pinch-off voltage V_P is the (negative) gate-to-source voltage (V_GS = V_G − V_S) at which I_D becomes zero; Measure V_P by observing I_D while changing V_GS; Pinch-off voltage V_P = −___ V; The maximum value of the current I_D when V_GS = 0 (gate and source connected) is usually called I_DSS; Measure and record its value; I_DSS = ___ mA; Measure the drain current I_D as a function of V_GS (from V_P to zero) and plot it; Square-law fit I_D = K(V_GS − V_P)² with K and V_P from a √I_D vs V_GS plot; Part 2: Common-source amplifier; Self-bias V_GS = −I_D R_S; gain G = −g_m R_D; small-signal transconductance g_m = 2K(V_GS − V_P); measure gain over frequency; Part 3: Constant-current source; Gate tied to source (V_GS = 0) so I_D = I_DSS independent of V_DS; vary R_L and watch for the onset of current droop when V_DS falls below |V_P|; max load R_L,max = (V_S − |V_P|)/I_DSS.

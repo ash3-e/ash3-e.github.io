@@ -1,0 +1,56 @@
+Lab 1: DC Circuits
+Overview
+First lab of the semester, introducing the breadboard, the digital multimeter (DMM), Ohm's law, and the two basic resistor networks: voltage and current dividers, with a Thevenin reduction at the end. The student measures actual resistor values (R_1 ≈ 9.882 kΩ, R_2 ≈ 19.847 kΩ) and the actual supply voltage (V ≈ 5.0426 V), computes V_ba and V_cb across each leg of a 5 V divider, takes Ohm's-law currents, computes total dissipated power and the percentage in R_2, then loads the divider with R_L = 10 kΩ and 20 kΩ to see how the loading drags the open-circuit V_ba down toward V_th. The lab ends with a parallel three-resistor "current divider" where the per-branch currents add to the supply current and the per-branch powers add to the total. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on hand-measuring DC quantities and confirming that the measurements obey the textbook formulae. The pages clearly include the breadboard tour (PB-503 with built-in ±5–15 V supplies, power-bus rows, core-area columns, bus strips), the DMM modes (V, I, R, diode test) and how meter loading can perturb a high-impedance measurement, the simple two-resistor voltage divider where V_ba = V·R_2/(R_1 + R_2) is checked against the DMM read-out, the Ohm's-law re-check V_ba = IR_2 confirming the same number, the total-power calculation P_total = V²/R_eq = VI = I²R, the percentage of the total power dissipated in R_2 (~67 %), the safe-current/safe-voltage exercise for a 2 kΩ resistor rated at ¼ W (I_max = √(P/R), V_max = √(PR)), the loaded divider with R_L = 10 kΩ giving the Thevenin equivalent V_th = V·R_2/(R_1+R_2) and R_th = R_1∥R_2 ≈ 6.62 kΩ so V_ba(loaded) drops to about 2.47 V, the same exercise repeated with R_L = 20 kΩ where the equivalent parallel becomes R_eq ≈ 9.92 kΩ and V_ba ≈ 2.53 V, and finally the three-resistor parallel "current divider" with R_1 ≈ 9.882 kΩ, R_2 ≈ 0.987 kΩ, R_3 ≈ 4.676 kΩ where the branch currents I_1 ≈ 0.4529 mA, I_2 ≈ 0.374 mA, I_3 ≈ 0.078 mA give per-branch powers 2.026 mW, 0.1381 mW, 0.0284 mW summing to the total.
+
+Key equations
+
+$$V=IR\quad\text{(Ohm's law)}$$
+
+$$P=\frac{V^{2}}{R}=VI=I^{2}R$$
+
+$$V_{ba}=V\cdot\frac{R_{2}}{R_{1}+R_{2}}\quad\text{(voltage divider)}$$
+
+$$V_{cb}=V\cdot\frac{R_{1}}{R_{1}+R_{2}}\quad\text{(voltage on the other leg)}$$
+
+$$I=\frac{V}{R_{1}+R_{2}}\quad\text{(series-loop current)}$$
+
+$$V_{ba}=I\,R_{2}\quad\text{(Ohm's-law cross-check)}$$
+
+$$P_{total}=V\cdot I=\frac{V^{2}}{R_{1}+R_{2}}\quad\text{(power from supply)}$$
+
+$$\%P_{R_{2}}=\frac{P_{R_{2}}}{P_{total}}\times 100\%=\frac{I^{2}R_{2}}{I^{2}(R_{1}+R_{2})}\times 100\%=\frac{R_{2}}{R_{1}+R_{2}}\times 100\%$$
+
+$$I_{max}=\sqrt{\frac{P_{rated}}{R}}\quad\text{(safe current for rated power)}$$
+
+$$V_{max}=\sqrt{P_{rated}\,R}\quad\text{(safe voltage for rated power)}$$
+
+$$\text{Thevenin: }V_{th}=V\cdot\frac{R_{2}}{R_{1}+R_{2}},\quad R_{th}=\frac{R_{1}R_{2}}{R_{1}+R_{2}}$$
+
+$$V_{ba,\text{loaded}}=V_{th}\cdot\frac{R_{L}}{R_{th}+R_{L}}\quad\text{(loaded divider output)}$$
+
+$$R_{eq}=\frac{R_{2}\,R_{L}}{R_{2}+R_{L}}\quad\text{(parallel combination of }R_{2}\text{ and }R_{L}\text{)}$$
+
+$$V_{ba}=V\cdot\frac{R_{eq}}{R_{1}+R_{eq}}\quad\text{(divider with parallel load)}$$
+
+$$\frac{1}{R_{\|}}=\frac{1}{R_{1}}+\frac{1}{R_{2}}+\frac{1}{R_{3}}\quad\text{(parallel resistors)}$$
+
+$$I_{i}=\frac{V}{R_{i}}\quad\text{(branch current of parallel divider)}$$
+
+$$I_{total}=\sum_{i}I_{i}\quad\text{(KCL: sum of branch currents)}$$
+
+$$P_{i}=I_{i}^{2}R_{i}=\frac{V^{2}}{R_{i}}\quad\text{(per-branch power)}$$
+
+$$P_{total}=\sum_{i}P_{i}\quad\text{(total dissipation = sum of branch dissipations)}$$
+
+$$V_{ba}=I R_{2}=(1.696\!\times\!10^{-4}\,\text{A})(19.847\,\text{k}\Omega)\approx 3.35\ \text{V}\quad\text{(measured)}$$
+
+$$P_{total}=5.0426\cdot 1.696\!\times\!10^{-4}=8.55\!\times\!10^{-4}\ \text{W}\approx 0.855\ \text{mW}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: applying Ohm's law to a single branch, dividing voltage between two series resistors, replacing a sub-network by its Thevenin equivalent before connecting a load, or summing per-branch currents and powers in a parallel divider. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 1; Voltage and Current Dividers — measuring DC voltage and current; Equipment: Breadboard, digital multimeter (DMM), resistors; Preliminaries: Read the description of the breadboard and the digital multimeter carefully; Breadboard; PB-503 powered Proto-Board with built-in power supplies; Power Bus, Core Area, Bus Strips; +15 / −15 ADJUSTMENT; 5 V, 5–15 V, 5–15 V; Bus lines along the sides of the board distribute power; horizontal bus lines run across the top of the breadboard; Digital multimeter (DMM); Use the DMM diode-test function; Part 1a: Voltage divider; Use resistors R_1 = 10 kΩ and R_2 = 20 kΩ; The actual values may differ from the nominal values by several %; R_1 = 9.882 kΩ, R_2 = 19.847 kΩ; V = 5.0426 V; Calculate the expected voltage V_ba (between points B and A) and V_cb (between points C and B); Vth = V(R_2/(R_1+R_2)); Vth = 5.0426V · 19.847kΩ/(9.882kΩ + 19.847kΩ) = 3.35 V; V_cb = 5.0426 − 3.35 = 1.69 V; Measure V_ab using the DMM; Measured voltage: V_ba = 3.35 V; Use the DMM to measure the current I in the circuit; I = 169.1 µA = 1.691×10⁻⁴ A; Use Ohm's Law to calculate the voltage V_ba; V_ba = IR = 169.1E−6 · 19.847E3 = 3.35 V ✓; Calculate the total electrical power P_total; P = V²/R = VI = I²R; 5.0426 · (1.696E−4) = 8.55E−4 W; P_total = 0.855 mW; What percentage of the total power is dissipated in the 20 K resistor; P_R2 = I²R = (1.696E−4)² · 19847 = 5.71E−4 W = 0.571 mW; %P = 0.571/0.855·100% = 66.8%; Question: Resistors have a maximum power rating (¼ Watt to 1 Watt); calculate the maximum "safe" current I_max through a 2 kΩ resistor rated at ¼ Watt; I_max = √(P/R) = √(0.25/2000) = 11.18 mA; V_max = √(PR) = √(0.25·2000) = 22.36 V; Part 1b: Voltage divider with load; Connect a load resistor R_L = 10 kΩ between B and A; Calculate the expected voltage V_ba of point B with respect to point A using the Thevenin equivalent circuit; R_eq = R_2·R_L/(R_2+R_L) = 19.847·10/29.847 ≈ 6.66 kΩ; V_ba(loaded) = V·R_eq/(R_1+R_eq); Measured voltage: V_ba = 2.47 V; Change the load resistor to R_L = 20 kΩ; R_L = 19.835 kΩ; R_eq = 19.835·19.847/(19.835+19.847) = 9.92 kΩ; V_th = (9.920kΩ/(9.882kΩ + 9.92kΩ))·5.0426 V; Expected voltage: V_ba = 2.53 V; Measured voltage: V_ba = 2.47 V; Conclusion: How does the load affect the output voltage (V_ba) with respect to the case when there was no load connected to the voltage divider output; Part 2: Current divider; Three resistors R_1, R_2, R_3 in parallel across the 5 V supply; R_1 = 9.882 kΩ, R_2 = 0.987 kΩ, R_3 = 4.676 kΩ; Measure the current through each branch with the DMM; I_1 = 0.4529 mA, I_2 = 0.374 mA, I_3 = 0.078 mA; Sum: I_total = I_1 + I_2 + I_3; How much electrical power is dissipated in each resistor; P_1 = (0.4529)² · 9.882 = 2.026 mW; P_2 = (0.374)² · 0.987 = 0.1381 mW; P_3 = (0.078)² · 4.676 = 0.0284 mW; If you did everything right, the total power should come out to be the sum of the powers dissipated by the resistors.

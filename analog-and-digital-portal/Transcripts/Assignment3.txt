@@ -1,0 +1,54 @@
+Assignment 3
+Overview
+Homework on resonant series RLC behavior and on cascaded passive RC filters: locating the resonance frequency and quality factor of a series 2 µF / 3 Ω / 2 mH branch, evaluating the impedance at resonance, designing a single-stage RC low-pass filter that attenuates a 1 kHz signal by a factor of ten, and analyzing what happens when the output of that low-pass is fed into a second identical stage. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on resonance and frequency response. The pages clearly include the resonance condition Im[Z_eq] = 0 for a series RLC giving ω₀ = 1/√(LC), the quality factor Q = ω₀/Δω with Δω = R/L for the series circuit, the impedance reduction at resonance to Z = R, an attenuation-by-ten requirement for a 1 kHz low-pass filter that fixes the product RC, and a two-stage cascaded RC low-pass where the equivalent input impedance, the squared transfer function, and the log-log shape against a single-stage filter must all be drawn. The assignment is using these to build the same intuition twice: the pole structure of |H(ω)|² controls both the cutoff and the slope.
+
+Key equations
+
+$$Z_{eq}=R+\frac{1}{i\omega C}+i\omega L=R+i\!\left(\omega L-\frac{1}{\omega C}\right)$$
+
+$$\text{Im}[Z_{eq}]=\omega L-\frac{1}{\omega C}=0\ \Rightarrow\ \omega_{0}=\frac{1}{\sqrt{LC}}$$
+
+$$\omega_{0}=\big[(2\!\times\!10^{-3})(2\!\times\!10^{-6})\big]^{-1/2}=5000\sqrt{10}\approx 1.58\!\times\!10^{4}\ \text{rad/s}$$
+
+$$f_{0}=\frac{\omega_{0}}{2\pi}=\frac{5000\sqrt{10}}{2\pi}\approx 2.52\!\times\!10^{3}\ \text{Hz}$$
+
+$$Q=\frac{\omega_{0}}{\Delta\omega},\qquad \Delta\omega=\frac{R}{L}$$
+
+$$Q=\frac{\omega_{0}L}{R}=\frac{(5000\sqrt{10})(2\!\times\!10^{-3})}{3}\approx 10.54$$
+
+$$|Z|=\sqrt{R^{2}+(X_{L}-X_{C})^{2}}$$
+
+$$\text{At resonance: }X_{L}=X_{C}\ \Rightarrow\ Z=R=3\ \Omega$$
+
+$$g=\frac{|V_{out}|}{|V_{in}|}=\frac{V_{C}}{V_{series}}=\frac{IX_{C}}{IZ_{series}}=\frac{1/\omega C}{\sqrt{R^{2}+(1/\omega C)^{2}}}=\frac{1}{\sqrt{1+\omega^{2}R^{2}C^{2}}}$$
+
+$$\frac{1}{10}=\frac{1}{\sqrt{1+\omega^{2}R^{2}C^{2}}}\ \Rightarrow\ 99=\omega^{2}R^{2}C^{2}\ \Rightarrow\ \sqrt{99}=\omega RC$$
+
+$$RC=\frac{\sqrt{99}}{2\pi(1000)}\approx 1.58\ \text{ms}$$
+
+$$\text{Choose }R=158\ \text{k}\Omega,\ C=1.0\,\mu\text{F}\ \Rightarrow\ f_{c}=\frac{1}{2\pi RC}=\frac{1}{2\pi(1.58\!\times\!10^{-3})}\approx 100.73\ \text{Hz}$$
+
+$$Z_{c}=\frac{1}{i\omega C}$$
+
+$$Z_{node\,1}=Z_{C}\,\|\,(R+Z_{C})$$
+
+$$Z_{in}=R+\big[Z_{C}\,\|\,(R+Z_{C})\big]$$
+
+$$H(\omega)=\frac{V_{out}}{V_{in}}=\frac{1}{1+3(i\omega RC)+(i\omega RC)^{2}}$$
+
+$$\left|\frac{V_{out}}{V_{in}}\right|^{2}=\frac{1}{(1-x^{2})^{2}+(3x)^{2}}=\frac{1}{1+7x^{2}+x^{4}},\qquad x=\omega RC$$
+
+$$\text{Single RC: }|H|^{2}=\frac{1}{1+x^{2}},\qquad \text{Double RC: }|H|^{2}=\frac{1}{1+7x^{2}+x^{4}}$$
+
+$$\text{Low }\omega:\ |H|^{2}\to 1,\qquad \text{High }\omega:\ |H|^{2}\to 0\ \text{(40 dB/decade for double)}$$
+
+$$\omega\ll 1/RC\Rightarrow G\to 1\ \text{(low pass)},\qquad \omega\gg 1/RC\Rightarrow G\to 0$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: writing the series impedance, locating the frequency where its imaginary part vanishes, building the magnitude of a transfer function from the same reactance pieces, or chaining two filters by combining impedances first and then squaring the result. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 3; Due Monday, Feb 9, 2026; For the RLC circuit below, compute the resonance frequency and quality factor; Also compute the impedance of the circuit at its resonance frequency; 2 µF, 3 Ω, 2 mH; @ ω₀, Z_eq = R, V_0 = V_R = IR; Z_eq = R + 1/(iωC) + iωL = R + i(1/ωC + 1/ωL); @ what ω is |Z_eq| smallest; Im[Z_eq] = ωL − 1/(ωC) = 0, when ω₀ = ω = 1/√(LC); ω₀ = [(2×10⁻³ H)(2×10⁻⁶)]^(−1/2) = 5000√10 = 6.324×10⁻⁵ rad/s; f₀ = ω/(2π) = 5000√10/(2π) = 2.52×10³ Hz; Quality Factor (Q) = ω₀/Δω, where Δω = R/L; Q = ω₀/(R/L) = ω₀L/R = [(5000√10)(2×10⁻³)]/3 ≈ 10.54; Z = √(R² + (X_L − X_C)²); @ Resonance: X_C = X_L ⇒ Z = √(R²+0) = R; Z = R: 3Ω; Design a RC low pass filter circuit that attenuates the voltage of a 1 kHz input signal by a factor of 10; What is the cutoff frequency for this circuit; g = |V_out|/|V_in| = V_C/V_series; 1/10 = 1/√(1+ω²R²C²) ⇒ 100 = 1 + ω²R²C² ⇒ 99 = ω²R²C²; w/ ω = 2π(1000) ⇒ √99 = [2π(1000)]RC ⇒ RC ≈ 1.58 ms; if R & C = 158 kΩ, 1.0 µF, then the cutoff frequency f_c = 1/(2πRC) = 1/(2π·1.58E−3) = 100.73 Hz; What happens if we take the output of a low-pass filter and send it through a second low-pass filter with the same R and C; First compute the equivalent impedance of this circuit as seen from the input (assuming no load on the output); Then compute |V_out/V_in|² for this cascaded circuit of two successive low-pass filters; Then sketch a plot of |V_out/V_in|² (on a Log-Log scale) and also sketch a plot for the case of passing through a single low pass filter for comparison; Z_node 1 = Z_C ∥ (R + Z_C), w/ Z_C = 1/(iωC); so Z_in = R + (Z_C ∥ R + Z_C); single RC |H|² = 1/(1+x²); H(ω) = 1/(1 + 3(iωRC) + (iωRC)²); double RC |H|² = 1/((1−x²)² + (3x)²) = 1/(1 + 7x² + x⁴); x = ωRC.

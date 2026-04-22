@@ -1,0 +1,56 @@
+Lab 6: Bipolar Transistors
+Overview
+First transistor lab using the 2N3904 npn BJT to build an emitter-follower (V_out = V_in − 0.6 V) operating between ±15 V supplies and an inverting common-emitter amplifier with adjustable gain G = −R_C/R_E. The student first verifies the base-emitter and base-collector diode drops with the DMM (≈0.614 V and ≈0.652 V respectively), assembles the follower with a 33 kΩ base resistor and an emitter resistor, measures the input impedance from the V_pp drop across the base resistor, adds a 1 kΩ load and re-measures, then loads down through a coupling cap and measures gain vs frequency. The lab ends on the common-emitter amplifier with collector resistor R_C and emitter degeneration R_E, where the small-signal gain G = −R_C/R_E is measured and confirmed against the prediction. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on first-pass BJT large-signal and small-signal analysis. The pages clearly include the diode-equivalent forward voltages V_BE ≈ 0.614 V and V_BC ≈ 0.652 V used to verify a working transistor, the active-region rules V_C > V_E with V_B ≈ V_E + 0.6 V and I_C = βI_B with β ∈ [50, 200], the emitter-follower derivation V_out = V_in − 0.6 V (output follows input shifted down by V_BE), the input-impedance measurement Z_in = (V_pp,before/V_pp,after) − 1)·R_base extracted from the voltage drop across the 33 kΩ base resistor (~β·R_E from theory), the loaded-follower output where the load resistor R_L appears in parallel with the emitter resistor reducing the effective R_E, the AC coupling cap that blocks DC bias from the source while passing the AC signal (high-pass corner f_c = 1/(2πR_in C_in)), the common-emitter (inverting) amplifier with the bias-divider on the base setting V_B ≈ V_S/2 so the output can swing both ways, and the measured gain G ≈ −R_C/R_E that scales with frequency only weakly until the low-frequency cutoff of the coupling cap.
+
+Key equations
+
+$$V_{BE}\approx 0.6\ \text{V (forward drop, npn measured }\approx 0.614\ \text{V)}$$
+
+$$V_{BC}\approx 0.65\ \text{V (forward drop on base–collector test)}$$
+
+$$\text{Active region: }V_{C}>V_{E},\ V_{B}\approx V_{E}+0.6\ \text{V}$$
+
+$$I_{C}=\beta I_{B},\qquad \beta\in[50,200]$$
+
+$$I_{E}=I_{B}+I_{C}=(1+\beta)I_{B}\approx I_{C}\ \text{for large }\beta$$
+
+$$V_{out}=V_{in}-V_{BE}=V_{in}-0.6\ \text{V}\quad\text{(emitter follower)}$$
+
+$$V_{E}=V_{out},\qquad I_{E}=\frac{V_{E}-(-V_{S})}{R_{E}}\quad\text{(emitter resistor sets I_E)}$$
+
+$$Z_{in}=(\beta+1)R_{E}\approx \beta R_{E}\quad\text{(emitter-follower input impedance)}$$
+
+$$Z_{in}=\frac{V_{pp,before}-V_{pp,after}}{V_{pp,after}}\cdot R_{base}\quad\text{(measured from V_{pp} drop across base resistor)}$$
+
+$$Z_{out}=\frac{R_{base}}{1+\beta}\quad\text{(output impedance reduced by 1/(\beta+1))}$$
+
+$$\text{Loaded: }R_{E,\text{eff}}=R_{E}\,\|\,R_{L}\Rightarrow \text{gain }\to\,\frac{R_{E,\text{eff}}}{R_{E,\text{eff}}+r_{e}}\approx 1$$
+
+$$\text{Coupling cap: }f_{c}=\frac{1}{2\pi R_{in}C_{in}}\quad\text{(low-frequency cutoff)}$$
+
+$$\text{Bias divider: }V_{B}=\frac{R_{4}}{R_{3}+R_{4}}V_{S}$$
+
+$$V_{out,\text{rest}}=\frac{V_{S}}{2}\quad\text{(set by choosing }R_{3}/R_{4}\text{)}$$
+
+$$\text{Common-emitter: }G=-\frac{R_{C}}{R_{E}}\quad\text{(small-signal gain)}$$
+
+$$V_{out}=G\,V_{in}+\text{const}\quad\text{(constant = bias offset)}$$
+
+$$V_{CE}=V_{C}-V_{E}\quad\text{(active iff }V_{CE}>V_{BE}\text{)}$$
+
+$$\text{Saturation: }V_{CE}\to V_{CE,sat}\approx 0.2\ \text{V},\ I_{C}\ \text{no longer }\beta I_{B}$$
+
+$$\text{Clipping: }|V_{out}|\to V_{S}\Rightarrow V_{out}\ \text{flat-tops at supply rail}$$
+
+$$P_{trans}=V_{CE}\cdot I_{C}\quad\text{(transistor power dissipation)}$$
+
+$$\beta=\frac{I_{C}}{I_{B}}\quad\text{(measured directly when both currents are read)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: confirming the BJT is alive and oriented (V_BE ≈ V_BC ≈ 0.6 V on the diode test), biasing the device into the active region with V_C > V_E and V_B = V_E + 0.6 V, extracting input/output impedance from V_pp ratios across the base/load resistors, or computing the small-signal voltage gain as the resistor ratio R_C/R_E. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 6; Bipolar Transistors; Equipment: breadboard, DMM, oscilloscope, function generator, 2N3904 npn transistor, capacitors, decade resistor box, resistors; Preliminaries: The transistor is the most important active electronic component, a device that amplifies an input signal and produces an output signal with more power (with the help of a power supply); It is a 3-terminal device available in two flavors, npn and pnp; In this lab, you will use a npn transistor made by sandwiching a p-type semiconductor between two n-type semiconductors with electrical contacts connected separately to each region; In principle, the bipolar transistor behaves like a switch or a current amplifier; The base terminal connected to the middle region allows control of the current flow between the other two terminals (collector and emitter); The basic rule of thumb for normal operation of the npn transistors (for pnp transistors the polarities have to be reversed); (1) The collector must be held at higher potential (more positive) than the emitter (V_C > V_E); (2) The base-emitter and base-collector junctions behave like diodes; Normally the base-emitter diode is forward biased and the base-collector diode is reverse biased (i.e. V_C > V_B > V_E); Typically, a resistor connected to the base controls the current flowing into the base, I_B, by keeping the base voltage about 0.6 V above the emitter voltage (V_B ≈ V_E + 0.6 V); (3) The current from collector to emitter, I_C, is proportional to the base current: I_C = βI_B; The current gain (β) is in the range of 50–200 depending on the transistor; Due to conservation of charge, the total emitter current is I_E = I_B + I_C; identify the emitter, base, and collector leads of your transistor; Wrong connections may destroy the transistor; Use the DMM diode-test function to measure the base-to-collector and base-to-emitter voltages in forward and reverse directions; Faulty transistors usually exhibit shorts in both directions; Figure 1: Pin assignments of the 2N3904 npn transistor viewed from its flat side; 0.614, 0.652; Part 1: Emitter follower circuit operating between −15 V and +15 V; Assemble the circuit in Figure 2 without the blocking capacitor and the 1 kΩ load resistor; Test the circuit with a sine wave from the function generator; Use both channels of the scope to display input and output at the same time; Sketch the input and output; Are the input and output in-phase or out of phase; Input impedance: Without the 1 kΩ load resistor, measure the peak-to-peak amplitude (V_pp) of the input signal before and after the 33 kΩ base resistor using the oscilloscope; From the ratio of the two voltages, you can calculate the input impedance of the emitter follower circuit at the base of the transistor; Signal amplitude before 33 kΩ base resistor; Signal amplitude after 33 kΩ base resistor; +15 V, −15 V; Part 2: Adding a load resistor; 1 kΩ load resistor; AC coupling capacitor for the source; Part 3: Common-emitter amplifier; bias divider sets V_B ≈ V_S/2; gain G = −R_C/R_E; measure gain vs frequency; clipping at supply rails when input drives output beyond ±V_S.

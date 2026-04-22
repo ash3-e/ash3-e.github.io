@@ -1,0 +1,56 @@
+Assignment 4
+Overview
+Homework on transmission lines and reflections at a load: matching a 50 Ω cable into a 75 Ω instrument by adding a parallel matching element, and analyzing a 1 MHz, 1 V wave on a 50 Ω cable terminated by a series RC of R = 25 Ω and C = 10 µF. The second problem walks through the reflection coefficient, the reflected voltage and current amplitudes and phases, the voltage across the resistor, and an energy audit between incident, reflected, and dissipated average power. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on impedance matching and reflection bookkeeping. The pages clearly include the parallel impedance condition Z₀ = Z_M ∥ Z_L solved for Z_M = 125 Ω so the line sees 50 Ω at the junction, the recognition that at 1 MHz a 10 µF capacitor has Z_C ≈ 0.016j Ω which is negligible compared to 25 Ω so Z_L ≈ R, the reflection coefficient Γ = (Z_L − Z₀)/(Z_L + Z₀) = −1/3 with amplitude 1/3 and phase 180°, the corresponding reflected current with phase 0°, the load voltage V_L = V₀(1+Γ) leading to V_R ≈ 0.6667 V, and the three-way power split with P_in = V₀²/(2Z₀) = 10 mW, P_ref = Γ²P_in = 10/9 mW, and P_R = (1/2)I_L²R ≈ 8.89 mW. The assignment is using these to lock in the same conservation idea: P_in = P_ref + P_dissipated.
+
+Key equations
+
+$$\frac{1}{Z_{0}}=\frac{1}{Z_{M}}+\frac{1}{Z_{L}}\ \Rightarrow\ Z_{M}=\frac{Z_{0}Z_{L}}{Z_{L}-Z_{0}}$$
+
+$$50=\frac{75\,Z_{M}}{75+Z_{M}}\ \Rightarrow\ 25Z_{M}=3750\ \Rightarrow\ Z_{M}=125\ \Omega$$
+
+$$Z_{C}=\frac{1}{j\omega C}$$
+
+$$Z_{C}\big|_{\omega=2\pi\cdot 10^{6},\,C=10\,\mu\text{F}}=\frac{1}{j\cdot 2\pi\cdot 10^{6}\cdot 10^{-5}}\approx 0.0159\,j\ \Omega\ \text{(negligible)}$$
+
+$$Z_{L}=R+Z_{C}\approx R=25\ \Omega$$
+
+$$\Gamma=\frac{Z_{L}-Z_{0}}{Z_{L}+Z_{0}}=\frac{25-50}{25+50}=-\frac{1}{3}$$
+
+$$|V_{R,\text{refl}}|=|\Gamma|V_{0}=\tfrac{1}{3}\ \text{V},\qquad \text{phase }=180^{\circ}$$
+
+$$I_{0}=\frac{V_{0}}{Z_{0}}=\frac{1}{50}\ \text{A}$$
+
+$$|I_{R,\text{refl}}|=|\Gamma|I_{0}=\tfrac{1}{50}\cdot\tfrac{1}{3}=\frac{1}{150}\approx 0.00667\ \text{A},\qquad \text{phase }=0^{\circ}$$
+
+$$V_{L}=V_{0}(1+\Gamma)=1\!\left(1-\tfrac{1}{3}\right)=\tfrac{2}{3}\ \text{V}$$
+
+$$I_{L}=\frac{V_{L}}{Z_{L}}=\frac{2/3}{25}\approx 0.0266\ \text{A}$$
+
+$$V_{R}=I_{L}R=\frac{V_{L}}{Z_{L}}\cdot R\approx \frac{2/3}{25}\cdot 25=\tfrac{2}{3}\approx 0.667\ \text{V}$$
+
+$$P_{in}=\frac{V_{0}^{2}}{2Z_{0}}=\frac{1}{100}\ \text{W}=10\ \text{mW}$$
+
+$$P_{ref}=\Gamma^{2}P_{in}=\tfrac{1}{9}\cdot 10\ \text{mW}=\tfrac{10}{9}\ \text{mW}\approx 1.11\ \text{mW}$$
+
+$$P_{R}=\tfrac{1}{2}I_{L}^{2}R=\tfrac{1}{2}(0.0266)^{2}(25)\approx 8.89\ \text{mW}$$
+
+$$P_{in}=P_{ref}+P_{R}\ \text{(energy conservation check)}$$
+
+$$\text{Match condition: }Z_{M}\,\|\,Z_{L}=Z_{0}\ \Rightarrow\ \Gamma=0$$
+
+$$\text{General load: }Z_{L}=Z_{R}+Z_{C}$$
+
+$$\omega=2\pi f=2\pi\!\times\!10^{6}\ \text{rad/s}$$
+
+$$|Z_{L}|=\sqrt{Z_{R}^{2}+Z_{C}^{2}}\approx\sqrt{25^{2}+0.016^{2}}\approx 25\ \Omega$$
+
+$$V_{L}=V_{0}(1+\Gamma),\qquad I_{L}=V_{0}(1-\Gamma)/Z_{0}\ \text{(traveling wave on terminated line)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: imposing a matching condition with parallel impedances, computing a reflection coefficient at a load, propagating that Γ into amplitudes and phases of the reflected and transmitted waves, or auditing the average power along the line so that incident equals reflected plus dissipated. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 4; Monday, Feb 16, 2026; Suppose you have a length of 50 Ω cable and want to connect it to an instrument with a 75 Ω input impedance; What circuit element (labeled Z_M in the figure below) could you add just prior to the instrument to impedance match this connection (i.e. have no back reflections into your 50 Ω cable); A wave of frequency ω = 2π × 1 MHz and amplitude V₀ = 1 V is traveling down a 50 Ω cable; The cable is terminated with a capacitor with a series combination of a capacitor C = 10 µF and a resistor R = 25 Ω; What is the amplitude and phase of the voltage of the reflected wave; What is the amplitude and phase of the current of the reflected wave; What is the amplitude of voltage across the resistor; Compute the average power in the incident wave, the average power in the reflected wave, and the average power dissipated by the resistor; 50 Ω = Z_M ∥ Z_L → 50 = 75 Z_M/(75+Z_M) → 25Z_M = 3750 → Z_M = 125 Ω; Z_M must equal Z₀ to have no back reflections; Z_L = Z_R + Z_C, where Z_R = R, Z_C = 1/(jωC); can ignore C (insignificant contribution); Z_L = 25 + 0.015915j Ω so amplitude ≈ 1/3, and phase ≈ 180°; Γ = (Z_L − Z₀)/(Z_L + Z₀) = −25/75 = −1/3; I = V₀/Z₀ = 1/50, w/ 1/50 · |Γ| = I = 1/50 · 1/3 = 1/150 ≈ 0.667 A and phase ≈ 0°; V_R = I_L R = V_L/Z_L · R = V_L = V₀(1+Γ) ≈ 0.0266 A; V_R = V₀(1+Γ)/Z_L · R = (1−1/3)/25 = (2/3)/25 ≈ 0.0266; P_in = V₀²/(2Z₀) = 1/100 W = 10 mW; P_ref = Γ²P_in = (1/9)·10 mW = 10/9 mW; P_res = (1/2)I_L²R = (0.0266²·25)/2 = 0.00889 W = 8.89 mW.

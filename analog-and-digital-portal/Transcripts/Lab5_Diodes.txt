@@ -1,0 +1,56 @@
+Lab 5: Diode Circuits and Rectifiers
+Overview
+Lab on the practical use of silicon diodes (1N914) for rectification and waveform shaping. The student first identifies the cathode and anode with the DMM diode-test (forward V_D ≈ 0.6 V, reverse essentially open), builds a half-wave rectifier from a 6.3 V transformer with optional 10 µF / 100 µF electrolytic smoothing capacitor, measures the ripple and confirms the ripple-formula scaling ΔV ≈ I_load/(fC), then builds a full-wave bridge rectifier and shows that the ripple frequency doubles to 120 Hz. The lab ends on diode logic gates (an AND and an OR built from two 1N914s and a pull-up/pull-down resistor) and a Zener-style voltage clipper that flat-tops a 4 V_pp sine. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on rectification and the I-V approximation of a Si diode. The pages clearly include the diode model "ON" when V_anode − V_cathode > V_D ≈ 0.6 V (resistance ≈ 0, current limited by series components) and "OFF" otherwise (open circuit, I ≈ 0), the half-wave rectifier where V_out(t) = max(V_in(t) − V_D, 0) chops away the negative half of the transformer's 6.3 V_rms output and produces a peak ≈ V_pk − 0.6 V, the addition of a 10 µF (then 100 µF) filter capacitor that holds the peak between cycles and reduces ripple by a factor of ten when the cap is increased tenfold, the ripple formula derivation ΔV ≈ V_max(Δt/RC) ≈ I_load/(fC) where the capacitor discharges through R_load between recharges, the full-wave bridge with four diodes that conducts on both half-cycles (V_in > 0 sends current through one diagonal pair, V_in < 0 through the other) so the output frequency is doubled to 2f = 120 Hz with halved ripple, the diode AND/OR logic where 0 V/5 V inputs combine through forward-biased diodes and a pull resistor to give a HIGH only when both (AND) or any (OR) input is HIGH, and the Zener-equivalent two-diode anti-parallel clipper that limits a 4 V_pp sine to ±0.6 V (or symmetrically clips at higher voltage with multiple diodes in series).
+
+Key equations
+
+$$\text{Forward bias: }V_{D}\approx 0.6\ \text{V (Si),}\ I_{D}\ \text{limited by series }R$$
+
+$$\text{Reverse bias / off: }I_{D}\approx 0,\ \text{diode looks like an open}$$
+
+$$V_{out,\text{half-wave}}(t)=\max\!\big(V_{in}(t)-V_{D},\,0\big)$$
+
+$$V_{rms}=\frac{V_{pk}}{\sqrt{2}}\quad\text{(sinusoidal)}$$
+
+$$V_{pk}=V_{rms}\sqrt{2}\quad\text{(transformer 6.3 V_{rms} → }\sim 8.9\ \text{V_{pk})}$$
+
+$$V_{out,\text{rect}}\approx V_{pk}-V_{D}\quad\text{(after one diode drop)}$$
+
+$$V_{out,\text{bridge}}\approx V_{pk}-2V_{D}\quad\text{(after two diode drops in bridge)}$$
+
+$$I_{load}=\frac{V_{max}}{R}\quad\text{(load current)}$$
+
+$$\Delta V=\frac{I_{load}}{fC}\approx V_{max}\!\cdot\frac{\Delta t}{RC}\quad\text{(peak-to-peak ripple)}$$
+
+$$\Delta t\approx\frac{1}{f}=\frac{1}{60\ \text{Hz}}\approx 16.7\ \text{ms}\quad\text{(half-wave US)}$$
+
+$$\Delta t\approx\frac{1}{2f}\approx 8.3\ \text{ms}\quad\text{(full-wave US)}$$
+
+$$\Delta V_{full}\approx\frac{1}{2}\Delta V_{half}\quad\text{(bridge ripple is half the half-wave)}$$
+
+$$\Delta V\propto\frac{1}{C}\quad\text{(scaling: 10× larger C → 10× smaller ripple)}$$
+
+$$V_{out}=V_{C}(0)\,e^{-t/(RC)}\quad\text{(discharge between recharges)}$$
+
+$$\text{For }RC\gg 1/f:\ V_{out}(t)\approx V_{C}(0)\!\left(1-\frac{t}{RC}\right)$$
+
+$$\text{Diode AND (pull-up): }V_{out}=\min(V_{1},V_{2})+V_{D}\to\text{HIGH only if both HIGH}$$
+
+$$\text{Diode OR (pull-down): }V_{out}=\max(V_{1},V_{2})-V_{D}\to\text{HIGH if either HIGH}$$
+
+$$\text{Voltage clipper: }V_{out}=\begin{cases}V_{D} & V_{in}>V_{D}\\ V_{in} & |V_{in}|<V_{D}\\ -V_{D} & V_{in}<-V_{D}\end{cases}$$
+
+$$\text{Zener regulator: }V_{out}=V_{Z}\quad\text{when reverse current flows through Zener}$$
+
+$$P_{D}=V_{D}\cdot I_{D}\quad\text{(diode dissipation)}$$
+
+$$\text{Forward V across 4 series diodes }=4V_{D}=2.4\ \text{V (clipping ceiling)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: replacing each diode with the correct model (open / 0.6 V drop / forward conducting), tracing how a sinusoidal source becomes a clipped or rectified DC, computing the ripple ΔV from I_load/(fC), or assembling diodes plus a pull resistor into a logic gate and walking the truth table. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 5; Diode Circuits and Rectifiers; Equipment: Breadboard, digital multimeter (DMM), oscilloscope, 6.3 V transformer and/or signal generator, 1N914 rectifier diode (4), capacitors, resistors; Preliminaries: A diode is made by joining doped p-type and n-type semiconductors together (a pn junction); It is a passive non-linear device with a current-voltage (I-V) curve shown on Figure 1; Because the current increases exponentially with voltage in the forward direction and the current is so small in the reverse direction, we can approximate the behavior of the diode as a one-way conductor; (1) When the diode is biased in the forward direction (i.e. the anode potential is higher than the cathode potential) and the voltage difference is larger than the turn-on voltage (V_D ≈ 0.6 V for Si diodes), the diode is conducting, its resistance becomes practically zero and the voltage drop across the diode is approximately equal to the turn-on voltage (ΔV ≈ V_D); In this case the current through the diode is limited by other components, typically a resistor, in series; (2) When the bias voltage is lower than the turn-on voltage of the diode or it is reversed (anode potential is lower than the cathode potential), the diode resistance becomes very large and the current through the diode becomes practically zero (I ≈ 0); The diode behaves like an opening in the circuit; Figure 1: A characteristic I-V curve of a diode on the left; The circuit symbol and a simplified drawing of diode on the right; Note that the arrow representing the anode terminal points in the direction of the forward current; Cathode, Anode; identify the cathode and anode leads of the diode; Measure the forward and reverse voltages using the "diode test" function of the DMM; Forward-biased voltage / Reverse-biased voltage; If the forward/reverse voltages are close to zero (or infinite) in both directions, your diode is defective; Don't use "shorted-out" diodes; you may fry the transformer; Part 1: Half-wave rectifier; Assemble the half-wave rectifier shown in Figure 2; For the time being, leave out the filter capacitor; Use the transformer as the input AC source; The center-tapped transformer is mounted in a small aluminum box; Do not open the transformer box otherwise you could get a 120 V shock; Connect one of the white terminals and the central (green) terminal to the circuit; Figure 2: Half-wave rectifier; Add electrolytic filter capacitor later; Measure the RMS voltage across the transformer; Source RMS voltage; Use the oscilloscope to look at the waveforms at the anode of the diode (the input voltage) and the cathode of the diode (the output voltage); What is the amplitude (NOT peak-to-peak amplitude) of the input before rectification; What is the maximum voltage after rectification? Why is this not the same as the amplitude before rectification; How long is the near-zero "flat region" of the voltage after the diode? Why is it this long; To smooth out the output, add a 10 µF electrolytic capacitor to the circuit (see Figure 2) and repeat the measurements; Observe the polarity of the electrolytic capacitor; You will find that the "ripple" on the output is greatly reduced, making the power supply more suitable for applications; Use the oscilloscope to look at the filtered output and sketch the waveforms before and after the diode; The peak-to-peak ripple voltage should be approximately ΔV = I_load/(fC) where I_load = V_max/R and f = 60 Hz (in the US); What is the origin of this formula? Discuss in your write-up; Think of what fraction of the voltage decays away during one period of the cycle, for a given RC time; Although this formula is a very rough approximation, it does give the right scaling with the capacitance; Try using a larger capacitor (e.g. 100 µF) and see if your results change in the way this approximation predicts; Calculate the load current I_load; Calculate the ripple voltage ΔV; Part 2: Full-wave bridge rectifier; Bridge of 4 diodes; output frequency 2f = 120 Hz; ripple is half compared to half-wave at same C; Part 3: Diode logic gates; AND with pull-up resistor; OR with pull-down resistor; tabulate output for inputs (0,0), (0,5), (5,0), (5,5); Part 4: Voltage clipper; series diode pair clipping at ±0.6 V or ±n·V_D for n in series.

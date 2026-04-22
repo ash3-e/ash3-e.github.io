@@ -1,0 +1,54 @@
+Op-amp Devices and Digital Logic
+Overview
+Single-page lecture notes that cross from op-amp-based building blocks (open-loop comparator, Schmitt trigger with hysteresis, relaxation oscillator, 555-timer integrated circuit) into digital logic primitives (NOT, AND, NAND, OR, NOR, XOR with truth tables) and finishes on a bistable NAND-NAND flip-flop "memory." The page emphasises how op-amp gain rolls off above the unity-gain bandwidth (~10⁵–10⁶ Hz), why a Schmitt trigger reduces switching jitter on noisy signals, and how positive feedback turns the same comparator into a free-running RC oscillator. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on signed-output op-amp circuits and on the elementary Boolean primitives. The page clearly includes the open-loop transfer V_out = A_OL(V_in⁺ − V_in⁻) with A_OL ≫ 1 and a roll-off frequency around the unity-gain point, the comparator output that latches to ±V_S as soon as V_in crosses zero, the Schmitt trigger with the symmetric hysteretic thresholds V_b = ±V_S R₁/(R₁+R₂) ≈ ±1 V using R₁ = 90 kΩ and R₂ = 10 kΩ, the relaxation oscillator built from the same Schmitt feedback wrapped around an R_F C charging branch (V_out = +V_S → cap charges → V_in⁻ crosses V_in⁺ → flip → cap discharges → flip back), the 555-timer block diagram with its 2/3 V_S and 1/3 V_S thresholds and its internal flip-flop with Q and Q̄ outputs, the digital-logic mapping 0 ↔ 0 V (range 0–3 V) and 1 ↔ +5 V (range 3–5 V), and full truth tables for NOT, AND, NAND, OR, NOR, XOR, plus the cross-coupled NAND flip-flop bistable memory whose state holds when both switches are open and is set or reset by closing S or R.
+
+Key equations
+
+$$V_{out}=A_{OL}(V_{in}^{+}-V_{in}^{-}),\qquad A_{OL}\gg 1$$
+
+$$\text{Golden Rule (with feedback): }V_{in}^{+}=V_{in}^{-},\qquad I_{1}=I_{2}\quad\text{(Input draws no current)}$$
+
+$$\text{Comparator: }V_{out}=\begin{cases}+V_{S} & V_{in}^{+}>V_{in}^{-}\\ -V_{S} & V_{in}^{+}<V_{in}^{-}\end{cases}$$
+
+$$V_{b}=\pm V_{S}\,\frac{R_{1}}{R_{1}+R_{2}}=\pm 1\ \text{V}\ \text{(Schmitt thresholds, }R_{1}=90\,\text{k}\Omega,R_{2}=10\,\text{k}\Omega,V_{S}=1.0\ \text{V)}$$
+
+$$\text{Relaxation oscillator: }V_{C}(t)=V_{S}+(V_{C}(0)-V_{S})\,e^{-t/\tau},\ \ \tau=R_{F}C$$
+
+$$T_{osc}=2R_{F}C\,\ln\!\left[\frac{1+\beta}{1-\beta}\right],\quad \beta=\frac{R_{2}}{R_{1}+R_{2}}$$
+
+$$\text{555 thresholds: }\tfrac{2}{3}V_{S}\ \text{(upper)},\ \tfrac{1}{3}V_{S}\ \text{(lower)}$$
+
+$$\text{Logic levels: }0\leftrightarrow 0\text{–}3\ \text{V},\ \ 1\leftrightarrow 3\text{–}5\ \text{V}$$
+
+$$\text{NOT}(A)=\bar A:\ 0\!\to\!1,\ 1\!\to\!0$$
+
+$$\text{AND}(A,B)=A\!\cdot\!B:\ (0,0)\!\to\!0,\ (1,0)\!\to\!0,\ (0,1)\!\to\!0,\ (1,1)\!\to\!1$$
+
+$$\text{NAND}(A,B)=\overline{A\!\cdot\!B}:\ (0,0)\!\to\!1,\ (1,0)\!\to\!1,\ (0,1)\!\to\!1,\ (1,1)\!\to\!0$$
+
+$$\text{OR}(A,B)=A+B:\ (0,0)\!\to\!0,\ (1,0)\!\to\!1,\ (0,1)\!\to\!1,\ (1,1)\!\to\!1$$
+
+$$\text{NOR}(A,B)=\overline{A+B}:\ (0,0)\!\to\!1,\ (1,0)\!\to\!0,\ (0,1)\!\to\!0,\ (1,1)\!\to\!0$$
+
+$$\text{XOR}(A,B)=A\oplus B:\ (0,0)\!\to\!0,\ (1,0)\!\to\!1,\ (0,1)\!\to\!1,\ (1,1)\!\to\!0$$
+
+$$\text{NAND flip-flop holds state when both inputs are HIGH; }Q\ \text{and }\bar Q\ \text{are complementary}$$
+
+$$\text{Set: pull }S\to 0\Rightarrow Q=1,\bar Q=0$$
+
+$$\text{Reset: pull }R\to 0\Rightarrow Q=0,\bar Q=1$$
+
+$$|A_{OL}(\omega)|\sim\frac{1}{\omega RC}\quad\text{(open-loop gain rolls off above unity-gain frequency)}$$
+
+$$\omega_{u}\sim\frac{1}{RC},\ \ f_{u}\sim 10^{5}\text{–}10^{6}\ \text{Hz}$$
+
+$$V_{in}=\pm V_{S}\Rightarrow\ \text{output toggles between rails (saturation)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: deciding whether the op-amp is in linear closed-loop mode (golden rule applies) or saturated/comparator mode (output rails to ±V_S), placing positive feedback on the noninverting pin to make a Schmitt or relaxation oscillator, mapping the result onto a 0/1 logic level, or assembling those logic levels into combinational and sequential primitives (gates and flip-flops). That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Op-amp devices and Digital Logic; V_in⁺ — V_in⁻ — V_out; V_out = A_OL(V_in⁺ − V_in⁻); A_OL ≫ 1; Golden Rule V_in⁺ = V_in⁻ = 0; I_1 = I_2; Input draws no current; R_1 → I_1, R_2 → I_2; +V_S, −V_S; V_in / V_out (small-signal block); ideal vs actual frequency response; ω = 1/RC; log axis; Comparator; V_in / V_out time-trace with V_out crossing zero and inverting; Schmitt Trigger — Reduces Switching Behavior; +V_S = 1.0 V; R_1 = 90 kΩ; R_2 = 10 kΩ; −1V = V_S; V_b = ±V_S R_1/(R_1 + R_2) = ±1V; V_in = {V₊ if V_out > 0, V₋ if V_out < 0}; Relaxing Oscillator; R_f, +V_S, −V_S, R_2, R_1; V_in⁻ = 0 < V_in⁺ = V_+ = R_2/(R_1+R_2)·V_S; V_C(t) = V_S + (V_C(0) − V_S)e^(−t/RC); Assuming Starting Point: V_out = +V_S + C uncharged; since V_out = V_S a current will flow through R_F + start to charge C with τ = R_F C; eventually V_in⁻ > V_in⁺ = V_+; then V_out → −V_S; cap starts to discharge; then output flips back; sketch: red square wave / blue triangular wave; 555 Timer Integrated Circuit; +V_S; R; R; R/3; 2/3 V_S; 1/3 V_S; Flip Flop; Q output; Q̄; sketches: 2/3, 1/3 charge curves; V_S square output; Digital Logic; a 'bit' of information — 0 or 1 state; ±0V or +5V (0–3V) (3–5V); 5V / 0V time trace; Logic Gate / Truth Table; NOT — A → Ā: 0→1, 1→0; AND A·B: input A B output, 0 0 → 0, 1 0 → 0, 0 1 → 0, 1 1 → 1; NAND ¬(A·B): 0 0 → 1, 1 0 → 1, 0 1 → 1, 1 1 → 0; OR A + B: 0 0 → 0, 1 0 → 1, 0 1 → 1, 1 1 → 1; NOR ¬(A + B): 0 0 → 1, 1 0 → 0, 0 1 → 0, 1 1 → 0; XOR A ⊕ B: 0 0 → 0, 1 0 → 1, 0 1 → 1, 1 1 → 0; Bistable Memory "Flip-Flop"; +5V, S, R, NAND, NAND; with both switches open: Guess: what if Q = 0 then Q̄ = 1; then both inputs are high V; Guess: what if Q = 1 then Q̄ = 0 then inputs of 1 are 0 or 1 V; → now close S then Q = 1 + Q̄ = 0, → now open S nothing changes!; → now close R then Q = 1 + Q̄ = 0, → now open R nothing changes; truth table input S R Q Q̄ output: 0 0 1 1, 0 1 0 1, 0 1 1 0, ...; output A B output.

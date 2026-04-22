@@ -1,0 +1,54 @@
+Assignment 6
+Overview
+Homework on bipolar (npn) transistor biasing and follower configurations: a single-transistor circuit with a 100 Ω emitter resistor, a directly-tied 10 V collector, a 1.5 V base, and β = 200 where the emitter voltage, the operating mode, and all three terminal currents must be found, a four-resistor divider-biased stage (3 kΩ / 300 Ω / 1 kΩ / 100 Ω) where the base, emitter, and collector voltages and the emitter and collector currents follow from large-β assumptions, and a comparison of a simple emitter-follower against a Darlington super-transistor follower where the DC offset and the input impedance differ by roughly a factor of β. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on small-signal and large-signal BJT analysis. The pages clearly include the active-region check via V_CE > V_BE, the V_E = V_B − 0.6 V relation that drops the emitter to 0.9 V in the first circuit, the I_E = V_E/R_E ladder that fixes 8 mA emitter current, the I_C = βI_B / I_E = (β+1)I_B chain that gives I_B ≈ 39.8 µA and I_C ≈ 7.96 mA, the V_CE = V_C − V_E = 9.1 V active-mode confirmation, the divider-biased stage where V_B = 2.5 V, V_E = 1.9 V, I_E ≈ 19 mA, I_C ≈ I_E for large β, and V_C ≈ 4.3 V, and the Darlington analysis where the second base sits at V_in − 0.6 V, the second emitter at V_in − 1.2 V, the offset doubles to 1.2 V, and the input impedance scales as β²R_L instead of (β+1)R_L. The assignment is using these to drill the same workflow: bias first, then collect currents, then check active.
+
+Key equations
+
+$$V_{E}=V_{B}-V_{BE}=V_{B}-0.6\ \text{V}$$
+
+$$V_{E}=1.5-0.6=0.9\ \text{V}$$
+
+$$I_{E}=\frac{V_{E}}{R_{E}}=\frac{0.9}{100}=8\ \text{mA}$$
+
+$$I_{E}=I_{C}+I_{B},\qquad I_{C}=\beta I_{B}$$
+
+$$I_{E}=(\beta+1)I_{B}\ \Rightarrow\ I_{B}=\frac{I_{E}}{\beta+1}=\frac{8\,\text{mA}}{201}\approx 39.8\ \mu\text{A}$$
+
+$$I_{C}=\beta I_{B}=200(39.8\,\mu\text{A})\approx 7.96\ \text{mA}$$
+
+$$V_{CE}=V_{C}-V_{E}=10-0.9=9.1\ \text{V}\ \Rightarrow\ V_{CE}>V_{BE}\ \text{(active region)}$$
+
+$$V_{B}=\frac{R_{4}}{R_{3}+R_{4}}V_{S}=\frac{1\,\text{k}\Omega}{3\,\text{k}\Omega+1\,\text{k}\Omega}\cdot 10\ \text{V}=2.5\ \text{V}$$
+
+$$V_{E}=V_{B}-0.6=1.9\ \text{V},\qquad I_{E}=\frac{V_{E}}{R_{2}}=\frac{1.9}{100}=19\ \text{mA}$$
+
+$$I_{C}\approx I_{E}=19\ \text{mA}\quad\text{(large }\beta\text{)}$$
+
+$$V_{C}=V_{S}-I_{C}R_{1}=10-(19\,\text{mA})(300\,\Omega)=4.3\ \text{V}$$
+
+$$\text{Single follower: }V_{out}=V_{in}-0.6\ \text{V},\qquad \text{DC offset}=0.6\ \text{V}$$
+
+$$\text{Darlington: }V_{B_{2}}=V_{E_{1}}=V_{in}-0.6\ \text{V}$$
+
+$$V_{out}=V_{E_{2}}=V_{B_{2}}-0.6\ \text{V}=V_{in}-1.2\ \text{V},\qquad \text{DC offset}=1.2\ \text{V}$$
+
+$$Z_{in}=\frac{V_{in}}{I_{in}}=\frac{dV_{in}}{dI_{in}}$$
+
+$$I_{B}=\frac{I_{E}}{\beta+1}\ \Rightarrow\ Z_{in}^{(\text{single})}=\frac{V_{in}}{I_{B}}\approx\frac{V_{in}(\beta+1)R_{L}}{V_{in}-0.6}\approx (\beta+1)R_{L}$$
+
+$$\text{Darlington: }I_{E_{1}}=I_{R}+I_{B_{2}}\ \text{with }I_{R}=\frac{V_{E_{1}}}{R}\approx\frac{V_{in}-0.6}{R}$$
+
+$$\text{If }R\gg \beta R_{L}:\ I_{E_{1}}\approx I_{B_{2}},\qquad I_{B_{1}}=\frac{I_{E_{1}}}{\beta+1}\approx\frac{I_{B_{2}}}{\beta}$$
+
+$$Z_{in}^{(\text{Darlington})}=\frac{dV_{B}}{dI_{B}}=\beta\!\cdot\!\beta R_{L}=\beta^{2}R_{L}$$
+
+$$\text{Active region condition: }V_{CE}>V_{CE,\text{sat}}\ \text{(roughly }>V_{BE}\text{)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: pinning the base voltage from a divider, dropping 0.6 V to the emitter, converting the emitter voltage into a current through R_E, or chaining (β+1) and β to convert between base, collector, and emitter currents. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 6; Due Monday, Mar 2, 2026; Due Friday Mar. 6 2026; A npn transistor has a 100 Ω resistor connected from its emitter to ground; The collector is connected directly to a 10 V supply; The base voltage is set to 1.5 V. and β = 200; Draw a circuit diagram for the transistor circuit described above; What is the voltage at the emitter; Is the transistor in active or saturation mode; Determine the currents at the base, collector, and emitter; V_E ≈ V_B − V_BE assumed; V_E = 1.5V − 0.6V = 0.9V; V_S = +10V, V_in = 1.5V, β = 200; I_E = V_E/R_E = 0.9V/100Ω = 8 mA; I_C = βI_B → 200(39.8µA) = 7.96 mA; V_CE = V_C − V_E = 10 − 0.9 = 9.1V; not near saturation (V_CE > V_BE): active; I_E = I_C + I_B, I_C = βI_B; I_E = β(I_B/β + I_B) → I_E = (β+1)I_B → I_B = I_E/(β+1) = 8mA/201 ≈ 39.8 µA; For the circuit drawn below, determine the voltages at the base, emitter, and collector of the transistor; Also determine the emitter and collector currents; You may assume β is very large; V_S = 10V; 3000 Ω, 300 Ω, 1000 Ω, 100 Ω; Assume I_B small, V_B = R_4/(R_3+R_4) · V_S = 1kΩ/(3kΩ+1kΩ) · 10V = 2.5V; V_E = V_B − 0.6V = 1.9V; I_E = V_E/R_2 = 1.9V/100Ω = 19 mA; w/ β very large: I_C ≈ I_E = 19 mA; V_C = V_S − I_C(R_1) = 10V − 19mA(300Ω) = 4.3V; The two circuits shown below both act as followers; Circuit (a) is the simple emitter-follower; Circuit (b) consists of two transistors connected in what is called a Darlington configuration (sometimes also referred to as a super-transistor); Together the transistors act as a follower, but with much larger input impedance than the single transistor emitter-follower; Convince yourself that the output of circuit (b) follows the input of circuit (b) by finding the voltages at the base of second transistor and the emitter of the second transistor; What is the offset voltage for circuit (b); base of T₂ is emitter of T₁: V_B2 = V_E1 ≈ V_in − 0.6V; output is emitter of T₂: V_out = V_E2 → V_B2 − 0.6V ≈ V_in − 1.2V; so DC offset = 1.2V; Z_in = dV_B/dI_B = βR_L (single); since R ≫ βR_L: I_E1 ≈ I_B2; Z_in (Darlington) = β²R_L.

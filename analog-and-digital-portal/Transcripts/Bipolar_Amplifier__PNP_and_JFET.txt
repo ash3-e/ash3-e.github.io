@@ -1,0 +1,56 @@
+Bipolar Amplifier, PNP, and JFET
+Overview
+Single-page lecture notes that bring together the bipolar transistor amplifier (NPN active region, gain G = −R₁/R₂), input and output impedances of the emitter follower, the PNP variant, the resistor-divider bias circuit needed to put a single-supply amplifier into its active region, and the field-effect (JFET) transistor with its gate-controlled drain-source channel and its constant-current-source application. The page emphasises the contrast between BJTs (current-driven, β = I_C/I_B ≈ 200) and JFETs (voltage-driven, gate draws no DC current). This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on transistor-stage design at the cookbook level. The page clearly includes the BJT current sum I_B + I_C = I_E with I_B ≪ I_C ≈ I_E, the active-region rule I_C = βI_B with β ≫ 1 and I_C independent of V_CE (β = I_C/I_B = 2 mA/10 µA = 200), the I_C vs V_CE family showing saturation and active regions for I_B = 10 / 20 / 30 µA, the emitter follower V_out = V_in − 0.6 V with maximum output current I_R, the input impedance of an emitter-follower Z_in = βR_L, the output impedance Z_out = −dV_E/dI_E ≈ R₀/(1 + β), the transistor amplifier with V_CE big and the device in active mode where V_E = V_in − 0.6 V and V_S − V_out = (I_C + I_L)R₁ leading to V_out = (−R₁/R₂)V_in + 0.6V(R₁/R₂) + V_S(−R₁/R₂) and gain G = −R₁/R₂, the clipping behavior when |V_out| reaches ±V_S, the PNP layout that simply mirrors the NPN with reversed currents and an inverted supply, the bias circuit V_B = R₄/(R₃+R₄)V_S with C_in coupling the AC input (assume ω ≫ 1/(R₃||R₄·C_in)) so DC blocking sets V_out at V_S/2 to allow swing both ways, and finally the JFET basics — three-terminal device, undoped Si channel with PN junction biases, V_GS↑ ⇒ R_DS↑ ⇒ I_D ≈ constant in saturation, n-channel and p-channel symbols, and a simple JFET current-source circuit where the gate draws no current.
+
+Key equations
+
+$$I_{B}+I_{C}=I_{E},\qquad I_{B}\ll I_{C}\approx I_{E}$$
+
+$$I_{C}=\beta I_{B},\qquad \beta\gg 1\ \text{and independent of }V_{CE}$$
+
+$$\beta=\frac{I_{C}}{I_{B}}=\frac{2\,\text{mA}}{10\,\mu\text{A}}=\frac{2\!\cdot\!10^{-3}}{10\!\cdot\!10^{-6}}=200$$
+
+$$\text{Emitter follower: }V_{BE}=0.6\ \text{V},\ V_{out}=V_{in}-0.6\ \text{V}$$
+
+$$Z_{in}=\frac{V_{B}}{I_{B}}=\frac{V_{in}}{I_{in}}=(\beta+1)R_{L}\approx \beta R_{L}\quad\text{(input impedance)}$$
+
+$$\frac{\Delta V_{B}}{\Delta I_{B}}=\frac{dV_{B}}{dI_{B}}=Z_{in},\qquad V_{B}=Z_{in}\,I_{B}$$
+
+$$Z_{out}=-\frac{dV_{E}}{dI_{E}}\approx\frac{R_{0}}{1+\beta}\quad\text{(transistor lowers Z_out by }\beta\text{)}$$
+
+$$V_{S}-V_{out}=(I_{C}+I_{L})R_{1},\quad V_{out}=V_{S}-I_{C}R_{1}$$
+
+$$V_{E}=V_{in}-0.6\ \text{V},\qquad I_{E}=\frac{V_{E}}{R_{2}}=\frac{V_{in}-0.6}{R_{2}}$$
+
+$$I_{C}\approx I_{E}=\frac{V_{in}-0.6\ \text{V}+V_{S}}{R_{2}}\quad\text{(when }R_{2}\text{ is the emitter resistor)}$$
+
+$$V_{out}=\left(-\frac{R_{1}}{R_{2}}\right)V_{in}+0.6V\!\left(\frac{R_{1}}{R_{2}}\right)+V_{S}\!\left(-\frac{R_{1}}{R_{2}}\right)$$
+
+$$V_{out}=G\,V_{in}+\text{const},\qquad G=-\frac{R_{1}}{R_{2}}\quad\text{(amplifier gain)}$$
+
+$$\text{Clipping: }|V_{out}|\to V_{S}\Rightarrow V_{out}\ \text{flat-tops at }\pm V_{S}$$
+
+$$V_{B}=\frac{R_{4}}{R_{3}+R_{4}}V_{S}\quad\text{(bias divider)}$$
+
+$$V_{out,\text{rest}}=\frac{V_{S}}{2}\quad\text{(by choosing ratio }R_{3}/R_{4}\text{)}$$
+
+$$\text{Assume }V_{in}\text{ is AC and }\omega\gg \frac{1}{R_{3}\!\|\!R_{4}\,C_{in}}\ \text{(coupling capacitor)}$$
+
+$$\text{JFET symbol convention: arrow on gate; n-channel vs p-channel}$$
+
+$$\Delta V=|V_{p}|+V_{BS}\quad\text{(channel voltage at junction)}$$
+
+$$\frac{dV}{dI}=R\quad\text{(ohmic region)},\qquad V=IR$$
+
+$$V_{BS}\!\uparrow\Rightarrow R_{BS}\!\uparrow\Rightarrow I_{d}\approx\text{const as }V_{BS}\text{ changes (saturation)}$$
+
+$$\text{JFET current source: }I_{D}=I_{d,\text{sat}}\ \text{set by }V_{GS},\ \text{gate draws no current }(I_{G}=0)$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: writing the BJT base/collector/emitter current relations and confirming active operation, mapping the small-signal gain to a simple resistor ratio R_C/R_E, biasing the device with a divider plus an AC coupling cap so the output sits at V_S/2, or switching mental model from BJT (current-driven) to JFET (voltage-driven, gate-isolated, square-law) for the FET parts. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Review Bipolar Transistor; Collector / Base / Emitter; V_BE, V_CE, V_BC; I_B → I_C, I_E; In the active region: I_C = βI_B, β ≫ 1 and independent of V_CE; what is β?: β = I_C/I_B = 2 mA/(10 µA) = 2E−3/10E−3 = 200; saturation region / active region; I_B = 30 µA, I_B = 20 µA, I_B = 10 µA family of curves; I_C [mA] vs V_CE; 6 mA, 4 mA, 2 mA; Emitter Follower (Active Region); +V_S, then V_BE = 0.6V, V_in = V_BE + V_out, V_out = V_in − 0.6; Assume V_in > 0.6V and V_in/R ≫ βI_B; max possible current through R; expected collector current = I_R; Input Impedance; +V_S, Z_in, R_L; V_in, V_B/I_B = Z_in = V_in/I_in = input impedance; ΔV_B/ΔI_B = dV_B/dI_B = Z_in; V_B = Z_in I_B; V_B = V_E − 0.6 V, I_E = I_B + βI_B; so V_B = I_B R_L + 0.6V = V_out, I_E = I_B + βI_B = (β+1)I_B; Z_in = βR_L; * Z_in is β times bigger; what if we add a load?; +V_S, Z_in, R_L; V_S − V_out = (I_C + I_L)R_1 = ((V_S − V_out)/R_1 − I_L)R_1; Clipping; R₁ ≫ R₂ + R_L; v vs t (purple input + green output sketches); Same constant off; Output Impedance; +V_S, Z_out, R_L; V_in − V_E = Z_out · I_E = (V_in − V_out)/I_L; → Z_out = −dV_E/dI_E; * V_E = V_B − 0.6V; V_E = V_in − I_B R_0 − 0.6V; so V_E = I_B R_0 V_in (factor of β reduction); * Transistor lowers Z_out by β → Less voltage division @ output; Transistor Amplifier; +V_S, R_1, R_2; Assume Transistor (V_CE big) is in Active Region — assume β ≫ 1; * I_C = I_B = I_E; V_S − (−V_S) = I_E R_2, (V_in − 0.6V) + V_S = I_C R_2; * I_C = (V_in − 0.6V + V_S)/R_2; V_out = (−R_1/R_2)V_in + 0.6V(R_1/R_2) + V_S(−R_1/R_2); V_out = G V_in + Constant; Gain (G) = −R_1/R_2; pnp Transistors; P Collector / N Base / P Emitter ⇔ npn; +V_S, R_1, R_3; V_in, R_2, V_out, R_L; V_S, R_4, R_n, pnp; w/ DC offset; Bias Circuit; +V_S, R_3, R_1; V_S, R_in, R_2; w/o C, no DC offset; Assume I_B small, V_B = R_4/(R_3 + R_4)·V_S; set V_out to V_S/2 by choosing ratio of R_3/R_4; Assume V_in is an AC signal and ω ≫ 1/(R_2 ∥ R_4 C_in); C_in coupling cap; Field Effect Transistor; Junction FET (JFET); 3 terminal device; Voltage on gate controls flow of current from drain to source; Used for switching + amplification; Source / Gate / Drain; Undoped Si / channel; n region; I_d vs V_DS curves; need to keep V_GS negative to reverse bias pn junction; −V_p, V_GS = 0, V_GS = −1V, V_GS = −2V; Increasing V_BS → increasing R_BS; ΔV = |V_p| + V_BS, ↑ junction bias; dV/dI = 1/R, dS/dV = 1/R; Active or Saturation Region (V is independent of V_BS); V_GS↑ ⇒ R_BS↑ ⇒ I_d = constant as V_BS changes; Circuit Symbol; Drain / Gate / Source; n-channel JFET, p-channel JFET; Simple JFET Current Source; +V_S, R_L; +V_S, R_S, −V_S; Gate draws no current I_d.

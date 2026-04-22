@@ -1,0 +1,54 @@
+Operational Amplifiers (op-amps)
+Overview
+Single-page lecture notes assembling the canonical op-amp topologies under negative feedback: open-loop transfer V_out = A_OL(V_in⁺ − V_in⁻) and the resulting golden rules, the non-inverting amplifier with gain (1 + R₁/R₂), the inverting amplifier with gain −R₁/R₂, the unity-gain (voltage-follower) buffer for impedance transformation, summing and differential amplifiers, the op-amp integrator V_out = −(1/RC)∫V_in dt, the active integrator's frequency-dependent generalisation V_out = −(Z₁/Z₂)V_in, and a transimpedance (current-to-voltage) amplifier. The page emphasises that as long as A_OL is large the gain is set by the resistor ratio, not by A_OL. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on negative-feedback op-amp design. The page clearly includes the open-loop relation V_out = A_OL(V_in⁺ − V_in⁻) with A_OL ≈ 10⁴–10⁶ ≫ 1, the property list (input impedance ≈ 10⁶–10¹⁴ Ω so Z_in ≈ ∞, output impedance 1–100 Ω so Z_out negligible, output saturates at ±V_S), the non-inverting derivation V_in⁻ = R₂/(R₁+R₂)·V_out leading to V_out = (1 + R₁/R₂)V_in, the explicit "if A_OL ≫ 1" limit V_out ≈ (1 + R₁/R₂)V_in showing the gain is set by R₁/R₂ not A_OL, the inverting derivation through KCL at the virtual ground V_in⁻ = 0 giving I₁ = I₂ = V_in/R₁ = −V_out/R₂ and V_out = −(R₂/R₁)V_in, the unity-gain buffer V_out = V_in for getting better I/O impedance characteristics (even with finite R_out), summing and differential examples (V_out = −(R_L/R₁)(V_in¹ + V_in²) and V_out = −(R₂/R₁)(V_in1 − V_in2)), the active integrator V_out(t) = −(1/RC)∫V_in dt' with the small DC offset warning, the comparison to a passive RC integrator that only acts as an integrator when ω ≫ 1/RC, the frequency-dependent generalisation V_out = −(Z₁/Z₂)V_in, the transimpedance amp V_out = −IR turning a current source into a voltage with no voltage drop across the source.
+
+Key equations
+
+$$V_{out}=A_{OL}\,(V_{in}^{+}-V_{in}^{-}),\qquad A_{OL}\approx 10^{4}\text{–}10^{6}\gg 1$$
+
+$$\text{Properties: }Z_{in}\approx 10^{6}\text{–}10^{14}\ \Omega,\ Z_{out}\approx 1\text{–}100\ \Omega,\ -V_{S}<V_{out}<+V_{S}$$
+
+$$\text{Golden rules: }V_{in}^{+}=V_{in}^{-},\quad I_{in}=0,\quad I_{1}=I_{2}$$
+
+$$\text{Non-inverting amp: }V_{in}^{-}=\frac{R_{2}}{R_{1}+R_{2}}V_{out}$$
+
+$$V_{out}=\left(\frac{R_{1}+R_{2}}{R_{2}}\right)V_{in}=\left(1+\frac{R_{1}}{R_{2}}\right)V_{in}$$
+
+$$V_{out}=\frac{A_{OL}}{1+A_{OL}\cdot R_{2}/(R_{1}+R_{2})}V_{in}\xrightarrow{A_{OL}\gg 1}\left(1+\frac{R_{1}}{R_{2}}\right)V_{in}$$
+
+$$\text{Inverting amp: }V_{in}^{-}=V_{in}^{+}=0\Rightarrow I_{1}=\frac{V_{in}-0}{R_{1}}=I_{2}=\frac{0-V_{out}}{R_{2}}$$
+
+$$V_{out}=-\frac{R_{2}}{R_{1}}V_{in}\quad\text{(inverting amplifier gain)}$$
+
+$$\text{Unity-gain buffer: }V_{out}=V_{in}\ (\text{any }R_{out}\text{)}$$
+
+$$\text{Summing amp: }V_{out}=-\frac{R_{L}}{R_{1}}(V_{in}^{1}+V_{in}^{2})$$
+
+$$\text{Differential amp: }V_{out}=-\frac{R_{2}}{R_{1}}(V_{in,1}-V_{in,2})$$
+
+$$\text{For }R_{1}=500\ \Omega,R_{2}=1000\ \Omega,V_{in,1}=3\ \text{V},V_{in,2}=2\ \text{V}\Rightarrow V_{out}=-2\ \text{V}\to 4\ \text{V (with sign convention)}$$
+
+$$V_{out}(t)=-\frac{Q}{C}=-\frac{1}{C}\int_{0}^{t}I_{1}(t')\,dt'=-\frac{1}{RC}\int_{0}^{t}V_{in}(t')\,dt'\quad\text{(active integrator)}$$
+
+$$\text{Passive integrator only when }\omega\gg \frac{1}{RC}$$
+
+$$V_{out}=-\frac{Z_{1}}{Z_{2}}V_{in}\quad\text{(frequency-dependent gain)}$$
+
+$$\text{Integrator: }Z_{1}=\frac{1}{i\omega C},\ Z_{2}=R\Rightarrow V_{out}=\frac{-1}{i\omega RC}V_{in}$$
+
+$$\left|\frac{Z_{1}(\omega)}{Z_{2}(\omega)}\right|\ll A_{OL}(\omega)\quad\text{(condition for the gain expression to hold)}$$
+
+$$\text{Transimpedance amp: }V_{out}=-I_{in}R\quad\text{(current → voltage, transimpedance gain }=R\text{)}$$
+
+$$\text{Useful for non-ideal current sources: }V^{-}=\text{virtual ground},\ \text{no voltage drop across source}$$
+
+$$\text{If non-inverting input is grounded, the inverting input is the "virtual ground"}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: invoking the golden rules to set V_in⁺ = V_in⁻ and zero input current, writing KCL at the inverting node to convert that constraint into an output expression, ratioing two impedances Z_1/Z_2 to extend the result to AC, or using a unity-gain buffer / transimpedance stage to reshape impedance without changing the signal value. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Operational Amplifiers (op-amps); +V_S, −V_S, V_in⁺, V_in⁻, V_out; V_out = A_OL(V_in⁺ − V_in⁻); A_OL ≈ 10⁴–10⁶ ≫ 1; Properties of op-amps; Inputs are very high impedance (10⁶–10¹⁴ Ω) (typically assume Z_in ≈ ∞ [1–100 MΩ]); Output impedance is low (1–100 Ω) (assume Z_out is negligible); output −V_S < V_out < +V_S (typically assume A_OL is large → ∞); 10⁵, 10³, 10⁰ vs ω; unity gain freq.; 10⁵–10⁶ Hz (log scale); Op-amp circuit w/ negative feedback; +V_S, −V_S, V_in, V_out, R_1, R_2; V_out = A_OL(V_in − V_out) assume V_in draws zero current; then V_in = R_2/(R_1+R_2)·V_out & V_out = A_OL(V_in − R_2/(R_1+R_2)V_out); V_out(1 + A_OL R_2/(R_1+R_2)) = A_OL·V_in ⇒ V_out = (A_OL/(1 + A_OL R_2/(R_1+R_2)))V_in; Can V_in not be railed? — yes!; If A_OL ≫ 1: V_out ≈ (A_OL/(A_OL R_2/(R_1+R_2)))V_in = (1/(R_2/(R_1+R_2)))V_in = (1 + R_1/R_2)V_in; Gain of Amplifier — set by R_1, R_2 — not by A_OL; In a non-Inverting Amplifier; V_in⁺ = V_in, V_in⁻ = (R_2/(R_1+R_2))V_out = ((R_1+R_2)/R_2)V_in; V_out = ((R_1+R_2)/R_2)V_in; This is generally true for op-amp circuits w/ negative feedback; Golden Rules for op-amp circuits w/ Negative Feedback; If there is a resistor (or other circuit element) connecting output back to inverting input: The output will do whatever is necessary to make inputs equal V_in⁺ = V_in⁻; If non-inverting input is grounded then the inverting input will be called a 'virtual ground'; Also assume no current flows into inputs ⇒ assume Z_out is low; Solve V_out for both examples; example 1: Summing Amplifier: R_3 → I_3, R_in = R_in, V_in¹ → I_1, V_in² → I_2; V_in⁻ = V_in⁺ = 0; I_1 + I_2 = I_3 Junction Rule; I_1 = V_in¹/R_1, I_2 = V_in²/R_2, I_3 = V_in³/R_3; so V_out = −(I_1 + I_2)R_L = −((V_in¹ + V_in²)/R_1)·R_L; V_out = −(R_L/R_1)(V_in¹ + V_in²); example 1: Differential Amplifier; R_1, R_2; V_in⁺ = V_in⁻; V_in = V_in(R_2/(R_1+R_2)) = 3(1000/1500) = 2V; I_1 = (1V−2V)/500Ω = −2 mA → I_1 = 2 − V_out/1000 → −2 = 2 − V_out → V_out = 4V; V_out = −(R_2/R_1)(V_in,1 − V_in,2); Inverting Amplifier; R_1 → I_1, R_2 → I_2, +V_S, −V_S, V_in, V_out; If V_in > 0, what is V_out?; If V_in increases a little bit → V_out wants to decrease a lot; but now current flows through R_1 + R_2; I_1 = I_2 (no current drawn by inputs); this current decreases V_in by I_2·R_2; If V_out kept decreasing eventually V_in → 0, circuit reaches equilibrium @ V_in⁻ ≈ V_in⁺; V_in⁻ = V_in⁺ = V_in = V_out, V_out = V_in unity gain Buffer; Get better I/O impedance characteristics (even if finite R_out); V_out = V_in; V_in⁻ = V_in⁺ = 0; I_1 = (V_in − V_in⁻)/R_1 = V_in/R_1 = I_2; I_2 = (V_in − V_in⁻)/R_2 = V_in⁻/R_2 = I_1; V_out = −I_1 R_1 = −V_in/R_2 · R_1; V_out = −(R_1/R_2)V_in (Gain) — Inverting Amplifier; Op-Amp Integrator; C → I_1, R → I_1; Looks like an integrator * watch out! A small DC voltage @ input will eventually integrate up to large output voltage; Compare to passive integrator; Looks like integrator only when ω ≫ 1/RC; V_in = 0; V_out = −V_C = −Q/C = −(1/C)∫₀ᵗ I_1 dt' = −(1/RC)∫₀ᵗ V_in(t')dt'; op-amp integrator vs passive integrator on a log-log plot; Frequency Dependent Amplifier; In General: V_out = −Z_1/Z_2 · V_in (assume |Z_1(ω)/Z_2(ω)| ≪ A_OL(ω)); ex: Integrator Z_1 = 1/(iωC), Z_2 = R; V_out = −1/(iωRC) · V_in; Transimpedance Amplifier; +V_S, −V_S, R, V_out; If V_out = −IR; Current Sink → Voltage Out; Transimpedance Gain = R; Useful for non-ideal current sources; V_in = Virtual Ground; No Voltage drop across current source.

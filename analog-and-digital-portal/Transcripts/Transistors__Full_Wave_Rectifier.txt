@@ -1,0 +1,56 @@
+Transistors and Full Wave Rectifier
+Overview
+Single-page lecture notes that recap the P-N junction (P-type / depletion / N-type with extra holes vs extra electrons), then move through diode current flow when V > V_D ≈ 0.6 V, the full-wave bridge rectifier and its smoothing-capacitor ripple, the half-wave rectifier with filter and the relevant ΔV ≈ V_max(2π/(ωRC)) ripple expression, the bipolar junction transistor (NPN: collector lightly n-doped, base lightly p-doped, emitter heavily n-doped), the conduction-band band-bending picture under V_BE > 0.6 V and V_CE > V_BE, the active vs saturation-region distinction, the relations I_C = αI_E ≈ I_E, I_B = (1−α)I_E, β = α/(1−α) ≈ 50–200, the transistor-as-switch saturation example, and the emitter follower with V_in > 0.6 V and V_E/R ≫ βI_B. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on rectification and on the BJT large-signal model. The page clearly includes the diode I-V curve I(V) ≈ 0 for V < V_D and I large for V > V_D ≈ 0.6 V (Si), the bridge rectifier where for V_in > 0 two diodes conduct and for V_in < 0 the other two conduct so V_out = |V_in| onto R, the smoothing capacitor that holds V_dc near peak between cycles giving an ωt → discharging V_out = (V_max − 0.6)e^(−t/RC) ≈ V_max(1 − t/RC) for short relative discharge, the ripple ΔV = peak-to-peak with ΔV ≈ V_max(Δt/RC) ≈ V_max(2π/(ωRC)) ≈ I_max(2π/ωC) = I_max/(fC), the BJT npn structure, the inequality V_BE > 0.6 V and V_CE > V_BE that opens the channel so electrons flow from E → B with some recombining (creating I_B) and most pushed by V_CE into the collector creating I_C ≫ I_B, the I_C vs V_CE family showing the saturation knee and the active plateau, the constant-current family for I_B = 10/20/30 mA, the transistor switch with V_S = 10 V driving a 500 Ω load — V_in = 0 V or 5 V, V_in = 5 V gives I_B = (V_in − V_BE)/4.4 kΩ ≈ 1 mA, then I_C = β·I_B ≈ 100 mA capable of pulling 10 V across R_L, max current I_max = 10/500 = 20 mA, the emitter follower with V_in > 0.6 V and V_E/R ≫ βI_B in the active region.
+
+Key equations
+
+$$\text{Diode condition: }I>0\Leftrightarrow V>V_{D}\approx 0.6\ \text{V (Si)}$$
+
+$$I(V)=I_{sat}(e^{eV/k_{B}T}-1),\quad I=0\Leftrightarrow V<V_{D}$$
+
+$$V_{out,\text{bridge}}(t)=|V_{in}(t)|-2V_{D}\quad\text{(full-wave rectifier output)}$$
+
+$$\text{Half-wave w/ filter: }V_{out}=(V_{in}-0.6)\,e^{-t/RC}\approx V_{max}\!\left(1-\frac{t}{RC}\right)$$
+
+$$\text{Discharge time: for }R\gg \frac{2\pi}{\omega},\ e^{-t/RC}\approx 1-\frac{t}{RC}$$
+
+$$\Delta V=\text{ripple}=\text{peak-to-peak}$$
+
+$$\Delta V=V_{max}\!\left(\frac{\Delta t}{RC}\right)=V_{max}\!\left(\frac{2\pi}{\omega RC}\right)=\frac{I_{max}}{\omega C}\!\cdot 2\pi=\frac{I_{max}}{fC}\quad(f=\text{frequency})$$
+
+$$\text{BJT (npn): }I_{B}+I_{C}=I_{E},\quad I_{C}=\alpha I_{E},\quad \alpha\approx 1$$
+
+$$I_{B}=(1-\alpha)I_{E},\qquad \beta=\frac{\alpha}{1-\alpha}\gg 1$$
+
+$$\beta\approx 50\text{–}200\ \text{for typical transistors in our lab}$$
+
+$$I_{C}=I_{E}=\beta I_{B}\quad\text{(active region)}$$
+
+$$\text{Active condition: }V_{BE}>0.6\ \text{V}\ \text{and}\ V_{CE}>V_{BE}$$
+
+$$\text{Some }e^{-}\text{ recombine with holes in base creating }I_{B}$$
+
+$$\text{Some }e^{-}\text{ are pushed from B to C by applied }V_{CE}\text{ and create }I_{C}$$
+
+$$\text{Goal: }I_{C}\gg I_{B},\ I_{E}=I_{B}+I_{C}\approx I_{C}\quad\text{(to make a good amp)}$$
+
+$$\text{Switch example: }V_{S}=10\ \text{V, light bulb }R_{L}=500\ \Omega,\ V_{in}=0\ \text{V or }5\ \text{V}$$
+
+$$V_{in}=0\Rightarrow I_{B}=0\Rightarrow I_{C}=I_{L}=0\ \text{(transistor off)}$$
+
+$$\text{For }V_{in}=5\ \text{V: assume }V_{BE}=0.6\ \text{V, }I_{B}=\frac{V_{in}-V_{BE}}{4.4\ \text{k}\Omega}=\frac{4.4\ \text{V}}{4.4\ \text{k}\Omega}=1\ \text{mA}$$
+
+$$I_{C}=\beta I_{B}=100\ \text{mA}\Rightarrow\text{max voltage across }R_{L}\approx 10\ \text{V}$$
+
+$$I_{\max}=\frac{V_{S}}{R_{L}}=\frac{10\ \text{V}}{500\ \Omega}=20\ \text{mA},\qquad I_{B}=20\ \mu\text{A}$$
+
+$$\text{Emitter Follower: assume }V_{in}>0.6\ \text{V and }\frac{V_{E}}{R}\gg \beta I_{B}\Rightarrow \text{active region}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: replacing each diode in a bridge or half-wave rectifier by an "on" 0.6 V drop or an open circuit depending on V > V_D, computing the smoothing-cap ripple ΔV from the discharge slope between successive peaks, applying the BJT current relations (β = I_C/I_B, I_E ≈ I_C in active mode), or sliding the transistor between off / active / saturated by checking whether V_BE clears 0.6 V and whether V_CE clears V_BE. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Review: Diode →|; P-type / depletion region / N-type; − + + +; I_h / I_e; Ē from voltage bias; P type dopants — extra holes; n type dopants — extra electrons; depletion region — no extra carriers; Half-wave Rectifier w/ Filter (C); +V_S, R, C, V_out; conduction band, valence band; P type / depletion region / n type; Current can flow if V > V_D ≈ 0.6V for silicon diode; Current of holes / Current of electrons; Full Wave Rectifier; for V_in > 0; for V < 0; sketches of bridge with two diodes conducting + V_dc; smoothing capacitor; C charges; C discharges; waveform w/ capacitor / waveform w/o capacitor; V_in(t) = 3V cos(ωt); when discharging; V_out = (V_in − 0.6) e^(−t/RC) ≈ V_max(1 − t/RC); for R ≫ 2π/ω, e^(−t/RC) ≈ (1 − t/RC); ΔV = Ripple = peak-to-peak; ΔV = V_max(Δt/RC) = V_max(2π/(ωRC)) = I_max(2π/(ωC)) = I_max/(fC) (f = frequency); Bipolar Junction Transistor (BJT) or npn transistor; n Collector ← lightly n-doped; depletion region; p Base ← lightly p-doped; depletion region; N Emitter ← heavily n-doped; no bias voltage / w/ V_be + V_ce; conduction band, valence band; Emitter / Base / Collector; cross section of npn transistor; Goal: I_C ≫ I_B, I_E = I_B + I_C ≈ I (to make good amp); If V_BE > 0.6V and V_CE > V_BE: then electrons can flow from E to B; * some e⁻ can recombine with holes in base creating I_B; * some e⁻ are pushed from B to C by applied V_CE and create I_C; Collector / Base / Emitter; ⇔ diode-equivalent symbol; β ≈ 50–200 for typical transistors in our lab; I_E = I_B + I_C, I_C = αI_E, α ≈ 1; I_B = (1 − α)I_E; I_C/I_B = α/(1−α) = β ≫ 1; I_C = I_E = βI_B; Transistor Switch Saturation Region; +V_S = 10V (and can output a large current); R_L = 500 Ω, light bulb; 4.40 kΩ, 0.6V; V_in = 0V or 5V; V_in can only source a small current — transistor off, I_C = I_L = 0; for V_in = +5V — assume there is an I_B; then V_BE = 0.6V; I_B = (V_in − V_BE)/4.4 kΩ = 4.4V/4.4 kΩ = 1 mA; Is transistor in active or Saturation Region?; then I_C = 100 mA → max Voltage across R_L = 10V; max Current I_max = 10V/500Ω = 20 mA; I_B = 20 µA; Emitter Follower; +V_S, V_in, V_out; V_BE = 0.6V; V_in = V_BE + V_out; V_out = V_in − 0.6; Assume V_in > 0.6V and V_E/R ≫ βI_B; → active region: assume β; * what good is this?; V_out remains the same even if I add an output load; I_C vs V_CE family with I_B = 30 mA, I_B = 20 mA, I_B = 10 mA; saturation region / active region (β ≈ constant); 3 mA, 2 mA, 1 mA; Constant Current — I_B; V_in = 0V or 5V; V_BE; w/ no bias voltage, conduction band, valence band; emitter / base / collector P; w/ V_BE + V_CE band-bending sketch.

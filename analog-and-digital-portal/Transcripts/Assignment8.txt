@@ -1,0 +1,56 @@
+Assignment 8
+Overview
+Homework on op-amp configurations: a voltage-controlled current source built around an op-amp where the load current must be shown to be independent of R_L (then evaluated at V_in = 2 V and at the supply-rail-limited maximum), and an inverting amplifier with a parallel R-C feedback network whose impedance ratio sets the gain so that an AC input of 1 V at ω = 2π × 300 s⁻¹ produces an output of about 4.7 V. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on the standard golden-rule analysis of feedback op-amp circuits. The pages clearly include the properties of op-amps (input impedance ≈ 10⁶–10¹⁴ Ω so V⁻ = V⁺ and no input current, output impedance ≈ 1–100 Ω, large open-loop gain A_OL → ∞ inside the unity-gain bandwidth ~10⁵–10⁶ Hz), the transimpedance-style derivation V_L = (5/2)V_in followed by I_out = (V_L − V_in)/R₂ = V_in/R₂ that confirms independence from R_L, the numerical I_out = 10 mA at V_in = 2 V, the maximum-output-V_out = (5/2)V_in + I_out R_L hitting the rail at V_in ≈ 10/3 ≈ 3.33 V, and the inverting amplifier whose gain is the ratio of complex impedances V_out = −(Z₂/Z₁)V_in with Z₂ = R/(1 + jωRC), giving |V_out| ≈ 4.686 V ≈ 4.7 V. The assignment is using these to drill the same workflow: golden rule, virtual short, KCL at the inverting node.
+
+Key equations
+
+$$\text{Golden Rules: }V_{in}^{+}=V_{in}^{-},\qquad I_{1}=I_{2},\qquad I_{\text{input}}=0$$
+
+$$V_{out}=A_{OL}(V_{in}^{+}-V_{in}^{-}),\qquad A_{OL}\approx 10^{4}\text{–}10^{6}$$
+
+$$\text{KCL at inverting node: }\frac{V_{in}-V^{-}}{R_{1}}+\frac{V_{L}-V^{-}}{R_{2}}=0$$
+
+$$\text{With }V^{-}=V_{in}^{+}=V_{in}\ \text{(source on +): }\frac{V_{in}-0}{200}+\frac{V_{in}-V_{L}}{300}=0$$
+
+$$V_{L}=\tfrac{5}{2}V_{in}$$
+
+$$I_{out}=\frac{V_{L}-V_{in}}{R_{2}}=\frac{(5/2)V_{in}-V_{in}}{300}=\frac{(3/2)V_{in}}{300}=\frac{V_{in}}{200}\quad\text{(independent of }R_{L}\text{)}$$
+
+$$I_{out}\big|_{V_{in}=2\,\text{V}}=\frac{2}{200}=0.01\ \text{A}=10\ \text{mA}$$
+
+$$V_{out}=V_{L}+I_{out}\,R_{L}=\tfrac{5}{2}V_{in}+\tfrac{V_{in}}{200}\!\cdot\!100=\tfrac{5}{2}V_{in}+\tfrac{1}{2}V_{in}=3V_{in}$$
+
+$$V_{out,\max}=V_{S}=10\ \text{V}\ \Rightarrow\ V_{in}=\tfrac{10}{3}\approx 3.33\ \text{V}$$
+
+$$\text{Inverting amp gain: }V_{out}=-\frac{Z_{2}}{Z_{1}}V_{in}$$
+
+$$Z_{1}=R_{1}=100\ \Omega$$
+
+$$Z_{2}=\frac{R_{2}}{1+j\omega R_{2}C}\quad(\text{parallel }R_{2}\text{ and }C)$$
+
+$$\frac{|V_{out}|}{|V_{in}|}=\frac{|Z_{2}|}{|Z_{1}|}=\frac{R_{2}/\sqrt{1+(\omega R_{2}C)^{2}}}{R_{1}}$$
+
+$$|V_{out}|=\left|\frac{1/(1+j(2\pi\!\cdot\!300)(1000)(10^{-6}))}{100}\right|^{-1}\!\cdot 1\ \text{V}\approx 4.686\ \text{V}\approx 4.7\ \text{V}$$
+
+$$\omega R_{2}C=(2\pi\!\cdot\!300)(1000)(10^{-6})\approx 1.885$$
+
+$$\sqrt{1+(\omega R_{2}C)^{2}}=\sqrt{1+1.885^{2}}\approx 2.134$$
+
+$$\text{Gain magnitude }=\frac{R_{2}}{R_{1}\sqrt{1+(\omega R_{2}C)^{2}}}=\frac{1000}{100\cdot 2.134}\approx 4.686$$
+
+$$\text{Unity-gain bandwidth: }f_{u}\approx 10^{5}\text{–}10^{6}\ \text{Hz}$$
+
+$$Z_{in}^{(\text{op-amp})}\approx 10^{6}\text{–}10^{14}\ \Omega,\qquad Z_{out}^{(\text{op-amp})}\approx 1\text{–}100\ \Omega$$
+
+$$\text{Saturation: }-V_{S}<V_{out}<+V_{S}$$
+
+$$\text{When }V_{th}>0:\ V_{out}=+V_{S};\quad V_{th}<0:\ V_{out}=-V_{S}\ \text{(no feedback / comparator)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: applying the golden rule (virtual short and zero input current), writing KCL at the inverting node, ratioing complex impedances Z₂/Z₁ to get the gain, or checking whether the demanded output exceeds the supply rail. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 8; Due Monday, April 6, 2026; The circuit below can be thought of as a voltage controlled current source; Show that the current, I_out, through the load resistor, R_L, is independent of the value of R_L; For V_in = 2 Volts, what is the value of I_out; If the op amp has supply voltages V_s = 10 V and −V_s = −10 V, what is the maximum current that can be supplied to a 100 Ω load resistor; What input voltage does this correspond to; V_IN = 2.0 V, R_2 = 300 Ω, R_2 = 200 Ω; Properties of op-amps; Inputs are very high impedance (10⁶–10¹⁴ Ω) typically assume Z_in ≈ ∞ (1–100 MΩ); Output impedance is low (1–100 Ω) assume Z_out is negligible; output −V_S < V_out < +V_S; typically assume A_OL is large (→ ∞); unity gain freq. ~10⁵–10⁶ Hz; for V_in = 2V: I_out = 2/200 = 1/100 A = 0.01 A = 10 mA; V_out = V_L + I_out · R_L; V_out = (5/2)V_in + V_in/200·100 = (5/2)V_in + (1/2)V_in = 3V_in; and V_in = ±10V, so V_out = 10/3 V = 3.33 V; V_th > 0 (V_out = +2V), V_th < 0 (V_out = −2V); V⁻ = V⁺ = V_in; no current to inputs; @ a: (V_in−0)/200 + (V_in−V_L)/300 = 0 ⇒ V_L = (5/2)V_in; I_out = (V_L − V_in)/300 = ((5/2)V_in − V_in)/300; so I_out = (3/2)V_in/300 = V_in/200 (independent of L); R_2 = 100 Ω, R_2 = 1000 Ω, C = 1 µF; (1V @ 2π·300); Golden Rule V_in⁺ = V_in⁻, I_1 = I_2; I_2 = (V_in − V⁻)/R_2 = V_in/R_2 = I_1; V_out = −I_1·R_1 = −V_in/R_2 · R_1; V_out = −(R_1/R_2)·V_in or |Z_1|/|Z_2|·V_in; Inverting Amplifier; Z₁ = R/(1 + j·2π·300·3 kΩ·1µF); ≈ 4.686·1V ≈ 4.7 V.

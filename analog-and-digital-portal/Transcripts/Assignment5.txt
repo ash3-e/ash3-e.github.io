@@ -1,0 +1,56 @@
+Assignment 5
+Overview
+Homework on diode circuits and rudimentary diode logic: finding the maximum input voltage for which a diode in a three-resistor network draws no current (assuming an ideal 0.6 V drop), sketching the output of an AC-driven clipper for two different input amplitudes (4 V and 0.5 V), and identifying which of two two-input diode circuits behaves as a logical AND and which behaves as a logical OR by enumerating outputs over all 0 V / 5 V input combinations. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on switching behavior of diodes. The pages clearly include the diode-off threshold computed by replacing the diode with the open-circuit / 0.6 V clamp model and applying a simple voltage divider through R₂₃ = R₂ + R₃, two waveform sketches where a 4 V cosine is clipped between roughly +1.1 V and −1.4 V by three diodes one way and two diodes the other while a 0.5 V cosine sits unclipped because the threshold sums of 1.8 V (3D) and 1.2 V (2D) are never reached, and the AND/OR identification where the resistor-pulled-up circuit reads HIGH only when both inputs are HIGH and the resistor-pulled-down circuit reads HIGH whenever any input is HIGH. The assignment is using these to set up the same diode mental model: a diode is a one-way switch with a fixed forward drop.
+
+Key equations
+
+$$\text{Ideal diode model: }I_{D}>0\Leftrightarrow V_{D}=V_{\text{drop}}=0.6\ \text{V},\qquad I_{D}=0\Leftrightarrow V_{D}<0.6\ \text{V}$$
+
+$$\text{When clamped: }V_{D}=0.6\ \text{V (node A held by diode)}$$
+
+$$V_{A}=V_{0}\!\left(\frac{R_{23}}{R_{1}+R_{2}+R_{3}}\right)\quad\text{(divider with diode off)}$$
+
+$$V_{0,\max}=V_{A}\!\left(\frac{R_{1}+R_{2}+R_{3}}{R_{23}}\right)\quad\text{evaluated at }V_{A}=0.6\ \text{V}$$
+
+$$R_{23}=R_{2}+R_{3}$$
+
+$$\text{Series 3 diodes drop: }3V_{D}=1.8\ \text{V}$$
+
+$$\text{Series 2 diodes drop: }2V_{D}=1.2\ \text{V}$$
+
+$$\text{Clip range (4 V cosine): }+1.1\ \text{V to }-1.4\ \text{V}$$
+
+$$V_{in}(t)=4\cos(\omega t)\ \text{Volts}\Rightarrow V_{out}\ \text{clipped when }|V_{in}|>\ \text{diode-stack drop}$$
+
+$$V_{in}(t)=0.5\cos(\omega t)\ \text{Volts}\Rightarrow V_{out}=V_{in}\ \text{(amplitude below 1.2 V/1.8 V threshold)}$$
+
+$$\text{Pull-up (AND) circuit: }V_{out}=5\ \text{V iff both }V_{in,1},V_{in,2}=5\ \text{V}$$
+
+$$\text{Pull-down (OR) circuit: }V_{out}=5\ \text{V iff either }V_{in,1}\ \text{or }V_{in,2}=5\ \text{V}$$
+
+$$\text{AND truth: }(0,0)\!\to\!0,\ (5,0)\!\to\!0,\ (0,5)\!\to\!0,\ (5,5)\!\to\!5$$
+
+$$\text{OR truth: }(0,0)\!\to\!0,\ (5,0)\!\to\!5,\ (0,5)\!\to\!5,\ (5,5)\!\to\!5$$
+
+$$\text{Through-resistor when diode is off: }I_{R}=0\Rightarrow V_{R}=0\Rightarrow V_{out}=V_{in}$$
+
+$$V_{out}=V_{in}-V_{D,\text{stack}}\quad\text{when diode stack conducts}$$
+
+$$V_{D,\text{forward}}\approx 0.6\ \text{V (Si)},\qquad V_{D,\text{reverse}}\approx 0$$
+
+$$V_{out,\max}^{(3D)}=+1.8\ \text{V},\qquad V_{out,\min}^{(3D)}=-1.2\ \text{V}\ \text{(asymmetric stack)}$$
+
+$$\text{KVL clamp: }V_{in}=V_{out}+nV_{D}\ \text{when stack of }n\ \text{diodes conducts}$$
+
+$$P_{D}=V_{D}I_{D}\quad\text{(power dissipated in conducting diode)}$$
+
+$$\text{Logic levels: LOW }=0\ \text{V},\quad \text{HIGH }=5\ \text{V}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: replacing the diode with the right model (open circuit / 0.6 V clamp / forward conducting), applying a voltage divider once that replacement is in, summing diode drops along a clipping path to find the output ceiling and floor, or tabulating logic outputs by walking through every input combination. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 5; Due Wed, Feb 25, 2026; For the circuit shown below, what is maximum voltage V₀ that will result in zero current through the diode; Assume the diode is an ideal diode with a diode drop of 0.6 V; The circuit shown below is driven by an AC voltage source; Sketch the output voltage vs time for a few cycles of the wave when (a) V_in(t) = 4 cos(ωt) Volts and (b) V_in(t) = 0.5 cos(ωt) Volts; Two circuits are shown below that two inputs each; Assuming the inputs are restricted to have discrete values of either 0 V or 5 V, determine the output voltage for each circuit for all combinations of input voltages; These are rudimentary logic circuits known as an AND gate and an OR gate; Which circuit would you call AND, and which circuit would you call OR; clamped to 0.6 V by diode; node, R, R₂₃; to solve sub V_A for V_D and solve for circuit; w/ D clamped or w/ OA @ V_D = 0.6 V (voltage divider); V_A = V₀(R₂₃/(R₁+R₂+R₃)) → V₀ = V_A((R₁+R₂+R₃)/R₂₃); since V_in > 3D/2D the diodes break the flow and act as an open circuit; so the resistor provides 0 resist. and the voltage is unaffected; input/output @ t = 0; 3D = 1.8V, 2D = 1.2V; logic input/output table; AND Gate; OR Gate; diodes act like one-way switches, only one will win out.

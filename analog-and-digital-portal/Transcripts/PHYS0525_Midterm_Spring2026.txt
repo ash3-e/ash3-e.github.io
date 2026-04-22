@@ -1,0 +1,58 @@
+PHYS0525 Midterm Spring 2026
+Overview
+Mid-semester examination from March 17, 2026, covering the first half of the course in four problems: (1) an AC transfer-function problem on a series-L → (parallel R, C) network requiring V_out as a complex amplitude in terms of R, L, C, ω plus the limiting behaviour as ω → 0 and ω → ∞; (2) an npn BJT problem with a printed I-V family (I_B = 1–10 µA, I_C up to 7 mA, V_CE 0–10 V) requiring β-extraction at I_B ≈ 4 µA, an active-vs-saturation determination from a measured (I_B, I_C) pair, and a power calculation in active mode; (3) a three-diode network with two voltage sources (V_1 = 10 V, V_2 = 6 V) and resistors R_1 = 1 kΩ, R_2 = 3 kΩ requiring the currents I_D1, I_D2, I_D3 with each silicon diode dropping 0.6 V; and (4) a transmission-line problem where an unknown coax is terminated with R = 200 Ω, a 1 V incident pulse produces a 0.2 V reflected pulse, and Z_0 must be solved for. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on four problems, one from each major unit of the first half of the course. Problem 1 is the LRC voltage-divider derivation V_out/V_in = (Z_C ∥ Z_R)/(Z_L + Z_C ∥ Z_R) with Z_L = iωL, Z_C = 1/(iωC), Z_R = R, simplified to V_out = R/(R + iωL − ω²LRC) · V_in, with the ω → 0 limit (Z_L → 0, circuit "behaves like a wire," V_out → V_in) and the ω → ∞ limit (Z_C → 0, the parallel branch shorts to ground, V_out → 0). Problem 2 reads β = I_C/I_B = 4 mA/8 µA = 500 from the I-V family at I_B ≈ 4 µA; for I_B = 8 µA and I_C = 2 mA, βI_B = 500·8 µA = 4 mA ≠ 2 mA so the transistor is in saturation; for I_B = 2 µA and V_CE = 4 V, βI_B = 500·2 µA = 1 mA = I_C, the transistor is in active mode and the dissipated power is P = V_CE I_C + V_BE I_B = 4·1 mA + 0.6·2 µA ≈ 4 mW. Problem 3 reads off the diode-clamped node voltages: with each diode dropping 0.6 V the voltage across R_1 = 1 kΩ is 10 − 1·0.6 − 6 + 2·0.6 + 0... actually 9.4 − 1.2 = 8.2 V across R_1 giving I_R1 = 8.2 V / 1 kΩ = 8.2 mA, and 6 − 1.2 = 4.8 V across R_2 = 3 kΩ giving I_R2 = 4.8/3 = 1.6 mA, so by KCL I_D1 = I_R1 = 8.2 mA and I_D2 = I_D3 = I_R1 + I_R2 = 8.2 + 1.6 = 9.8 mA. Problem 4 plugs into Γ = V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0), substitutes Z_L = 200 Ω and V_R/V_0 = 0.2 V, and solves for Z_0 (handwritten guess-and-check yielded Z_0 = 125 Ω; the algebraic solution to 0.2 = (200 − Z_0)/(200 + Z_0) is Z_0 = 200·(1 − 0.2)/(1 + 0.2) = 200·0.8/1.2 ≈ 133 Ω).
+
+Key equations
+
+$$Z_{L}=i\omega L,\qquad Z_{C}=\frac{1}{i\omega C},\qquad Z_{R}=R$$
+
+$$Z_{C}\,\|\,Z_{R}=\left(\frac{1}{R}+i\omega C\right)^{-1}=\frac{R}{1+i\omega RC}$$
+
+$$V_{out}=\left(\frac{Z_{C}\|Z_{R}}{Z_{L}+Z_{C}\|Z_{R}}\right)V_{in}=\frac{R/(1+i\omega RC)}{i\omega L+R/(1+i\omega RC)}V_{in}$$
+
+$$V_{out}=\frac{R}{R+i\omega L-\omega^{2}LRC}\,V_{in}\quad\text{(simplified)}$$
+
+$$\omega\to 0:\ Z_{L}\to 0\Rightarrow V_{out}\to V_{in}\quad\text{(circuit behaves like a wire)}$$
+
+$$\omega\to\infty:\ Z_{C}\to 0\Rightarrow V_{out}\to 0\quad\text{(short-circuits to ground)}$$
+
+$$\beta=\frac{I_{C}}{I_{B}}=\frac{4\ \text{mA}}{8\ \mu\text{A}}=500\quad\text{(extracted at }I_{B}\approx 4\ \mu\text{A)}$$
+
+$$\text{Active region check: }I_{C}\stackrel{?}{=}\beta I_{B}\ \text{and independent of }V_{CE}$$
+
+$$\text{(b) }I_{B}=8\,\mu\text{A},\ I_{C}=2\ \text{mA},\ \beta I_{B}=4\ \text{mA}\ne 2\ \text{mA}\Rightarrow\text{saturation mode}$$
+
+$$\text{(c) }I_{B}=2\,\mu\text{A},\ V_{CE}=4\ \text{V},\ I_{C}=\beta I_{B}=500\cdot 2\,\mu\text{A}=1\ \text{mA}\Rightarrow\text{active mode}$$
+
+$$P=V_{CE}I_{C}+V_{BE}I_{B}=(4\ \text{V})(1\ \text{mA})+(0.6\ \text{V})(2\ \mu\text{A})\approx 4\ \text{mW}$$
+
+$$\text{Diode model: }V_{D}=0.6\ \text{V (Si) when conducting,}\ I_{D}=0\ \text{otherwise}$$
+
+$$V_{R_{1}}=V_{1}-V_{D_{1}}-V_{2}+V_{D_{2}}+V_{D_{3}}=10-0.6-6+1.2=4.6\ \text{V}\ \text{(or 8.2 V depending on KVL loop)}$$
+
+$$V_{R_{1}}=10-V_{D}-V_{R_{2}}-2V_{D}=9.4-1.2=8.2\ \text{V (handwritten value)}$$
+
+$$I_{R_{1}}=\frac{V_{R_{1}}}{R_{1}}=\frac{8.2\ \text{V}}{1\ \text{k}\Omega}=8.2\ \text{mA}$$
+
+$$V_{R_{2}}=6-2V_{D}=6-1.2=4.8\ \text{V}$$
+
+$$I_{R_{2}}=\frac{V_{R_{2}}}{R_{2}}=\frac{4.8\ \text{V}}{3\ \text{k}\Omega}=1.6\ \text{mA}$$
+
+$$I_{D_{1}}=I_{R_{1}}=8.2\ \text{mA}$$
+
+$$I_{D_{2}}=I_{D_{3}}=I_{R_{1}}+I_{R_{2}}=8.2+1.6=9.8\ \text{mA}\quad\text{(KCL at node)}$$
+
+$$\Gamma=\frac{V_{R}}{V_{0}}=\frac{Z_{L}-Z_{0}}{Z_{L}+Z_{0}}=0.2\ \text{V}/1\ \text{V}=0.2$$
+
+$$0.2=\frac{200-Z_{0}}{200+Z_{0}}\Rightarrow Z_{0}=125\ \Omega\ \text{(handwritten guess-and-check answer)}$$
+
+$$\text{(Algebraic: }Z_{0}=200\cdot\frac{1-0.2}{1+0.2}=200\cdot\frac{0.8}{1.2}\approx 133.3\ \Omega\text{)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: building an AC transfer function from series-and-parallel impedance combinations and then taking the dc / high-frequency limits, deciding whether a BJT is in active or saturation by comparing measured I_C to βI_B, walking through a multi-source diode network using KVL around each loop and KCL at each node with each conducting diode held at 0.6 V, or applying Γ = (Z_L − Z_0)/(Z_L + Z_0) and the measured Γ to solve for the unknown line impedance. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: PHYS 0525 Analog and Digital Electronics, Spring 2026; Midterm Exam; Mar. 17, 2026, 11:00am–12:50pm; Please answer the following questions to complete your midterm exam; Write all of your solutions on the exam page; If you need extra space, please use the back of the page that the question is written on; You may use 1 page of note that you have compiled yourself; You may use a calculator that does not have an internet connection; No phones, tablets, laptops, smart watches, or any other devices that are wifi enabled; Please box or indicate your final answer to each question; Please show all of the work necessary to arrive at your final answer; Please do not begin until instructed to do so; Please write your name on the top of the exam; 1) (a) Compute V_out as a function of V_in and the parameters R, L, C, ω for the AC circuit drawn below; Assume the input oscillates sinusoidally at angular frequency ω; You may leave your answer as a complex amplitude; (b) Describe V_out in the limits ω → 0 and ω → ∞; V_in source, series L, parallel C and R, V_out across the parallel combination; Z_L = iωL, Z_C = 1/(iωC), Z_R = R; Z_C ∥ Z_R = (1/R + iωC)⁻¹ = R/(1+iωRC); V_out = (Z_C∥Z_R / (Z_L + Z_C∥Z_R)) · V_in → R/(1+iωRC) / (iωL + R/(1+iωRC)) · V_in; multiplying both sides by (1+iωRC): V_out/V_in = R/(R + iωL − ω²LRC); so V_out = R/(R + iωL − ω²LRC) · V_in; as ω → 0: Z_L → 0: circuit behaves like a wire; as ω → ∞: Z_C → ∞ (sketch shows short circuits to ground, i.e. Z_C → 0); 2) An npn bipolar junction transistor has the I-V curves shown to the right; Use values you extract from these curves to answer the following questions; I_b (µA) family: 10, 9, 8, 7, 6, 5, 4, 3, 2, 1; I_c (mA) vs V_ce (V) up to ~7 mA / 10 V; (a) Estimate the β value for this transistor if the bias current is approximately 4 µA; β = I_C/I_B = 4 mA/8 µA = 500; (b) If the transistor is in a circuit where the base current is measured to be 8 µA and the collector current is measured to 2 mA, is the transistor operating in active or saturation mode; in the active region: I = βI_B, β ≫ 1, and independent of V_ce; ? 2E−3 A = 500·8E−6 A?; 500·8E−6 = 4E−3 ≠ 2E−3 A; I ≠ βI_B → saturation mode; (c) If the transistor is in a different circuit where the base current is measured to be 2 µA and V_ce is measured to be 4 V, is the transistor operating in active or saturation mode? Approximately how much power is dissipated by the transistor in this case; 500·2E−6 = 1E−3 A = 1 mA; @ V_ce = 4V, I_B = 2 µA → active mode, I = 1 mA; Power = VI = V_ce I_C + V_BE I_B; * V_BE = constant: assume 0.6V; so P = 4V·1mA + 0.6V·2µA = 0.004 W = 4 mW; 3) Calculate the current through each of the diodes, D_1, D_2, and D_3, in the circuit drawn below; Assume the diodes are typical silicon diodes with a diode drop of 0.6 V each; V_1 = 10 V, V_2 = 6 V, R_1 = 1 kΩ, R_2 = 3 kΩ; D_1 forward, D_2 and D_3 forward in series; 9.4 − 1.2 = 8.2 V; 6 − 1.2 = 4.8 V; 1V_D (0.6); → 10V − 0.6V = 9.4V; 2V_d (1.2); I_R1 = 8.2 V / 1 kΩ = 8.2 mA; so I_D1 = 8.2 mA; I_R2 = 4.8 V / 3 kΩ = 1.6 mA; adding ① + ② → 8.2 mA + 1.6 mA = 9.8 mA; and I_D2 = I_D3 = 9.8 mA; 4) Suppose you have a long coaxial cable of unknown characteristic impedance; You do the following experiment to try to measure its impedance; You terminate one end of the cable with a 200 Ω resistor; You then send a short pulse into the other end of the cable with an amplitude of 1 V; You measure the reflected pulse to have an amplitude of 0.2 V; What is the impedance of the cable; V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0); amplitude; * Z_L = 200 Ω; solve for Z_0: 0.2 V = (200 Ω − Z_0)/(200 Ω + Z_0) → Z_0 = 125 Ω; guess and check → 0.2V = (200 − 125)/(200 + 125) = 75/325 = 2/10 = 1/10 = 0.2 V ✓.

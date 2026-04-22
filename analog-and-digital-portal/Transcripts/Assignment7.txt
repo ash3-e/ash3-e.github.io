@@ -1,0 +1,54 @@
+Assignment 7
+Overview
+Homework on JFET characteristics: extracting the pinch-off voltage V_p and the parameter K from a tabulated I_D(sat) versus V_GS curve by linearizing through √I_D = √K(V_GS − V_p), reading the ohmic-region voltage range and effective drain-source resistance off the family of I-V curves at V_GS = −1 V, and using the same family to operate the transistor as a constant current source feeding a variable load resistor with the maximum load determined by the onset of saturation droop. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on FET dc operating points. The pages clearly include the table of (V_GS, I_D(sat), √I_D(sat)) values from V_GS = 0 V down to V_GS = −2.5 V which fits the square-law I_D(sat) = K(V_GS − V_p)², a √I_D vs V_GS plot whose linear fit gives V_p ≈ −2.5 V (or the rounded −3 V from a different intercept) and K ≈ 1, a marked ohmic region 0 ≤ V_DS ≤ 2.5 V at V_GS = −1 V with R_DS ≈ 250 Ω read directly from the slope, and the constant-current-source case where V_GS = 0 fixes I_D ≈ 9 mA so the load drops V_RL = V_S − V_DS,sat = 7.5 V, capping R_L,max ≈ 833 Ω. The assignment is using these to drill the same workflow: read the saturation current, square-root linearize, and identify the boundary between ohmic and saturation.
+
+Key equations
+
+$$I_{d,\text{sat}}=K\,(V_{GS}-V_{p})^{2}$$
+
+$$\sqrt{I_{d,\text{sat}}}=\sqrt{K}\,(V_{GS}-V_{p})$$
+
+$$\text{Slope of }\sqrt{I_{d,\text{sat}}}\text{ vs }V_{GS}=\sqrt{K}$$
+
+$$\text{x-intercept of }\sqrt{I_{d,\text{sat}}}\text{ vs }V_{GS}=V_{p}$$
+
+$$\sqrt{I_{d}(0)}=\sqrt{K}(0-V_{p})\ \Rightarrow\ 3=-\sqrt{K}\,V_{p}$$
+
+$$\sqrt{I_{d}(-2)}=\sqrt{K}(-2-V_{p})\ \Rightarrow\ 1=-2\sqrt{K}-\sqrt{K}V_{p}$$
+
+$$\Rightarrow\ V_{p}\approx -3,\qquad K\approx 1$$
+
+$$\text{Tabulated values: }V_{GS}=0\!:\!I_{d}=9,\ -0.5\!:\!6,\ -1.0\!:\!4,\ -1.5\!:\!2,\ -2.0\!:\!1,\ -2.5\!:\!\sim 0.2\ \text{(mA)}$$
+
+$$\sqrt{I_{d}}\ \text{values: }3,\ 2.49,\ 2,\ 1.41,\ 1,\ 0.45$$
+
+$$\text{Ohmic region: }0\le V_{DS}\le |V_{p}|\approx 2.5\ \text{V (at }V_{GS}=-1\text{ V)}$$
+
+$$R_{DS}=\frac{V_{DS}}{I_{D}}\bigg|_{\text{ohmic}}\approx\frac{2.5\ \text{V}}{9\ \text{mA}}\approx 250\ \Omega$$
+
+$$\text{Constant current source: }I_{D}=I_{d,\text{sat}}(V_{GS})\ \text{independent of }V_{DS}$$
+
+$$\text{Tying gate to source: }V_{GS}=0\ \Rightarrow\ I_{D}=9\ \text{mA}\ \text{(at }V_{GS}=0\text{)}$$
+
+$$I_{L}=I_{D}=9\ \text{mA}$$
+
+$$V_{DS,\text{sat}}\approx 2.5\ \text{V}\ \text{at }V_{GS}=0$$
+
+$$V_{R_{L},\max}=V_{S}-V_{DS,\text{sat}}=10-2.5=7.5\ \text{V}$$
+
+$$R_{L,\max}=\frac{V_{R_{L},\max}}{I_{D}}=\frac{7.5\ \text{V}}{9\ \text{mA}}\approx 833\ \Omega$$
+
+$$g_{m}=\frac{dI_{D}}{dV_{GS}}=2K(V_{GS}-V_{p})\quad\text{(transconductance)}$$
+
+$$\frac{dI_{D}}{dV_{DS}}\bigg|_{\text{ohmic}}=\frac{1}{R_{DS}}$$
+
+$$\Delta V=|V_{p}|+V_{BS}\quad\text{(channel voltage with body bias)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: applying the square-law model I_D = K(V_GS − V_p)², linearizing it via the square root to fit V_p and K, picking off the ohmic slope to get R_DS, or using the saturation plateau as a constant current source and finding the load that just drops the device out of saturation. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 7; Due Monday, March 23, 2026; The characteristic I-V curves of a JFET transistor are shown below; Make a table of the given V_GS values and the corresponding value of I_d(sat), the drain current in the saturation region; Also include a column in the table giving √I_d(sat); Plot √I_d(sat) versus V_GS; One model for the response of a FET transistor is of the form I_d(sat) = K(V_GS − V_p)², where V_p is the pinch-off or threshold voltage for the FET, and K is another constant; Estimate the slope and y-intercept of the plot and use these to estimate values for V_p and K for this transistor; For the transistor with the I-V curves shown below and with V_GS = −1 V, find the values of V_DS over which the transistor is in its ohmic region; From the graph below, estimate the effective resistance of the transistor between its drain and source in this region; The transistor with the I-V curves shown below is connected as shown in the circuit on the right as a constant current source; Using the I-V curves below, determine the current flowing through the variable load resistor, R_L, and the maximum load resistor that can be put into the circuit before current begins to significantly droop; V_GS Idsat √Idsat: 0 9 3, −0.5 6 2.49, −1.0 4 2, −1.5 2 1.41, −2.0 1 1, −2.5 ~0.2 0.45; Idsat = K(V_GS − V_p)², √Idsat = √K(V_GS − V_p); 3 = √K(0 − V_p) ⇒ V_p ≈ −3, ∂√Idsat = 3; 1 = √K(−2 − V_p) → 1 = −2√K − V_p√K; K ≈ 1; Ohmic Region: 0 ≤ V_ds ≤ −2.5; R_ds = V_ds/I_ds = 2.5V/9mA ≈ 2500 Ω (note: figure annotation reads ~250 Ω at V_GS = −1 V); V_GS = 0 (tied to source) → I_d @ V_GS=0: 9 mA; in series w/ transistor so I_L = I_d at V_GS = 0; Max Load – saturation begins @ ~2.5V = V_DS; V_RL,max = 10V − 7.5V = 7.5V (using V_DS,sat ≈ 2.5V → V_RL = V_S − V_DS,sat); R_L,max ≈ 833 Ω.

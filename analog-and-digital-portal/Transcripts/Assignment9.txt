@@ -1,0 +1,56 @@
+Assignment 9
+Overview
+Homework on op-amp relaxation oscillators and combinational logic: deriving the oscillation period of a Schmitt-trigger relaxation oscillator built around an op-amp with a feedback fraction β = R₂/(R₁+R₂) on the non-inverting input and an R_F C timing branch on the inverting input, and constructing the truth table for an AND-OR-INVERT (AOI) gate that takes four inputs A, B, C, D into Out = NOT((A AND B) OR (C AND D)). This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on closed-form timing for hysteretic comparators and on basic Boolean enumeration. The pages clearly include the assumed starting point V_out = +V_S with the capacitor initially uncharged at V_C(0) = −βV_S (after the previous flip), the loop equation V_C(t) = V_S + (V_C(0) − V_S)e^(−t/RC) that grows toward +V_S until V_C reaches V⁺ = +βV_S, the algebra βV_S = V_S + (−βV_S − V_S)e^(−t/R_F C) that yields t/RC = ln[(1+β)/(1−β)] for the half-period, the doubling to T = 2R_F C·ln[(1+β)/(1−β)], the substitution β = R₂/(R₁+R₂) giving T = 2R_F C·ln[(R₁+2R₂)/R₁], and the 16-row truth table where Out = 1 only when neither (A,B) nor (C,D) are both 1. The assignment is using these to drill the same workflow: write the RC charging law between two threshold levels, then collapse the answer to a clean log expression.
+
+Key equations
+
+$$\beta=\frac{R_{2}}{R_{1}+R_{2}}$$
+
+$$V^{+}=\beta V_{S}$$
+
+$$V_{C}(t)=V_{S}+\big(V_{C}(0)-V_{S}\big)e^{-t/R_{F}C}$$
+
+$$V_{C}(0)=-\beta V_{S}\quad\text{(value just after the previous flip)}$$
+
+$$\beta V_{S}=V_{S}+(-\beta V_{S}-V_{S})e^{-t/R_{F}C}$$
+
+$$\beta=1-(1+\beta)e^{-t/R_{F}C}$$
+
+$$e^{-t/R_{F}C}=\frac{1-\beta}{1+\beta}$$
+
+$$t_{1/2}=R_{F}C\,\ln\!\left[\frac{1+\beta}{1-\beta}\right]$$
+
+$$T=2R_{F}C\,\ln\!\left[\frac{1+\beta}{1-\beta}\right]$$
+
+$$T=2R_{F}C\,\ln\!\left[\frac{1+\dfrac{R_{2}}{R_{1}+R_{2}}}{1-\dfrac{R_{2}}{R_{1}+R_{2}}}\right]=2R_{F}C\,\ln\!\left[\frac{R_{1}+2R_{2}}{R_{1}}\right]$$
+
+$$\tau=R_{F}C\quad\text{(charging time constant)}$$
+
+$$\text{Schmitt trigger thresholds: }V_{th,\pm}=\pm\beta V_{S}$$
+
+$$\text{AOI logic: Out}=\overline{(A\!\cdot\!B)+(C\!\cdot\!D)}$$
+
+$$\text{De Morgan: Out}=\overline{A\!\cdot\!B}\,\cdot\,\overline{C\!\cdot\!D}=(\bar A+\bar B)(\bar C+\bar D)$$
+
+$$\text{Out}=1\ \Leftrightarrow\ (A\!\cdot\!B)=0\ \text{and}\ (C\!\cdot\!D)=0$$
+
+$$\text{Out}=0\ \Leftrightarrow\ (A=B=1)\ \text{or}\ (C=D=1)$$
+
+$$\text{Truth-table count: out of 16 rows, 9 give Out}=1\ \text{and 7 give Out}=0$$
+
+$$\text{Special rows: }(1,1,*,*)\!\to\!0,\quad (*,*,1,1)\!\to\!0$$
+
+$$\text{If }R_{1}=R_{2}:\ T=2R_{F}C\,\ln(3)\approx 2.197\,R_{F}C$$
+
+$$\text{Duty cycle: }50\%\ \text{(symmetric thresholds }\pm\beta V_{S}\text{)}$$
+
+$$f_{osc}=\frac{1}{T}=\frac{1}{2R_{F}C\,\ln\!\big[(1+\beta)/(1-\beta)\big]}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: writing the exponential charging law of a capacitor toward a fixed rail, identifying the two threshold voltages set by the positive-feedback divider, collapsing the log into a closed-form half-period, or enumerating Boolean inputs through a small chain of AND / OR / NOT gates. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 9; Due Monday, April 13, 2026; Compute the oscillation period for the relaxation oscillator circuit shown below; Construct the truth table for the AND-OR-INVERT logic gate shown below; The circuit has four inputs A, B, C, and D and one output; (I.e. write out a table that gives the output of the circuit for all combinations of 0 or 1 input values on each of the inputs); Assuming Starting Point @ t = 0; V_C(t) = V_S + (V_C(0) − V_S)e^(−t/RC); V_out = +V_S + C uncharged and sub V_C(0) = −βV_S, V_C(t) = βV_S; V_in⁻ = 0 < V_in⁺ = V_+ = βV_S thus: βV_S = V_S + (−βV_S − V_S)e^(−t/RC); β = 1 − (−β−1)e^(−t/RC) ⇒ β = 1 − (1+β)e^(−t/RC); β − 1 = −(1+β)e^(−t/RC) → 1 − β = (1+β)e^(−t/RC); e^(−t/RC) = (1−β)/(1+β); t/RC = ln[(1+β)/(1−β)]; t = RC·ln[(1+β)/(1−β)] (½ period); T = 2RC·ln[(1+β)/(1−β)] and w/ β = R₂/(R₁+R₂); T = 2R_F·C·ln[(1 + R₂/(R₁+R₂))/(1 − R₂/(R₁+R₂))]; we resolve T = 2R_F·C·ln[(R₁ + 2R₂)/R₁]; Since V_out = V_S a current will flow through R_F + start to charge C with τ = R_F C; eventually V_in⁻ > V_in⁺ = V_+; then V_out → −V_S; cap starts to discharge; then output flips back; A AND B → A·B; C AND D → C·D; (A·B) OR (C·D) → A+B/C+D; NOT inverter; Out; truth table input A B C D output: 0000→1, 1000→1, 0100→1, 1100→0, 0010→1, 1010→1, 0110→1, 1110→0, 0001→1, 1001→1, 0101→1, 1101→0, 0011→0, 1011→0, 0111→0, 1111→0.

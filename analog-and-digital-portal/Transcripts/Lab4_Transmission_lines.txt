@@ -1,0 +1,54 @@
+Lab 4: Transmission Lines and Impedance Matching
+Overview
+Lab on the high-frequency behavior of an RG-58U coaxial cable (nominal Z_0 = 50 Ω): measuring the per-100-ft attenuation in dB by sending a 1 V_pp sine through ~500 ft of terminated cable, observing how reflections off a non-matched termination cause pulse echoes after a propagation delay 2L/v, identifying the open-circuit (Γ = +1, doubling) and short-circuit (Γ = −1, inversion) limits, then measuring Γ from echo amplitudes to extract Z_L from a known mystery termination using Γ = (Z_L − Z_0)/(Z_L + Z_0). The student also estimates the pulse propagation speed v from the round-trip delay and compares it to c/n with n ≈ √k_R for the polyethylene dielectric. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on cable losses and reflections. The pages clearly include the manufacturer's spec for RG-58U attenuation versus frequency (≈0.5 dB/100 ft at 1 MHz, ≈1.2 dB/100 ft at 10 MHz), the measurement protocol (BNC connectors, two scope channels at the input and the far end, pull V_in and V_out off the displayed waveforms, compute α[dB] = 20 log_10(V_out/V_in) per 100 ft), the BNC-connector loss check that adds only a few hundredths of a dB per joint, the ringing/echo measurement when the cable is left open (Γ = +1) showing the doubled-amplitude reflection arriving 2L/v later, the inverted echo when shorted (Γ = −1), the matched termination Γ = 0 with no echo for the 50 Ω terminator, the mystery-load measurement Γ = V_R/V_in solved for Z_L, and the round-trip timing 2L/v giving v ≈ 2/3 c for a typical polyethylene-dielectric coax. The section also covers EM wave propagation in the dielectric, characteristic impedance Z_0 = √(L_0/C_0), and the appendix-attenuation-in-dB calculation.
+
+Key equations
+
+$$\alpha[\text{dB}]=20\log_{10}\!\left(\frac{V_{out}}{V_{in}}\right)\quad\text{(attenuation in dB)}$$
+
+$$\alpha[\text{dB/100 ft}]=\frac{\alpha[\text{dB}]}{L/100\,\text{ft}}\quad\text{(per-length normalisation)}$$
+
+$$Z_{0}=\sqrt{L_{0}/C_{0}}\quad\text{(characteristic impedance)}$$
+
+$$Z_{0}^{\text{coax}}=\frac{1}{2\pi}\sqrt{\frac{\mu_{0}}{\varepsilon_{0}\varepsilon_{r}}}\,\ln\!\left(\frac{d_{1}}{d_{2}}\right)\quad\text{(coax geometry)}$$
+
+$$\Gamma=\frac{V_{R}}{V_{in}}=\frac{Z_{L}-Z_{0}}{Z_{L}+Z_{0}}\quad\text{(voltage reflection coefficient)}$$
+
+$$\text{Open: }Z_{L}\to\infty\Rightarrow\Gamma=+1\quad\text{(doubled amplitude)}$$
+
+$$\text{Short: }Z_{L}=0\Rightarrow\Gamma=-1\quad\text{(inverted reflection)}$$
+
+$$\text{Matched: }Z_{L}=Z_{0}\Rightarrow\Gamma=0\quad\text{(no echo)}$$
+
+$$Z_{L}=Z_{0}\,\frac{1+\Gamma}{1-\Gamma}\quad\text{(solve for unknown load)}$$
+
+$$v=\frac{1}{\sqrt{L_{0}C_{0}}}=\frac{c}{n},\quad n=\sqrt{\varepsilon_{r}}\quad\text{(propagation speed)}$$
+
+$$T_{rt}=\frac{2L}{v}\quad\text{(round-trip time)}$$
+
+$$v\approx\frac{2}{3}c\quad\text{for polyethylene dielectric coax}$$
+
+$$\text{Pulse speed: }v=\frac{2L}{T_{rt}}\quad\text{(extracted from echo timing)}$$
+
+$$P_{in}=\frac{V_{0}^{2}}{2Z_{0}}\quad\text{(time-averaged incident power)}$$
+
+$$P_{ref}=|\Gamma|^{2}P_{in}\quad\text{(reflected power)}$$
+
+$$P_{trans}=(1-|\Gamma|^{2})P_{in}\quad\text{(transmitted power)}$$
+
+$$\Delta\phi=2\pi\,f\,\Delta t\quad\text{(time-of-flight to phase)}$$
+
+$$\frac{V_{out}}{V_{in}}=10^{-\alpha L/(20\cdot 100\,\text{ft})}\quad\text{(amplitude after L feet)}$$
+
+$$T_{rise}\sim 0.35/B\quad\text{(rise-time bandwidth product)}$$
+
+$$\lambda_{cable}=\frac{v}{f}\quad\text{(wavelength on cable, with reduced }v\text{)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: converting amplitude ratios to dB and dB/100 ft, calculating a reflection coefficient Γ from the echo-to-input ratio, inverting that Γ back into a load impedance, or timing round-trip echoes to extract the propagation speed v on the cable. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 4; Transmission Lines and Impedance Matching; Equipment: RG 58 coax cable, function generator, oscilloscope, 50-Ω terminators, short terminators; Preliminaries: cables connecting different pieces of equipment may seem like a dull subject but their behavior at high frequencies is actually quite interesting; The subject is of considerable practical importance since the properties of cable limit the rates of data transmission over large distances; Long cables can produce unexpected effects unless one "terminates" them with a resistor equal to the characteristic impedance to prevent reflection of pulses at the end of the cable; In this experiment we study some properties of a frequently used coaxial cable of the type RG 58U; It has a nominal characteristic impedance of 50 Ω; A cable, more generally called a "transmission line," consists of two insulated conductors that may be parallel, twisted, or coaxial; We use coaxial cable (Figure 1) as an example, but other types of transmission lines have similar properties; Figure 1: Cross section of a coaxial cable; Outer diameter of the insulator = d_1, Inner diameter of the insulator = d_2; RG58 coaxial cable (Z_0 = 50 Ω); Attenuation (dissipation): A[dB] = 10 log_10(...); Reflection & Transmission: Match: Γ = 1; Γ depends on; F.G. Z_0 = 50 Ω; R_L = 50 Ω; Delay: EM Wave; Γ = (Z_L − Z_0)/(Z_L + Z_0); v_0 ≈ 2/3 c; Part 1: Cable characteristics; (a) Feed a 1 V_pp sine wave into a long (~500 ft) 50-Ω terminated coax cable and measure the output at the other end of the cable for several frequencies (between 0.5 to 10 MHz); Use both channels of the scope to measure the amplitude of the input and output waves; Compare the measured attenuation (signal loss in dB/100 ft) to the cable manufacturer's specs given in the Appendix; Length [ft], f [Hz], V_in, V_out, V_out/V_in, 20 log_10(V_out/V_in), α [dB/100 ft]; Connect two sections of cable together and again measure the attenuation at a selected frequency; See if and how much the BNC connector that joins the cables adds to the loss; sample data: 50 Ω terminated; @ 1 MHz: 0.48 dB/100 ft; @ 10 MHz: 1.20 dB/100 ft; 50 Ω, 1 MHz, V_in = 1.192 V, V_out = 0.812 V, ratio = 0.6812 → −3.34 dB → −0.6669 dB/100 ft; 1.080, 0.752, 0.6963, −3.41 dB, −0.6288; 1.096, 0.696, 0.635, −3.944, −0.7889; 1.136, 0.648, 0.5704, −4.876, −0.9752; 1.056, 0.616, 0.583, −0.9216; Part 2: Reflections; open circuit: V_R = +V_in, doubled amplitude at the open end; short circuit: V_R = −V_in, inverted reflection; matched 50-Ω terminator: no echo; mystery termination: Γ measured from the ratio of echo amplitude to input pulse amplitude; Z_L = Z_0(1+Γ)/(1−Γ) extracted; Part 3: Propagation speed; round-trip time 2L/v ≈ ?; v ≈ 2/3 c for the polyethylene dielectric; Part 4: Impedance matching; Adding a parallel resistor at the load; The lab takes the same V_R/V_in equation back to the matching condition Γ = 0.

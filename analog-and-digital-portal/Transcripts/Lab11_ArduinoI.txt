@@ -1,0 +1,56 @@
+Lab 11: Arduino I (Digital and Analog I/O)
+Overview
+First Arduino lab: an introduction to the Arduino UNO (ATmega328 microcontroller, 14 digital I/O pins, 6 analog input pins, 6 PWM-capable digital outputs marked with ~, USB programming, 16 MHz clock, 32 KB flash, 2 KB SRAM, 1 KB EEPROM) and the Arduino IDE (sketches in C/C++ with setup() and loop() functions). The student blinks an LED with digital output, reads a digital input from a button while exploring why a floating input is unpredictable (motivating pull-up and pull-down resistors), reads an analog voltage from a potentiometer through the Arduino's 10-bit ADC (1024 levels over the 0–5 V range giving a 4.88 mV LSB), changes AREF to 1.1 V to gain finer resolution over a small range, and finally drives an LED's brightness with a PWM "analog" output at the Arduino's ~490 Hz PWM frequency. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on first-pass digital and analog I/O with a microcontroller. The pages clearly include the UNO board tour (USB port, power socket, reset pin, 3.3 V and 5 V power pins, GND, digital pins 2–13 with ~ marking PWM-capable, analog input A0–A5 read via 10-bit ADC, RX/TX on pins 0 and 1 for serial), the IDE basics (semicolons end statements, curly braces for blocks, // and /* */ for comments, identifiers must be defined before use), the Blink sketch and oscilloscope confirmation that the high-time and low-time match the delay() values, the LED current measurement V_R/R = (3.3 V − V_LED)/330 Ω ≈ 4 mA, the 50 Hz threshold above which the LED appears continuously lit (related to persistence of vision and to the 60 Hz / 50 Hz mains in the US / Europe), the floating-input lesson (jumper wire on Pin 2 picks up 60 Hz hum from the hand) showing why pull-up (5 V → resistor → input → switch → GND) and pull-down (GND → resistor → input → switch → 5 V) configurations are mandatory, the potentiometer + AnalogInput sketch with Serial.println(sensorValue) reading 0 at 0 V and 1023 at 4.92 V (resolution = 5 V / 1024 = 4.88 mV ≈ 0.005 V/count), the AREF switch to 1.1 V giving 1.07 mV/count and confirming better resolution over a smaller range, the Fade sketch that drives Pin 9 with analogWrite(0–255) producing a 490 Hz PWM whose duty cycle controls average voltage and therefore LED brightness, and the appendix specifications (operating voltage 5 V, input voltage 7–12 V recommended, 40 mA max per I/O pin, 200 mA max V_CC).
+
+Key equations
+
+$$V_{LED}=V_{src}-IR\Rightarrow I_{LED}=\frac{V_{R_{330}}}{330\ \Omega}$$
+
+$$\text{LED current example: }I=\frac{3.30\ \text{V}-2.80\ \text{V}}{330\ \Omega}\approx 4\ \text{mA}$$
+
+$$\text{ADC resolution: }N_{levels}=2^{N_{bits}}=2^{10}=1024$$
+
+$$\text{Default LSB: }\frac{V_{ref}}{2^{N}}=\frac{5\ \text{V}}{1024}\approx 4.88\ \text{mV}$$
+
+$$\text{Internal AREF: }\frac{1.1\ \text{V}}{1024}\approx 1.07\ \text{mV (5× finer)}$$
+
+$$V_{in}=\frac{\text{analogRead}()}{1023}\cdot V_{ref}\quad\text{(linear ADC mapping)}$$
+
+$$\text{analogRead}(0\ \text{V})=0,\quad \text{analogRead}(V_{ref})=1023$$
+
+$$\text{Pull-up: }V_{out}=\begin{cases}V_{cc} & \text{switch open}\\ 0 & \text{switch closed}\end{cases}$$
+
+$$\text{Pull-down: }V_{out}=\begin{cases}0 & \text{switch open}\\ V_{cc} & \text{switch closed}\end{cases}$$
+
+$$\text{Pull-resistor value: }R_{pull}\sim 1\text{–}10\ \text{k}\Omega$$
+
+$$\text{PWM duty cycle: }D=\frac{T_{high}}{T_{period}}\in[0,1]$$
+
+$$\text{analogWrite}(\text{value})\text{: value}\in[0,255]\Rightarrow D=\frac{\text{value}}{255}$$
+
+$$\bar V_{out}=D\cdot V_{cc}\quad\text{(average PWM voltage seen by slow load)}$$
+
+$$f_{PWM}\approx 490\ \text{Hz (Arduino UNO default)}$$
+
+$$T_{PWM}=\frac{1}{490}\approx 2.04\ \text{ms (period of one PWM cycle)}$$
+
+$$\text{Map: }y=\text{map}(x,0,1023,0,255)\Rightarrow y=\frac{255\,x}{1023}$$
+
+$$\text{Persistence of vision: }f_{flicker}\gtrsim 50\ \text{Hz}\Rightarrow \text{LED appears continuous}$$
+
+$$f_{mains}=60\ \text{Hz (US)}=50\ \text{Hz (Europe)}\quad\text{(reason for 50 Hz threshold)}$$
+
+$$\text{Max source/sink per I/O pin: }I_{pin}\le 40\ \text{mA}$$
+
+$$\text{Max current per V_{CC}/GND: }I\le 200\ \text{mA}$$
+
+$$\text{Clock speed: }f_{CPU}=16\ \text{MHz},\quad \text{flash} = 32\ \text{KB},\quad \text{SRAM}=2\ \text{KB}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: converting a measured resistor voltage drop into a current through Ohm's law, mapping a 10-bit ADC count back to volts via V = (count/1023)·V_ref, choosing a pull-up or pull-down topology to give a digital input a defined level, or computing the average voltage seen by a slow load when an Arduino PWM output drives it at duty D. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 11; Arduino I; Equipment: DMM, oscilloscope, Arduino, Sparkfun Inventor's Kit, computer with the Arduino IDE; Today, you will learn about digital and analog input/output, and how to read and control external devices with the Arduino; Arduino is an open-source electronics platform based on an easy-to-use hardware and software that can interact with the physical world; The most popular type of Arduino is the UNO; The brain of the Arduino UNO is the microcontroller (ATmega328); The microcontroller is a tiny computer that includes a CPU, memory, input/output (I/O) ports, analog-to-digital converters (ADC), and serial interfaces; To use an Arduino, you will need a conventional computer (Mac, Windows, Linux); This computer is used to create and upload programs (called sketches) onto the Arduino board; USB port; Power Socket: 7.5 to 12 V external; Arduino only uses about 50 mA, so a small 9 V battery (600 mAh) can power it for 10–12 hours; sketch is stored in non-volatile flash memory; Reset Pin / Reset Button; 3.3 V Power Pin; 5 V Power Pin; Ground Pins: GND; Digital I/O Pins (2–13): used as either digital inputs or outputs; Analog Input Pins (A0–A5): allows the sketch to measure the voltage of a sensor; Analog voltages 0 to 5 V digitized by the microcontroller using a 10-bit ADC; Analog Output: not a true analog output; some of the digital I/O Pins labeled with a "~" can be used as PWM (pulse width modulation) outputs; Serial Input/Output (RX/TX): Digital pins 0 and 1; Type Arduino Range: Analog Input 0–5 V (in 1024 discrete steps), Digital I/O High (5 V) or Low (0 V); Arduino IDE; Blink sketch; Every statement is terminated by a semicolon; Multi-statement blocks are enclosed in curly brackets; Comments are preceded by // or enclosed between /* */; Variables, constants, functions must be defined before they can be used; Setup function: executed only once when the Arduino is powered up; Loop function: executed repeatedly, forever; Names of variables and functions begin with lower case (camel case); Names of constants are in all caps; Part 1: Digital Output: Blinking LED; Connect the USB cord to your Arduino to turn it on; Measure the actual voltage of the two power pins: 3.304 V (3.3 V), 4.917 V (5 V); Build the basic circuit described in CIRC-01; Voltage drop across 330 Ω resistor: 3.232 V or 2.80 V; Current drawn by LED: I = V_R/R ≈ 0.04 mA / 4 mA; Open the Blink sketch from File > Examples > 01.Basic > Blink; To upload the sketch click on the right-arrow button; The LED turns on and off periodically; Use an oscilloscope to observe the voltage output of Digital I/O Pin 13; This seems to agree perfectly with the delay times specified in the program; How fast can you make the LED blink before you can't see it flashing anymore? 50 Hz; Why is this important and how it relates to the power mains frequency in the US (60 Hz) and Europe (50 Hz); It seems like this frequency is directly related to the refresh rate of the human eye; Part 2: Digital Input: Button; A floating digital input will have an unpredictable value; If you want it to be high, you must connect it to 5 V; If you want it to be low, you must connect it to 0 V; This is done by using pull-up and pull-down resistors; Pull-up and pull-down resistors are often used with switches; The value typically used for pull-up and pull-down resistors is 1~10 kΩ; Figure 3: Pull-up resistor (left) and pull-down resistor (right); Pull-up: V_out = V_in when open, V_out = 0 V when closed; identify pairs of leads that are switched when the button is pressed; switch is NO (Normally Open) or NC (Normally Closed); 10 kΩ pull-up resistor; The LED is normally On / Off; When you press the button the LED goes On / Off; Modify the sketch to invert the behavior; Part 3: Analog Input: Reading voltage from a potentiometer; Connect the middle pin of the potentiometer to Analog pin 0 (A0); File > Examples > 03.Analog > AnalogInput; varying the potentiometer modulates the refresh rate of the LED; DMM: 0.002 V → analogRead = 0; 4.92 V → analogRead = 1023; Smallest Δ = 1: 0.00479 V; Number of voltage levels using 10 bits: 1024; Default analog resolution: 5/1024 V; Input Voltage = 0.00488 · analogRead(); decrease AREF to gain resolution; analogReference(INTERNAL) sets AREF to +1.1 V; analogReference(DEFAULT) sets AREF to +5 V; AREF = 5 V → 0.5 V → analogRead = 101; AREF = 1.1 V → 0.5 V → analogRead = 464; 1.1 V gives better resolution; Part 4: Analog Output: Controlling LED brightness with PWM; Move the anode lead of the LED from Digital I/O Pin 13 to Digital I/O Pin 9; This will allow you to use PWM output (note ~ symbol in front of the 9); analogWrite(ledPin, ledValue); int sensorPin = A0; int ledPin = 9; map(sensorValue, 0, 1023, 0, 255); The light intensity is modulated by the knob; Adjusting the knob adjusts the width between pulses — this results in an observed change in luminosity, while the on/off frequency remains the same; pulse width modulation; Measured PWM frequency: 490 Hz; @ 10 Hz we would be able to see the light blink, 490 Hz is important because it corresponds to the refresh rate of the human eye; Appendix: UNO Specifications; Microcontroller ATmega328; Operating Voltage 5V; Input Voltage 7–12 V; Digital I/O Pins 14 (of which 6 provide PWM output); Analog Input Pins 6; DC Current per I/O Pin 40 mA; DC Current for 3.3V Pin 50 mA; Flash Memory 32 KB; SRAM 2 KB; EEPROM 1 KB; Clock Speed 16 MHz.

@@ -1,0 +1,56 @@
+Assignment 1
+Overview
+Homework on introductory DC circuit analysis: power dissipation in series resistors, Thevenin equivalent extraction with a load attached, mixed voltage-and-current source nodal analysis, and a three-resistor resistive attenuator with input impedance, loaded power, and an attenuation-factor calculation. This transcript is a page-specific reconstruction for preview and search. It is meant to read like a cleaned study guide, not like raw OCR.
+
+Problem coverage
+The set is centered on introductory DC network theorems. The pages clearly include the burn-out comparison of a 500 Ω and 1000 Ω series pair rated to 0.25 W, a Thevenin reduction of a small bridge feeding a 10 Ω load, a mixed-source problem solved by isolating the voltage source and finding the voltage across R₂ in terms of V, I, R₁, R₂, R₃, and a resistive attenuator (two 26 Ω series arms with a 35 Ω shunt) where input resistance, loaded power, and attenuation are all required. The assignment is using these standard problems to force the same lesson from different directions: pick the right equivalent network, then apply Ohm's law and the divider rule cleanly.
+
+Key equations
+
+$$P=\frac{\Delta U}{\Delta t}=\frac{\Delta qV}{\Delta t}=IV=I^{2}R$$
+
+$$I=\sqrt{P/R}$$
+
+$$V=IR$$
+
+$$R_{TOT}=R_{1}+R_{2}=1500\ \Omega$$
+
+$$V=\sqrt{\frac{0.25\,\text{W}}{1000\,\Omega}}\cdot 1500\ \Omega\approx 23.7\ \text{V}$$
+
+$$V_{th}=V\left(\frac{R_{2}}{R_{1}+R_{2}}\right)=10\cdot\frac{5}{8}=6.25\ \text{V}$$
+
+$$R_{\|eq}=\frac{R_{1}R_{2}}{R_{1}+R_{2}}=\frac{3\cdot 5}{3+5}=1.875\ \Omega$$
+
+$$R_{th}=R_{\|eq}+2\ \Omega=3.875\ \Omega$$
+
+$$V_{out}=\frac{R_{L}}{R_{th}+R_{L}}V_{th}=\frac{10}{13.875}\cdot 6.25\approx 4.50\ \text{V}$$
+
+$$I_{V}=\frac{V-V_{A}}{R_{3}}=\frac{V-V_{R_{2}}}{R_{3}}$$
+
+$$IR_{2}R_{3}+VR_{2}=V_{A}(R_{2}+R_{3})$$
+
+$$V_{R_{2}}=\frac{R_{2}(IR_{3}+V)}{R_{2}+R_{3}}$$
+
+$$I_{V}=\frac{VR_{2}+VR_{3}-R_{2}R_{3}I-R_{2}V}{R_{3}(R_{2}+R_{3})}=\frac{V-IR_{2}}{R_{2}+R_{3}}$$
+
+$$R_{in}^{(no\ load)}=26+35=61\ \Omega$$
+
+$$R_{eq\|}=\frac{35\cdot(26+50)}{35+26+50}\approx 24\ \Omega$$
+
+$$R_{in}^{(load)}=26+24=50\ \Omega$$
+
+$$I_{tot}=\frac{V}{R_{tot}}=\frac{2}{100}=0.02\ \text{A}$$
+
+$$V_{in}=I_{tot}\cdot R_{in}=0.02\cdot 50=1\ \text{V}$$
+
+$$V_{L}=V_{in}\cdot\frac{R_{\|}}{R_{S}+R_{\|}}=1\cdot\frac{24}{50}=0.48\ \text{V}$$
+
+$$P_{L}=\frac{V_{L}^{2}}{R_{L}}=\frac{0.48^{2}}{50}\approx 4.6\ \text{mW}$$
+
+$$P_{L,\text{direct}}=\frac{V_{L,d}^{2}}{R_{L}}=\frac{1^{2}}{50}=20\ \text{mW},\qquad \text{attenuation}=\frac{P_{L}}{P_{L,\text{direct}}}\approx 0.23$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: building an equivalent circuit (Thevenin or parallel-combine), applying Ohm's law to a known branch, splitting a known voltage with a divider, or converting that voltage back into a power. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases from the original page include: PHYS0525 Analog and Digital Electronics – Spring 2026; Assignment 1; Due Monday, January 26, 2026; A 500 Ω and a 1000 Ω resistor are connected in series, and both are rated to 0.25 W; which of the resistors will burn out first; w/ P = I²R we see that the 1000 Ω resistor will burn out first; Find V when P = 0.25 W: V = IR, R_TOT = 1500 Ω; Find the Thevenin equivalent circuit; If a 10 Ω load resistor is placed across the output, what is voltage across the output; Vth = V(5Ω/8Ω) = 50/8 = 6.25 V; R||eq = 3·5/(3+5) = 15/8 = 1.875 Ω; Rth = R||eq + 2Ω = 3.875 Ω; Vout = R_L/(R_th+R_L) · V_th = 10V/13.875V · 6.25 ≈ 4.50; A voltage source of voltage V, a current source with current I, and three resistors R₁, R₂, R₃; What is the voltage across R₂; What is the current supplied by the voltage source; voltage source only; V_R2 = R₂(IR₃+V)/(R₂+R₃); A resistive attenuator circuit; R_S = 50 Ω; V = 2 Volts; R_L = 50 Ω; Voltage Source – Attenuator – Load; Calculate the input resistance of the circuit if no load is attached; with the load (R_L = 50 Ω) attached; Rin: 26Ω + 35Ω = 61Ω; R_eq|| = 76·35/(76+35) ≈ 24 Ω; Rin(L) = 24 + 26 = 50 Ω; V = IR ⇒ I = V/R_tot = 2/100 = 0.02 A; V_in = I·R_tot ⇒ 0.02 A · 50 Ω = 1 V; V_|| = R_||/(R_S+R_||) · V_in ⇒ 24/(26+24) · 1 = 24/50 = 0.48 V; P_L = V_L²/R_L = 0.316²/50 = 0.002 W = 2 mW; P_L(direct) = V_Ld²/R_L = 1/50 = 20 mW; attenuation factor.

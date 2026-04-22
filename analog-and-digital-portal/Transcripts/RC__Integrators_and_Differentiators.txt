@@ -1,0 +1,58 @@
+RC Integrators and Differentiators
+Overview
+Single-page lecture notes that build first-order RC and RL transients (charging and discharging a capacitor through a resistor, discharging an inductor), then move on to passive integrator and differentiator circuits, and close with AC steady-state analysis using complex impedance Z_C = 1/(iωC), Z_L = iωL with the same series/parallel rules used for resistors. The page emphasises the time constant τ = RC (or L/R), the universal exponential form V(t) = V(∞) + (V(0) − V(∞))e^(−t/τ), and the slow-input vs fast-input limits that pick which circuit acts as integrator and which acts as differentiator. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on first-order transient and AC analysis. The page clearly includes the loop rule for charging V_0 − I(t)R − V_C(t) = 0 with I = C dV_C/dt giving the first-order ODE V_0 − RC dV_C/dt − V_C = 0 and the boundary-condition solution V_C(t) = V_0(1 − e^(−t/RC)) reaching 0.63 V_0 at t = RC, V_R(t) = I(t)R = V_0 e^(−t/RC), the inductor decay loop rule −L dI/dt − IR = 0 leading to I(t)/I_0 = e^(−Rt/L), a switched two-stage RC example with C and 2R that runs from t = 0 to 3RC then opens (sketch I_1 and I_2 versus t over 0 → 3RC → 6RC), the integrator condition V_in periodic (sine, square) with period ≪ RC giving V_out ∝ ∫V_in dt' (since RC dV_out/dt ≈ V_in), the differentiator condition V_in slow on timescale RC giving V_out ∝ dV_in/dt, AC current through a capacitor I(t) = C dV_0 cos(ωt)/dt = −CV_0 ω sin(ωt) = CV_0 ω cos(ωt + π/2), the complex shorthand v̂ = ÎZ where Z_C = 1/(iωC) is the "complex impedance of a capacitor," the loop and junction rules for impedance v̂ − ÎZ_1 − ÎZ_2 = 0, and the equivalent-impedance rules Z_eq,series = Z_1 + Z_2 (series) and 1/Z_eq,parallel = 1/Z_1 + 1/Z_2 (parallel).
+
+Key equations
+
+$$\text{Charging loop: }V_{0}-I(t)R-V_{C}(t)=0,\quad I(t)=C\frac{dV_{C}}{dt}$$
+
+$$V_{0}-RC\frac{dV_{C}}{dt}-V_{C}(t)=0,\qquad V_{C}(0)=Q(0)/C=0$$
+
+$$\text{Guess: }V_{C}(t)=A+B\,e^{-t/\tau}$$
+
+$$V_{C}(0)=0\Rightarrow A=-B,\qquad t\to\infty:e^{-t/\tau}\to 0\Rightarrow A=V_{0}$$
+
+$$V_{C}(t)=V_{0}\!\left(1-e^{-t/RC}\right),\qquad V_{C}(RC)=0.63\,V_{0}$$
+
+$$\frac{dV_{C}}{dt}=-A\!\left(-\tfrac{1}{\tau}\right)e^{-t/\tau}=\frac{A}{\tau}e^{-t/\tau}=\frac{V_{0}}{RC}e^{-t/RC}$$
+
+$$V_{R}(t)=I(t)R=V_{0}\,e^{-t/RC},\qquad RC=\text{time constant}$$
+
+$$\text{Discharging inductor (switch open): }-L\frac{dI}{dt}-IR=0\Rightarrow \frac{dI}{dt}=-\frac{R}{L}I$$
+
+$$\int_{I_{0}}^{I(t)}\frac{dI'}{I'}=\int_{0}^{t}-\frac{R}{L}\,dt'\Rightarrow\ln\frac{I(t)}{I_{0}}=-\frac{R}{L}t$$
+
+$$I(t)=I_{0}\,e^{-Rt/L},\qquad I(0)=I_{0}$$
+
+$$\text{Switched RC example: at }t=0\ \text{closed},\ V_{0}\to V_{C}=V_{0};\ I_{1}=V_{0}/2R,\ I_{2}=V_{0}/R$$
+
+$$\text{At }t=3RC-\Delta t:V_{0}\approx V_{A};\ \text{at }t=3RC+\Delta t:\text{after flip}$$
+
+$$\text{Integrator (passive): }V_{in}-V_{C}-V_{out}=0,\ \frac{dV_{in}}{dt}=\frac{V_{out}}{RC}+\frac{dV_{out}}{dt}$$
+
+$$\text{If }V_{in}\text{ varies fast }(T\ll RC):\ V_{out}\propto\int V_{in}\,dt$$
+
+$$RC\frac{dV_{out}}{dt}\propto \omega RC\sin(\omega t),\qquad \omega RC\gg 1$$
+
+$$\text{Differentiator: }V_{in}-V_{C}-V_{out}=0;\ \text{if }V_{in}(t)\text{ varies slowly on timescale }RC$$
+
+$$V_{out}=\cos(\omega t)\Rightarrow \frac{dV_{out}}{dt}=\omega\sin(\omega t)\quad\text{(when }V_{in}\propto V_{out})$$
+
+$$I(t)=C\frac{dV}{dt}=-CV_{0}\omega\sin(\omega t)=CV_{0}\omega\cos(\omega t+\pi/2)$$
+
+$$\text{Complex form: }\hat v(t)=\hat I(t)\,Z_{C},\quad Z_{C}=\frac{1}{i\omega C}$$
+
+$$\hat v(t)=V_{0}e^{i\omega t},\qquad \hat I(t)=C\frac{d\hat v}{dt}=i\omega C\,\hat v(t)$$
+
+$$\text{Inductor: }\hat v(t)=L\frac{d\hat I}{dt},\quad \hat I(t)=\frac{V_{0}}{i\omega L}e^{i\omega t},\quad Z_{L}=i\omega L$$
+
+$$\text{Series: }Z_{eq}=Z_{1}+Z_{2}\qquad \text{Parallel: }\frac{1}{Z_{eq}}=\frac{1}{Z_{1}}+\frac{1}{Z_{2}}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: writing the loop equation for a charging or discharging RC/RL branch and reading off τ, applying the universal exponential V(t) = V(∞) + (V(0) − V(∞))e^(−t/τ), checking the timescale comparison T vs RC to decide whether the same circuit acts as an integrator or a differentiator, or rewriting reactive elements as Z_C / Z_L so the AC steady-state collapses to ordinary impedance algebra. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: charging a capacitor; Loop Rule: V_0 − I(t)R − V_C(t) = 0; recall, I(t) = C dV_C/dt; so, V_0 − RC dV_C/dt − V_C(t) = 0; V_C(0) = Q(0)/C = 0; 1st order ODE; capacitor initially Q(0) = 0 = V_0 − R(A/τ e^(−t/τ) − A(1 − e^(−t/τ))) = 0; @ t = 0, close switch — what are V_C(t), I(t)?; Guess a sol'n: V_C(t) = A + B e^(−t/τ); find A, B, τ; @ t → ∞: e^(−t/τ) → 0; V_0 − A = 0 ⇒ A = V_0; @ t = 0, e^(−t/τ) = 1; V_0 − R · V_0/(τ·1) − V_0(1 − 1) = 0; 0 = V_C(0) = A + Be⁰ = A + B; A = −B; so V_C(t) = A(1 − e^(−t/τ)); dV_C/dt = −A(−1/τ)e^(−t/τ) = A/τ e^(−t/τ); must be true @ all times; V_R = I(t)R = V_0 e^(−t/RC); 0.63 V_a; t = RC; → V_C = V_0(1 − e^(−t/RC)); discharging an Inductor; I_a, L, R; Initially, switch is closed so steady state current I_0 flowing through inductor @ t = 0; we open the switch — what is I(t)?; I(0) = I_0; Loop Rule (switch open): −V_L − V_R = 0; recall: V_L = L dI/dt, V_R = IR; → −L dI/dt − IR = 0; dI/dt = −R/L I; 1st order ODE; ∫_{I(0)=I_0}^{I(t)} dI'/I' = ∫_{t=0}^{t} −R/L dt' = −R/L t; ln(I)|_{I_0}^{I(t)} = ln(I(t)) − ln(I_0) = ln(I(t)/I_0) = −R/L t; I(t)/I_0 = e^(−Rt/L); I(t) = I_0 e^(−Rt/L); 2R, C, R, I_2; @ t = 0 closed; · t = 3RC, opened back up; sketch I_1(t) and I_2(t); 3RC, 6RC; @ t = 0, V_C = 0 → V_0/2R, I_1 = V_0/2R, I_2 = V_0/R; @ t = 3RC − Δt, V_0 ≈ V_A; @ t = 3RC + Δt (after flip); Integrators and Differentiators; suppose V_in(t) varies quickly over a time scale RC; ex: V_in is periodic (sine, square) w/ period ≪ RC; V_out ∝ cos(ωt), ω·1/RC ⇔ ω RC ≫ 1; Loop Rule: V_in(t) − I(t)R − V_out(t) = 0; V_C; C dV_out/dt; V_in(t) − RC dV_out/dt − V_out(t) = 0; * if V_in(t) varies slowly on timescale RC; V_out = cos(ωt), dV_out/dt = ω sin(ωt); Loop Rule V_in − V_C − V_out = 0; ↘ I_R; dV_in/dt = dV_C/dt + dV_out/dt; → V_C = ∫I(t)dt/C; dV_in/dt = V_out/RC + dV_out/dt; AC circuits and Complex Impedance; V = V_0 cos(ωt); I(t) = C dV/dt = CV_0 d/dt cos(ωt); = −CV_0 ω sin(ωt) = CV_0 ω cos(ωt + π/2); AC voltage source; * more convenient to use complex #s; recall: e^(iϕ) = cos(ϕ) + i sin(ϕ); Re{e^(iϕ)} = cos(ϕ), Im{e^(iϕ)} = sin(ϕ); real part; v(t) = Re{V_0 e^(iωt)} = V_0 cos(ωt); notation: v̂(t) = V_0 e^(iωt); Î(t) = C dṽ/dt = CV_0 iωe^(iωt) = iωC v̂(t); v̂(t) = Z_C Î(t), Z_C = 1/(iωC); Z_C = complex impedance of a capacitor; v̂(t) = V_0 e^(iωt); ṽ(t) = L dÎ/dt; ∫V_0/L cos(ωt)dt → ∫dÎ/dt dt; V_0/L sin(ωt)/ω = I(t); ∫V_0/L e^(iωt) dt = ∫dṽ/dt; V = V_0 cos(ωt); v(t) = L dI/dt; Impedance; v̂ = Î Z, looks like complex version of Ohm's Law; Z_R = R, Z_C = 1/iωC, Z_L = iωL; Rules for Equivalent Impedance; Impedance in series add; Impedance in parallel add like resistors; ṽ Z_1, ṽ Z_2; Z_eq = Z_1 + Z_2; Loop Rules: ṽ − ÎZ_1 − ÎZ_2 = 0; ṽ − Î(Z_1 + Z_2) = 0.

@@ -1,0 +1,54 @@
+Semiconductors and Diodes
+Overview
+Single-page lecture notes assembling the path from atomic energy bands through doped semiconductors and the P-N junction to the diode I-V characteristic and a half-wave rectifier with load-line analysis. The page opens with a transmission-line review (so the link back to characteristic impedance is preserved), then walks across energy bands, through the metal / insulator / semiconductor band-diagram comparison, into doping, depletion regions, and ends on the Shockley diode equation and a graphical solution for a half-wave rectifier. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on band-structure intuition and how it produces conduction. The page clearly includes Pauli exclusion forcing 2 e⁻/orbital, the formation of ~10²³ states when ~10²³ atoms are brought together, the splitting into core / valence / conduction bands, the band-gap argument from de Broglie λ = h/p (electrons "leak" like waves through a periodic crystal), the metal / insulator / semiconductor partition based on band-gap energy versus k_BT ≈ 25 mV at room temperature, P-type doping with B / Ga / In creating extra holes and N-type doping with P / As creating extra electrons, the depletion region at the P-N junction with no mobile charge carriers and an internal E-field from the bias, the Shockley equation I(V) = I_sat(e^(eV/k_BT) − 1) including the saturation current I_sat ∝ e^(−E_G/k_BT) coming from thermally generated carriers, and a load-line solution for a diode in series with R driven by V₀, comparing the V₀ > V_D and V₀ < V_D regimes graphically.
+
+Key equations
+
+$$\text{Pauli exclusion: }2\,e^{-}/\text{orbital}$$
+
+$$N_{\text{atoms}}\sim 10^{23}\ \Rightarrow\ N_{\text{states}}\sim 10^{23}$$
+
+$$\lambda=\frac{h}{p}\quad\text{(de Broglie wavelength, gives band gaps)}$$
+
+$$k_{B}T/e\approx 25\ \text{mV}\ \text{at room temperature}$$
+
+$$\text{Metal: conduction band partially full}$$
+
+$$\text{Insulator: }\Delta E\gg k_{B}T\ \text{(empty conduction band)}$$
+
+$$\text{Semiconductor: }\Delta E\sim k_{B}T\ \text{(small gap, thermally excitable)}$$
+
+$$\text{N-type: dopants P, As (5 valence }e^{-}\text{)}$$
+
+$$\text{P-type: dopants B, Ga, In (3 valence }e^{-}\text{, "extra holes")}$$
+
+$$E_{C}-E_{V}=E_{G}\quad\text{(band gap energy)}$$
+
+$$I_{sat}\propto e^{-E_{G}/k_{B}T}$$
+
+$$I(V)=I_{sat}\!\left(e^{eV/k_{B}T}-1\right)\quad\text{(Shockley diode equation)}$$
+
+$$\text{Forward bias }V\gg k_{B}T/e:\ I\propto e^{eV/k_{B}T}\ \text{(large }I\text{)}$$
+
+$$\text{Reverse bias }V\ll 0:\ I\to -I_{sat}\ \text{(small)}$$
+
+$$V_{D}\approx 0.6\ \text{V (Si "knee" voltage)}$$
+
+$$\text{Load line: }V_{0}-V_{D}-IR=0\ \Rightarrow\ I=\frac{V_{0}-V_{D}}{R}$$
+
+$$\text{Operating point: intersection of load line with }I(V)$$
+
+$$\text{If }V_{0}<V_{D}:\ I_{D}\approx 0,\ I_{R}\approx 0$$
+
+$$\text{If }V_{0}>V_{D}:\ I_{D}>0,\ V\approx V_{D}\approx 0.6\ \text{V}$$
+
+$$\text{Half-wave rectifier output: }V_{out}(t)=\max\!\big(V_{in}(t)-V_{D},\,0\big)$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: building the band diagram from atomic states and Pauli exclusion, comparing the gap E_G against thermal energy k_BT to classify a material, layering doping and depletion to set up the P-N junction, or applying Shockley's equation and a load line to solve the diode circuit. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Review; consider cables as many small segments; reflected voltage; input voltage; V_R/V_0 = (Z_L − Z_0)/(Z_L + Z_0); inductance L_0 = unit length; capacitance C_0 = unit length; C = 1/√(L_0 C_0) = speed; Z_0 = √(L_0/C_0); Energy Bands; 3s, 3p, 3d; ↑↓ 2s ↑↓ 2p; ↑↓ 1s; 2 e⁻/orbital; Pauli exclusion; when atoms form a solid: N ~ 10²³ atoms ⇒ ~10²³ states; some electrons tightly bound to single ion → core; some participate in bonds to hold solid together → valence; some are delocalized — travel throughout the crystal → conduction; conduction band; valence band; band gap; core; why band gaps? a crude hint of an explanation; consider e⁻ trying to move throughout a crystal; e⁻ leak like waves w/ de Broglie wavelength λ = h/p (Planck's); ex) metal — conduction band (partially full), valence band (full), core (full); insulator — conduction band (empty), valence band (full), core (full); Cu: [Ar] 3d¹⁰ 4s¹; Na : Cl; semiconductor — ΔE = band gap; ΔE so small that ΔE ≈ k_BT (thermal energy); 1/40 = k_BT/e = 25 mV; Semiconductor Holes; conduction; valence; hole: vacancy in a valence band that behaves much like a positively charged e⁻; thermally excited e⁻; hole looks like its moving towards negative electrode; Doped Semiconductors; * atoms like P, Sb, As have 5 valence e⁻; Doping: replace Si w/ another type of atom; Doping with P, As: creates extra electronic states w/ e⁻ that can easily go into conduction band; P-type: doped, N-type: anti-doped; P-N Junction: depletion region; P-type / depletion region / N-type; I_h (hole current); I_e (electron current); Ē from voltage bias; Both V and n start out net neutral; near the junction, some e⁻ from N side will diffuse over to P-side, find a hole and recombine w/ e⁻; near the junction we form a depletion region w/ no mobile charge carriers — leaving ion cores and creating an E-field; If we apply a voltage bias across, we can make current if |Ē_bias| > |Ē_dep|; for thermal processes that involve hopping up a potential hill: I ∝ e^(−ΔE/k_BT); If we apply a bias V: I_d ∝ e^(−(ΔE−eV)/k_BT) = e^(−ΔE/k_BT) e^(eV/k_BT); It turns out: I(V) = I_sat(e^(eV/k_BT) − 1); There is another small current for intrinsic carriers (thermally excited e⁻ in p-side + thermally excited holes in n-side); I_sat ∝ e^(−E_G/k_BT) @ V = 0 currents from directions cancel; large I; I_sat; I = 0; circuit symbol for a diode (anode | cathode, P → N); Assume V_0 > V_D → Loop Rule: V_0 − V_D − IR = 0, I = (V_0 − V_D)/R; Assume V_0 < V_D: I_D = 0 ⇒ I_R = 0; load line; V_0/R; P-region | depletion region | N-region; V_in vs t (sinusoid); V_0 / −V_0 sketch; I sketch; V_out = half-wave rectified sinusoid.

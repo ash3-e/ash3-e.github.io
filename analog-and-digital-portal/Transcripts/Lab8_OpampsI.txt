@@ -1,0 +1,56 @@
+Lab 8: Op-amps with Negative Feedback
+Overview
+First op-amp lab using the LF411 with ±15 V supplies in a series of negative-feedback topologies: the inverting amplifier with gain −R_2/R_1, the non-inverting amplifier with gain 1 + R_2/R_1, the unity-gain buffer (voltage follower), the summing amplifier where V_out = −R_F(V_1/R_1 + V_2/R_2), the differential amplifier, and finally the active integrator V_out = −(1/RC)∫V_in dt with attention to the small-DC-offset problem (any tiny offset at the input integrates up to clip the output). The student measures the gain at multiple frequencies, identifies the small-signal bandwidth where the gain rolls off because A_OL drops below the demanded gain (gain-bandwidth product), and confirms the golden-rules predictions to within a few %. This transcript is a page-specific reconstruction for preview and search.
+
+Problem coverage
+The set is centered on building each canonical op-amp circuit, taking V_in / V_out scope traces, and confirming the textbook gain. The pages clearly include the LF411 pinout (8-pin DIP, +15 V on pin 7, −15 V on pin 4, output on pin 6, inverting on pin 2, non-inverting on pin 3), the wiring rules (always wire the supply pins even though circuit diagrams omit them, watch the polarity dot/notch), the open-loop gain A ~ 10⁵–10⁶ that drives the output to the rail unless feedback is applied, the two golden rules under feedback (V⁺ = V⁻ and zero input current), the inverting-amp KCL at the virtual ground V⁻ = 0 giving I_1 = I_2 and V_out = −(R_2/R_1)V_in, the non-inverting derivation V⁻ = R_1/(R_1+R_2)V_out so V_out = (1 + R_2/R_1)V_in, the unity-gain buffer V_out = V_in (Z_in raised to the op-amp's input impedance, Z_out lowered to the op-amp's output impedance), the summing-amp KCL giving V_out = −R_F(V_1/R_1 + V_2/R_2), the differential amp V_out = (R_2/R_1)(V_2 − V_1) when the divider on the noninverting input matches the feedback divider, and the active integrator V_out(t) = −(1/RC)∫V_in dt' with the practical workaround of a parallel feedback resistor that limits low-frequency gain to prevent rail-locking on a small DC bias.
+
+Key equations
+
+$$V_{out}=A_{OL}(V^{+}-V^{-}),\qquad A_{OL}\sim 10^{5}\text{–}10^{6}$$
+
+$$\text{Golden rules: }V^{+}=V^{-},\quad I^{+}=I^{-}=0$$
+
+$$\text{Inverting amp: }V^{-}=V^{+}=0\Rightarrow I_{1}=\frac{V_{in}}{R_{1}}=I_{2}=\frac{-V_{out}}{R_{2}}$$
+
+$$V_{out}=-\frac{R_{2}}{R_{1}}V_{in}\quad\text{(inverting gain)}$$
+
+$$\text{Non-inverting: }V^{-}=\frac{R_{1}}{R_{1}+R_{2}}V_{out}=V^{+}=V_{in}$$
+
+$$V_{out}=\left(1+\frac{R_{2}}{R_{1}}\right)V_{in}\quad\text{(non-inverting gain)}$$
+
+$$\text{Unity-gain buffer: }V_{out}=V_{in},\ Z_{in}\to Z_{op-amp},\ Z_{out}\to Z_{op-amp,out}$$
+
+$$\text{Summing amp: }V_{out}=-R_{F}\!\left(\frac{V_{1}}{R_{1}}+\frac{V_{2}}{R_{2}}\right)$$
+
+$$\text{Differential amp: }V_{out}=\frac{R_{2}}{R_{1}}(V_{2}-V_{1})\quad\text{(matched dividers)}$$
+
+$$\text{Active integrator: }V_{out}(t)=-\frac{1}{R_{1}C}\int_{0}^{t}V_{in}(t')\,dt'$$
+
+$$\text{For }V_{in}=V_{0}\sin(\omega t):\ V_{out}=\frac{V_{0}}{\omega R_{1}C}\cos(\omega t)\quad\text{(integrator output)}$$
+
+$$\text{Frequency-dependent: }V_{out}=-\frac{Z_{2}}{Z_{1}}V_{in},\ Z_{2}=R_{2}\,\|\,\frac{1}{i\omega C}$$
+
+$$|G|=\frac{|Z_{2}|}{|Z_{1}|}=\frac{R_{2}/\sqrt{1+(\omega R_{2}C)^{2}}}{R_{1}}\quad\text{(low-pass with op-amp gain)}$$
+
+$$\text{Gain-bandwidth product: }|A_{OL}(\omega)|\cdot G_{\text{closed-loop}}\approx \text{const}=GBW$$
+
+$$\text{Bandwidth of closed-loop gain }G_{0}:\ f_{3dB}=\frac{GBW}{G_{0}}$$
+
+$$\text{Slew rate: }SR=\max\frac{dV_{out}}{dt}\quad\text{(LF411: }SR\approx 15\ \text{V/}\mu\text{s)}$$
+
+$$\text{Output swing limited by supplies: }-V_{S}+\sim 1\ \text{V}<V_{out}<+V_{S}-\sim 1\ \text{V}$$
+
+$$\text{Input offset voltage }V_{OS}\Rightarrow V_{out,\text{integ.}}=\frac{V_{OS}}{R_{1}C}t\ \text{(rails out)}$$
+
+$$\text{DC-stable integrator: add }R_{F}\ \text{across }C\Rightarrow\ \text{low-f gain capped at }-R_{F}/R_{1}$$
+
+$$Z_{in,\text{inv}}=R_{1}\quad(\text{set by input resistor, not by op-amp})$$
+
+$$Z_{out,\text{closed-loop}}=\frac{Z_{out,op-amp}}{1+A_{OL}\beta}\quad\text{(reduced by loop gain)}$$
+
+How to use this page
+Read each displayed relation as solving one of four jobs: applying the two golden rules at the inverting node, writing KCL there to convert the constraint into a closed-form gain, swapping resistors for impedances when the feedback contains a capacitor, or watching the gain-bandwidth product roll the gain off above f_3dB = GBW/G_0. That is the logic tying the handwritten algebra together.
+
+Recovered page cues
+Recovered phrases and labels from the original page include: Physics 0525: Lab 8; Op-amps: negative feedback; Equipment: Breadboard, DMM, signal generator, oscilloscope, LF411, 10 KΩ pot; Preliminaries: Operational amplifiers (op amps) are integrated circuits (IC) containing a bunch of transistors, resistors, and capacitors; They have two input pins, one inverting (−) and one non-inverting (+), a single output pin, plus power pins and some other; An op amp is a differential amplifier, i.e. the output voltage is proportional to the difference between the input voltages: V_o = A(V_+ − V_−); The so called open-loop voltage gain A is so high (typically 10⁵~10⁶) that the output will swing to the high or low power supply voltage for even a tiny difference between the two inputs; For this reason, the op amp is practically never operated without negative feedback when a fraction of the output is coupled back to the inverting (−) input of the amplifier; As a result of this negative feedback, the amplifier gain becomes very stable and can be controlled precisely by the external components in the feedback circuit; The operation of any op amp with negative feedback can be analyzed using the following rules of thumb; (1) The input impedance of both inputs is so high that the inputs practically draw no current; (2) The output of the op amp changes in a way to make the voltages at the two inputs practically equal (V_+ = V_−); The figure below shows the schematic symbol and pin diagram of a typical op amp housed in a 8-lead dual in-line package (DIP); There is a dot in the corner or a notch at one end of the chip that identifies the end from which to begin counting the pins (in counterclockwise direction); Insert the op amp into the core area of the breadboard, straddling the trench in the middle; When inserting, make sure that pins are straight and line up with holes; Press the circuit in with one finger until it sits firmly; Remove the op-amp by prying gently with a fine screwdriver blade or use the dedicated removal tool available in the lab; Circuit diagrams usually omit the +15 V and −15 V connections to the power supply but they always have to be wired; Check that the power supply voltages are set to ±15 V; When wiring the inputs of the op amp, pay attention to their polarities (indicated by plus and minus signs); +, −; 3 (+ in), 7 (+15 V), 4 (−15 V), 6 (out), 2 (− in); 1 2 3 4 8 7 6 5 Top view; Part 1: Inverting amplifier; build with input resistor R_1 and feedback resistor R_2; gain measured as −R_2/R_1; Part 2: Non-inverting amplifier; build with same R_1 and R_2 swapped; gain measured as 1 + R_2/R_1; Part 3: Voltage follower; output should track input within the slew-rate limit; Part 4: Summing amplifier; two inputs V_1, V_2 through R_1, R_2 to the inverting node; V_out = −R_F(V_1/R_1 + V_2/R_2); Part 5: Differential amplifier; matched dividers on inverting and noninverting inputs; output is proportional to difference; Part 6: Integrator; replace feedback resistor with a capacitor; V_out = −(1/RC)∫V_in dt; add a parallel R_F to cap low-frequency gain so a small offset voltage doesn't drive the output to the rail.
