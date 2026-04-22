@@ -46,9 +46,9 @@ body{
   font-family:Inter,"Segoe UI",system-ui,sans-serif;
   color:var(--text);
   background:
-    radial-gradient(circle at 15% 14%, rgba(40,180,90,.12), transparent 22%),
-    radial-gradient(circle at 82% 12%, rgba(30,160,80,.10), transparent 24%),
-    linear-gradient(180deg,#020804 0%,#06120a 44%,#030906 100%);
+    radial-gradient(circle at 15% 14%, rgba(95,175,255,.18), transparent 22%),
+    radial-gradient(circle at 82% 12%, rgba(192,134,255,.14), transparent 24%),
+    linear-gradient(180deg,#030508 0%,#07101c 44%,#03070d 100%);
 }
 body::before{
   content:"";
@@ -57,10 +57,10 @@ body::before{
   pointer-events:none;
   z-index:0;
   background:
-    linear-gradient(135deg, rgba(255,255,255,.04), transparent 16%, transparent 74%, rgba(255,255,255,.02)),
-    radial-gradient(circle at 50% -10%, rgba(120,255,170,.03), transparent 44%);
+    linear-gradient(135deg, rgba(255,255,255,.05), transparent 16%, transparent 74%, rgba(255,255,255,.03)),
+    radial-gradient(circle at 50% -10%, rgba(255,255,255,.04), transparent 44%);
 }
-#scopeCanvas{position:fixed;inset:0;z-index:1;pointer-events:none;filter:contrast(1.04) saturate(1.08)}
+#scopeCanvas{position:fixed;inset:0;z-index:1;pointer-events:none;filter:contrast(1.05) saturate(1.1)}
 .app{
   position:relative;
   z-index:2;
@@ -233,7 +233,7 @@ body.viewer-open .app{
   font-size:.88rem;
   white-space:nowrap;
 }
-.content-shell{min-height:0;padding:var(--site-pad)}
+.content-shell{min-height:0;padding:var(--site-pad) var(--site-pad) 34px var(--site-pad)}
 .content{
   min-height:0;
   height:100%;
@@ -268,6 +268,7 @@ body.viewer-open .app{
   grid-template-rows:auto minmax(0,1fr);
 }
 .card-head{padding:16px 18px 12px;border-bottom:1px solid rgba(40,180,90,.12)}
+.card-head > div {min-width: 0;}
 .collapsible-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .preview-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .card-title{margin:0 0 4px;font-size:1.25rem;line-height:1.1;color:#ffffff;text-shadow:0 0 12px rgba(100,255,160,.50), 0 0 28px rgba(80,220,140,.30), 0 0 60px rgba(60,200,120,.15)}
@@ -341,7 +342,7 @@ body.viewer-open .app{
 .doc-card:hover{transform:translateY(-1px);border-color:rgba(40,180,90,.35);background:rgba(120,255,170,.07)}
 .doc-card.active{background:rgba(60,200,120,.12);border-color:rgba(80,220,130,.30);box-shadow:0 10px 24px rgba(40,180,90,.12)}
 .doc-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
-.doc-name{font-weight:700;line-height:1.2;color:#ffffff}
+.doc-name{font-weight:700;line-height:1.2;color:#ffffff;min-width:0;word-break:break-word;}
 .doc-kind{
   flex:0 0 auto;
   padding:6px 10px;
@@ -637,6 +638,10 @@ body:not(.portal-mobile-view) .viewer-shell{
   background:transparent;
   border:none;
 }
+@keyframes thumbGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(80,255,150,.35), 0 6px 18px rgba(0,0,0,.28); }
+  50% { box-shadow: 0 0 24px rgba(80,255,150,.65), 0 6px 18px rgba(0,0,0,.28); }
+}
 .range::-webkit-slider-thumb{
   appearance:none;
   width:22px;
@@ -645,7 +650,7 @@ body:not(.portal-mobile-view) .viewer-shell{
   background:var(--green-bright);
   border:2px solid rgba(0,40,20,.40);
   margin-top:-8px;
-  box-shadow:0 0 14px rgba(80,255,150,.35), 0 6px 18px rgba(0,0,0,.28);
+  animation: thumbGlow 5s infinite ease-in-out;
 }
 .range::-moz-range-track{
   height:8px;
@@ -653,7 +658,14 @@ body:not(.portal-mobile-view) .viewer-shell{
   background:transparent;
   border:none;
 }
-.range::-moz-range-thumb{width:22px;height:22px;border:none;border-radius:50%;background:var(--green-bright);box-shadow:0 0 14px rgba(80,255,150,.35), 0 6px 18px rgba(0,0,0,.28)}
+.range::-moz-range-thumb{
+  width:22px;
+  height:22px;
+  border:none;
+  border-radius:50%;
+  background:var(--green-bright);
+  animation: thumbGlow 5s infinite ease-in-out;
+}
 .zoom-buttons{display:flex;gap:8px;margin-top:10px}
 .zoom-btn{
   flex:1;
@@ -711,7 +723,7 @@ body.portal-mobile-view .portal-topbar{
   -webkit-backdrop-filter:blur(14px);
 }
 body.portal-mobile-view .portal-header{
-  grid-template-columns:1fr;
+  grid-template-columns:minmax(0, 1fr);
   padding:10px 12px 12px;
   gap:10px;
   border-radius:16px;
@@ -721,6 +733,10 @@ body.portal-mobile-view .portal-pills{
   grid-column:1;
   justify-self:stretch;
   justify-content:flex-start;
+  flex-wrap:wrap;
+  width:auto;
+  min-width:0;
+  max-width:100%;
 }
 body.portal-mobile-view .pill{font-size:.74rem;padding:6px 10px}
 body.portal-mobile-view .search-icon{left:12px;width:16px;height:16px}
@@ -736,12 +752,12 @@ body.portal-mobile-view .content{
   height:auto;
   min-height:0;
   overflow:visible;
-  grid-template-columns:1fr;
+  grid-template-columns:minmax(0, 1fr);
 }
 body.portal-mobile-view .notes-column{display:contents}
 body.portal-mobile-view .list-stack{
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns:minmax(0, 1fr);
   grid-template-rows:auto;
   gap:16px;
   height:auto;
@@ -760,7 +776,7 @@ body.portal-mobile-view .mobile-hint-card{
   pointer-events:none;
 }
 body.portal-mobile-view.mobile-hint-hidden .mobile-hint-card{display:none}
-body.portal-mobile-view .card{height:auto;min-height:0}
+body.portal-mobile-view .card{height:auto;min-height:0;min-width:0;}
 body.portal-mobile-view .mobile-section-toggle{display:grid}
 body.portal-mobile-view .collapsible-card.is-open .mobile-section-toggle svg,
 body.portal-mobile-view.mobile-search-active .collapsible-card .mobile-section-toggle svg{transform:rotate(180deg)}
@@ -802,13 +818,15 @@ body.portal-mobile-view .eq-plain{
 }
 body.portal-mobile-view .preview-block{overflow:hidden}
 body.portal-mobile-view .selected-doc-block{padding-right:68px}
-body.portal-mobile-view .selected-doc-block .action-row{margin-right:-52px}
+body.portal-mobile-view .selected-doc-block .action-row{}
 body.portal-mobile-view .action-row .btn{
   width:100%;
   min-height:44px;
   justify-content:center;
   font-size:.78rem;
-  line-height:1;
+  line-height:1.3;
+  white-space:normal;
+  text-align:center;
 }
 body.portal-mobile-view .eq-render,
 body.portal-mobile-view .transcript-math{
@@ -1625,7 +1643,8 @@ function drawZoomWave(now) {
     waveTime += dt;
   } else {
     waveAmplitude *= Math.pow(0.04, dt);  /* fast exponential decay */
-    if (waveAmplitude < 0.005) { waveAmplitude = 0; waveAnimId = null; return; }
+    if (waveAmplitude < 0.001) waveAmplitude = 0;
+    waveTime += dt * 0.1; /* subtle background oscillation */
   }
 
   const rangeEl = document.getElementById("zoomRange");
@@ -1655,8 +1674,9 @@ function drawZoomWave(now) {
   }
 
   /* Three-pass phosphor render: halo → mid → crisp */
+  const baseGlow = 0.10 + 0.05 * Math.sin(now * Math.PI * 2 / 5000); // 5 sec breath
   buildPath();
-  ctx.strokeStyle = "rgba(80, 255, 150, 0.10)";
+  ctx.strokeStyle = `rgba(80, 255, 150, ${baseGlow.toFixed(3)})`;
   ctx.lineWidth = 7;
   ctx.shadowBlur = 14;
   ctx.shadowColor = "#00ff66";
@@ -1741,149 +1761,352 @@ function bindViewer() {
 
 /* === PHOSPHOR SCOPE BACKGROUND === */
 function animateScope() {
-  const canvas = document.getElementById("scopeCanvas");
-  const ctx = canvas.getContext("2d");
-  const DPR = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
-  let W = 0, H = 0;
-  const mouse = { x: -200, y: -200, active: false, jitterUntil: 0 };
+      const canvas = document.getElementById("scopeCanvas");
+      const ctx = canvas.getContext("2d");
+      const DPR = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
 
-  function resize() {
-    W = innerWidth; H = innerHeight;
-    canvas.width = Math.round(W * DPR);
-    canvas.height = Math.round(H * DPR);
-    canvas.style.width = W + "px";
-    canvas.style.height = H + "px";
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    ctx.fillStyle = "#020a05";
-    ctx.fillRect(0, 0, W, H);
-  }
-  resize();
-  addEventListener("resize", resize);
-  addEventListener("pointermove", (e) => {
-    mouse.active = true;
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    mouse.jitterUntil = performance.now() + 380;
-  }, { passive: true });
+      let W = 0, H = 0;
+      const mouse = { x: -200, y: -200, active: false, jitterUntil: 0 };
 
-  const TWO_PI = Math.PI * 2;
-  const channels = [
-    { name: "CH1   FG SINE", fn: (xn, t) => Math.sin(TWO_PI * 2.2 * xn - t * 0.55) },
-    { name: "CH2   RC LP @ fc", fn: (xn, t) => 0.71 * Math.sin(TWO_PI * 2.2 * xn - t * 0.55 - Math.PI / 4) },
-    { name: "CH3   ½-WAVE RECT", fn: (xn, t) => { const s = Math.sin(TWO_PI * 1.6 * xn - t * 0.45); return Math.max(s - 0.08, -0.95); } },
-    { name: "CH4   BRIDGE + CAP", fn: (xn, t) => { const f = 3.2; const phase = ((f * xn - t * 0.45) % 1 + 1) % 1; if (phase < 0.12) return 0.85 + 0.10 * (phase / 0.12); const d = (phase - 0.12) / 0.88; return 0.95 - 0.20 * (1 - Math.exp(-d * 2.2)); } },
-    { name: "CH5   DIODE CLIP", fn: (xn, t) => { const s = Math.sin(TWO_PI * 1.8 * xn - t * 0.5) * 1.6; return Math.max(-0.7, Math.min(0.7, s)); } },
-    { name: "CH6   555 ASTABLE", fn: (xn, t) => { const f = 1.4; const duty = 0.67; const phase = ((f * xn - t * 0.5) % 1 + 1) % 1; return phase < duty ? 0.85 : -0.85; }, isTrigger: true },
-    { name: "CH7   ∫ → TRIANGLE", fn: (xn, t) => { const f = 1.6; const phase = ((f * xn - t * 0.4) % 1 + 1) % 1; return (phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase) * 0.85; } },
-    { name: "CH8   RELAX OSC Vc", fn: (xn, t) => { const f = 1.1; const phase = ((f * xn - t * 0.35) % 1 + 1) % 1; const k = 5.5; if (phase < 0.5) return -0.65 + 1.30 * (1 - Math.exp(-phase * k * 2)); return 0.65 - 1.30 * (1 - Math.exp(-(phase - 0.5) * k * 2)); } },
-    { name: "CH9   COAX ECHO", fn: (xn, t) => { const period = 1.6; const tt = ((t * 0.55) % period + period) % period; function pulse(x0, w, amp) { const d2 = (xn - x0) / w; return Math.exp(-d2 * d2) * amp; } let y = 0; const xOut = 0.10 + (tt / period) * 0.42; y += pulse(xOut, 0.022, 0.88); if (tt > period * 0.55) { const tau = (tt - period * 0.55) / (period * 0.45); const xRef = 0.92 - tau * 0.55; y += pulse(xRef, 0.028, 0.45); } return y; } },
-    { name: "CH10  PWM 490Hz", fn: (xn, t) => { const f = 1.8; const duty = 0.5 + 0.42 * Math.sin(t * 0.18); const phase = ((f * xn - t * 0.6) % 1 + 1) % 1; return phase < duty ? 0.82 : -0.82; } }
-  ];
-
-  function drawGraticule() {
-    ctx.save();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(48, 200, 110, 0.08)";
-    ctx.beginPath();
-    for (let i = 1; i < 10; i++) { const y = (H / 10) * i; ctx.moveTo(0, y); ctx.lineTo(W, y); }
-    for (let i = 1; i < 10; i++) { const x = (W / 10) * i; ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(80, 220, 130, 0.16)";
-    ctx.beginPath();
-    const cx = W / 2, cy = H / 2;
-    for (let i = 1; i < 50; i++) { const tx = (W / 50) * i; ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3); }
-    for (let i = 1; i < 50; i++) { const ty = (H / 50) * i; ctx.moveTo(cx - 3, ty); ctx.lineTo(cx + 3, ty); }
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawScanlines() {
-    ctx.save();
-    ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
-    for (let y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
-    ctx.restore();
-  }
-
-  function drawVignette() {
-    ctx.save();
-    const grad = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.30, W / 2, H / 2, Math.max(W, H) * 0.72);
-    grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(0.6, "rgba(0,0,0,0.06)");
-    grad.addColorStop(1, "rgba(0,8,4,0.50)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-  }
-
-  function flicker(now) {
-    return 0.02 + 0.02 * Math.sin(now * 0.012) * Math.sin(now * 0.0017);
-  }
-
-  function tick(now) {
-    const t = now / 1000;
-    ctx.save();
-    const fadeAlpha = 0.13 + flicker(now);
-    ctx.fillStyle = `rgba(2, 12, 6, ${fadeAlpha.toFixed(3)})`;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-    drawGraticule();
-
-    const jitter = mouse.jitterUntil > now ? Math.sin(now * 0.04) * 3.2 : 0;
-    const N = channels.length;
-    const padTop = 32;
-    const padBot = 32;
-    const usable = H - padTop - padBot;
-    const slotH = usable / N;
-    const ampHalf = slotH * 0.42;
-    const samples = Math.min(W < 640 ? 280 : 620, Math.floor(W / 1.8));
-
-    for (let i = 0; i < N; i++) {
-      const ch = channels[i];
-      const cy = padTop + slotH * (i + 0.5);
-      const path = new Path2D();
-      for (let j = 0; j <= samples; j++) {
-        const xn = j / samples;
-        const x = xn * W + jitter;
-        let y = ch.fn(xn, t) * ampHalf;
-        y += Math.sin(t * 53 + i * 1.7 + xn * 4) * 0.20;
-        const yy = cy + y;
-        if (j === 0) path.moveTo(x, yy);
-        else path.lineTo(x, yy);
+      function resize() {
+        W = innerWidth; H = innerHeight;
+        canvas.width = Math.round(W * DPR);
+        canvas.height = Math.round(H * DPR);
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        // Initial flood — deep almost-black with green undertone
+        ctx.fillStyle = "#020a05";
+        ctx.fillRect(0, 0, W, H);
       }
-      ctx.save();
-      ctx.strokeStyle = "rgba(80, 255, 150, 0.12)";
-      ctx.lineWidth = 7;
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = "#00ff66";
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.stroke(path);
-      ctx.restore();
-      ctx.save();
-      ctx.strokeStyle = "rgba(120, 255, 175, 0.50)";
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = "#5fff95";
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.stroke(path);
-      ctx.restore();
-      ctx.save();
-      ctx.strokeStyle = "#dfffeb";
-      ctx.lineWidth = 0.8;
-      ctx.shadowBlur = 3;
-      ctx.shadowColor = "#a8ffc8";
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.stroke(path);
-      ctx.restore();
+      resize();
+      addEventListener("resize", resize);
+
+      addEventListener("pointermove", (e) => {
+        mouse.active = true;
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.jitterUntil = performance.now() + 380;
+      }, { passive: true });
+
+      // ===== LAB WAVEFORMS =====
+      // Each fn(xn, t) returns y in [-1, +1].  xn ∈ [0,1], t in seconds.
+      const TWO_PI = Math.PI * 2;
+
+      const channels = [
+        {
+          name: "CH1   FG SINE",
+          // Lab 3 — clean function-generator sine
+          fn: (xn, t) => Math.sin(TWO_PI * 2.2 * xn - t * 0.55)
+        },
+        {
+          name: "CH2   RC LP @ fc",
+          // Lab 3 — at the −3 dB point: amplitude × 1/√2, phase lag π/4
+          fn: (xn, t) => 0.71 * Math.sin(TWO_PI * 2.2 * xn - t * 0.55 - Math.PI / 4)
+        },
+        {
+          name: "CH3   ½-WAVE RECT",
+          // Lab 5 — half-wave rectifier: chops negative half, peak − V_D
+          fn: (xn, t) => {
+            const s = Math.sin(TWO_PI * 1.6 * xn - t * 0.45);
+            return Math.max(s - 0.08, -0.95);
+          }
+        },
+        {
+          name: "CH4   BRIDGE + CAP",
+          // Lab 5 — full-wave w/ smoothing cap: fast recharge spike + slow exp decay
+          fn: (xn, t) => {
+            const f = 3.2;  // doubled freq for full-wave
+            const phase = ((f * xn - t * 0.45) % 1 + 1) % 1;
+            if (phase < 0.12) {
+              return 0.85 + 0.10 * (phase / 0.12);
+            } else {
+              const d = (phase - 0.12) / 0.88;
+              return 0.95 - 0.20 * (1 - Math.exp(-d * 2.2));
+            }
+          }
+        },
+        {
+          name: "CH5   DIODE CLIP",
+          // Lab 5 / 9 — sine clipped at ±V_D
+          fn: (xn, t) => {
+            const s = Math.sin(TWO_PI * 1.8 * xn - t * 0.5) * 1.6;
+            return Math.max(-0.7, Math.min(0.7, s));
+          }
+        },
+        {
+          name: "CH6   555 ASTABLE",
+          // Lab 9 — ~67% duty, T = 0.7(R_A + 2R_B)C
+          fn: (xn, t) => {
+            const f = 1.4;
+            const duty = 0.67;
+            const phase = ((f * xn - t * 0.5) % 1 + 1) % 1;
+            return phase < duty ? 0.85 : -0.85;
+          },
+          isTrigger: true
+        },
+        {
+          name: "CH7   ∫ → TRIANGLE",
+          // Lab 8 — op-amp integrator output (square in → triangle out)
+          fn: (xn, t) => {
+            const f = 1.6;
+            const phase = ((f * xn - t * 0.4) % 1 + 1) % 1;
+            return (phase < 0.5 ? 4 * phase - 1 : 3 - 4 * phase) * 0.85;
+          }
+        },
+        {
+          name: "CH8   RELAX OSC Vc",
+          // Lab 9 — Schmitt-trigger relaxation cap voltage: exp charge then exp discharge
+          fn: (xn, t) => {
+            const f = 1.1;
+            const phase = ((f * xn - t * 0.35) % 1 + 1) % 1;
+            const k = 5.5;  // charging steepness
+            if (phase < 0.5) {
+              return -0.65 + 1.30 * (1 - Math.exp(-phase * k * 2));
+            } else {
+              return 0.65 - 1.30 * (1 - Math.exp(-(phase - 0.5) * k * 2));
+            }
+          }
+        },
+        {
+          name: "CH9   COAX ECHO",
+          // Lab 4 — pulse + reflection from terminated transmission line
+          fn: (xn, t) => {
+            const period = 1.6;
+            const tt = ((t * 0.55) % period + period) % period;
+            function pulse(x0, w, amp) {
+              const d = (xn - x0) / w;
+              return Math.exp(-d * d) * amp;
+            }
+            let y = 0;
+            // Outgoing pulse drifts from left toward right
+            const xOut = 0.10 + (tt / period) * 0.42;
+            y += pulse(xOut, 0.022, 0.88);
+            // Reflected echo (smaller, comes back from the load)
+            if (tt > period * 0.55) {
+              const tau = (tt - period * 0.55) / (period * 0.45);
+              const xRef = 0.92 - tau * 0.55;
+              y += pulse(xRef, 0.028, 0.45);
+            }
+            return y;
+          }
+        },
+        {
+          name: "CH10  PWM 490Hz",
+          // Lab 11 — Arduino PWM with continuously drifting duty cycle
+          fn: (xn, t) => {
+            const f = 1.8;
+            const duty = 0.5 + 0.42 * Math.sin(t * 0.18);
+            const phase = ((f * xn - t * 0.6) % 1 + 1) % 1;
+            return phase < duty ? 0.82 : -0.82;
+          }
+        }
+      ];
+
+      function drawGraticule() {
+        ctx.save();
+        ctx.lineWidth = 1;
+
+        // Major divisions — 10 × 10 grid
+        ctx.strokeStyle = "rgba(48, 200, 110, 0.10)";
+        ctx.beginPath();
+        for (let i = 1; i < 10; i++) {
+          const y = (H / 10) * i;
+          ctx.moveTo(0, y); ctx.lineTo(W, y);
+        }
+        for (let i = 1; i < 10; i++) {
+          const x = (W / 10) * i;
+          ctx.moveTo(x, 0); ctx.lineTo(x, H);
+        }
+        ctx.stroke();
+
+        // Center crosshair tick marks (50 sub-divs)
+        ctx.strokeStyle = "rgba(80, 220, 130, 0.22)";
+        ctx.beginPath();
+        const cx = W / 2, cy = H / 2;
+        for (let i = 1; i < 50; i++) {
+          const tx = (W / 50) * i;
+          ctx.moveTo(tx, cy - 3); ctx.lineTo(tx, cy + 3);
+        }
+        for (let i = 1; i < 50; i++) {
+          const ty = (H / 50) * i;
+          ctx.moveTo(cx - 3, ty); ctx.lineTo(cx + 3, ty);
+        }
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawScanlines() {
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+        for (let y = 0; y < H; y += 3) {
+          ctx.fillRect(0, y, W, 1);
+        }
+        ctx.restore();
+      }
+
+      function drawVignette() {
+        ctx.save();
+        const grad = ctx.createRadialGradient(
+          W / 2, H / 2, Math.min(W, H) * 0.30,
+          W / 2, H / 2, Math.max(W, H) * 0.72
+        );
+        grad.addColorStop(0, "rgba(0,0,0,0)");
+        grad.addColorStop(0.6, "rgba(0,0,0,0.06)");
+        grad.addColorStop(1, "rgba(0,8,4,0.55)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+      }
+
+      function drawReticle() {
+        if (!mouse.active) return;
+        ctx.save();
+        ctx.strokeStyle = "rgba(140, 255, 195, 0.35)";
+        ctx.lineWidth = 0.6;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(mouse.x, 0); ctx.lineTo(mouse.x, H);
+        ctx.moveTo(0, mouse.y); ctx.lineTo(W, mouse.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // small center dot
+        ctx.fillStyle = "rgba(180, 255, 210, 0.55)";
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 2.4, 0, TWO_PI);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawStatus(t) {
+        ctx.save();
+        ctx.font = "10px ui-monospace, 'SF Mono', Menlo, monospace";
+        ctx.fillStyle = "rgba(110, 240, 160, 0.55)";
+        // Bottom-left scope status line
+        ctx.fillText("1 ms/div   200 mV/div   AC   TRIG ▸ CH6 ↗   1MΩ ‖ 16 pF", 14, H - 14);
+        // Bottom-right "model" badge
+        ctx.textAlign = "right";
+        ctx.fillText("PHYS·0525  CRT·SIM  v1.0", W - 14, H - 14);
+        ctx.restore();
+      }
+
+      // Gentle full-frame flicker (mains noise)
+      function flicker(now) {
+        // Returns small alpha variation 0..0.04
+        return 0.02 + 0.02 * Math.sin(now * 0.012) * Math.sin(now * 0.0017);
+      }
+
+      function tick(now) {
+        const t = now / 1000;
+
+        // === Persistence: fade old phosphor ===
+        ctx.save();
+        const fadeAlpha = 0.13 + flicker(now);
+        ctx.fillStyle = `rgba(2, 12, 6, ${fadeAlpha.toFixed(3)})`;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+
+        // Graticule (always crisp on top of fade)
+        drawGraticule();
+
+        // Trigger jitter (only briefly after pointer motion)
+        const jitter = mouse.jitterUntil > now ? Math.sin(now * 0.04) * 3.2 : 0;
+
+        // Layout
+        const N = channels.length;
+        const padTop = 32;     // leave room for top labels
+        const padBot = 32;     // leave room for status line
+        const usable = H - padTop - padBot;
+        const slotH = usable / N;
+        const ampHalf = slotH * 0.42;
+
+        // Sample density scales with viewport width
+        const samples = Math.min(W < 640 ? 320 : 720, Math.floor(W / 1.6));
+
+        for (let i = 0; i < N; i++) {
+          const ch = channels[i];
+          const cy = padTop + slotH * (i + 0.5);
+
+          // === Channel labels ===
+          ctx.save();
+          ctx.font = "10px ui-monospace, 'SF Mono', Menlo, monospace";
+          ctx.fillStyle = "rgba(110, 240, 160, 0.62)";
+          ctx.fillText(ch.name, 12, cy - ampHalf - 4);
+
+          // Right-side "0V" baseline marker
+          ctx.fillStyle = "rgba(110, 240, 160, 0.40)";
+          ctx.textAlign = "right";
+          ctx.fillText("0V →", W - 12, cy + 3);
+
+          // Trigger marker on the trigger channel
+          if (ch.isTrigger) {
+            ctx.fillStyle = "rgba(180, 255, 200, 0.85)";
+            ctx.textAlign = "left";
+            ctx.fillText("▸T", 2, cy + 3);
+          }
+          ctx.restore();
+
+          // === Build trace path ===
+          const path = new Path2D();
+          for (let j = 0; j <= samples; j++) {
+            const xn = j / samples;
+            const x = xn * W + jitter;
+            let y = ch.fn(xn, t) * ampHalf;
+            // Subtle beam wobble (CRT magnetic noise)
+            y += Math.sin(t * 53 + i * 1.7 + xn * 4) * 0.20;
+            const yy = cy + y;
+            if (j === 0) path.moveTo(x, yy);
+            else path.lineTo(x, yy);
+          }
+
+          // === Three-pass phosphor: halo → mid → crisp center ===
+
+          // 1) Outer halo (wide, soft)
+          ctx.save();
+          ctx.strokeStyle = "rgba(80, 255, 150, 0.16)";
+          ctx.lineWidth = 8;
+          ctx.shadowBlur = 18;
+          ctx.shadowColor = "#00ff66";
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+          ctx.stroke(path);
+          ctx.restore();
+
+          // 2) Mid trace
+          ctx.save();
+          ctx.strokeStyle = "rgba(120, 255, 175, 0.62)";
+          ctx.lineWidth = 2.4;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = "#5fff95";
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+          ctx.stroke(path);
+          ctx.restore();
+
+          // 3) Bright phosphor center
+          ctx.save();
+          ctx.strokeStyle = "#dfffeb";
+          ctx.lineWidth = 1.0;
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = "#a8ffc8";
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+          ctx.stroke(path);
+          ctx.restore();
+        }
+
+        // Reticle, scanlines, vignette, status — drawn last, on top
+        drawReticle();
+        drawScanlines();
+        drawVignette();
+        drawStatus(t);
+
+        requestAnimationFrame(tick);
+      }
+
+      requestAnimationFrame(tick);
     }
-    drawScanlines();
-    drawVignette();
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
 
 function syncTopbarOffset() {
   const topbar = document.querySelector(".portal-topbar");
@@ -1946,6 +2169,7 @@ $$(".mobile-section-toggle").forEach((button) => {
 
 bindViewer();
 animateScope();
+startWaveAnim();
 syncResponsiveMode();
 syncTopbarOffset();
 window.addEventListener("resize", () => {
