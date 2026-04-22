@@ -436,6 +436,8 @@ body.viewer-open .app{
   -webkit-line-clamp:3;
   -webkit-box-orient:vertical;
   overflow:hidden;
+  text-align:justify;
+  text-align-last:left;
 }
 .doc-actions{display:flex;gap:8px;margin-top:10px}
 .doc-mini-btn{
@@ -1447,10 +1449,14 @@ function renderEquation(tex = "") {
   const display = normalizeEquationForDisplay(tex);
   if (window.katex) {
     const wrap = document.createElement("div");
-    window.katex.render(display.tex, wrap, { throwOnError: false, displayMode: true });
+    try {
+      window.katex.render(display.tex, wrap, { throwOnError: true, displayMode: true });
+    } catch {
+      return "";
+    }
     return wrap.innerHTML;
   }
-  return escapeHtml(stripLatex(display.tex || tex));
+  return "";
 }
 
 function renderMathFragment(tex = "", displayMode = false) {
@@ -1459,10 +1465,10 @@ function renderMathFragment(tex = "", displayMode = false) {
     try {
       window.katex.render(tex, wrap, { throwOnError: true, displayMode });
     } catch {
-      wrap.textContent = displayMode ? `$$${tex}$$` : `$${tex}$`;
+      return "";
     }
   } else {
-    wrap.textContent = displayMode ? `$$${tex}$$` : `$${tex}$`;
+    return "";
   }
   if (!displayMode) wrap.classList.add("transcript-inline-math");
   return wrap.outerHTML;
@@ -1987,12 +1993,12 @@ function renderDelimitedInline(text = "") {
   const rx = new RegExp(String.raw`\$([^$\n]+?)\$`, "g");
   let match;
   while ((match = rx.exec(text)) !== null) {
-    html += escapeHtml(text.slice(last, match.index));
+    html += renderSubscripts(text.slice(last, match.index));
     const tex = match[1].trim();
-    html += tex.length > 32 ? escapeHtml(tex) : renderMathFragment(tex, false);
+    html += renderMathFragment(tex, false);
     last = match.index + match[0].length;
   }
-  html += escapeHtml(text.slice(last));
+  html += renderSubscripts(text.slice(last));
   return html;
 }
 
@@ -2002,7 +2008,7 @@ function renderTranscriptText(text = "") {
   let para = [];
   const flushPara = () => {
     if (!para.length) return;
-    parts.push(`<p class="transcript-p">${escapeHtml(para.join(" ").replace(/\$/g, ""))}</p>`);
+    parts.push(`<p class="transcript-p">${renderDelimitedInline(para.join(" "))}</p>`);
     para = [];
   };
   for (const rawLine of lines) {
@@ -2014,8 +2020,9 @@ function renderTranscriptText(text = "") {
     const displayOnly = line.match(/^\$\$([\s\S]+?)\$\$([.,;:]?)$/);
     if (displayOnly) {
       flushPara();
-      const display = normalizeEquationForDisplay(displayOnly[1].trim());
-      parts.push(`<div class="transcript-math">${renderMathFragment(display.tex, true)}${displayOnly[2] ? `<span class="transcript-punct">${escapeHtml(displayOnly[2])}</span>` : ""}</div>`);
+      const rawTex = displayOnly[1].trim();
+      const rendered = renderMathFragment(rawTex, true);
+      if (rendered) parts.push(`<div class="transcript-math">${rendered}${displayOnly[2] ? `<span class="transcript-punct">${escapeHtml(displayOnly[2])}</span>` : ""}</div>`);
       continue;
     }
     const headingish = !line.includes("$$") && !line.includes("$") && line.length <= 90 && !/[.!?:]$/.test(line) && /^[A-Z0-9][A-Za-z0-9 ,'"()\/-]+$/.test(line);
@@ -2155,11 +2162,11 @@ function renderPreview() {
     </div>
     <div class="preview-block">
       <div class="section-label">Key equations</div>
-      <ol class="equation-list">${(doc.equations || []).slice(0, 10).map((eq) => `
-        <li class="eq-card">
-          <div class="eq-render">${renderEquation(eq)}</div>
-          <div class="eq-plain">${escapeHtml(equationTitle(eq))}</div>
-        </li>`).join("") || '<li class="eq-card">No equation set available.</li>'}</ol>
+      <ol class="equation-list">${(doc.equations || []).slice(0, 10).map((eq) => {
+        const rendered = renderEquation(eq);
+        if (!rendered) return "";
+        return `<li class="eq-card"><div class="eq-render">${rendered}</div><div class="eq-plain">${escapeHtml(equationTitle(eq))}</div></li>`;
+      }).join("") || '<li class="eq-card">No equation set available.</li>'}</ol>
     </div>
     ${transcriptBlock}`;
   fitPreviewContentOnMobile();
