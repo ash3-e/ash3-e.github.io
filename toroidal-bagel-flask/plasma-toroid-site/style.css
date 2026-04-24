@@ -111,12 +111,12 @@ a[target="_blank"]::after {
   z-index: 2;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 64vmin 64vmin at 50% 51%,
+    radial-gradient(ellipse 92vmin 88vmin at 50% 51%,
       rgba(228, 88, 255, 0.14) 0%,
-      rgba(142, 31, 224, 0.09) 38%,
-      rgba(92, 11, 150, 0.045) 62%,
-      rgba(38, 8, 78, 0.018) 82%,
-      rgba(38, 8, 78, 0.006) 100%),
+      rgba(142, 31, 224, 0.095) 42%,
+      rgba(92, 11, 150, 0.055) 68%,
+      rgba(38, 8, 78, 0.024) 88%,
+      rgba(38, 8, 78, 0.01) 100%),
     linear-gradient(rgba(232, 197, 255, 0.052) 1px, transparent 1px),
     linear-gradient(90deg, rgba(232, 197, 255, 0.04) 1px, transparent 1px);
   background-size: 100% 100%, 2px 2px, 2px 2px;
@@ -138,11 +138,11 @@ a[target="_blank"]::after {
       rgba(142, 31, 224, 0.13) 35%,
       rgba(92, 11, 150, 0.05) 58%,
       transparent 74%),
-    radial-gradient(ellipse 168vw 134vh at 50% 51%,
+    radial-gradient(ellipse 188vw 150vh at 50% 51%,
       rgba(10, 1, 30, 0.02) 0%,
-      rgba(38, 8, 78, 0.08) 36%,
-      rgba(66, 10, 132, 0.18) 70%,
-      rgba(50, 9, 104, 0.32) 100%),
+      rgba(38, 8, 78, 0.095) 40%,
+      rgba(66, 10, 132, 0.2) 74%,
+      rgba(50, 9, 104, 0.34) 100%),
     linear-gradient(118deg,
       rgba(124, 40, 255, 0.12) 0%,
       rgba(18, 4, 50, 0.015) 28%,

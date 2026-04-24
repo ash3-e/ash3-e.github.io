@@ -161,10 +161,12 @@ export class PlasmaToroidSimulation {
   endDrag(velocity) {
     this.dragging = false;
     if (velocity.speed > 0) this.angularVelocity = velocity;
-    // Slosh impulse — push core particles outward with varied velocity
-    const impulse = clamp(this.smear * 0.5 + velocity.speed * 2, 0, 0.45);
+    // Release settle — keep the dragged slosh alive, but bias it inward so
+    // white core particles do not rebound past their widest drag position.
+    const settle = clamp(this.smear * 0.08 + velocity.speed * 0.35, 0, 0.12);
     for (const p of this.core) {
-      p.radialVel += (0.3 + rand(0, 0.7)) * impulse * (rand(0, 1) > 0.3 ? 1 : -0.4);
+      p.radialVel = lerp(p.radialVel, -settle * rand(0.35, 0.85), 0.42);
+      p.radialDisplace = Math.min(p.radialDisplace, 0.32);
     }
   }
 
@@ -238,7 +240,8 @@ export class PlasmaToroidSimulation {
     this.lean.y = lerp(this.lean.y, dist ? (dy / dist) * lStr : 0, 0.08);
     this.updateParticles(step);
     this.updateArcs(step, prox, dist);
-    this.ambient = clamp(0.38 + Math.sin(this.time * 1.2) * 0.065 + prox * 0.22 + this.smear * 0.18, 0, 1);
+    const breathGlow = this.passiveCoreBreath() * 0.08;
+    this.ambient = clamp(0.38 + Math.sin(this.time * 1.2) * 0.055 + prox * 0.22 + this.smear * 0.1 + breathGlow, 0, 1);
   }
 
   updateParticles(step) {
@@ -255,11 +258,15 @@ export class PlasmaToroidSimulation {
       p.u = (p.u + lerp(normalDu, helicalDu, p.swirlAmount) + TAU) % TAU;
       p.phase += 0.015 * step;
 
-      // Radial slosh — damped spring oscillator
+      // Radial slosh — damped spring oscillator. On release the damping rises
+      // as swirl fades so the core recoheres without an outward overshoot.
       const restDisplace = this.dragging ? 0.15 * p.swirlAmount : 0;
-      p.radialVel += (-p.springK * (p.radialDisplace - restDisplace) - p.dampK * p.radialVel) * step;
+      const spring = p.springK * (this.dragging ? 1 : 1.16);
+      const damp = p.dampK * (this.dragging ? 1.05 : 2.65);
+      p.radialVel += (-spring * (p.radialDisplace - restDisplace) - damp * p.radialVel) * step;
+      p.radialVel = clamp(p.radialVel, -0.032, 0.024 + p.swirlAmount * 0.028);
       p.radialDisplace += p.radialVel * step;
-      p.radialDisplace = clamp(p.radialDisplace, -p.radial * 0.9, 0.75);
+      p.radialDisplace = clamp(p.radialDisplace, -p.radial * 0.55, 0.22 + p.swirlAmount * 0.16);
       if (Math.abs(p.radialVel) < 0.0002 && Math.abs(p.radialDisplace) < 0.002) {
         p.radialVel = 0;
         p.radialDisplace *= 0.95;
@@ -419,15 +426,29 @@ export class PlasmaToroidSimulation {
       });
   }
 
+  passiveCoreBreath() {
+    if (this.reducedMotion) return 0.045 + Math.sin(this.time * 0.22) * 0.025;
+    const cycle = 0.5 + Math.sin(this.time * 0.48) * 0.5;
+    return (0.5 - Math.cos(cycle * Math.PI) * 0.5) * 0.24;
+  }
+
   torusPoint(u, v, layer = "core", radialScale = 1) {
     const s      = this.sphere;
     const breath = 1 + Math.sin(this.time * 1.25) * (this.reducedMotion ? 0.006 : 0.02);
-    const R      = s.r * 0.575 * breath;
+    const fluid = this.reducedMotion ? 0.006 : 0.024;
+    const lobeA = Math.sin(u * 2.0 + this.time * 0.52);
+    const lobeB = Math.sin(u * 3.0 - v * 0.65 - this.time * 0.37);
+    const lobeC = Math.sin(u * 0.7 + v * 1.15 + this.time * 0.23);
+    const R      = s.r * 0.575 * breath * (1 + (lobeA * 0.55 + lobeB * 0.28 + lobeC * 0.36) * fluid);
     let tube     = s.r * 0.1725;
     if (layer === "filament") tube *= 1 + this.smear * 0.34;
-    tube *= radialScale;
+    tube *= radialScale * (1 + (Math.sin(u * 2.6 + v * 0.8 + this.time * 0.62) + lobeC * 0.7) * fluid * 1.45);
     const cv = Math.cos(v);
-    return { x: (R + tube * cv) * Math.cos(u), y: (R + tube * cv) * Math.sin(u), z: tube * Math.sin(v) };
+    const sv = Math.sin(v);
+    const phaseSlip = Math.sin(u * 1.35 - this.time * 0.28) * fluid * 0.75;
+    const cu = Math.cos(u + phaseSlip);
+    const su = Math.sin(u + phaseSlip);
+    return { x: (R + tube * cv) * cu, y: (R + tube * cv) * su, z: tube * sv };
   }
 
   project(point) {
@@ -661,16 +682,20 @@ export class PlasmaToroidSimulation {
   drawCore(ctx) {
     const grid = DITHER_GRID;
     const projected = [];
+    const passiveBreath = this.passiveCoreBreath();
 
     for (const p of this.core) {
-      // Effective radial: swirl expands outward, slosh oscillates
+      // Effective radial: passive breathing eases the white core toward the
+      // purple shell; manual swirl still adds the larger drag deformation.
       const swirlExpand = p.swirlAmount * 0.72;
-      const effectiveRadial = Math.max(0.01, p.radial + swirlExpand + p.radialDisplace);
+      const fluidDrift = Math.sin(p.u * 2.1 + p.phase * 0.7 + this.time * 0.44) * passiveBreath * 0.08;
+      const effectiveRadial = Math.max(0.01, p.radial + passiveBreath + fluidDrift + swirlExpand + p.radialDisplace);
 
       // v: blend normal wobble with helical winding
       const normalV = p.v + Math.sin(p.phase + this.time * 1.8) * (0.18 + this.smear * 0.17);
       const helicalV = p.phase + p.u * p.helicalPitch + p.v * 0.12;
-      const v = lerp(normalV, helicalV, p.swirlAmount);
+      const motionSwirl = clamp(p.swirlAmount + passiveBreath * 0.42, 0, 1);
+      const v = lerp(normalV, helicalV, motionSwirl);
 
       const layer = p.swirlAmount > 0.15 ? "filament" : "core";
       const q = this.project(this.torusPoint(p.u, v, layer, effectiveRadial * (1 + this.smear * 0.44)));
@@ -683,11 +708,11 @@ export class PlasmaToroidSimulation {
         spinShift * 0.32
       );
       // Swirl shifts white particles toward the violet ring color
-      const color = mixRgb(baseColor, this.colors.ringRgb, p.swirlAmount * 0.38);
+      const color = mixRgb(baseColor, this.colors.ringRgb, p.swirlAmount * 0.34 + passiveBreath * 0.06);
 
-      const size  = (0.95 + center * 1.78 + this.smear * 0.28) * q.depth;
+      const size  = (0.95 + center * 1.72 + this.smear * 0.18 + passiveBreath * 0.12) * q.depth;
       if (size < 0.5) continue;
-      const alpha = (0.34 + center * 0.57) * (0.58 + q.near * 0.5) * this.alphaScale;
+      const alpha = (0.33 + center * 0.55) * (0.58 + q.near * 0.5) * this.alphaScale;
       projected.push({ q, color, size, alpha, center });
     }
 
@@ -708,9 +733,9 @@ export class PlasmaToroidSimulation {
 
       if (alpha > 0.15) this._burnCore.push(dx, dy);
 
-      const bloomP = center > 0.52 ? 0.012 : 0.005;
+      const bloomP = center > 0.52 ? 0.01 : 0.004;
       if (Math.random() < bloomP)
-        this.drawBloomParticle(q, size * 3.6, color, alpha * 0.36, center > 0.72 ? 2 : 1);
+        this.drawBloomParticle(q, size * (3.05 + passiveBreath * 0.7), color, alpha * 0.28, center > 0.72 ? 2 : 1);
     }
   }
 
