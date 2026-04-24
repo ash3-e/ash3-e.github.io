@@ -119,7 +119,38 @@ function setupDebug() {
   document.body.classList.toggle("debug", params.get("debug") === "1");
 }
 
+function setupMobileHeroGate() {
+  const media = window.matchMedia("(max-width: 767px)");
+  const cue = qs(".scroll-cue");
+  const overview = qs("#overview");
+  let unlocked = Boolean(window.location.hash && window.location.hash !== "#hero");
+
+  const setLocked = () => {
+    const locked = media.matches && !unlocked;
+    document.documentElement.classList.toggle("mobile-hero-locked", locked);
+    document.body.classList.toggle("mobile-hero-locked", locked);
+  };
+
+  const blockScroll = (event) => {
+    if (media.matches && !unlocked) event.preventDefault();
+  };
+
+  cue?.addEventListener("click", (event) => {
+    if (!media.matches) return;
+    event.preventDefault();
+    unlocked = true;
+    setLocked();
+    requestAnimationFrame(() => overview?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  });
+
+  window.addEventListener("resize", setLocked, { passive: true });
+  document.addEventListener("touchmove", blockScroll, { passive: false });
+  document.addEventListener("wheel", blockScroll, { passive: false });
+  setLocked();
+}
+
 setupDebug();
+setupMobileHeroGate();
 const simulation = new PlasmaToroidSimulation(qs("#plasmaCanvas"), qs("#simulationStatus"));
 new InteractionController(simulation, qs("#globeFocus"));
 setupReveal();

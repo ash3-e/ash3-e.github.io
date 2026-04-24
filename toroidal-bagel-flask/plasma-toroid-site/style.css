@@ -49,6 +49,12 @@ html {
   scroll-behavior: smooth;
 }
 
+html.mobile-hero-locked {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -58,6 +64,16 @@ body {
   background:
     radial-gradient(ellipse 82vmin 82vmin at 50% 50%, var(--bg-center) 0%, #010003 28%, var(--bg-mid) 62%, var(--bg-edge) 100%),
     #0a0020;
+}
+
+body.mobile-hero-locked {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 body::after {
@@ -272,6 +288,8 @@ body.debug .debug-status {
   cursor: grab;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: none;
 }
 
 .globe-focus:active {
@@ -998,7 +1016,7 @@ blockquote p {
   }
 
   .globe-focus {
-    width: min(74vmin, 680px);
+    width: min(92vw, 72svh, 680px);
   }
 
   h2 {

@@ -11,7 +11,7 @@ const TIERS = [
   { core: 5000, filaments: 5400, bloom: 2, arcs: 12 }
 ];
 
-const TORUS_SCALE = 1.35;
+const TORUS_SCALE = 1.15;
 const TORUS_SPHERE_LIMIT = 0.945;
 
 // Dithering constants
@@ -430,7 +430,7 @@ export class PlasmaToroidSimulation {
   }
 
   passiveCoreBreath() {
-    const speed = this.reducedMotion ? 0.36 : 0.96;
+    const speed = this.reducedMotion ? 0.036 : 0.096;
     const cycle = 0.5 + Math.sin(this.time * speed) * 0.5;
     const eased = 0.5 - Math.cos(cycle * Math.PI) * 0.5;
     return this.reducedMotion ? eased * 0.38 : eased;
