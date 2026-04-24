@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plasma Toroid · Sky-Guided PCB Edition</title>
+  <meta name="description" content="A sky-guided plasma toroid reference and smart-base build guide for a 1L xenon globe.">
+  <meta property="og:title" content="Plasma Toroid · Sky-Guided PCB Edition">
+  <meta property="og:description" content="A resonant xenon toroid board and smart base for long-run idle stability.">
+  <meta property="og:image" content="assets/og.png">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="visual-field" aria-hidden="true">
+    <canvas id="plasmaCanvas"></canvas>
+    <div id="simulationStatus" class="debug-status"></div>
+  </div>
+
+  <header class="hero" id="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">sky-guided PCB edition</p>
+      <h1><span>Plasma Toroid</span></h1>
+    </div>
+    <p class="hero-subtitle">A resonant xenon toroid board, a 1-liter xenon globe, and a smart base architected for long-run idle stability.</p>
+    <button class="globe-focus" id="globeFocus" aria-label="Focus the interactive plasma globe. Drag to spin. Use arrow keys to rotate and Space to halt."></button>
+    <a class="scroll-cue" href="#overview" aria-label="Scroll to overview">
+      <span></span>
+    </a>
+  </header>
+
+  <nav class="nav-shell" id="siteNav" aria-label="Page sections">
+    <div class="nav-pills">
+      <a href="#overview">Overview</a>
+      <a href="#board">Board</a>
+      <a href="#physics">Physics</a>
+      <a href="#compatibility">Compatibility</a>
+      <a href="#runtime">Runtime</a>
+      <a href="#smart-base">Smart Base</a>
+      <a href="#thermal-targets">Thermal</a>
+      <a href="#annotated-board">Annotated Board</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#state-machine">State Machine</a>
+      <a href="#component-set">BOM</a>
+      <a href="#risks">Risks</a>
+      <a href="#safety">Safety</a>
+      <a href="#sources">Sources</a>
+    </div>
+  </nav>
+
+  <main class="content-flow">
+    <section class="glass-card reveal" id="overview" data-nav="Overview">
+      <p class="section-kicker">reference brief</p>
+      <h2>Overview</h2>
+      <p>The sky-guided project is not a novelty plasma globe with a central electrode. It is an electrode-free toroid system: a high-frequency field excites low-pressure gas until the discharge behaves like a coherent plasma loop in glass.</p>
+      <p>That distinction changes the build problem. Gas, pressure, geometry, thermal mass, board tuning, and nearby metal all become part of one coupled electromagnetic system rather than a set of decorative choices.</p>
+      <blockquote>
+        <p>The sky-guided board is a specific resonant xenon-toroid RF platform publicly documented around a 1-liter low-pressure xenon globe at roughly 13 MHz.</p>
+      </blockquote>
+    </section>
+
+    <section class="glass-card reveal" id="board" data-nav="Board">
+      <p class="section-kicker">RF platform</p>
+      <h2>The Sky-Guided Board</h2>
+      <div class="split-grid">
+        <div>
+          <h3>What the board is</h3>
+          <p>The public project describes an inductively coupled xenon plasma toroid driven by a Class-E self-oscillating circuit. A roughly 2 µH loop inductor operates near 13 MHz and about 800 V; with a 1 L, ~15 torr xenon globe in the field, the ionized xenon behaves like a conductive secondary winding.</p>
+        </div>
+        <pre class="spec-sheet" aria-label="Sky-guided operating facts"><code>Topology       Class-E self-oscillating
+Loop inductor  ~2 µH
+Drive V        ~800 V
+Frequency      ~13 MHz
+Target globe   1 L, xenon, ~15 torr</code></pre>
+      </div>
+      <div class="section-columns">
+        <div>
+          <h3>Project organization</h3>
+          <p>The Hackaday pages point readers toward the current Codeberg repository for canonical design files. Older Hackaday file bundles are useful history, but not the starting point for a serious revision.</p>
+        </div>
+        <div>
+          <h3>Version 2 signals</h3>
+          <p>Public version-2 notes point toward adjustable current limit, higher-power capability, and cleaner packaging. Current-limit adjustment is also the natural smart-base interface because it lets the supervisor reduce heat without owning the RF timing.</p>
+        </div>
+        <div>
+          <h3>What the board does not promise</h3>
+          <p>It does not publicly promise 8-hour continuous idle operation, universal globe compatibility, or an official integrated smart controller. The long-run target is therefore a system design problem.</p>
+        </div>
+      </div>
+      <div class="link-row" aria-label="Primary sky-guided links">
+        <a href="https://hackaday.io/project/194683-plasma-toroid-sky-guided-pcb-edition" target="_blank" rel="noopener">Hackaday overview</a>
+        <a href="https://hackaday.io/project/194683-plasma-toroid-sky-guided-pcb-edition/details" target="_blank" rel="noopener">Details</a>
+        <a href="https://hackaday.io/project/194683/logs" target="_blank" rel="noopener">Logs</a>
+        <a href="https://www.tindie.com/products/sky-guided/sky-guided-plasma-toroid-driver-board/" target="_blank" rel="noopener">Tindie</a>
+      </div>
+    </section>
+
+    <section class="glass-card reveal" id="physics" data-nav="Physics">
+      <p class="section-kicker">operating regime</p>
+      <h2>Physics &amp; Operating Regime</h2>
+      <div class="lesson-grid">
+        <article>
+          <h3>Plasma is part of the circuit</h3>
+          <p>The ring is not passive ornamentation. In the sky-guided reference case it is treated like a conductive loop coupled to the primary field, so visual behavior and circuit loading move together.</p>
+        </article>
+        <article>
+          <h3>Closed loops trap power</h3>
+          <p>A continuous conductive collar near the active region can couple, heat, detune, and distort the field. Thermal hardware needs gaps, segmentation, and deliberate routing.</p>
+        </article>
+        <article>
+          <h3>Xenon is a regime</h3>
+          <p>Xenon is the board's public reference gas, not merely a color. It anchors the expected ignition, sustaining behavior, coupling, and thermal assumptions.</p>
+        </article>
+        <article>
+          <h3>Pressure matters</h3>
+          <p>Pressure changes breakdown, sustaining current, morphology, and heat. A visually dramatic globe can be less suitable than a calmer globe for long idle operation.</p>
+        </article>
+      </div>
+      <div class="mini-diagram" aria-label="Ring as transformer secondary diagram">
+        <span>Primary loop</span>
+        <span>RF field</span>
+        <span>Plasma secondary</span>
+      </div>
+      <p class="closing-note">Stable idle toroid and spectacular visual effect are not the same objective.</p>
+    </section>
+
+    <section class="glass-card reveal" id="compatibility" data-nav="Compatibility">
+      <p class="section-kicker">four-layer filter</p>
+      <h2>Globe Compatibility Framework</h2>
+      <ol class="framework-list">
+        <li><strong>Diameter / volume.</strong> The 1 L xenon globe target sits in the encouraging ~135 mm OD size class, but volume alone is not proof.</li>
+        <li><strong>Neck geometry.</strong> The exact lower shoulder still determines seating, alignment, and cooling contact.</li>
+        <li><strong>Gas chemistry / pressure.</strong> The safest comparison point remains 1 L, xenon-dominant, low-pressure behavior around the sky-guided reference case.</li>
+        <li><strong>Thermal behavior.</strong> A globe that strikes beautifully may still drift thermally under long idle use.</li>
+      </ol>
+      <blockquote>
+        <p>The selected path is a 1 L, xenon-dominant, low-pressure globe because it stays closest to the sky-guided reference behavior.</p>
+      </blockquote>
+    </section>
+
+    <section class="glass-card reveal" id="runtime" data-nav="Runtime">
+      <p class="section-kicker">thermal reality</p>
+      <h2>Runtime &amp; Thermal Reality</h2>
+      <div class="section-columns two">
+        <div>
+          <h3>Why runtime is not “the board is fine”</h3>
+          <p>Runtime is limited by board heat, globe heat, gas behavior, enclosure recirculation, cooling geometry, and how much power the toroid needs to stay lit. Any one of those can set the limit.</p>
+        </div>
+        <div>
+          <h3>The 8-hour goal reframed</h3>
+          <p>The practical target is a controlled sequence: strike the toroid, stabilize it, reduce to the lowest acceptable idle power, hold inside a measured thermal envelope, and preserve shutdown authority.</p>
+        </div>
+      </div>
+      <div class="warn-callout">
+        <strong>Visual stability is not a safety signal.</strong>
+        <p>A toroid can still look good while the system is thermally drifting into trouble.</p>
+      </div>
+    </section>
+
+    <section class="glass-card reveal large-card" id="smart-base" data-nav="Smart Base">
+      <p class="section-kicker">forward build</p>
+      <h2>The Smart Base Plan</h2>
+      <div class="section-columns two">
+        <div>
+          <h3>Rev 3 smart base, not a board-only mod</h3>
+          <p>The safest architecture separates into three modules: the <strong>RF module</strong> (sky-guided board + globe support + coil region, minimally touched), the <strong>smart base module</strong> (cold plate, fans, controller, power switching, display, knobs, and safety logic), and a <strong>mechanical bridge</strong> (revised support print coupling the globe and RF board to the thermal base without placing a conductive loop around the active field). That separation lets you add aggressive thermal management and safety without destabilizing the 13 MHz resonator.</p>
+        </div>
+        <div>
+          <h3>Control hierarchy</h3>
+          <p><strong>Power first, fans second, shutdown always.</strong> Fans manage heat; power limiting prevents heat generation; a hard cutoff catches anything the softer loops fail to contain. Do not PWM the RF supply directly at low frequency from the ESP32 — that will be ugly electrically and mechanically. Instead, control an upstream programmable CC/CV stage feeding the toroid board, letting the smart base adjust available input power smoothly without hacking the RF oscillator core.</p>
+        </div>
+      </div>
+      <h3>Functional requirements</h3>
+      <ul class="compact-list">
+        <li><strong>Thermal:</strong> remove heat from electronics and the lower globe without creating RF loops.</li>
+        <li><strong>Control:</strong> sense temperatures, limit available toroid power, manage fans, and latch faults.</li>
+        <li><strong>Mechanical:</strong> support the board, globe, plenum, cold plate, and segmented finger assembly repeatably.</li>
+        <li><strong>User:</strong> expose simple states: precheck, strike, stabilize, idle, cool-down, fault.</li>
+        <li><strong>Safety:</strong> keep independent shutdown authority outside the visual effect loop.</li>
+      </ul>
+      <div class="thermal-paths">
+        <div>
+          <span>Path A</span>
+          <h3>Board / electronics</h3>
+          <p>A machined 6061 aluminum cold plate sits under the board, aligned to the existing under-board sink region. The sky-guided notes say the board layout was constrained by fitting a heatsink under the board for a 40 mm fan, and the MOSFET thermal area is stitched with many thermal vias. Pull-through airflow draws cool air from the bottom/front through the fin stack, exhausting from rear and upper side vents — never straight up around the globe, because you do not want to bathe the glass in hot exhaust.</p>
+        </div>
+        <div>
+          <span>Path B</span>
+          <h3>Globe / glass</h3>
+          <p>Three split aluminum or copper thermal fingers rise from the base outside the coil footprint and touch the lower 8-15 mm of the globe exterior with very soft silicone thermal interface pads. Each finger is narrow, vertically slotted to break eddy-current paths, positioned symmetrically at 120° spacing, and insulated from the others. Three-point contact is easier to align and less likely to stress the glass.</p>
+        </div>
+      </div>
+      <h3>Do not build a continuous metal ring around the globe</h3>
+      <p>This is the biggest hidden trap. The xenon toroid behaves like a conductive loop analogous to the secondary winding of a transformer. Any closed metal loop placed near the inductor or around the globe can act like a shorted secondary — stealing power, distorting the field, heating itself, and potentially wrecking performance. The heatsink device under the globe must not be a full annular collar, a continuous ring, or a solid conductive cup directly under the inductor footprint. It must be electrically and mechanically isolated segments with clear air gaps between them.</p>
+      <h3>Mechanical stack</h3>
+      <div class="section-columns two">
+        <div>
+          <h3>Two-story base</h3>
+          <p>Upper deck holds the RF board and revised support print. Lower deck/plenum contains the cold plate, fans, controller, power electronics, and safety switch. Cold plate is a 6-8 mm aluminum base plate machined flat with threaded holes for support pillars, mounting pattern for fan shroud, and anchor points for the split globe fingers.</p>
+        </div>
+        <div>
+          <h3>Shell design</h3>
+          <p>Do not fully enclose the globe. The shell should be open above the board and around the globe, closed around the lower plenum, with rear-side exhaust louvers, finger-safe barriers around any live metal, and removable service panels for the controller and fans. PETG/ASA for outer shell, preferably PC/CF or PA-CF for hotter inner structural parts.</p>
+        </div>
+      </div>
+      <h3>MOSFET drain-tab safety warning</h3>
+      <p>The MOSFET thermal tab is on drain, not ground, and the drain thermal area is specially handled in the PCB layout. Any larger metal sink you add must respect that reality. Do not assume the heatsink region is safe to expose or casually ground. If the cold plate touches a thermally conductive board region that is drain-coupled, you need an electrically insulating thermal interface or a fully protected inaccessible sink architecture.</p>
+      <blockquote>
+        <p>Your goal is achievable only if you accept that the controller must be allowed to reduce toroid power. A still-clearly-formed, stable toroid at the lowest sustainable power, thermally managed and protected, is the right objective.</p>
+      </blockquote>
+    </section>
+
+    <section class="glass-card reveal" id="thermal-targets" data-nav="Thermal Targets">
+      <p class="section-kicker">design limits</p>
+      <h2>Thermal Engineering Targets</h2>
+      <p>These targets are set well below aggressive published numbers because the goal is not "works for a while" — it is "stays sane for 8 hours." Public ALOH material lists operating temperature up to 80°C, and the stock overheat alarm maps to a very hot MOSFET case. Those are not the right numbers for continuous-design targets.</p>
+      <table class="thermal-table">
+        <thead>
+          <tr><th>Zone</th><th>Target</th><th>Warning</th><th>Hard Shutdown</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Globe outer surface</td><td>45-50°C</td><td>55°C</td><td>60-65°C</td></tr>
+          <tr><td>Cold plate</td><td>45-55°C</td><td>65-70°C</td><td>80-85°C</td></tr>
+          <tr><td>Enclosure air</td><td>&lt; 40°C</td><td>—</td><td>—</td></tr>
+          <tr><td>Globe power-derate floor</td><td colspan="3">50°C upward — begins reducing generator power</td></tr>
+        </tbody>
+      </table>
+      <h3>Three temperature channels and one hardwired trip</h3>
+      <div class="section-columns">
+        <div>
+          <h3>Globe temperature</h3>
+          <p>PT1000 thin-film RTD or small glass-bonded sensor mounted in one of the split thermal fingers. Stable, low-drift readings in the 30-80°C range. The signal path should not depend on globe emissivity like IR sensors do.</p>
+        </div>
+        <div>
+          <h3>Heatsink / MOSFET</h3>
+          <p>10k NTC or second RTD epoxied directly to the cold plate at the MOSFET thermal zone. The v2 board's TMP708-style overheat sensor trip at ~56°C corresponded to ~100°C MOSFET case temperature — your own sink sensor should be much more conservative for long life.</p>
+        </div>
+        <div>
+          <h3>Enclosure air</h3>
+          <p>Simple digital ambient sensor mounted away from the coil and direct exhaust stream. Gives a sanity check on whether your enclosure is heat-soaking over time.</p>
+        </div>
+      </div>
+      <div class="warn-callout">
+        <strong>Independent hard shutdown (Sensor 4)</strong>
+        <p>Separate from the ESP32: an analog thermostat / comparator chain that kills main input if the sink crosses a hard limit. This must work even if the ESP32 crashes, the display locks up, the fan tach line lies, or the software PID goes unstable.</p>
+      </div>
+      <h3>Control strategy: regulate power first, fans second</h3>
+      <div class="section-columns two">
+        <div>
+          <h3>Outer loop: globe temp → generator power</h3>
+          <p>Slow PI loop (not aggressive full PID). Process variable: outer-glass temperature near the lower globe. Control output: generator power limit / current limit / supply setpoint. Update rate: ~1-2 seconds. Rate-limited setpoint changes only. Why not fast PID? Because the oscillator is self-resonant, high-frequency, and timing-sensitive. Fast low-frequency modulation injected into that system destabilizes it.</p>
+        </div>
+        <div>
+          <h3>Inner loop: heatsink temp → fan PWM</h3>
+          <p>This can be a normal fan curve or PI loop. Process variable: heatsink or MOSFET-area temperature. Control output: fan duty. Update rate: ~100-500 ms. Can react faster than the globe loop because fan speed changes do not directly disturb the RF discharge — unlike power-level changes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card reveal board-card" id="annotated-board" data-nav="Annotated Board">
+      <p class="section-kicker">interactive PCB</p>
+      <h2>The Board, Annotated</h2>
+      <p>Hover or tap the outlined regions to connect the schematic to the sky-guided operating assumptions.</p>
+      <div class="annotated-layout">
+        <div class="schematic-wrap">
+          <img src="assets/schematic.png" alt="Class-E plasma toroid driver schematic" class="schematic-image">
+          <button class="pcb-hotspot hotspot-power is-active" data-hotspot="power" aria-label="DC Input and RF Choke"></button>
+          <button class="pcb-hotspot hotspot-mosfet" data-hotspot="mosfet" aria-label="Class-E Switching Stage"></button>
+          <button class="pcb-hotspot hotspot-capacitors" data-hotspot="capacitors" aria-label="Resonant LC Tank"></button>
+          <button class="pcb-hotspot hotspot-coil" data-hotspot="coil" aria-label="Primary Loop Inductor"></button>
+          <button class="pcb-hotspot hotspot-feedback" data-hotspot="feedback" aria-label="Self-Oscillating Feedback Network"></button>
+        </div>
+        <aside class="info-panel" id="boardInfo" aria-live="polite">
+          <h3>DC Input &amp; RF Choke</h3>
+          <p>The DC input feeds the RF driver through a choke that keeps high-frequency energy from escaping back into the supply. Current-limit adjustment is a version-2 feature and a natural interface point for the smart-base supervisory controller.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="glass-card reveal large-card" id="roadmap" data-nav="Roadmap">
+      <p class="section-kicker">validation sequence</p>
+      <h2>Validation Roadmap</h2>
+      <ol class="roadmap-list">
+        <li><strong>Stage 0:</strong> Gather source truth, reference images, current design files, and real globe measurements.</li>
+        <li><strong>Stage 1:</strong> Instrument the existing setup and map hot spots before designing around guesses.</li>
+        <li><strong>Stage 2:</strong> Prototype the segmented globe-contact cooling subsystem by itself.</li>
+        <li><strong>Stage 3:</strong> Prototype the cold plate, fan path, and plenum without RF power.</li>
+        <li><strong>Stage 4:</strong> Integrate sensors and manual fan control until measurements are trustworthy.</li>
+        <li><strong>Stage 5:</strong> Add supervisory power limiting and prove the toroid remains visually acceptable.</li>
+        <li><strong>Stage 6:</strong> Add hard trips, latched faults, and post-fault cooling behavior.</li>
+        <li><strong>Stage 7:</strong> Run 1-hour, multi-hour, then 8-hour qualification soaks with logging.</li>
+      </ol>
+      <h3>Detailed validation phases</h3>
+      <div class="section-columns two">
+        <div>
+          <h3>Phase 1 — bench thermal characterization</h3>
+          <p>Instrument: globe contact temp, sink temp, enclosure ambient, supply voltage/current, fan RPM. Run at: strike mode, idle candidate #1, idle candidate #2, and forced-fan full speed. Log 60-120 minutes each. Find: minimum power that sustains the idle toroid, globe temperature rise rate, sink-to-ambient rise, and how much fan speed actually changes globe temperature.</p>
+        </div>
+        <div>
+          <h3>Phase 2-4 — tuning &amp; long soak</h3>
+          <p>Tune fan loop first, then tune slow power-derating loop, then add trip and retry logic. Do a 4-hour soak first. Then 8-hour only after: no drift, no runaway, no repeated extinguish/restrike behavior, and no enclosure softening. Do not aim for the full 8-hour run immediately — each phase must prove the previous assumptions before extending.</p>
+        </div>
+      </div>
+      <blockquote>
+        <p>The point is not to guess your way into success. The point is to remove uncertainty in a rational order.</p>
+      </blockquote>
+    </section>
+
+    <section class="glass-card reveal" id="state-machine" data-nav="State Machine">
+      <p class="section-kicker">supervisory firmware</p>
+      <h2>Control State Machine</h2>
+      <p>The smart base should not be a single PID loop. It is a state machine where each state has its own rules for what power is allowed, what fans do, and what constitutes a reason to advance or retreat.</p>
+      <div class="state-grid">
+        <div class="state-node">
+          <span class="state-label">OFF</span>
+          <p>Nothing active except UI logic. Fans off unless a post-run cooling window is still open.</p>
+        </div>
+        <div class="state-node">
+          <span class="state-label">PRECHECK</span>
+          <p>Verify sensors are valid, fans spin correctly, and no over-temperature condition is already present before allowing the strike attempt.</p>
+        </div>
+        <div class="state-node">
+          <span class="state-label">STRIKE</span>
+          <p>Time-bounded higher-power ignition window. Exit on confirmed ignition or timeout, then ramp down into the measured idle envelope.</p>
+        </div>
+        <div class="state-node">
+          <span class="state-label">STABILIZE</span>
+          <p>Plasma is lit but still settling. The controller waits for discharge to reach a coherent toroid before enforcing long-run idle conditions.</p>
+        </div>
+        <div class="state-node state-node-idle">
+          <span class="state-label">IDLE</span>
+          <p>Maintain acceptable toroid at the lowest sustainable power. Slow outer loop on globe temperature drives current-limit setpoint. Faster inner loop drives fan PWM from sink temperature.</p>
+        </div>
+        <div class="state-node">
+          <span class="state-label">COOL-DOWN</span>
+          <p>Generator off, fans remain active. Temperatures monitored until the system falls below a defined threshold. Only then does the state advance to OFF.</p>
+        </div>
+        <div class="state-node state-node-fault">
+          <span class="state-label">FAULT</span>
+          <p>Generator disabled. Cooling continues if temperatures require it. Fault is latched — user reset required. State and cause displayed clearly. No automatic restart.</p>
+        </div>
+      </div>
+      <blockquote>
+        <p>The state-machine framing is one of the most valuable outputs of the design session because it converts the vague idea of "PID cooling" into an appliance-like control logic with clear transitions and bounded behavior in each mode.</p>
+      </blockquote>
+      <div class="section-columns two">
+        <div>
+          <h3>Globe loop (outer / slow)</h3>
+          <p>Input: globe-contact temperature proxy. Output: available current-limit setpoint. Behavior: slow, rate-limited, biased toward stability. Chasing tiny fluctuations aggressively destabilizes the toroid without protecting temperatures.</p>
+        </div>
+        <div>
+          <h3>Sink loop (inner / faster)</h3>
+          <p>Input: cold-plate temperature. Output: fan PWM. Can react faster than the globe loop because fan speed changes do not directly disturb the RF discharge — unlike power-level changes.</p>
+        </div>
+      </div>
+      <h3>ESP32 hardware architecture</h3>
+      <div class="section-columns">
+        <div>
+          <h3>Controller core</h3>
+          <p>ESP32-S3, small IPS display, rotary encoder with push, RUN / IDLE / OFF switch, latching emergency stop, buzzer and status LEDs, fan tach inputs, analog or digital interface to the programmable supply/current limit, nonvolatile storage for profiles.</p>
+        </div>
+        <div>
+          <h3>Front panel UI</h3>
+          <p>Main knob: target temperature or idle intensity. Toggle: OFF / AUTO / MANUAL. Small button: menu / acknowledge alarm. Display pages cycle through: Globe temp, Sink temp, Ambient, Fan %, Power setpoint, and current state.</p>
+        </div>
+        <div>
+          <h3>Firmware behavior</h3>
+          <p>This should be a state machine, not a single forever-PID loop. Startup: fans pre-spin, confirm sensors valid, enable input power, apply strike power for bounded interval, detect oscillation, ramp down into idle control. Fault: trip immediately on hard limit, sensor disconnect, or fan stall while hot — then power off generator, keep fans on until cooled, latch fault, require manual reset.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card reveal" id="component-set" data-nav="BOM">
+      <p class="section-kicker">bill of materials</p>
+      <h2>Component Set</h2>
+      <p>This is the BOM class to start with — not a final parts list, but the categories and quantities that define the system.</p>
+      <div class="section-columns">
+        <div>
+          <h3>Thermal / mechanical</h3>
+          <ul class="compact-list">
+            <li>1 machined 6061 aluminum cold plate</li>
+            <li>1 finned heatsink bonded or screwed to cold plate</li>
+            <li>2 high-static-pressure PWM fans (or 1 larger blower)</li>
+            <li>3 split aluminum thermal fingers with silicone contact pads</li>
+            <li>Insulated standoffs, shoulder washers, spring hardware</li>
+            <li>PETG/ASA for outer shell; PC/CF or PA-CF for hotter inner parts</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Control / sensing</h3>
+          <ul class="compact-list">
+            <li>1 ESP32-S3 board</li>
+            <li>1 SPI IPS display</li>
+            <li>1 rotary encoder + 1 three-position switch</li>
+            <li>1 latching E-stop</li>
+            <li>1 PT1000 interface (globe temp)</li>
+            <li>1 NTC or second RTD (sink temp)</li>
+            <li>1 ambient temp sensor</li>
+            <li>1 independent analog thermal trip device</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Power</h3>
+          <ul class="compact-list">
+            <li>Dedicated 20V / 5A or similar stationary supply</li>
+            <li>Buck converter for fans</li>
+            <li>Buck converter for logic</li>
+            <li>High-side eFuse or MOSFET power switch</li>
+            <li>Programmable CC/CV stage or remote-setpoint-compatible upstream regulator</li>
+          </ul>
+        </div>
+      </div>
+      <h3>What to borrow from ALOH</h3>
+      <p>From public ALOH material, the most useful things to borrow are product-level principles: compact detached-globe base architecture, explicit overheat protection, single-user control lever / intensity adjustment, and acceptance that the device is a meaningful heat source with a published operating range up to 80°C. Do not claim ALOH proves a specific fan or heatsink layout — that is not publicly documented.</p>
+      <blockquote>
+        <p>Move away from relying purely on a small USB-C-PD arrangement. The higher-power 5A module plus smart base controller and fan overhead demand a proper stationary supply.</p>
+      </blockquote>
+    </section>
+
+    <section class="glass-card reveal" id="risks" data-nav="Risks">
+      <p class="section-kicker">risk register</p>
+      <h2>Known Risks Worth Tracking</h2>
+      <p>A good reference preserves its uncertainties, not only its conclusions. These are the unresolved risk factors from the full design session.</p>
+      <div class="safety-grid">
+        <div>
+          <h3>Electromagnetic coupling</h3>
+          <p>Closed conductive loops placed near the active field can couple, heat unexpectedly, and distort toroid formation. All thermal hardware near the globe must be segmented and broken.</p>
+        </div>
+        <div>
+          <h3>Globe thermal-stress</h3>
+          <p>The globe can look visually stable while thermally drifting upward. Visual inspection is not a reliable safety indicator. Measured globe-contact temperature is required.</p>
+        </div>
+        <div>
+          <h3>RF disturbance</h3>
+          <p>Overly invasive supervisory integration can destabilize the resonant system. Supervision should be upstream and slow, not gate-drive-level and fast.</p>
+        </div>
+        <div>
+          <h3>Measurement confidence</h3>
+          <p>A poorly seated globe-contact sensor creates false confidence. Sensor mount repeatability is a first-class design concern, not an afterthought.</p>
+        </div>
+        <div>
+          <h3>Enclosure heat-soak</h3>
+          <p>A well-designed shell can still trap hot air if exhaust paths are inadequate. Recirculation is especially dangerous for long-run thermal targets.</p>
+        </div>
+        <div>
+          <h3>Long-run thermal unknowns</h3>
+          <p>The true long-run thermal envelope on the sky-guided board remains the biggest unresolved application-specific uncertainty. Short successful runs do not prove 8-hour safety.</p>
+        </div>
+        <div>
+          <h3>Pressure uncertainty</h3>
+          <p>The sky-guided reference case is ~15 torr xenon. Any deviation affects ignition margin and sustaining behavior.</p>
+        </div>
+        <div>
+          <h3>Overcontrol</h3>
+          <p>A badly tuned power-derating loop can collapse the toroid while attempting to protect it. The control objective is the lowest sustainable idle toroid, not maximum brightness or maximum thermal protection.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card reveal safety-card" id="safety" data-nav="Safety">
+      <p class="section-kicker">non-negotiable</p>
+      <h2>Safety Protocol</h2>
+      <div class="alert-box">
+        <h3>RF and medical implants</h3>
+        <p>Keep the plasma toroid strictly away from anyone with pacemakers, implanted defibrillators, neurostimulators, or other implanted electronic medical devices.</p>
+      </div>
+      <div class="safety-grid">
+        <div>
+          <h3>Thermal</h3>
+          <p>The glass can reach burn temperatures during and after operation. MOSFETs and heatsinks also need active cooling and post-shutdown airflow.</p>
+        </div>
+        <div>
+          <h3>RF exposure</h3>
+          <p>At 10 MHz, skin-effect currents can cause deep RF burns without triggering the normal nervous-system pain response in time. Keep hands clear of energized circuitry.</p>
+        </div>
+        <div>
+          <h3>UV</h3>
+          <p>Use borosilicate glass assumptions only. Do not substitute quartz unless UV containment has been engineered and verified.</p>
+        </div>
+        <div>
+          <h3>Ozone</h3>
+          <p>Arcs and high electric fields can generate ozone. Operate only with ventilation.</p>
+        </div>
+        <div>
+          <h3>Duty cycle</h3>
+          <p>Without the smart base and thermal qualification, treat stock-board operation as short duty: about 1-2 minutes followed by cool-down.</p>
+        </div>
+        <div>
+          <h3>MOSFET drain tab</h3>
+          <p>The MOSFET thermal tab is on drain, not ground. Any larger metal heatsink must use an electrically insulating thermal interface or be fully protected/inaccessible. Never casually ground the drain thermal area.</p>
+        </div>
+        <div>
+          <h3>Do not PWM the RF supply</h3>
+          <p>Do not try to control the toroid by hard-chopping its main DC input with a low-frequency PWM. Control an upstream programmable CC/CV stage instead, adjusting available power smoothly and reversibly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card reveal" id="sources" data-nav="Sources">
+      <p class="section-kicker">public trail</p>
+      <h2>Sources &amp; Further Reading</h2>
+      <div class="source-grid">
+        <div>
+          <h3>Primary public project pages</h3>
+          <ul class="source-list">
+            <li><a href="https://hackaday.io/project/194683-plasma-toroid-sky-guided-pcb-edition" target="_blank" rel="noopener">Hackaday project overview</a></li>
+            <li><a href="https://hackaday.io/project/194683-plasma-toroid-sky-guided-pcb-edition/details" target="_blank" rel="noopener">Hackaday details page</a></li>
+            <li><a href="https://hackaday.io/project/194683/logs" target="_blank" rel="noopener">Hackaday logs</a></li>
+            <li><a href="https://www.tindie.com/products/sky-guided/sky-guided-plasma-toroid-driver-board/" target="_blank" rel="noopener">Tindie product page</a></li>
+            <li><a href="https://www.pcbway.com/project/shareproject/Sky_guided_plasma_toroid_driver_ebffe449.html" target="_blank" rel="noopener">PCBWay archival page</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Related ecosystem</h3>
+          <ul class="source-list contextual">
+            <li><a href="https://www.aloh-plasma.com/" target="_blank" rel="noopener">ALOH Plasma</a><span>Productization reference.</span></li>
+            <li><a href="https://www.kickstarter.com/projects/aloh/aloh-the-worlds-first-floating-plasma-ring-lamp/" target="_blank" rel="noopener">ALOH Kickstarter</a><span>Consumer presentation context.</span></li>
+            <li><a href="https://en.teslacoil.pro/" target="_blank" rel="noopener">Teslacoil.pro</a><span>General toroid-builder context.</span></li>
+            <li><a href="https://makezine.com/projects/plasma-toroid-generator/" target="_blank" rel="noopener">Makezine plasma toroid generator</a><span>Maker ecosystem background.</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="closing-note">The canonical design files live in the Codeberg repository linked from the Hackaday project, not in the older Hackaday “Files” archives.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Sky-guided PCB edition · plasma toroid smart-base reference</p>
+  </footer>
+
+  <script>window.__plasmaModuleStarted = false;</script>
+  <script type="module" src="js/main.js"></script>
+  <script src="js/file-fallback.js" defer></script>
+</body>
+</html>
