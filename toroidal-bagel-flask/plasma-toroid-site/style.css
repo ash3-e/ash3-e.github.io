@@ -108,7 +108,7 @@ a[target="_blank"]::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   background:
     radial-gradient(ellipse 64vmin 64vmin at 50% 51%,
@@ -124,6 +124,37 @@ a[target="_blank"]::after {
   mix-blend-mode: screen;
   opacity: 0.34;
   animation: ditherBreath 7.5s ease-in-out infinite;
+}
+
+.visual-field::after {
+  content: "";
+  position: absolute;
+  inset: -12vmax;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 52vmin 46vmin at 50% 51%,
+      rgba(228, 88, 255, 0.20) 0%,
+      rgba(142, 31, 224, 0.12) 36%,
+      rgba(92, 11, 150, 0.045) 58%,
+      transparent 76%),
+    radial-gradient(ellipse 116vw 92vh at 50% 51%,
+      transparent 0%,
+      transparent 38%,
+      rgba(48, 7, 104, 0.10) 70%,
+      rgba(38, 8, 78, 0.18) 100%),
+    conic-gradient(from 210deg at 50% 51%,
+      rgba(232, 197, 255, 0.045),
+      rgba(142, 31, 224, 0.03),
+      rgba(18, 4, 50, 0),
+      rgba(180, 72, 255, 0.05),
+      rgba(232, 197, 255, 0.045));
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  transform: scale(0.98) rotate(0deg);
+  transform-origin: 50% 51%;
+  animation: gradientBreath 12s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 #plasmaCanvas {
@@ -247,6 +278,24 @@ body.debug .debug-status {
   48% {
     opacity: 0.43;
     background-position: center, 1px 0, 0 1px;
+  }
+}
+
+@keyframes gradientBreath {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.97) rotate(-0.4deg);
+  }
+
+  45% {
+    opacity: 0.62;
+    transform: scale(1.04) rotate(0.45deg);
+  }
+
+  72% {
+    opacity: 0.52;
+    transform: scale(1.01) rotate(-0.12deg);
   }
 }
 
@@ -1002,6 +1051,12 @@ blockquote p {
   .visual-field::before {
     animation: none;
     opacity: 0.28;
+  }
+
+  .visual-field::after {
+    animation: none;
+    opacity: 0.38;
+    transform: none;
   }
 
   *,
