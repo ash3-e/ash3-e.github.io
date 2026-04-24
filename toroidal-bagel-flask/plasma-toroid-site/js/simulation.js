@@ -5,11 +5,14 @@ import {
 } from "./utils.js";
 
 const TIERS = [
-  { core: 700,  filaments: 1500, bloom: 1, arcs: 4  },
-  { core: 1100, filaments: 2600, bloom: 1, arcs: 6  },
-  { core: 1700, filaments: 3900, bloom: 2, arcs: 8  },
-  { core: 2500, filaments: 5400, bloom: 2, arcs: 12 }
+  { core: 1400, filaments: 1500, bloom: 1, arcs: 4  },
+  { core: 2200, filaments: 2600, bloom: 1, arcs: 6  },
+  { core: 3400, filaments: 3900, bloom: 2, arcs: 8  },
+  { core: 5000, filaments: 5400, bloom: 2, arcs: 12 }
 ];
+
+const TORUS_SCALE = 1.35;
+const TORUS_SPHERE_LIMIT = 0.945;
 
 // Dithering constants
 const DITHER_GRID = 1.25;
@@ -240,7 +243,7 @@ export class PlasmaToroidSimulation {
     this.lean.y = lerp(this.lean.y, dist ? (dy / dist) * lStr : 0, 0.08);
     this.updateParticles(step);
     this.updateArcs(step, prox, dist);
-    const breathGlow = this.passiveCoreBreath() * 0.08;
+    const breathGlow = this.passiveCoreBreath() * 0.028;
     this.ambient = clamp(0.38 + Math.sin(this.time * 1.2) * 0.055 + prox * 0.22 + this.smear * 0.1 + breathGlow, 0, 1);
   }
 
@@ -427,20 +430,28 @@ export class PlasmaToroidSimulation {
   }
 
   passiveCoreBreath() {
-    if (this.reducedMotion) return 0.045 + Math.sin(this.time * 0.22) * 0.025;
-    const cycle = 0.5 + Math.sin(this.time * 0.48) * 0.5;
-    return (0.5 - Math.cos(cycle * Math.PI) * 0.5) * 0.24;
+    const speed = this.reducedMotion ? 0.36 : 0.96;
+    const cycle = 0.5 + Math.sin(this.time * speed) * 0.5;
+    const eased = 0.5 - Math.cos(cycle * Math.PI) * 0.5;
+    return this.reducedMotion ? eased * 0.38 : eased;
+  }
+
+  torusDeformAmount() {
+    if (this.reducedMotion) return 0.2;
+    const drift = 0.5 + Math.sin(this.time * 0.23 + Math.sin(this.time * 0.09) * 0.55) * 0.5;
+    return 0.08 + (0.5 - Math.cos(drift * Math.PI) * 0.5) * 0.92;
   }
 
   torusPoint(u, v, layer = "core", radialScale = 1) {
     const s      = this.sphere;
-    const breath = 1 + Math.sin(this.time * 1.25) * (this.reducedMotion ? 0.006 : 0.02);
-    const fluid = this.reducedMotion ? 0.006 : 0.024;
-    const lobeA = Math.sin(u * 2.0 + this.time * 0.52);
-    const lobeB = Math.sin(u * 3.0 - v * 0.65 - this.time * 0.37);
-    const lobeC = Math.sin(u * 0.7 + v * 1.15 + this.time * 0.23);
-    const R      = s.r * 0.575 * breath * (1 + (lobeA * 0.55 + lobeB * 0.28 + lobeC * 0.36) * fluid);
-    let tube     = s.r * 0.1725;
+    const deform = this.torusDeformAmount();
+    const breath = 1 + Math.sin(this.time * 1.25) * (this.reducedMotion ? 0.004 : 0.012);
+    const fluid = (this.reducedMotion ? 0.006 : 0.038) * deform;
+    const lobeA = Math.sin(u * 2.0 + this.time * 0.34);
+    const lobeB = Math.sin(u * 3.0 - v * 0.65 - this.time * 0.26);
+    const lobeC = Math.sin(u * 0.7 + v * 1.15 + this.time * 0.17);
+    const R      = s.r * 0.575 * TORUS_SCALE * breath * (1 + (lobeA * 0.58 + lobeB * 0.3 + lobeC * 0.42) * fluid);
+    let tube     = s.r * 0.1725 * TORUS_SCALE;
     if (layer === "filament") tube *= 1 + this.smear * 0.34;
     tube *= radialScale * (1 + (Math.sin(u * 2.6 + v * 0.8 + this.time * 0.62) + lobeC * 0.7) * fluid * 1.45);
     const cv = Math.cos(v);
@@ -448,7 +459,20 @@ export class PlasmaToroidSimulation {
     const phaseSlip = Math.sin(u * 1.35 - this.time * 0.28) * fluid * 0.75;
     const cu = Math.cos(u + phaseSlip);
     const su = Math.sin(u + phaseSlip);
-    return { x: (R + tube * cv) * cu, y: (R + tube * cv) * su, z: tube * sv };
+    let x = (R + tube * cv) * cu;
+    let y = (R + tube * cv) * su;
+    let z = tube * sv;
+    const len = Math.hypot(x, y, z);
+    const limit = s.r * TORUS_SPHERE_LIMIT;
+    if (len > limit) {
+      const over = clamp((len - limit) / (s.r * 0.14), 0, 1);
+      const squash = limit / len;
+      const slide = 1 - over * 0.08;
+      x *= squash;
+      y *= squash;
+      z *= squash * slide;
+    }
+    return { x, y, z };
   }
 
   project(point) {
@@ -682,19 +706,21 @@ export class PlasmaToroidSimulation {
   drawCore(ctx) {
     const grid = DITHER_GRID;
     const projected = [];
-    const passiveBreath = this.passiveCoreBreath();
+    const breathPhase = this.passiveCoreBreath();
 
     for (const p of this.core) {
       // Effective radial: passive breathing eases the white core toward the
       // purple shell; manual swirl still adds the larger drag deformation.
-      const swirlExpand = p.swirlAmount * 0.72;
-      const fluidDrift = Math.sin(p.u * 2.1 + p.phase * 0.7 + this.time * 0.44) * passiveBreath * 0.08;
-      const effectiveRadial = Math.max(0.01, p.radial + passiveBreath + fluidDrift + swirlExpand + p.radialDisplace);
+      const swirlExpand = p.swirlAmount * 0.22;
+      const shellTarget = 0.86 + Math.sin(p.u * 1.4 + p.phase * 0.35 + this.time * 0.28) * 0.035;
+      const fluidDrift = Math.sin(p.u * 2.1 + p.phase * 0.7 + this.time * 0.88) * breathPhase * 0.035;
+      const breathRadial = lerp(p.radial, shellTarget + fluidDrift, breathPhase);
+      const effectiveRadial = Math.max(0.01, breathRadial + swirlExpand + p.radialDisplace);
 
       // v: blend normal wobble with helical winding
       const normalV = p.v + Math.sin(p.phase + this.time * 1.8) * (0.18 + this.smear * 0.17);
       const helicalV = p.phase + p.u * p.helicalPitch + p.v * 0.12;
-      const motionSwirl = clamp(p.swirlAmount + passiveBreath * 0.42, 0, 1);
+      const motionSwirl = clamp(p.swirlAmount + breathPhase * 0.55, 0, 1);
       const v = lerp(normalV, helicalV, motionSwirl);
 
       const layer = p.swirlAmount > 0.15 ? "filament" : "core";
@@ -708,11 +734,11 @@ export class PlasmaToroidSimulation {
         spinShift * 0.32
       );
       // Swirl shifts white particles toward the violet ring color
-      const color = mixRgb(baseColor, this.colors.ringRgb, p.swirlAmount * 0.34 + passiveBreath * 0.06);
+      const color = mixRgb(baseColor, this.colors.ringRgb, p.swirlAmount * 0.34 + breathPhase * 0.08);
 
-      const size  = (0.95 + center * 1.72 + this.smear * 0.18 + passiveBreath * 0.12) * q.depth;
+      const size  = (0.9 + center * 1.62 + this.smear * 0.16 + breathPhase * 0.16) * q.depth;
       if (size < 0.5) continue;
-      const alpha = (0.33 + center * 0.55) * (0.58 + q.near * 0.5) * this.alphaScale;
+      const alpha = (0.3 + center * 0.5) * (0.58 + q.near * 0.5) * this.alphaScale;
       projected.push({ q, color, size, alpha, center });
     }
 
@@ -735,7 +761,7 @@ export class PlasmaToroidSimulation {
 
       const bloomP = center > 0.52 ? 0.01 : 0.004;
       if (Math.random() < bloomP)
-        this.drawBloomParticle(q, size * (3.05 + passiveBreath * 0.7), color, alpha * 0.28, center > 0.72 ? 2 : 1);
+        this.drawBloomParticle(q, size * (2.85 + breathPhase * 0.45), color, alpha * 0.24, center > 0.72 ? 2 : 1);
     }
   }
 
