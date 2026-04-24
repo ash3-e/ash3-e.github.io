@@ -76,6 +76,33 @@ body.mobile-hero-locked {
   overscroll-behavior: none;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 72vmin 68vmin at 50% 51%,
+      rgba(228, 88, 255, 0.115) 0%,
+      rgba(142, 31, 224, 0.072) 38%,
+      rgba(92, 11, 150, 0.038) 66%,
+      rgba(38, 8, 78, 0.012) 88%,
+      transparent 100%),
+    radial-gradient(circle at center,
+      rgba(244, 226, 255, 0.075) 0 0.58px,
+      rgba(179, 71, 255, 0.045) 0.72px,
+      transparent 1px),
+    radial-gradient(circle at center,
+      rgba(142, 31, 224, 0.05) 0 0.66px,
+      transparent 1.08px);
+  background-size: 100% 100%, 4px 4px, 6px 6px;
+  background-position: center, 0 0, 2px 1px;
+  mix-blend-mode: screen;
+  opacity: 0.28;
+  animation: restoredDitherBreath 8.5s ease-in-out infinite;
+}
+
 body::after {
   content: "";
   position: fixed;
@@ -312,6 +339,19 @@ body.debug .debug-status {
   48% {
     opacity: 0.43;
     background-position: center, 1px 0, 0 1px;
+  }
+}
+
+@keyframes restoredDitherBreath {
+  0%,
+  100% {
+    opacity: 0.2;
+    background-position: center, 0 0, 2px 1px;
+  }
+
+  50% {
+    opacity: 0.34;
+    background-position: center, 2px 1px, 5px 4px;
   }
 }
 
@@ -1088,6 +1128,11 @@ blockquote p {
   .visual-field::before {
     animation: none;
     opacity: 0.28;
+  }
+
+  body::before {
+    animation: none;
+    opacity: 0.22;
   }
 
   .visual-field::after {
