@@ -29,7 +29,10 @@
   --radius-lg:24px;
   --radius-md:18px;
   --site-pad:16px;
+  --content-edge-gap:12px;
   --topbar-space:0px;
+  --bottom-chrome-space:30px;
+  --mobile-footer-clearance:calc(var(--bottom-chrome-space) + var(--content-edge-gap));
   --surface-glass:
     linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,.46)),
     linear-gradient(135deg, rgba(40,180,90,.045), transparent 34%, rgba(20,120,60,.045));
@@ -794,17 +797,46 @@ body.portal-split-view .search-input{height:40px;font-size:.9rem}
 body.portal-split-view .search-icon{left:12px;width:16px;height:16px}
 body.portal-split-view .search-clear{height:28px;width:28px;right:50px}
 body.portal-split-view .search-submit{height:28px;width:38px;font-size:.72rem}
-body.portal-split-view .content{grid-template-columns:minmax(320px,.92fr) minmax(420px,1.28fr)}
+body.portal-split-view .content{
+  grid-template-columns:minmax(300px,.9fr) minmax(420px,1.1fr);
+  grid-template-rows:minmax(0,.52fr) minmax(0,.48fr);
+}
 body.portal-split-view .notes-column{
+  grid-column:1;
+  grid-row:1;
   display:grid;
   grid-template-rows:minmax(0,1fr);
   min-height:0;
 }
 body.portal-split-view .list-stack{
+  grid-column:1;
+  grid-row:2;
   display:grid;
   grid-template-rows:minmax(0,1fr) minmax(0,1fr);
   gap:16px;
   min-height:0;
+}
+body.portal-split-view .preview-card{
+  grid-column:2;
+  grid-row:1 / span 2;
+  min-width:0;
+}
+body.portal-mobile-view.portal-tablet-portrait .portal-header,
+body.portal-mobile-view.portal-tablet-portrait .content-shell{
+  max-width:820px;
+  margin-left:auto;
+  margin-right:auto;
+}
+body.portal-mobile-view.portal-tablet-portrait .portal-pills{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+body.portal-mobile-view.portal-tablet-portrait .pill{
+  font-size:.72rem;
+  padding:7px 8px;
+}
+body.portal-tablet-landscape.portal-split-view .content{
+  grid-template-columns:minmax(300px,.86fr) minmax(0,1.14fr);
+  gap:14px;
 }
 /* === MOBILE VIEW === */
 html.portal-mobile-view,
@@ -822,6 +854,7 @@ body.portal-mobile-view .app{
   height:100dvh;
   overflow-y:auto;
   overflow-x:hidden;
+  scroll-padding-bottom:var(--mobile-footer-clearance);
   overscroll-behavior-y:contain;
   -webkit-overflow-scrolling:touch;
 }
@@ -867,13 +900,20 @@ body.portal-mobile-view .search-submit{height:28px;width:36px;font-size:.72rem}
 body.portal-mobile-view .content-shell{
   min-height:0;
   padding-top:12px;
-  padding-bottom:calc(48px + env(safe-area-inset-bottom));
+  padding-bottom:0;
 }
 body.portal-mobile-view .content{
   height:auto;
   min-height:0;
   overflow:visible;
+  align-content:start;
   grid-template-columns:minmax(0, 1fr);
+}
+body.portal-mobile-view .content::after{
+  content:"";
+  display:block;
+  grid-column:1 / -1;
+  height:var(--mobile-footer-clearance);
 }
 body.portal-mobile-view .notes-column{display:contents}
 body.portal-mobile-view .list-stack{
@@ -1262,8 +1302,33 @@ function normalize(s = "") {
   return String(s).toLowerCase();
 }
 
-function isSplitView() {
-  const width = window.innerWidth || 0;
+function getResponsiveViewport() {
+  const width = window.innerWidth || document.documentElement.clientWidth || 0;
+  const height = window.innerHeight || document.documentElement.clientHeight || 0;
+  const coarsePointer = Boolean(window.matchMedia?.("(pointer: coarse)")?.matches || navigator.maxTouchPoints > 1);
+  return {
+    width,
+    height,
+    portrait: height > width,
+    landscape: width >= height,
+    coarsePointer,
+  };
+}
+
+function isTabletPortraitViewport(viewport = getResponsiveViewport()) {
+  return viewport.coarsePointer && viewport.portrait && viewport.width >= 700 && viewport.width <= 1180 && viewport.height >= 900;
+}
+
+function isTabletLandscapeViewport(viewport = getResponsiveViewport()) {
+  return viewport.coarsePointer && viewport.landscape && viewport.width >= 900 && viewport.width <= 1366 && viewport.height >= 600;
+}
+
+function isMobileViewport(viewport = getResponsiveViewport()) {
+  return viewport.width < 860 || isTabletPortraitViewport(viewport);
+}
+
+function isSplitView(viewport = getResponsiveViewport()) {
+  const { width } = viewport;
   if (width < 600) return false;
   if (width <= 1120) return true;
   const screenWidth = window.screen?.width || 1920;
@@ -1281,12 +1346,18 @@ function getPortalScroller() {
 }
 
 function syncResponsiveMode() {
-  const width = window.innerWidth || 0;
+  const viewport = getResponsiveViewport();
   const wasMobile = document.body.classList.contains("portal-mobile-view");
-  const mobile = width < 860;
-  const split = !mobile && isSplitView();
+  const tabletPortrait = isTabletPortraitViewport(viewport);
+  const tabletLandscape = isTabletLandscapeViewport(viewport);
+  const mobile = isMobileViewport(viewport);
+  const split = !mobile && isSplitView(viewport);
   document.documentElement.classList.toggle("portal-mobile-view", mobile);
+  document.documentElement.classList.toggle("portal-tablet-portrait", tabletPortrait);
+  document.documentElement.classList.toggle("portal-tablet-landscape", tabletLandscape && !mobile);
   document.body.classList.toggle("portal-mobile-view", mobile);
+  document.body.classList.toggle("portal-tablet-portrait", tabletPortrait);
+  document.body.classList.toggle("portal-tablet-landscape", tabletLandscape && !mobile);
   document.body.classList.toggle("portal-split-view", split);
   if (mobile && !wasMobile) state.mobilePreviewOpen = false;
   if (!mobile) state.mobilePreviewOpen = true;
@@ -2929,8 +3000,11 @@ function animateScope() {
 
 function syncTopbarOffset() {
   const topbar = document.querySelector(".portal-topbar");
-  const height = Math.ceil(topbar?.offsetHeight || 0);
+  const footer = document.getElementById("scopeStatus");
+  const height = Math.ceil(topbar?.getBoundingClientRect().height || 0);
+  const footerHeight = Math.ceil(footer?.getBoundingClientRect().height || 0);
   document.documentElement.style.setProperty("--topbar-space", `${Math.max(72, height + 8)}px`);
+  document.documentElement.style.setProperty("--bottom-chrome-space", `${Math.max(24, footerHeight)}px`);
 }
 
 function runSearch() {
@@ -2991,12 +3065,14 @@ animateScope();
 startWaveAnim();
 syncResponsiveMode();
 syncTopbarOffset();
-window.addEventListener("resize", () => {
+function handleResponsiveResize() {
   syncResponsiveMode();
   syncTopbarOffset();
   fitPreviewContentOnMobile();
   if (state.viewerDoc) fitViewerToViewport(true);
-});
+}
+window.addEventListener("resize", handleResponsiveResize);
+window.addEventListener("orientationchange", () => requestAnimationFrame(handleResponsiveResize));
 function handlePortalScroll() {
   const scroller = getPortalScroller();
   const scrollY = document.body.classList.contains("portal-mobile-view") ? scroller?.scrollTop || 0 : window.scrollY;
