@@ -675,10 +675,6 @@ body:not(.portal-mobile-view) .viewer-shell{
   border:2px solid rgba(0,0,0,.10);
   background-clip:padding-box;
 }
-.viewer-embed-mode .viewer-viewport{padding:0;cursor:default;overflow:hidden}
-.viewer-embed-mode .viewer-stage{width:100%;height:100%;min-height:0;display:block}
-.viewer-embed-mode .zoom-dock{display:none}
-.viewer-embed-mode .pdf-embed{width:100%;height:100%;border:none}
 .viewer-viewport.dragging{cursor:grabbing;user-select:none}
 .viewer-stage{
   min-height:100%;
@@ -2301,17 +2297,48 @@ async function openViewer(id) {
   $("#viewerSave").href = encodeURI(doc.pdf);
   const stage = $("#viewerStage");
   const viewport = $("#viewerViewport");
-  stage.innerHTML = "";
+  stage.innerHTML = '<div class="viewer-loading">Loading PDF pages...</div>';
   viewport.scrollTop = 0;
   viewport.scrollLeft = 0;
-  $(".viewer-body", $("#viewer")).classList.add("viewer-embed-mode");
-  const obj = document.createElement("object");
-  obj.className = "pdf-embed";
-  obj.data = encodeURI(doc.pdf);
-  obj.type = "application/pdf";
-  obj.innerHTML = `<div class="viewer-error">Your browser cannot display this PDF inline. <a href="${escapeHtml(encodeURI(doc.pdf))}" download style="color:var(--green-bright)">Download it instead</a>.</div>`;
-  stage.appendChild(obj);
-  $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"}`;
+  try {
+    const pdfjs = await ensurePdfJs();
+    const loadingTask = pdfjs.getDocument(encodeURI(doc.pdf));
+    const pdf = await loadingTask.promise;
+    if (token !== state.renderToken) return;
+    state.viewerPdf = pdf;
+    stage.innerHTML = "";
+    const renderScale = Math.min(3, Math.max(2.1, (window.devicePixelRatio || 1) * 2));
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      if (token !== state.renderToken) return;
+      const page = await pdf.getPage(pageNum);
+      const vp = page.getViewport({ scale: renderScale });
+      const shell = document.createElement("section");
+      shell.className = "pdf-page-shell";
+      shell.dataset.page = String(pageNum);
+      const canvas = document.createElement("canvas");
+      canvas.className = "pdf-page-canvas";
+      canvas.dataset.baseWidth = String(vp.width);
+      canvas.dataset.baseHeight = String(vp.height);
+      canvas.style.setProperty("--page-width", `${vp.width}px`);
+      canvas.style.setProperty("--page-height", `${vp.height}px`);
+      const ctx = canvas.getContext("2d", { alpha: false });
+      canvas.width = Math.ceil(vp.width);
+      canvas.height = Math.ceil(vp.height);
+      shell.appendChild(canvas);
+      stage.appendChild(shell);
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"} | rendered ${pageNum}/${pdf.numPages}`;
+    }
+    if (token !== state.renderToken) return;
+    requestAnimationFrame(() => {
+      fitViewerToViewport(false);
+      updatePageCounter();
+      $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"} | page 1 of ${doc.pages}`;
+    });
+  } catch (err) {
+    stage.innerHTML = `<div class="viewer-error">Unable to load the in-browser PDF renderer right now. The rest of the portal still works, and you can use the download icon above to open the file directly.<br><br>${escapeHtml(err?.message || String(err))}</div>`;
+    $("#viewerSub").textContent = "Preview unavailable";
+  }
 }
 
 function closeViewer() {
@@ -2324,8 +2351,6 @@ function closeViewer() {
   $("#viewer").classList.remove("open");
   $("#viewer").setAttribute("aria-hidden", "true");
   $("#viewerViewport").classList.remove("dragging");
-  const vb = $(".viewer-body", $("#viewer"));
-  if (vb) vb.classList.remove("viewer-embed-mode");
   restorePortalState();
 }
 
