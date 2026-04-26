@@ -1,0 +1,48 @@
+PHYS0525 Analog and Digital Electronics — Assignment 10 (Spring 2026, due Fri Apr 24, 2026)
+Overview
+Single-page assignment, three problems, that ties together combinational design, latch / self-referential-memory analysis, and CMOS gate identification. Problem 1 asks you to design a two-output combinational circuit from basic gates that realises a given 4-row truth table. Problem 2 asks you to describe a circuit built from three 2-input AND gates feeding a single 3-input OR gate, where the OR output Q* is fed back into the top and bottom ANDs — the hint to look for self-consistent output states is the giveaway that this is a memory cell, not a pure combinational gate. Problem 3 asks for the truth table and identity of a six-transistor CMOS gate, where Q₁–Q₄ form the input stage (Q₁,Q₂ as P-mos pull-ups, Q₃,Q₄ as n-mos pull-downs) and Q₅ (P-mos) / Q₆ (n-mos) form an output buffer-inverter on the right driven by the intermediate node. The handwritten solution annotations on the page resolve all three: Q₁ = A + B (OR) and Q₂ = NOT(A·B̄) = Ā + B for problem 1; a self-referential one-bit memory with set / reset / hold behaviour for problem 2; and an OR gate for problem 3. This transcript is a page-specific reconstruction (with the student's annotations folded in) for preview and search.
+
+Problem coverage
+Problem 1 — combinational design from a truth table. The given table is (A,B,O1,O2) = (0,0,0,1), (0,1,1,1), (1,0,1,0), (1,1,1,1). Output 1 is HIGH on every row except (A,B) = (0,0), which is exactly OR: O1 = A + B (annotation "OR: Q₁ = 1"). Output 2 is LOW only on the single row (A,B) = (1,0), which the student labels "only 0 when only A = 1"; equivalently O2 = NOT(A · NOT B) = NOT A + B (an "implication" gate, A → B). The sketched realisation uses an inverter on B feeding into one input of a NAND together with A (and an OR gate to produce Q₁ = A + B), giving Q₁ and Q₂ from a small handful of basic gates. Problem 2 — self-referential AND-AND-AND-OR cell. Inputs A and B drive the middle 2-input AND directly (A·B). The top and bottom ANDs each take one external input and one feedback input from the OR's own output Q*: top AND = A·Q*, bottom AND = B·Q*. The 3-input OR sums these, so the self-consistency condition is Q* = A·Q* + B·Q* + A·B = Q*(A + B) + A·B. Reading off the four input combinations: (0,0) forces Q* → 0 (reset); (1,1) forces Q* → 1 (set); (1,0) and (0,1) leave Q* = Q*, i.e. the cell holds whatever value it had on the previous cycle. The student's conclusion — "this circuit exhibits the behaviour of self-referential memory and utilises said memory in its logic" — captures it exactly: it is a one-bit memory whose next-state function is the same logical expression evaluated using the current state. Problem 3 — six-transistor CMOS gate identification. The annotations identify Q₁, Q₂, Q₅ as P-mos and Q₃, Q₄, Q₆ as n-mos, with A controlling the gates of Q₁ and Q₃ and B controlling the gates of Q₂ and Q₄; the intermediate node between the two stacks drives the gates of the output pair Q₅ and Q₆. Tracing the topology: Q₁ and Q₂ are stacked in series between +V and the intermediate node X (so the pull-up path exists only when A = 0 and B = 0), while Q₃ and Q₄ are in parallel between X and GND (so X is pulled low whenever A = 1 or B = 1). That makes the first stage a CMOS NOR with X = NOT(A + B). The second stage Q₅/Q₆ is a CMOS inverter on X, so Out = NOT(X) = A + B. Walking the four (A,B) combinations using the standard CMOS conventions (n-mos: V_gs = V_g − V_s, g = 1 ON, g = 0 OFF — P-mos: V_gs = V_s − V_g, g = 0 ON, g = 1 OFF) reproduces the truth table A B → Out: 0 0 → 0, 1 0 → 1, 0 1 → 1, 1 1 → 1, which is the OR function — and the student notes the gate "behaves like an OR gate," with the textbook OR symbol and truth table drawn alongside for direct comparison.
+
+Key equations
+
+$$\text{Problem 1 truth table: }(A,B)\to(O_{1},O_{2}):\ (0,0)\!\to\!(0,1),\ (0,1)\!\to\!(1,1),\ (1,0)\!\to\!(1,0),\ (1,1)\!\to\!(1,1)$$
+
+$$O_{1}=A+B\quad\text{(OR — annotated "OR: }Q_{1}=1\text{")}$$
+
+$$O_{2}=\overline{A\!\cdot\!\bar B}=\bar A+B\quad\text{(annotated "only 0 when only }A=1\text{")}$$
+
+$$\text{Problem 2 self-consistency: }Q^{*}=A\,Q^{*}+B\,Q^{*}+A\,B=Q^{*}(A+B)+AB$$
+
+$$\text{Behavior: }(A,B)=(0,0)\Rightarrow Q^{*}\!\to 0\ (\text{reset}),\ (A,B)=(1,1)\Rightarrow Q^{*}\!\to 1\ (\text{set})$$
+
+$$(A,B)=(1,0)\ \text{or}\ (0,1)\Rightarrow Q^{*}\!=Q^{*}\ (\text{hold previous value — depends on stored }Q^{*})$$
+
+$$\Rightarrow\text{one-bit self-referential memory cell (set/reset/hold)}$$
+
+$$\text{Problem 3 CMOS conventions:}$$
+
+$$\text{n-mos: }V_{gs}=V_{g}-V_{s};\ g=1\Rightarrow\text{ON},\ g=0\Rightarrow\text{OFF}$$
+
+$$\text{P-mos: }V_{gs}=V_{s}-V_{g};\ g=0\Rightarrow\text{ON},\ g=1\Rightarrow\text{OFF}$$
+
+$$\text{First stage (Q}_{1}\text{–Q}_{4}\text{): P-mos pair in series, n-mos pair in parallel}\Rightarrow X=\overline{A+B}\ \text{(CMOS NOR)}$$
+
+$$\text{Second stage (Q}_{5}\text{,Q}_{6}\text{): CMOS inverter on }X\Rightarrow\text{Out}=\overline{X}$$
+
+$$\text{Per-input case work on Q}_{5}\text{/Q}_{6}\text{: }V_{in}=+5\,\text{V}\Rightarrow\text{P-mos OFF, n-mos ON}\Rightarrow\text{output pulled to GND}$$
+
+$$\hphantom{\text{Per-input case work on Q}_{5}\text{/Q}_{6}\text{: }}V_{in}=0\,\text{V}\Rightarrow\text{P-mos ON, n-mos OFF}\Rightarrow\text{output pulled to }+5\,\text{V}$$
+
+$$\text{Transistor assignments: }A\ \text{controls }Q_{1},Q_{3};\ B\ \text{controls }Q_{2},Q_{4};\ X\ \text{controls }Q_{5},Q_{6}$$
+
+$$\text{Resulting truth table: }(A,B)\to\text{Out}:\ (0,0)\!\to\!0,\ (1,0)\!\to\!1,\ (0,1)\!\to\!1,\ (1,1)\!\to\!1$$
+
+$$\Rightarrow\ \text{Out}=A+B\quad\text{(OR gate — CMOS NOR followed by inverter)}$$
+
+How to use this page
+Read each problem as one of three job-types. (1) Going from a truth table to a gate network: identify which rows the output is HIGH (or LOW) on, recognise the canonical pattern (only-(0,0)-low ⇒ OR; only-(A=1, B=0)-low ⇒ A → B = Ā + B), and pick the smallest gate set that realises it. (2) Analysing a circuit with feedback: do not try to reduce it as pure combinational logic; instead, write down the self-consistency equation (output = function of inputs and itself), then case-split on the inputs to see whether each combination forces the state to a unique value or leaves it free — the "free" cases are the hold/memory rows. (3) Identifying a CMOS gate from its transistor schematic: label every transistor as n-mos or P-mos, write down which input controls which gate, then walk the four (A,B) combinations using the rule "n-mos pull-down ON when its gate is HIGH, P-mos pull-up ON when its gate is LOW," and read off whether the output node is connected to +V or to GND. For multi-stage CMOS, do this stage-by-stage: identify each stage's function (NOR if the P-mos pair is in series; NAND if the P-mos pair is in parallel; inverter if a single P-mos / n-mos pair is driven by the same node), then compose. The combination of all three problems traces the same staircase as the lecture notes — gate truth tables → bistable memory → transistor-level realisation — but here you are asked to walk it in reverse on a concrete schematic.
+
+Recovered page cues
+Recovered phrases and labels from the page (printed problem text and handwritten solution annotations) include: PHYS0525 Analog and Digital Electronics — Spring 2026; Assignment 10; Due Friday, April 24, 2026; 1) Design a circuit using basic logic gates that will implement the following truth table; Input A, Input B, Output 1, Output 2; rows 0 0 0 1 / 0 1 1 1 / 1 0 1 0 / 1 1 1 1; OR: Q₁ = 1; only 0 when only A = 1; sketched circuit on the right of the truth table — inputs B and A on the left, an inverter (NOT) on the B path, an OR gate producing Q₁, and a NAND-style gate producing Q₂; 2) Describe the behavior of the circuit below; Hint: consider what output states are self-consistent with each combination of 0 or 1 applied to the inputs A and B; the circuit element on the right is a 3-input OR gate; its output is high if at least one of the inputs is high; three AND gates feeding a 3-input OR; A and B inputs to the middle AND; feedback arrow from Out (labelled Q*) wrapping back into the top and bottom AND gates; Q = AQ + BQ + AB = Q(A+B) + AB; truth table input output A B → out: 0 0 → 0 sets Q* to 0; 1 0 → 1 or 0 depends on value of Q*; 0 1 → 1 or 0 depends on value of Q*; 1 1 → 1 sets Q* to 1; "depends on 'stored value of Q*' from immediately prior calculation, such that Q = Q*"; This circuit exhibits the behavior of self-referential memory and utilises said memory in its logic; 3) Write out a truth table for the CMOS logic gate that is shown below; What logic operation does this correspond to?; +V; Q₁, Q₂ (input stage P-mos in series), Q₃, Q₄ (input stage n-mos in parallel), Q₅ (output P-mos), Q₆ (output n-mos), Out, GND; A controls Q₁, Q₃; B controls Q₂, Q₄; intermediate node X drives Q₅, Q₆; n-mos: V_gs = V_g − V_s, g = 1 on, g = 0 off; P-mos: V_gs = V_s − V_g, g = 0 on, g = 1 off; for V_in = +5 V: P-mos V_gs = 0 V off, n-mos V_gs = 5 V on; for V_in = 0 V: P-mos V_gs = −5 V on, n-mos V_gs = 0 V off; first stage = CMOS NOR (X = NOT(A+B)); second stage = inverter (Out = NOT X); truth table A B output: 0 0 0, 1 0 1, 0 1 1, 1 1 1; ⇒ Behaves like an OR gate; reference OR symbol with A, B inputs and standard truth table 0 0 → 0, 1 0 → 1, 0 1 → 1, 1 1 → 1.

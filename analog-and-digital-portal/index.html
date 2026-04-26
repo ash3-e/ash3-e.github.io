@@ -662,7 +662,23 @@ body:not(.portal-mobile-view) .viewer-shell{
 .icon-btn:hover{background:rgba(120,255,170,.10)}
 .icon-btn img{width:17px;height:17px;filter:brightness(0) invert(1)}
 .viewer-body{position:relative;min-height:0;overflow:hidden}
-.viewer-viewport{position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;cursor:grab;padding:28px 20px 110px}
+.viewer-viewport{
+  position:absolute;inset:0;overflow:auto;overscroll-behavior:contain;cursor:grab;padding:28px 20px 110px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(80,200,120,.40) transparent;
+}
+.viewer-viewport::-webkit-scrollbar{width:12px}
+.viewer-viewport::-webkit-scrollbar-track{background:rgba(120,255,170,.04);border-radius:999px}
+.viewer-viewport::-webkit-scrollbar-thumb{
+  background:rgba(80,200,120,.55);
+  border-radius:999px;
+  border:2px solid rgba(0,0,0,.10);
+  background-clip:padding-box;
+}
+.viewer-embed-mode .viewer-viewport{padding:0;cursor:default;overflow:hidden}
+.viewer-embed-mode .viewer-stage{width:100%;height:100%;min-height:0;display:block}
+.viewer-embed-mode .zoom-dock{display:none}
+.viewer-embed-mode .pdf-embed{width:100%;height:100%;border:none}
 .viewer-viewport.dragging{cursor:grabbing;user-select:none}
 .viewer-stage{
   min-height:100%;
@@ -1181,7 +1197,7 @@ body.portal-mobile-view .zoom-dock{
           </div>
           <div class="zoom-slider-wrap">
             <canvas id="zoomWaveCanvas" width="320" height="42"></canvas>
-            <input id="zoomRange" class="range" type="range" min="0.8" max="2.4" step="0.05" value="1">
+            <input id="zoomRange" class="range" type="range" min="0.8" max="3" step="0.05" value="1">
           </div>
           <div class="zoom-buttons">
             <button class="zoom-btn" id="zoomOut" type="button">−</button>
@@ -2285,48 +2301,17 @@ async function openViewer(id) {
   $("#viewerSave").href = encodeURI(doc.pdf);
   const stage = $("#viewerStage");
   const viewport = $("#viewerViewport");
-  stage.innerHTML = '<div class="viewer-loading">Loading PDF pages...</div>';
+  stage.innerHTML = "";
   viewport.scrollTop = 0;
   viewport.scrollLeft = 0;
-  try {
-    const pdfjs = await ensurePdfJs();
-    const loadingTask = pdfjs.getDocument(encodeURI(doc.pdf));
-    const pdf = await loadingTask.promise;
-    if (token !== state.renderToken) return;
-    state.viewerPdf = pdf;
-    stage.innerHTML = "";
-    const renderScale = Math.min(3, Math.max(2.1, (window.devicePixelRatio || 1) * 2));
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      if (token !== state.renderToken) return;
-      const page = await pdf.getPage(pageNum);
-      const vp = page.getViewport({ scale: renderScale });
-      const shell = document.createElement("section");
-      shell.className = "pdf-page-shell";
-      shell.dataset.page = String(pageNum);
-      const canvas = document.createElement("canvas");
-      canvas.className = "pdf-page-canvas";
-      canvas.dataset.baseWidth = String(vp.width);
-      canvas.dataset.baseHeight = String(vp.height);
-      canvas.style.setProperty("--page-width", `${vp.width}px`);
-      canvas.style.setProperty("--page-height", `${vp.height}px`);
-      const ctx = canvas.getContext("2d", { alpha: false });
-      canvas.width = Math.ceil(vp.width);
-      canvas.height = Math.ceil(vp.height);
-      shell.appendChild(canvas);
-      stage.appendChild(shell);
-      await page.render({ canvasContext: ctx, viewport: vp }).promise;
-      $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"} | rendered ${pageNum}/${pdf.numPages}`;
-    }
-    if (token !== state.renderToken) return;
-    requestAnimationFrame(() => {
-      fitViewerToViewport(false);
-      updatePageCounter();
-      $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"} | page 1 of ${doc.pages}`;
-    });
-  } catch (err) {
-    stage.innerHTML = `<div class="viewer-error">Unable to load the in-browser PDF renderer right now. The rest of the portal still works, and you can use the download icon above to open the file directly.<br><br>${escapeHtml(err?.message || String(err))}</div>`;
-    $("#viewerSub").textContent = "Preview unavailable";
-  }
+  $(".viewer-body", $("#viewer")).classList.add("viewer-embed-mode");
+  const obj = document.createElement("object");
+  obj.className = "pdf-embed";
+  obj.data = encodeURI(doc.pdf);
+  obj.type = "application/pdf";
+  obj.innerHTML = `<div class="viewer-error">Your browser cannot display this PDF inline. <a href="${escapeHtml(encodeURI(doc.pdf))}" download style="color:var(--green-bright)">Download it instead</a>.</div>`;
+  stage.appendChild(obj);
+  $("#viewerSub").textContent = `${doc.pages} page${doc.pages === 1 ? "" : "s"}`;
 }
 
 function closeViewer() {
@@ -2339,13 +2324,15 @@ function closeViewer() {
   $("#viewer").classList.remove("open");
   $("#viewer").setAttribute("aria-hidden", "true");
   $("#viewerViewport").classList.remove("dragging");
+  const vb = $(".viewer-body", $("#viewer"));
+  if (vb) vb.classList.remove("viewer-embed-mode");
   restorePortalState();
 }
 
 function setZoom(value, preserveCenter = true) {
   const viewport = $("#viewerViewport");
   const prevTotal = Math.max(0.001, (state.viewerFitScale || 1) * (state.viewerZoom || 1));
-  const next = Math.max(0.8, Math.min(2.4, value));
+  const next = Math.max(0.8, Math.min(3, value));
   if (preserveCenter) {
     const centerX = viewport.scrollLeft + viewport.clientWidth / 2;
     const centerY = viewport.scrollTop + viewport.clientHeight / 2;
