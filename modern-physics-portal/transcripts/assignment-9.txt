@@ -1,0 +1,74 @@
+Assignment 9
+Overview
+Homework 9 ties together late-course thermodynamics, statistical mechanics, and a relativity review. The first page derives the Carnot refrigerator coefficient of performance and the low-temperature phonon heat capacity. The second page uses energy and momentum conservation to review an inelastic relativistic collision.
+
+Problem 1 - Carnot refrigerator
+The assignment starts from the heat-engine efficiency
+$$\eta_{\text{engine}}=\frac{dW}{dQ_h}=\frac{dQ_h-dQ_c}{dQ_h},$$
+with the first law written as
+$$dQ_h=dW+dQ_c.$$
+For a reversible Carnot cycle the entropy transfers are equal in magnitude,
+$$dS_h=dS_c,$$
+and heat exchanged with a reservoir satisfies
+$$dQ=T\,dS.$$
+Therefore the work done by the engine can be written as
+$$dW=T_h\,dS_h-T_c\,dS_c=(T_h-T_c)dS.$$
+The heat-engine efficiency is then
+$$\eta_{\text{engine}}=\frac{T_h-T_c}{T_h}.$$
+
+For a refrigerator the direction of operation is inverted: work is put in so that heat is removed from the cold reservoir and rejected to the hot reservoir. The refrigerator coefficient of performance is
+$$\eta_{\text{ref}}=\frac{dQ_c}{dW}=\frac{dQ_c}{dQ_h-dQ_c}.$$
+Using the same reversible entropy relation gives
+$$\eta_{\text{ref}}=\frac{T_c\,dS}{T_h\,dS-T_c\,dS}=\frac{T_c}{T_h-T_c}.$$
+The handwritten cycle description is: adiabatic compression raises the gas temperature, connecting to the hot reservoir lets heat flow out, adiabatic expansion lowers the gas temperature, and connecting to the cold reservoir lets heat flow into the working gas from the refrigerated space.
+
+Problem 2 - Phonon heat capacity
+The phonon problem asks for the heat capacity at constant volume for a three-dimensional solid at low temperature. The phonon energy is modeled as
+$$E_k=\hbar v k,$$
+and the Planck occupation factor is
+$$N_k=\frac{1}{e^{E_k/k_B T}-1}.$$
+Counting states in three-dimensional $k$-space gives a state volume of
+$$\left(\frac{2\pi}{L}\right)^3=\frac{(2\pi)^3}{V}.$$
+The internal energy is built from the density of states and occupation number:
+$$U=\frac{V}{(2\pi)^3}\int 4\pi k^2\,N_k\,E_k\,dk.$$
+Changing variables from $k$ to energy with
+$$k=\frac{E}{\hbar v},\qquad dk=\frac{dE}{\hbar v},$$
+gives
+$$U\propto \frac{V}{2\pi^2(\hbar v)^3}\int_0^\infty \frac{E^3}{e^{E/k_B T}-1}\,dE.$$
+With
+$$x=\frac{E}{k_B T},\qquad dE=k_B T\,dx,$$
+the temperature dependence becomes
+$$U\propto \frac{V(k_B T)^4}{2\pi^2(\hbar v)^3}\int_0^\infty \frac{x^3}{e^x-1}\,dx.$$
+The integral is dimensionless and constant, so
+$$C_V=\left(\frac{\partial U}{\partial T}\right)_V\propto T^3.$$
+The notes also mark the Stefan-Boltzmann-like scaling
+$$U\propto (k_B T)^4.$$
+The bonus asks how to account for different polarizations and sound speeds. The transcript shows the Debye-style correction: include the three phonon polarizations as additional allowed modes, and if they have different speeds, replace the single $v$ dependence with the corresponding sum over branches.
+
+Problem 3 - Relativity review
+The lab frame contains two equal masses $m$ moving toward each other at speeds $0.9c$. Momentum conservation says the final combined object is at rest in this frame. Energy conservation gives
+$$E_f=E_i,$$
+with each incoming object carrying
+$$E=\gamma mc^2,\qquad \gamma=\frac{1}{\sqrt{1-v^2/c^2}}.$$
+For $v=0.9c$,
+$$\gamma=\frac{1}{\sqrt{1-0.9^2}}\approx 2.294.$$
+Since the final object is at rest,
+$$m_f c^2=2\gamma mc^2,$$
+so
+$$m_f=2\gamma m\approx 4.59m.$$
+
+In the rest frame of the object initially moving left, the other object approaches with the relativistic velocity-addition result
+$$u'=\frac{u+v}{1+\frac{uv}{c^2}}=\frac{1.8c}{1+0.81}\approx 0.9945c.$$
+The corresponding factor is
+$$\gamma'=\frac{1}{\sqrt{1-(0.9945)^2}}\approx 9.55.$$
+Thus the incoming energy and momentum in that frame are
+$$E'_i=\gamma' mc^2\approx 9.55mc^2,$$
+and
+$$p'_i=\gamma' m v\approx (9.55)m(0.9945c)\approx 9.497mc.$$
+The final combined object carries the same total energy and momentum:
+$$E'_{f,\text{tot}}=E'_{i,\text{tot}},\qquad p'_f=p'_i.$$
+Including the rest energy of the initially stationary object gives
+$$E'_{i,\text{tot}}=9.55mc^2+mc^2=10.55mc^2.$$
+
+Recovered page cues
+Recovered phrases from the original pages include: Homework 9; determine the efficiency of a refrigerator following a Carnot cycle; engine efficiency; refrigerator efficiency; heat removed via bath; work in; Carnot engine; adiabatic compression; heat flows in from fridge; heat can escape externally; calculate the heat capacity at constant volume of the phonons in a three-dimensional solid; Planck distribution; low temperature; $v=5\times10^5$ cm/s; three different polarizations; Relativity review; two objects of equal mass; $0.9c$ to the left and $0.9c$ to the right; final object has zero speed; rest frame of one of the initial objects.

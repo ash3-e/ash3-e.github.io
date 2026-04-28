@@ -965,9 +965,9 @@ body.portal-mobile-view .zoom-dock{
           </div>
         </div>
         <div class="meta-row portal-pills">
-          <div class="pill" id="resultPill">21 documents ready</div>
-          <div class="pill" id="notesPill">13 notes</div>
-          <div class="pill" id="assignmentsPill">8 assignments</div>
+          <div class="pill" id="resultPill">23 documents ready</div>
+          <div class="pill" id="notesPill">14 notes</div>
+          <div class="pill" id="assignmentsPill">9 assignments</div>
           <a class="pill final-pill" href="https://ash3-e.github.io/modern-final/" aria-label="Open final viewer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 5h5v5"/><path d="M10 14L19 5"/><path d="M19 13v6H5V5h6"/></svg>
             <span>final</span>
@@ -1220,6 +1220,13 @@ function ensureSelection() {
   state.selectedId = fallback?.id || null;
 }
 
+function resetPreviewScroll() {
+  const body = document.querySelector("#previewCard .card-body");
+  if (!body) return;
+  body.scrollTop = 0;
+  body.scrollLeft = 0;
+}
+
 function renderList(category, mountId) {
   const mount = document.getElementById(mountId);
   const docs = filteredDocs(category);
@@ -1247,9 +1254,11 @@ function renderList(category, mountId) {
     }
     const mobile = document.body.classList.contains("portal-mobile-view");
     const alreadyOpen = mobile && state.mobilePreviewOpen;
+    const previousId = state.selectedId;
     state.selectedId = btn.dataset.id;
     if (mobile) state.mobilePreviewOpen = true;
     renderAll();
+    if (previousId !== state.selectedId) resetPreviewScroll();
     if (mobile) {
       if (alreadyOpen) {
         /* Preview card is already visible – just smooth-scroll to it */
