@@ -4127,6 +4127,25 @@ body.is-phone[data-page-type="reader"] .markdown-body {
   font-size: calc(15px * var(--doc-font-scale));
 }
 
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader {
+  background: color-mix(in srgb, var(--card) 25%, transparent) !important;
+}
+
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-body {
+  background: color-mix(in srgb, var(--card) 25%, transparent) !important;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .markdown-body {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]):not(.dark):not(.theme-balanced):not(.theme-half) .reader-body .markdown-body {
+  background: var(--card) !important;
+}
+
 /* --- Reader head: compact for phone --- */
 body.is-phone[data-page-type="reader"] .reader-head {
   --reader-tool-height: 30px;
@@ -4140,6 +4159,10 @@ body.is-phone[data-page-type="reader"] .reader-head {
   flex-wrap: nowrap !important;
   align-items: start !important;
   overflow: visible !important;
+}
+
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head {
+  background: var(--card) !important;
 }
 
 body.is-phone[data-page-type="reader"] .reader-head > :first-child {
