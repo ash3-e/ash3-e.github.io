@@ -1123,34 +1123,177 @@
     const active = slots.filter(s=>s);
     const matched = getSelected();
 
-    // 1. Each individual quark vector from origin
-    active.forEach((s)=>{
-      const v = quarkVecF(s.qk, s.anti);
-      const col = flavorColor(s.qk, s.anti);
-      if(v.length()>0.005){
-        const a = makeArrow(new THREE.Vector3(), v, col, 0.55, 0.30, 0.16);
-        if(a) arrowGroup.add(a);
+    // 1. Chained head-to-tail quark vectors.
+    // Each quark vector is drawn starting from the tip of the previous one,
+    // so the chain terminates at the particle's grid location (particlePos).
+    //
+    // Edge cases for LABEL placement only (arrows always stay on their pure
+    // mathematical path, even when they overlap):
+    //  - Cancellation (e.g. π⁰ = uū): two segments traverse the same line in
+    //    opposite directions. Their labels would land on top of each other,
+    //    so we reflect one label to the opposite side of the shared axis.
+    //  - Stacked vertical labels (e.g. Δ⁺⁺ = uuu): three identical u arrows
+    //    line up along Y. Their labels would collide at identical X. We
+    //    alternate label sides so they fan out across the vertical axis.
+    //
+    // Ordering: heavier axes first (b/t along Z, then s/c along X, then u/d
+    // along Y) so the chain follows the chart skeleton.
+    function quarkAxisRank(qk){
+      if(qk === 'b' || qk === 't') return 0;
+      if(qk === 's' || qk === 'c') return 1;
+      return 2;
+    }
+    const chainOrder = active
+      .map((s, i)=>({ s, i, rank: quarkAxisRank(s.qk) }))
+      .sort((a, b)=> a.rank - b.rank || a.i - b.i)
+      .map(o => o.s);
+
+    // Pre-compute each segment's start, end, axis. The chain advances along
+    // pure endpoints so it terminates exactly at the particle position.
+    const segments = [];
+    {
+      let cur = new THREE.Vector3();
+      chainOrder.forEach((s)=>{
+        const v = quarkVecF(s.qk, s.anti);
+        const start = cur.clone();
+        const end   = cur.clone().add(v);
+        let axis = null;
+        if(Math.abs(v.x) > 1e-3) axis = 'X';
+        else if(Math.abs(v.y) > 1e-3) axis = 'Y';
+        else if(Math.abs(v.z) > 1e-3) axis = 'Z';
+        segments.push({ s, v, start, end, axis });
+        cur = end;
+      });
+    }
+
+    // --- Reflect labels for cancellation pairs ---
+    // Two segments share the same line (overlap, either direction) when their
+    // unordered endpoints match. Reflect the labels ALONG the shared line so
+    // each label sits at a different point on the path: one near the segment's
+    // own arrowhead, the other near its tail. Both arrows still overlap, but
+    // the labels no longer stack at the segment midpoint.
+    function endpointsMatch(a, b){
+      const aMin = a.start.x*1000 + a.start.y + a.start.z*0.001;
+      const aMax = a.end.x*1000 + a.end.y + a.end.z*0.001;
+      const bMin = b.start.x*1000 + b.start.y + b.start.z*0.001;
+      const bMax = b.end.x*1000 + b.end.y + b.end.z*0.001;
+      const ap = [aMin, aMax].sort((x,y)=>x-y);
+      const bp = [bMin, bMax].sort((x,y)=>x-y);
+      return Math.abs(ap[0]-bp[0]) < 1e-2 && Math.abs(ap[1]-bp[1]) < 1e-2;
+    }
+    // Perpendicular nudge so the labels don't sit directly on top of the
+    // shared arrow shaft (we still want a small offset away from the line
+    // itself for readability). For a Y-axis pair this nudges in ±X; for X-
+    // and Z-axis pairs it nudges in +Y.
+    function perpNudgeForAxis(axis){
+      if(axis === 'Y') return new THREE.Vector3(0.22, 0, 0);
+      return new THREE.Vector3(0, 0.22, 0);
+    }
+    {
+      const handled = new Set();
+      for(let i=0;i<segments.length;i++){
+        if(handled.has(i)) continue;
+        for(let j=i+1;j<segments.length;j++){
+          if(handled.has(j)) continue;
+          if(endpointsMatch(segments[i], segments[j])){
+            // Move each label toward THIS segment's own arrowhead so the
+            // direction of the underlying arrow is implied by where its
+            // symbol sits along the shared line. Going from midpoint to
+            // 75% of the way toward `end` keeps both labels clearly inside
+            // the segment but separated by half its length.
+            const segA = segments[i], segB = segments[j];
+            const mkOffset = (seg)=>{
+              const dir = seg.end.clone().sub(seg.start);
+              // dir has length = segment length; +0.25 * dir shifts from
+              // midpoint toward `end`, landing at 75% of the way along.
+              return dir.multiplyScalar(0.25)
+                        .add(perpNudgeForAxis(seg.axis));
+            };
+            segA.labelOffset = mkOffset(segA);
+            segB.labelOffset = mkOffset(segB);
+            handled.add(i); handled.add(j);
+            break;
+          }
+        }
       }
+    }
+
+    // --- Resolve label collisions for stacked same-direction runs ---
+    // Three scenarios, each reflected across the axis the run lies along:
+    //   Y-axis runs (e.g. uuu in Δ⁺⁺)      → alternate labels along ±X
+    //   X-axis runs (s+s, c+c, or s̄+s̄…) → alternate labels along ±Y (vertical)
+    //   Z-axis runs (b+b, t+t, …)          → alternate labels along ±Y (vertical)
+    {
+      let stackIdx = 0;
+      let runAxis = null;
+      let runSign = 0;
+      for(let i=0;i<segments.length;i++){
+        const seg = segments[i];
+        if(!seg.axis || seg.labelOffset){ stackIdx = 0; runAxis = null; continue; }
+        const segSign = seg.axis === 'X' ? Math.sign(seg.v.x)
+                      : seg.axis === 'Y' ? Math.sign(seg.v.y)
+                      : Math.sign(seg.v.z);
+        const continues = (runAxis === seg.axis) && (runSign === segSign);
+        stackIdx = continues ? (stackIdx + 1) : 0;
+        runAxis = seg.axis;
+        runSign = segSign;
+        if(stackIdx === 0) continue;
+        // Index 1 → opposite side from default; 2 → same side as default but farther; etc.
+        const side = (stackIdx % 2 === 1) ? -1 : 1;
+        const tier = Math.floor((stackIdx - 1) / 2);
+        const mag = 0.25 * (1 + tier * 0.6);
+        if(seg.axis === 'Y'){
+          // Vertical segment → reflect label across vertical axis (±X).
+          // The non-stacked default lives at +X already (see render loop), so
+          // odd indices flip to -X.
+          seg.labelOffset = new THREE.Vector3(mag * side * -1, 0, 0);
+          // Note: side=-1 multiplied by -1 flips first reflection to -X, which
+          // matches the default-on-+X convention.
+        } else {
+          // Horizontal (X or Z) segment → reflect label across horizontal axis (±Y).
+          // Default lives at +Y (see render loop). Odd indices flip to -Y.
+          seg.labelOffset = new THREE.Vector3(0, mag * side * -1, 0);
+        }
+      }
+    }
+
+    // Render segments — arrows on their pure paths, labels at midpoint+offset.
+    segments.forEach((seg)=>{
+      const s = seg.s;
+      const col = flavorColor(s.qk, s.anti);
+      const a = seg.start;
+      const b = seg.end;
+      if(b.distanceTo(a) > 0.005){
+        const arr = makeArrow(a.clone(), b.clone(), col, 0.7, 0.30, 0.16);
+        if(arr) arrowGroup.add(arr);
+      }
+      const mid = a.clone().add(b).multiplyScalar(0.5);
+      let perp;
+      if(seg.labelOffset){
+        perp = seg.labelOffset.clone();
+      } else if(seg.axis === 'Y'){
+        perp = new THREE.Vector3(0.25, 0, 0);
+      } else {
+        perp = new THREE.Vector3(0, 0.18, 0);
+      }
+      // Vector symbol billboards face the camera and render in front of
+      // every passive particle name billboard in the scene. They use the
+      // same "always on top" pattern as the active particle label:
+      // depthTest:false so geometry never occludes them, and a renderOrder
+      // higher than passive labels (but below the active particle's full
+      // label at 1000 and the configuration tip at 1100) so the active
+      // selection remains the foremost text.
       const lbl = textSprite(quarkSym(s.qk, s.anti), flavorColorHex(s.qk, s.anti), {
         fontSize:42, bg:'rgba(14,16,20,1.0)', scale:0.0055,
-        depthTest:true, depthWrite:true, alphaTest:0.1
+        depthTest:false, depthWrite:false, alphaTest:0.1, renderOrder:950
       });
-      lbl.position.copy(v).add(new THREE.Vector3(0, 0.18, 0));
+      lbl.position.copy(mid).add(perp);
       labelGroup.add(lbl);
     });
 
-    // 2. Head-to-tail dashed addition path
-    let cur = new THREE.Vector3();
-    active.forEach((s)=>{
-      const v = quarkVecF(s.qk, s.anti);
-      const next = cur.clone().add(v);
-      if(next.distanceTo(cur) > 0.005){
-        arrowGroup.add(dashed(cur, next, flavorColor(s.qk, s.anti), 0.45, 0.14, 0.08));
-      }
-      cur = next;
-    });
-
-    // 3. Total vector — colored using particle color rules
+    // 3. Total vector from origin — chord from origin to the particle.
+    // The head-to-tail chain above is the primary visual; this is rendered as
+    // a thinner, softer arrow so the chain stays dominant.
     const total = totalVec();
     const I3 = totalI3();
     let totColor;
@@ -1163,7 +1306,7 @@
     }
     const totHex = '#' + totColor.getHexString();
     if(total.length()>0.02){
-      const totArr = makeArrow(new THREE.Vector3(), total, totColor, 1.0, 0.42, 0.22);
+      const totArr = makeArrow(new THREE.Vector3(), total, totColor, 0.55, 0.30, 0.16);
       if(totArr) arrowGroup.add(totArr);
     }
 
@@ -1352,7 +1495,40 @@
     clearGroup(orbGroup);
     const layout = groupedParticleLayout();
 
-    // Render dashed circles for ring groups (one per group)
+    // Group layout items by cluster center so we can tell whether the active
+    // particle belongs to a given ring cluster and, if so, swap it to the
+    // cluster center for the duration of its selection.
+    const matchedId = matchedParticle ? particleId(matchedParticle) : null;
+    const clusters = new Map(); // ck -> { center, items[], activeIdx|-1 }
+    layout.forEach((item, idx)=>{
+      if(!item.ringInfo) return;
+      const c = item.ringInfo.center;
+      const ck = `${c.x.toFixed(3)},${c.y.toFixed(3)},${c.z.toFixed(3)}`;
+      if(!clusters.has(ck)){
+        clusters.set(ck, { center:c.clone(), items:[], activeIdx:-1, radius:item.ringInfo.radius, groupParticles:item.ringInfo.groupParticles });
+      }
+      const cl = clusters.get(ck);
+      cl.items.push(item);
+      if(matchedId && particleId(item.particle) === matchedId){
+        cl.activeIdx = cl.items.length - 1;
+        item._isActiveCenter = true;     // marks "this particle now sits at center"
+      }
+    });
+    // For each item that lives in a ring, decide its render position:
+    //   - active member: cluster center
+    //   - other members: their original fan position
+    // We mutate item.renderPos so the render loop below can read it.
+    layout.forEach(item=>{
+      if(item.ringInfo && item._isActiveCenter){
+        item.renderPos = item.ringInfo.center.clone();
+      } else {
+        item.renderPos = item.pos.clone();
+      }
+    });
+
+    // Render dashed circles for ring groups, plus the cluster center sphere
+    // OR (if a ring member is active) the translucent white placeholder that
+    // occupies the active particle's vacated fan position.
     const drawnRingCenters = new Set();
     layout.forEach(item => {
       if(!item.ringInfo || !item.ringInfo.isFirst) return;
@@ -1373,31 +1549,52 @@
       line.position.copy(center);
       orbGroup.add(line);
 
-      // ===== Heat-map center sphere for the cluster =====
-      // Carries a fluid CMB-style gradient where flavor-color "centers"
-      // diffuse across the sphere, with each color's areal share matching
-      // that flavor's fraction of the cluster's total quark composition.
-      const seedKey = item.ringInfo.groupParticles
-        .map(p => p.sym + p.ch + p.quarks.map(q=>q[0]+(q[1]?'!':'')).join(','))
-        .join('|');
-      const tex = makeClusterTexture(item.ringInfo.groupParticles, seedKey);
-      const baseR = 0.18;        // baseline sphere radius (chart units)
-      const sizeMul = 0.75;      // 25% smaller per request
-      const cgeom = new THREE.SphereGeometry(baseR * sizeMul, 36, 24);
-      const cmat = new THREE.MeshBasicMaterial({
-        map: tex,
-        transparent: true,
-        opacity: 0.95,           // matches non-ring sphere opacity
-      });
-      const csphere = new THREE.Mesh(cgeom, cmat);
-      csphere.position.copy(center);
-      // The center sphere is decorative (not clickable as a particle),
-      // so we don't tag it isOrb.
-      csphere.userData.isClusterCenter = true;
-      orbGroup.add(csphere);
+      const cl = clusters.get(ck);
+      const hasActive = cl && cl.activeIdx >= 0;
+
+      if(!hasActive){
+        // Normal cluster heat-map center sphere.
+        const seedKey = item.ringInfo.groupParticles
+          .map(p => p.sym + p.ch + p.quarks.map(q=>q[0]+(q[1]?'!':'')).join(','))
+          .join('|');
+        const tex = makeClusterTexture(item.ringInfo.groupParticles, seedKey);
+        const baseR = 0.18;
+        const sizeMul = 0.75;
+        const cgeom = new THREE.SphereGeometry(baseR * sizeMul, 36, 24);
+        const cmat = new THREE.MeshBasicMaterial({
+          map: tex, transparent: true, opacity: 0.95,
+        });
+        const csphere = new THREE.Mesh(cgeom, cmat);
+        csphere.position.copy(center);
+        csphere.userData.isClusterCenter = true;
+        orbGroup.add(csphere);
+      } else {
+        // A ring member is active and now occupies the cluster center.
+        // Place a faint translucent "clear-ish" white sphere at the active
+        // particle's vacated fan position so the ring still reads as full.
+        // Match the original ring-particle size for that particle so the slot
+        // looks consistent.
+        const activeItem = cl.items[cl.activeIdx];
+        const activeP = activeItem.particle;
+        const baseR = 0.18 * 0.75;
+        const ringMul = 0.75; // ring particles are 25% smaller than solo ones
+        const massMul = massRadiusRatio(activeP.mass);
+        const phR = baseR * ringMul * massMul;
+        const phGeom = new THREE.SphereGeometry(phR, 20, 16);
+        const phMat = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.12,        // very transparent, "clear-ish white"
+          depthWrite: false,
+        });
+        const ph = new THREE.Mesh(phGeom, phMat);
+        ph.position.copy(activeItem.pos);  // vacated fan position
+        ph.userData.isPlaceholder = true;
+        orbGroup.add(ph);
+      }
     });
 
-    // Spheres + labels per particle at fanned positions
+    // Spheres + labels per particle at the resolved render position.
     layout.forEach(item => {
       const p = item.particle;
 
@@ -1409,20 +1606,22 @@
       // Sphere — 25% smaller than prior baseline. Particles in a ring are an
       // additional 25% smaller and 15% less opaque. Volume is then scaled
       // by mass: heaviest particle keeps the full volume, lightest is 50%.
+      // An active ring particle gets promoted to the cluster center: it
+      // keeps its size but uses the non-ring opacity (so it pops) since it
+      // now occupies the centre slot.
       const baseR = 0.18 * 0.75;
       const inRing = !!item.ringInfo;
-      const ringMul = inRing ? 0.75 : 1;
-      const massMul = massRadiusRatio(p.mass);   // cube-root of volume ratio
+      const promotedToCenter = inRing && item._isActiveCenter;
+      const ringMul = (inRing && !promotedToCenter) ? 0.75 : 1;
+      const massMul = massRadiusRatio(p.mass);
       const r = baseR * ringMul * massMul;
       const baseOpacityFilled   = 0.95;
       const baseOpacityUnfilled = 0.55;
-      const opacityFilled   = inRing ? baseOpacityFilled   * 0.85 : baseOpacityFilled;
-      const opacityUnfilled = inRing ? baseOpacityUnfilled * 0.85 : baseOpacityUnfilled;
+      const opacityFilled   = (inRing && !promotedToCenter) ? baseOpacityFilled   * 0.85 : baseOpacityFilled;
+      const opacityUnfilled = (inRing && !promotedToCenter) ? baseOpacityUnfilled * 0.85 : baseOpacityUnfilled;
 
       // Per-particle gradient texture — each particle gets its own CMB-style
-      // diffusion of its constituent flavor colors. Self-conjugate states
-      // (e.g. cc̄) still produce a unique seeded layout, so two particles
-      // with the same composition (Υ vs η_b) look distinct.
+      // diffusion of its constituent flavor colors.
       const tex = makeClusterTexture([p], id);
       const geom = new THREE.SphereGeometry(r, 24, 18);
       const mat = new THREE.MeshBasicMaterial({
@@ -1431,7 +1630,7 @@
         opacity: filled ? opacityFilled : opacityUnfilled,
       });
       const sphere = new THREE.Mesh(geom, mat);
-      sphere.position.copy(item.pos);
+      sphere.position.copy(item.renderPos);
       sphere.userData.isOrb = true;
       sphere.userData.particle = p;
       orbGroup.add(sphere);
@@ -1444,7 +1643,7 @@
         const ringGeom = new THREE.RingGeometry(ringR0, ringR1, 24);
         const ringMat = new THREE.MeshBasicMaterial({color:col, side:THREE.DoubleSide, transparent:true, opacity:0.85, depthWrite:false});
         const ring = new THREE.Mesh(ringGeom, ringMat);
-        ring.position.copy(item.pos);
+        ring.position.copy(item.renderPos);
         ring.userData.isRing = true;
         orbGroup.add(ring);
       }
@@ -1460,7 +1659,7 @@
         : { fontSize, bg:null, outline:true, scale:0.010,
             depthTest:true, depthWrite:false, alphaTest:0.1 };
       const lbl = textSprite(labelText, '#'+col.getHexString(), lblOpts);
-      lbl.position.copy(item.pos).add(new THREE.Vector3(0, 0.32, 0));
+      lbl.position.copy(item.renderPos).add(new THREE.Vector3(0, 0.32, 0));
       lbl.userData.particle = p;
       orbGroup.add(lbl);
     });
