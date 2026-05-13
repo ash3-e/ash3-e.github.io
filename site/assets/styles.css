@@ -4169,6 +4169,16 @@ body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .markdown-bod
   padding-right: 8px;
 }
 
+body.is-phone[data-page-type="reader"][data-glass-mode="on"] .reader-body {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body.is-phone[data-page-type="reader"][data-glass-mode="on"] .markdown-body {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]):not(.dark):not(.theme-balanced):not(.theme-half) .reader-body .markdown-body {
   background: var(--card) !important;
 }

@@ -4,7 +4,13 @@
       "Bash(grep -E \"\\\\.\\(ps1|sh|js|md\\)$\")",
       "Bash(ls -la /c/Users/^w^/downloads/site_latest/assets/*.js)",
       "Bash(ls -la /c/Users/^w^/downloads/site_latest/assets/*.css)",
-      "mcp__vexp__run_pipeline"
+      "mcp__vexp__run_pipeline",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git rev-parse *)"
     ]
   }
 }
