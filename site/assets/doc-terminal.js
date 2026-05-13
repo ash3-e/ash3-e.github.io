@@ -221,6 +221,7 @@ function closePanel() {
 
 D.toggleBtn?.addEventListener("click", () => panelOpen ? closePanel() : openPanel());
 D.closeBtn.addEventListener("click", closePanel);
+window.addEventListener("bcode:doc-terminal-close", closePanel);
 
 // ── Width/position tracking ───────────────────────────────────────────────────
 

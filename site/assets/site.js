@@ -373,6 +373,37 @@
     });
   };
 
+  const syncMobileReaderFooterScale = () => {
+    if (pageType() !== "reader" || !document.body) return;
+    const footer = document.querySelector("footer");
+    const nav = footer?.querySelector(".footer-content nav");
+    if (!footer || !nav) return;
+    if (!document.body.classList.contains("is-phone")) {
+      footer.style.removeProperty("--reader-footer-fit-font-size");
+      return;
+    }
+
+    const maxSize = 10;
+    const minSize = 4;
+    footer.style.setProperty("--reader-footer-fit-font-size", `${maxSize}px`);
+    const availableWidth = Math.max(1, nav.clientWidth);
+    const neededWidth = Math.max(1, nav.scrollWidth);
+    const fittedSize = Math.max(minSize, Math.min(maxSize, (maxSize * availableWidth) / neededWidth));
+    footer.style.setProperty("--reader-footer-fit-font-size", `${Math.floor(fittedSize * 100) / 100}px`);
+  };
+
+  const scheduleMobileReaderFooterScale = () => {
+    requestAnimationFrame(() => {
+      syncMobileReaderFooterScale();
+      requestAnimationFrame(syncMobileReaderFooterScale);
+    });
+  };
+
+  const closeDocTerminalOnMobile = () => {
+    if (!document.body || !document.body.classList.contains("is-phone")) return;
+    window.dispatchEvent(new CustomEvent("bcode:doc-terminal-close"));
+  };
+
   const readTheme = () => {
     try {
       const v = localStorage.getItem(THEME_KEY);
@@ -657,6 +688,104 @@
     });
   };
 
+  const READER_MODE_ACTIVITY_TIMEOUT_MS = 2500;
+  let readerModeActivityTimer = 0;
+  let readerModeLastPointer = null;
+  let readerModePointerInsideZone = true;
+
+  const isReaderModeMenuOpen = () =>
+    pageType() === "reader" &&
+    $$(".mode-switcher-menu").some((m) => m.classList.contains("is-open"));
+
+  const isReaderMobileView = () =>
+    !!document.body &&
+    (document.body.classList.contains("is-mobile") ||
+      (window.matchMedia("(pointer: coarse)").matches && window.innerWidth <= 1120));
+
+  const getReaderModeActivityRect = () => {
+    const head = $(".reader-head");
+    if (!head) return null;
+    const rect = head.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.top + (rect.height * 2)
+    };
+  };
+
+  const isPointInReaderModeActivityZone = (x, y) => {
+    const rect = getReaderModeActivityRect();
+    if (!rect) return true;
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
+  const clearReaderModeActivityTimer = () => {
+    if (!readerModeActivityTimer) return;
+    window.clearTimeout(readerModeActivityTimer);
+    readerModeActivityTimer = 0;
+  };
+
+  const scheduleReaderModeActivityClose = () => {
+    if (readerModeActivityTimer || !isReaderModeMenuOpen() || isReaderMobileView()) return;
+    readerModeActivityTimer = window.setTimeout(() => {
+      readerModeActivityTimer = 0;
+      if (!isReaderModeMenuOpen() || isReaderMobileView() || readerModePointerInsideZone) return;
+      closeModeMenus();
+    }, READER_MODE_ACTIVITY_TIMEOUT_MS);
+  };
+
+  const syncReaderModeActivityZone = () => {
+    if (!document.body || pageType() !== "reader") return;
+    const open = isReaderModeMenuOpen();
+    document.body.classList.toggle("reader-mode-activity-active", open);
+    if (!open || isReaderMobileView()) {
+      clearReaderModeActivityTimer();
+      return;
+    }
+    if (!readerModeLastPointer) return;
+    readerModePointerInsideZone = isPointInReaderModeActivityZone(
+      readerModeLastPointer.x,
+      readerModeLastPointer.y
+    );
+    if (readerModePointerInsideZone) clearReaderModeActivityTimer();
+    else scheduleReaderModeActivityClose();
+  };
+
+  const handleReaderModePointerMove = (e) => {
+    if (pageType() !== "reader") return;
+    readerModeLastPointer = { x: e.clientX, y: e.clientY };
+    if (!isReaderModeMenuOpen() || isReaderMobileView()) return;
+    readerModePointerInsideZone = isPointInReaderModeActivityZone(e.clientX, e.clientY);
+    if (readerModePointerInsideZone) clearReaderModeActivityTimer();
+    else scheduleReaderModeActivityClose();
+  };
+
+  const closeReaderModeForMobileOutsideTap = (e) => {
+    if (!isReaderModeMenuOpen() || !isReaderMobileView()) return;
+    const point = e.touches && e.touches[0] ? e.touches[0] : e;
+    if (isPointInReaderModeActivityZone(point.clientX, point.clientY)) return;
+    closeModeMenus();
+  };
+
+  const handleReaderModePointerDown = (e) => {
+    if (pageType() !== "reader") return;
+    readerModeLastPointer = { x: e.clientX, y: e.clientY };
+    if (!isReaderModeMenuOpen()) return;
+    if (isReaderMobileView()) {
+      closeReaderModeForMobileOutsideTap(e);
+      return;
+    }
+    readerModePointerInsideZone = isPointInReaderModeActivityZone(e.clientX, e.clientY);
+    if (readerModePointerInsideZone) clearReaderModeActivityTimer();
+    else scheduleReaderModeActivityClose();
+  };
+
+  const closeReaderModeForMobileReaderScroll = () => {
+    if (isReaderModeMenuOpen() && isReaderMobileView()) closeModeMenus();
+  };
+
   const syncReaderHeaderToolExpansion = () => {
     if (pageType() !== "reader") return;
     const head = $(".reader-head");
@@ -668,9 +797,12 @@
     invalidateReaderChromeMetrics();
     syncReaderToolRow();
     requestAnimationFrame(syncReaderToolRow);
+    syncReaderModeActivityZone();
   };
 
   const closeModeMenus = () => {
+    clearReaderModeActivityTimer();
+    if (document.body) document.body.classList.remove("reader-mode-activity-active");
     $$(".mode-switcher-menu").forEach((m) => m.classList.remove("is-open"));
     $$(".mode-switcher").forEach((m) => m.setAttribute("aria-expanded", "false"));
     syncReaderHeaderToolExpansion();
@@ -868,7 +1000,20 @@
     updateLavaToggles(lavaEnabled);
     syncDocTextScaleControls(textScale);
 
+    document.addEventListener("pointermove", handleReaderModePointerMove, { passive: true });
+    document.addEventListener("pointerdown", handleReaderModePointerDown, true);
+    document.addEventListener("touchstart", closeReaderModeForMobileOutsideTap, { passive: true, capture: true });
+    window.addEventListener("mouseout", (e) => {
+      if (!isReaderModeMenuOpen() || isReaderMobileView()) return;
+      if (e.relatedTarget || e.toElement) return;
+      readerModePointerInsideZone = false;
+      scheduleReaderModeActivityClose();
+    });
+
     document.addEventListener("click", (e) => {
+      if (isReaderModeMenuOpen() && pageType() === "reader" && !isReaderMobileView()) {
+        return;
+      }
       if (!e.target.closest(".mode-switcher-wrap") && !e.target.closest(".mode-switcher-menu")) closeModeMenus();
     });
 
@@ -2047,6 +2192,7 @@
     const isPhoneReaderSingleCard =
       pageType() === "reader" && document.body.classList.contains("is-phone");
     if (isPhoneReaderSingleCard) {
+      if (isOpen) closeDocTerminalOnMobile();
       if (isOpen) {
         swapCompactChartToJpg();
         preloadCompactSvg();
@@ -2255,8 +2401,7 @@
       }
       setBodyStyleVar("--toc-top-anchor", `${readerTocTopAnchor}px`);
       if (window.innerWidth > 1120) {
-        const mainTopPad = readerChromeHeaderVisible ? (metrics.headerHeight + panelGap) : 0;
-        setBodyStyleVar("--reader-main-top-pad", `${mainTopPad}px`);
+        setBodyStyleVar("--reader-main-top-pad", `${metrics.headerHeight + panelGap}px`);
         setBodyStyleVar("--reader-hidden-main-top", "0px");
       } else {
         if (document.body.style.getPropertyValue("--reader-main-top-pad")) {
@@ -2374,6 +2519,13 @@
     const isHidden = () => document.body.classList.contains("reader-header-hidden");
     const isPinned = () => document.body.classList.contains("reader-header-peek-pinned");
     const isPreviewOpen = () => document.body.classList.contains("ascii-preview-open");
+    const isMobilePeekToggle = () =>
+      !!document.body &&
+      document.body.classList.contains("is-phone");
+    const syncHandleToggleState = () => {
+      handle.setAttribute("aria-pressed", isPinned() ? "true" : "false");
+      handle.setAttribute("aria-label", isPinned() ? "Header shown" : "Show header");
+    };
     const syncReaderSidePanels = () => {
       deferImmediateReaderLaneSync = true;
       invalidateReaderChromeMetrics();
@@ -2393,6 +2545,7 @@
       const wasPinned = isPinned();
       document.body.classList.add("reader-header-peek");
       if (pin) document.body.classList.add("reader-header-peek-pinned");
+      syncHandleToggleState();
       if (!wasPeek || (!wasPinned && pin)) syncReaderSidePanels();
     };
     const queueShowHeader = (delay = 220) => {
@@ -2414,6 +2567,7 @@
       if (isPinned()) return;
       if (!document.body.classList.contains("reader-header-peek")) return;
       document.body.classList.remove("reader-header-peek");
+      syncHandleToggleState();
       syncReaderSidePanels();
     };
     const queueHideHeader = (e, delay = 220) => {
@@ -2434,8 +2588,10 @@
       if (!isHidden()) return;
       const pinned = isPinned();
       if (pinned) {
+        if (isMobilePeekToggle()) return;
         document.body.classList.remove("reader-header-peek-pinned");
         document.body.classList.remove("reader-header-peek");
+        syncHandleToggleState();
         syncReaderSidePanels();
         return;
       }
@@ -2451,6 +2607,7 @@
       handle.addEventListener("blur", (e) => queueHideHeader(e, 120));
       handle.addEventListener("click", (e) => {
         e.preventDefault();
+        e.stopPropagation();
         togglePinnedHeader();
       });
     }
@@ -2472,10 +2629,26 @@
         if (!isPinned()) return;
         document.body.classList.remove("reader-header-peek-pinned");
         if (isHidden()) document.body.classList.remove("reader-header-peek");
+        syncHandleToggleState();
         syncReaderSidePanels();
       });
     }
 
+    if (!document.body.dataset.mobilePeekOutsideBound) {
+      document.body.dataset.mobilePeekOutsideBound = "1";
+      document.addEventListener("pointerdown", (e) => {
+        if (!isMobilePeekToggle()) return;
+        if (!isHidden() || !isPinned()) return;
+        const target = e.target;
+        if (target?.closest?.(".reader-header-peek-handle, header")) return;
+        document.body.classList.remove("reader-header-peek-pinned");
+        document.body.classList.remove("reader-header-peek");
+        syncHandleToggleState();
+        syncReaderSidePanels();
+      }, true);
+    }
+
+    syncHandleToggleState();
     syncReaderPeekHandlePosition();
   };
 
@@ -2878,6 +3051,7 @@
 
     rb.addEventListener("scroll", scheduleActive, { passive: true });
     rb.addEventListener("scroll", scheduleChrome, { passive: true });
+    rb.addEventListener("scroll", closeReaderModeForMobileReaderScroll, { passive: true });
     window.addEventListener("resize", () => {
       invalidateReaderChromeMetrics();
       setUnifiedTocHeight();
@@ -3009,6 +3183,7 @@
         document.body &&
         document.body.classList.contains("is-phone");
       if (isPhoneReaderSingleCard) {
+        if (!collapsed) closeDocTerminalOnMobile();
         setCardToggleLabel(collapsed);
         setMobilePanel(collapsed ? "reader" : "quickjump");
         requestAnimationFrame(syncReaderPeekHandlePosition);
@@ -3333,7 +3508,12 @@
         syncReaderToolRow();
         requestAnimationFrame(syncReaderToolRow);
       });
-      requestAnimationFrame(updateReaderChromeMotion);
+      requestAnimationFrame(() => {
+        updateReaderChromeMotion();
+        requestAnimationFrame(() => {
+          document.body.classList.add("reader-card-motion-ready");
+        });
+      });
     }
 
     const q = new URLSearchParams(location.search).get("q") || "";
@@ -3647,6 +3827,12 @@
   ensureDocumentationButton();
   forceReaderFooterLinks();
   initTheme();
+  document.addEventListener("DOMContentLoaded", () => {
+    forceReaderFooterLinks();
+    scheduleMobileReaderFooterScale();
+  }, { once: true });
+  window.addEventListener("load", scheduleMobileReaderFooterScale);
+  window.addEventListener("resize", scheduleMobileReaderFooterScale);
 
   // ── Mobile Detection & State Management ──────────────────────────────────
   // Detects phone/tablet via pointer:coarse + viewport dimensions.
@@ -3686,6 +3872,7 @@
     b.classList.toggle("is-tablet", isTablet);
     b.classList.toggle("is-portrait", mode.endsWith("portrait"));
     b.classList.toggle("is-landscape", isMobile && !mode.endsWith("portrait"));
+    scheduleMobileReaderFooterScale();
     const readerPage = pageType() === "reader";
     if (readerPage) ensureReaderTablePanel();
     // Remove first-pass mobile bottom rail if present.
