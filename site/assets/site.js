@@ -928,6 +928,11 @@
 
       const range = textSizeWrap.querySelector(".mode-text-size-range");
       if (range) {
+        const sizeRow = range.closest(".mode-text-size-row");
+        const setSizeRowActive = (active) => {
+          if (sizeRow) sizeRow.classList.toggle("is-active", active);
+        };
+        const clearSizeRowActive = () => setSizeRowActive(false);
         const onScaleInput = () => {
           let pct = Number(range.value);
           if (Math.abs(pct - 100) <= 1.5) pct = 100;
@@ -962,6 +967,15 @@
         range.addEventListener("input", onScaleInput);
         range.addEventListener("change", onScaleCommit);
         range.addEventListener("wheel", onScaleWheel, { passive: false });
+        range.addEventListener("pointerdown", (e) => {
+          setSizeRowActive(true);
+          try { range.setPointerCapture?.(e.pointerId); } catch { }
+        });
+        range.addEventListener("pointerup", clearSizeRowActive);
+        range.addEventListener("pointercancel", clearSizeRowActive);
+        range.addEventListener("blur", clearSizeRowActive);
+        window.addEventListener("pointerup", clearSizeRowActive);
+        window.addEventListener("pointercancel", clearSizeRowActive);
       }
     }
     menu.appendChild(modeRow);
@@ -3326,8 +3340,10 @@
         '<button class="dock-btn dock-btn-icon dock-btn-inline" id="findClearInputBtn" type="button" aria-label="Clear search text" title="Clear search text">&times;</button>' +
         "</div>" +
         '</div>' +
+        '<div class="reader-search-action-row">' +
         '<button class="dock-btn" id="findBtn" type="button">Find</button>' +
-        '<button class="dock-btn dock-btn-close" id="clearFindBtn" type="button" aria-label="Close search panel"><span>Close</span></button>';
+        '<button class="dock-btn dock-btn-close" id="clearFindBtn" type="button" aria-label="Close search panel"><span>Close</span></button>' +
+        '</div>';
       head.appendChild(panel);
     }
     const inputWrap = panel.querySelector(".reader-search-input-wrap");

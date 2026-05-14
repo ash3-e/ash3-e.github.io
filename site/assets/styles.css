@@ -32,6 +32,10 @@
     0 0 0 2px rgba(110, 53, 214, 0.42), 0 14px 32px rgba(111, 69, 188, 0.24),
     0 0 26px rgba(154, 113, 236, 0.23), 0 0 50px rgba(195, 161, 255, 0.14);
   --glow-drop: drop-shadow(0 0 8px rgba(148, 104, 230, 0.2));
+  --reader-search-field-border: rgba(165, 113, 255, 0.85);
+  --reader-search-field-shadow: inset 0 0 0 1px rgba(203, 170, 255, 0.28);
+  --reader-search-field-focus-border: #b88fff;
+  --reader-search-field-focus-shadow: 0 0 0 2px rgba(168, 118, 255, 0.25);
 }
 
 html {
@@ -569,13 +573,15 @@ body:not(.codex-split-view)[data-page-type="reader"] .reader-header-peek-handle 
 }
 
 .mode-switcher-menu.has-size-control .mode-text-size-row {
-  border: 1px solid color-mix(in srgb, var(--a1) 42%, var(--border) 58%);
+  border: 1px solid var(--reader-search-field-border);
   border-radius: 8px;
   background: color-mix(in srgb, var(--card) 93%, white 7%);
+  box-shadow: var(--reader-search-field-shadow);
   padding: 5px 11px;
   gap: 10px;
   width: min(48vw, 350px);
   min-width: 300px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .mode-switcher-menu.is-open .mode-text-size-wrap {
@@ -596,6 +602,12 @@ body:not(.codex-split-view)[data-page-type="reader"] .reader-header-peek-handle 
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
+}
+
+.mode-switcher-menu.has-size-control .mode-text-size-row:focus-within,
+.mode-switcher-menu.has-size-control .mode-text-size-row.is-active {
+  border-color: var(--reader-search-field-focus-border);
+  box-shadow: var(--reader-search-field-focus-shadow);
 }
 
 .mode-text-size-prefix {
@@ -1304,14 +1316,14 @@ body .markdown-body .inline-bcode-validity-name {
 }
 
 .reader-search-panel .dock-input {
-  border-color: rgba(165, 113, 255, 0.85);
-  box-shadow: inset 0 0 0 1px rgba(203, 170, 255, 0.28);
+  border-color: var(--reader-search-field-border);
+  box-shadow: var(--reader-search-field-shadow);
 }
 
 .reader-search-panel .dock-input:focus {
   outline: none;
-  border-color: #b88fff;
-  box-shadow: 0 0 0 2px rgba(168, 118, 255, 0.25);
+  border-color: var(--reader-search-field-focus-border);
+  box-shadow: var(--reader-search-field-focus-shadow);
 }
 
 .dock-btn {
@@ -2346,6 +2358,10 @@ body[data-page-type="reader"] .reader-meta {
   min-width: 0;
 }
 
+.reader-search-action-row {
+  display: contents;
+}
+
 .reader-search-input-icon {
   position: absolute;
   left: 10px;
@@ -2585,6 +2601,10 @@ body.dark {
     0 0 0 2px rgba(204, 167, 255, 0.5), 0 16px 40px rgba(9, 8, 24, 0.66),
     0 0 32px rgba(191, 151, 255, 0.34), 0 0 62px rgba(214, 185, 255, 0.24);
   --glow-drop: drop-shadow(0 0 12px rgba(179, 136, 255, 0.28));
+  --reader-search-field-border: #b894ff;
+  --reader-search-field-shadow: inset 0 0 0 1px rgba(189, 155, 255, 0.28);
+  --reader-search-field-focus-border: #c8a6ff;
+  --reader-search-field-focus-shadow: 0 0 0 2px rgba(176, 129, 255, 0.34);
   background: #000;
 }
 
@@ -2623,6 +2643,10 @@ body.theme-half {
     0 0 0 2px rgba(202, 165, 255, 0.46), 0 16px 36px rgba(13, 11, 30, 0.58),
     0 0 30px rgba(190, 151, 255, 0.31), 0 0 58px rgba(209, 178, 255, 0.22);
   --glow-drop: drop-shadow(0 0 10px rgba(178, 137, 255, 0.24));
+  --reader-search-field-border: #b894ff;
+  --reader-search-field-shadow: inset 0 0 0 1px rgba(189, 155, 255, 0.28);
+  --reader-search-field-focus-border: #c8a6ff;
+  --reader-search-field-focus-shadow: 0 0 0 2px rgba(176, 129, 255, 0.34);
 }
 
 body.dark::before {
@@ -2833,8 +2857,8 @@ body.theme-half .cardview-toggle-icon {
 body.dark .reader-search-panel .dock-input,
 body.theme-balanced .reader-search-panel .dock-input,
 body.theme-half .reader-search-panel .dock-input {
-  border-color: #b894ff !important;
-  box-shadow: inset 0 0 0 1px rgba(189, 155, 255, 0.28);
+  border-color: var(--reader-search-field-border) !important;
+  box-shadow: var(--reader-search-field-shadow);
 }
 
 body.dark .reader-search-panel,
@@ -2856,8 +2880,8 @@ body.theme-half .dock-btn-inline {
 body.dark .reader-search-panel .dock-input:focus,
 body.theme-balanced .reader-search-panel .dock-input:focus,
 body.theme-half .reader-search-panel .dock-input:focus {
-  border-color: #c8a6ff !important;
-  box-shadow: 0 0 0 2px rgba(176, 129, 255, 0.34);
+  border-color: var(--reader-search-field-focus-border) !important;
+  box-shadow: var(--reader-search-field-focus-shadow);
 }
 
 body.dark mark.bh,
@@ -4191,8 +4215,10 @@ body.is-phone[data-page-type="reader"] .reader-head {
   --reader-tools-gap: 8px;
   --reader-tool-gap-inline: 4px;
   --reader-tool-action-width: 83px;
+  --reader-mobile-submenu-border-width: 1.5px;
+  --reader-mobile-submenu-radius: 6px;
   --reader-mode-item-width: min(99px, calc((var(--reader-tools-group-width) - (var(--reader-tool-gap-inline) * 2)) / 3));
-  --reader-tools-group-width: min(calc(100vw - 16px), 374px);
+  --reader-tools-group-width: calc(100vw - 24px);
   --reader-tools-mode-row-width: calc((var(--reader-mode-item-width) * 3) + (var(--reader-tool-gap-inline) * 2));
   --reader-tools-search-input-width: calc(var(--reader-tools-group-width) - (var(--reader-tool-action-width) * 2) - (var(--reader-tool-gap-inline) * 2));
   display: grid;
@@ -4212,7 +4238,7 @@ body.is-phone[data-page-type="reader"] .reader-head {
 }
 
 body.is-phone[data-page-type="reader"] .reader-head.reader-search-open {
-  min-height: calc(var(--reader-tools-row-top) + var(--reader-tool-height) + var(--reader-tools-gap)) !important;
+  min-height: calc(var(--reader-tools-row-top) + (var(--reader-tool-height) * 2) + var(--reader-tool-gap-inline) + var(--reader-tools-gap)) !important;
   padding-bottom: var(--reader-tools-gap) !important;
   transition:
     min-height 200ms ease,
@@ -4234,7 +4260,23 @@ body.is-phone[data-page-type="reader"] .reader-head.reader-mode-open {
 }
 
 body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head {
+  --reader-mobile-submenu-bg: color-mix(in srgb, var(--card) 91%, white 9%);
+  --reader-mobile-submenu-border: color-mix(in srgb, var(--a1) 18%, var(--border) 82%);
+  --reader-mobile-submenu-highlight: color-mix(in srgb, white 70%, var(--reader-mobile-submenu-border) 30%);
   background: var(--card) !important;
+}
+
+body.dark.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head {
+  --reader-mobile-submenu-bg: #000;
+  --reader-mobile-submenu-border: rgba(184, 148, 255, 0.5);
+  --reader-mobile-submenu-highlight: rgba(255, 255, 255, 0.06);
+}
+
+body.theme-balanced.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head,
+body.theme-half.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head {
+  --reader-mobile-submenu-bg: #111722;
+  --reader-mobile-submenu-border: rgba(184, 148, 255, 0.5);
+  --reader-mobile-submenu-highlight: rgba(255, 255, 255, 0.07);
 }
 
 body.is-phone[data-page-type="reader"] .reader-head > :first-child {
@@ -4345,12 +4387,14 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control .mode-text-size-row {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: var(--reader-tool-height);
   padding: 3px 8px;
   gap: 6px;
-  border-radius: 6px;
+  border-width: var(--reader-mobile-submenu-border-width) !important;
+  border-radius: var(--reader-mobile-submenu-radius);
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .mode-text-size-prefix,
@@ -4383,6 +4427,7 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control .mode-switcher-item {
+  box-sizing: border-box;
   width: var(--reader-mode-item-width);
   min-width: 0;
   height: var(--reader-tool-height);
@@ -4391,7 +4436,8 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size
   gap: 3px;
   justify-content: center;
   font-size: 9.5px;
-  border-radius: 6px;
+  border-width: var(--reader-mobile-submenu-border-width) !important;
+  border-radius: var(--reader-mobile-submenu-radius);
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control .mode-switcher-item-icon {
@@ -5631,22 +5677,48 @@ body.is-mobile .ascii-preview-image {
 
 body.is-phone[data-page-type="reader"] .reader-search-panel {
   position: absolute !important;
-  top: var(--reader-tools-row-top, 42px) !important;
-  right: 8px !important;
+  top: calc(var(--reader-tools-row-top, 42px) + 1px) !important;
+  right: 12px !important;
   width: var(--reader-tools-group-width) !important;
   max-width: none !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: var(--reader-tool-height) var(--reader-tool-height) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
   padding: 0 !important;
   gap: var(--reader-tool-gap-inline) !important;
+  flex-wrap: nowrap !important;
+  border: var(--reader-mobile-submenu-border-width, 1.5px) solid var(--reader-mobile-submenu-border, transparent) !important;
+  border-radius: var(--reader-mobile-submenu-radius, 6px) !important;
+  background: var(--reader-mobile-submenu-bg, color-mix(in srgb, var(--card) 72%, transparent)) !important;
+  isolation: isolate;
+}
+
+body.is-phone[data-page-type="reader"] .reader-search-panel.is-open {
+  display: grid !important;
 }
 
 body.is-phone[data-page-type="reader"] .reader-search-input-wrap {
-  width: var(--reader-tools-search-input-width) !important;
+  display: flex !important;
+  grid-row: 1 !important;
+  grid-column: 1 / -1 !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  height: var(--reader-tool-height) !important;
   min-width: 0 !important;
+  max-width: none !important;
 }
 
 body.is-phone[data-page-type="reader"] .reader-search-input-wrap .dock-input {
+  display: block !important;
+  box-sizing: border-box !important;
+  flex: 1 1 auto !important;
+  inline-size: 100% !important;
   width: 100% !important;
   min-width: 0 !important;
+  max-width: none !important;
   min-height: var(--reader-tool-height) !important;
   height: var(--reader-tool-height) !important;
   padding-top: 2px !important;
@@ -5654,7 +5726,8 @@ body.is-phone[data-page-type="reader"] .reader-search-input-wrap .dock-input {
   padding-left: 28px !important;
   padding-right: 90px !important;
   font-size: 11px !important;
-  border-radius: 6px !important;
+  border-width: var(--reader-mobile-submenu-border-width, 1.5px) !important;
+  border-radius: var(--reader-mobile-submenu-radius, 6px) !important;
 }
 
 body.is-phone[data-page-type="reader"] .reader-search-input-icon {
@@ -5663,14 +5736,50 @@ body.is-phone[data-page-type="reader"] .reader-search-input-icon {
   height: 12px;
 }
 
+body.is-phone[data-page-type="reader"] .reader-search-action-row {
+  display: grid !important;
+  grid-row: 2 !important;
+  grid-column: 1 / -1 !important;
+  width: var(--reader-tools-mode-row-width) !important;
+  max-width: 100% !important;
+  justify-self: end !important;
+  grid-template-columns: repeat(3, var(--reader-mode-item-width)) !important;
+  gap: var(--reader-tool-gap-inline) !important;
+  padding: 0 !important;
+}
+
 body.is-phone[data-page-type="reader"] .reader-search-panel .dock-btn:not(.dock-btn-inline) {
-  width: var(--reader-tool-action-width) !important;
-  min-width: var(--reader-tool-action-width) !important;
+  box-sizing: border-box !important;
+  width: var(--reader-mode-item-width) !important;
+  min-width: var(--reader-mode-item-width) !important;
+  max-width: var(--reader-mode-item-width) !important;
   min-height: var(--reader-tool-height) !important;
   height: var(--reader-tool-height) !important;
-  padding: 0 8px !important;
-  font-size: 10px !important;
-  border-radius: 6px !important;
+  padding: 0 5px !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  border-width: var(--reader-mobile-submenu-border-width, 1.5px) !important;
+  border-radius: var(--reader-mobile-submenu-radius, 6px) !important;
+  justify-content: center !important;
+}
+
+body.is-phone[data-page-type="reader"] #findBtn {
+  grid-column: 2 !important;
+  justify-self: stretch !important;
+  margin-right: 0 !important;
+}
+
+body.is-phone[data-page-type="reader"] #clearFindBtn {
+  grid-column: 3 !important;
+  justify-self: stretch !important;
+  margin-right: 0 !important;
+}
+
+body.is-phone[data-page-type="reader"] .reader-search-panel .dock-btn-close span {
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
 }
 
 body.is-phone[data-page-type="reader"] .reader-search-inline-nav {
@@ -5765,6 +5874,10 @@ body[data-glass-mode="on"] {
   --glass-text: var(--text);
   --glass-text-muted: var(--muted);
   --glass-accent-glow: rgba(98, 0, 255, 0.12);
+  --reader-search-field-border: var(--glass-border);
+  --reader-search-field-shadow: var(--glass-glow);
+  --reader-search-field-focus-border: var(--glass-border-bright);
+  --reader-search-field-focus-shadow: var(--glass-glow-hover), 0 0 16px var(--glass-accent-glow);
   --glass-sheen-angle: 135deg;
   --glass-sheen: linear-gradient(var(--glass-sheen-angle), rgba(255, 255, 255, 0.18) 0%, transparent 50%, rgba(255, 255, 255, 0.06) 100%);
   --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
@@ -6048,8 +6161,8 @@ body[data-glass-mode="on"] input[type="text"] {
   background: var(--glass-bg-input) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-light));
   backdrop-filter: blur(var(--glass-blur-light));
-  border-color: var(--glass-border) !important;
-  box-shadow: var(--glass-glow);
+  border-color: var(--reader-search-field-border) !important;
+  box-shadow: var(--reader-search-field-shadow);
   color: var(--glass-text);
 }
 
@@ -6057,8 +6170,8 @@ body[data-glass-mode="on"] .dock-input:focus,
 body[data-glass-mode="on"] .search-input:focus,
 body[data-glass-mode="on"] input[type="search"]:focus,
 body[data-glass-mode="on"] input[type="text"]:focus {
-  border-color: var(--glass-border-bright) !important;
-  box-shadow: var(--glass-glow-hover), 0 0 16px var(--glass-accent-glow);
+  border-color: var(--reader-search-field-focus-border) !important;
+  box-shadow: var(--reader-search-field-focus-shadow);
 }
 
 /* ── Search Bar (Hub) — Glass ───────────────────────────────────────────── */
@@ -6750,6 +6863,26 @@ body[data-glass-mode="on"] .toc-jumps {
   background-clip: padding-box;
 }
 
+body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control,
+body.is-phone[data-page-type="reader"] .reader-search-panel,
+body[data-glass-mode="on"].is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control,
+body[data-glass-mode="on"].is-phone[data-page-type="reader"] .reader-search-panel {
+  box-sizing: border-box !important;
+  background: var(--reader-mobile-submenu-bg, color-mix(in srgb, var(--card) 72%, transparent)) !important;
+  border: var(--reader-mobile-submenu-border-width, 1.5px) solid transparent !important;
+  border-radius: var(--reader-mobile-submenu-radius, 6px) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-head .mode-switcher-menu.has-size-control,
+body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]) .reader-search-panel {
+  background: var(--reader-mobile-submenu-bg) !important;
+  border: var(--reader-mobile-submenu-border-width, 1.5px) solid var(--reader-mobile-submenu-border) !important;
+  box-shadow: inset 0 1px 0 var(--reader-mobile-submenu-highlight) !important;
+}
+
 body[data-glass-mode="on"] .toc-head,
 body[data-glass-mode="on"] .toc-jumps,
 body[data-glass-mode="on"] .toc-jumps a {
@@ -6857,6 +6990,16 @@ body[data-glass-mode="on"] .reader-search-panel::after {
   box-shadow: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+body[data-glass-mode="on"].is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size-control,
+body[data-glass-mode="on"].is-phone[data-page-type="reader"] .reader-search-panel {
+  background: var(--reader-mobile-submenu-bg, var(--quickjump-cap-surface, var(--main-glass-surface-chrome))) !important;
+  border: var(--reader-mobile-submenu-border-width, 1.5px) solid var(--glass-border) !important;
+  border-radius: var(--reader-mobile-submenu-radius, 6px) !important;
+  box-shadow: var(--glass-glow) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
 }
 
 body[data-glass-mode="on"] .reader-search-input-wrap {
@@ -7159,6 +7302,8 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) {
       color-mix(in srgb, rgba(255, 255, 255, 0.22) 52%, transparent 48%) 100%);
   --light-glass-control-surface: var(--light-glass-control-surface-top), var(--light-glass-control-surface-base);
   --light-glass-control-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.64), inset 0 -1px 0 var(--quickjump-light-option-border-soft);
+  --reader-search-field-border: var(--quickjump-light-option-border);
+  --reader-search-field-shadow: var(--light-glass-control-shadow);
 }
 
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, #dt-toggle-btn, #tocToggle, #cardLink, .meta-toggle-btn, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-switcher-item, .mode-text-size-row, .reader-search-input-wrap .dock-input, .hub-search-input-wrap .dock-input, .reader-search-panel .dock-btn:not(.dock-btn-inline)) {
@@ -7470,4 +7615,27 @@ body[data-glass-mode="on"]:is(.dark, .theme-balanced) .toc-group-toggle.active {
 body[data-glass-mode="on"]:is(.dark, .theme-balanced) .toc-group-toggle.active.is-current-block {
   border-color: color-mix(in srgb, var(--toc-sublist-glass-active-outline) 50%, rgba(0, 0, 0, 0.84) 50%) !important;
   box-shadow: none !important;
+}
+
+/* Search input and font-size slider share one inactive/active glow model. */
+body[data-glass-mode="on"].is-phone[data-page-type="reader"] {
+  --reader-search-field-focus-shadow: var(--glass-glow-hover), 0 0 0 2px var(--glass-accent-glow);
+}
+
+.reader-search-panel .dock-input,
+.reader-search-panel .reader-search-input-wrap .dock-input,
+.mode-switcher-menu.has-size-control .mode-text-size-row {
+  border-color: var(--reader-search-field-border) !important;
+  box-shadow: var(--reader-search-field-shadow) !important;
+}
+
+.reader-search-panel .dock-input:focus,
+.reader-search-panel .reader-search-input-wrap .dock-input:focus,
+body[data-glass-mode="on"] .reader-search-panel .reader-search-input-wrap .dock-input:focus,
+.mode-switcher-menu.has-size-control .mode-text-size-row:focus-within,
+.mode-switcher-menu.has-size-control .mode-text-size-row.is-active,
+body[data-glass-mode="on"] .mode-switcher-menu.has-size-control .mode-text-size-row:focus-within,
+body[data-glass-mode="on"] .mode-switcher-menu.has-size-control .mode-text-size-row.is-active {
+  border-color: var(--reader-search-field-focus-border) !important;
+  box-shadow: var(--reader-search-field-focus-shadow) !important;
 }
