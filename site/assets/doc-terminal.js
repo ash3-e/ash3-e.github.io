@@ -239,8 +239,37 @@ function controlClusterGap() {
     const gap = tableRect.left - lavaRect.right;
     if (Number.isFinite(gap) && gap > 0) return gap;
   }
+  const header = document.querySelector(".reader-head");
+  if (header) {
+    const headerStyle = getComputedStyle(header);
+    const inlineGap = pxNumber(headerStyle.getPropertyValue("--reader-tool-gap-inline"), NaN);
+    if (Number.isFinite(inlineGap)) return inlineGap;
+  }
   return 8;
 }
+
+function headerButtonBottomInset() {
+  const header = document.querySelector(".reader-head");
+  if (!header) return 12;
+  const mobilePaddingInset = pxNumber(getComputedStyle(header).paddingBottom, NaN);
+  if (document.body.classList.contains("is-mobile") && Number.isFinite(mobilePaddingInset)) {
+    return mobilePaddingInset;
+  }
+  const headerRect = header.getBoundingClientRect();
+  const candidates = header.querySelectorAll(
+    "button, .pill, .pill-btn, .mode-switcher, .lava-toggle, .reader-table-toggle"
+  );
+  let minInset = Infinity;
+  candidates.forEach((b) => {
+    const r = b.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) return;
+    const inset = headerRect.bottom - r.bottom;
+    if (Number.isFinite(inset) && inset >= 0 && inset < minInset) minInset = inset;
+  });
+  return Number.isFinite(minInset) ? minInset : 12;
+}
+
+const MOBILE_ICON_RATIO = 20 / 34;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -276,6 +305,196 @@ function positionPanel() {
   D.panel.style.width = `${Math.round(readerRect.width)}px`;
   D.panel.style.bottom = "0px";
   D.panel.style.height = `${Math.round(panelHeight)}px`;
+
+  const isMobile = document.body.classList.contains("is-mobile");
+  const icon = D.toggleBtn?.querySelector(".mode-switcher-icon");
+
+  const cardLink = document.querySelector("#cardLink");
+  const tableCloseBtn = document.getElementById("readerTableMobileClose");
+
+  if (isMobile && D.toggleBtn) {
+    const gap = controlClusterGap();
+    const headerInset = headerButtonBottomInset();
+    // Center the terminal control in the right-side reader gutter, using the
+    // reader header's own control gap as the side/bottom spacing reference.
+    const viewportRight = window.innerWidth || document.documentElement.clientWidth || readerBodyRect.right;
+    let anchorRight = readerBodyRect.right;
+    let marginWidth = Math.max(0, viewportRight - anchorRight);
+    const contentMarginWidth = Math.max(0, viewportRight - contentRect.right);
+    const minMobileButtonSize = 18;
+    if (marginWidth < gap * 2 + minMobileButtonSize && contentMarginWidth > marginWidth) {
+      anchorRight = contentRect.right;
+      marginWidth = contentMarginWidth;
+    }
+    const rawButtonSize = marginWidth - 2 * gap;
+    let horizontalGap = gap;
+    let buttonSize = Math.round(rawButtonSize);
+    if (buttonSize < minMobileButtonSize) {
+      buttonSize = Math.max(12, Math.round(Math.min(minMobileButtonSize, marginWidth)));
+      horizontalGap = Math.max(0, (marginWidth - buttonSize) / 2);
+    }
+    const iconSize = Math.max(8, Math.round(buttonSize * MOBILE_ICON_RATIO));
+    const toggleCenterX = anchorRight + horizontalGap + buttonSize / 2;
+
+    // Force a square past the mobile .pill-btn overrides (min-height: 40px,
+    // padding: 0 12px) which would otherwise stretch height and eat width.
+    D.toggleBtn.style.position = "fixed";
+    D.toggleBtn.style.width = `${buttonSize}px`;
+    D.toggleBtn.style.height = `${buttonSize}px`;
+    D.toggleBtn.style.minWidth = "0";
+    D.toggleBtn.style.minHeight = "0";
+    D.toggleBtn.style.padding = "0";
+    D.toggleBtn.style.display = "inline-flex";
+    D.toggleBtn.style.alignItems = "center";
+    D.toggleBtn.style.justifyContent = "center";
+    if (icon) {
+      icon.style.width = `${iconSize}px`;
+      icon.style.height = `${iconSize}px`;
+      icon.style.display = "block";
+      icon.style.objectFit = "contain";
+    }
+    D.toggleBtn.style.left = `${toggleCenterX.toFixed(2)}px`;
+    D.toggleBtn.style.bottom = `${Math.round(headerInset)}px`;
+
+    // Mirror cardLink to the left margin, across the viewport centerline.
+    if (cardLink) {
+      // Move out of .reader-head to escape its overflow: clip and any
+      // ancestor that might create a containing block for fixed positioning.
+      if (cardLink.parentElement !== document.body) {
+        cardLink.dataset.dtMobileMoved = "1";
+        document.body.appendChild(cardLink);
+      }
+      const cardCenterX = gap + buttonSize / 2;
+      const cardLeft = Math.max(0, cardCenterX - buttonSize / 2);
+      // Use setProperty with !important to defeat any conflicting CSS rules.
+      const setImp = (prop, val) => cardLink.style.setProperty(prop, val, "important");
+      setImp("position", "fixed");
+      setImp("left", `${cardLeft.toFixed(2)}px`);
+      setImp("right", "auto");
+      setImp("top", "auto");
+      setImp("bottom", `${Math.round(headerInset)}px`);
+      setImp("width", `${buttonSize}px`);
+      setImp("height", `${buttonSize}px`);
+      setImp("min-width", "0");
+      setImp("min-height", "0");
+      setImp("max-width", "none");
+      setImp("max-height", "none");
+      setImp("padding", "0");
+      setImp("margin", "0");
+      setImp("transform", "none");
+      setImp("z-index", "12");
+      setImp("display", "inline-flex");
+      setImp("align-items", "center");
+      setImp("justify-content", "center");
+      setImp("gap", "0");
+      const cardImg = cardLink.querySelector("img.cardview-toggle-icon");
+      if (cardImg) {
+        cardImg.style.setProperty("width", `${iconSize}px`, "important");
+        cardImg.style.setProperty("height", `${iconSize}px`, "important");
+        cardImg.style.setProperty("display", "block", "important");
+      }
+      const cardSpan = cardLink.querySelector("span");
+      if (cardSpan) cardSpan.style.setProperty("display", "none", "important");
+    }
+
+    // Mirror reader-table close button vertically: same horizontal slot as the
+    // terminal toggle, but at the top of the viewport instead of the bottom.
+    if (tableCloseBtn) {
+      if (tableCloseBtn.parentElement !== document.body) {
+        tableCloseBtn.dataset.dtMobileMoved = "1";
+        document.body.appendChild(tableCloseBtn);
+      }
+      const setCloseImp = (prop, val) =>
+        tableCloseBtn.style.setProperty(prop, val, "important");
+      setCloseImp("position", "fixed");
+      setCloseImp("top", `${Math.round(headerInset)}px`);
+      setCloseImp("right", `${Math.round(gap)}px`);
+      setCloseImp("left", "auto");
+      setCloseImp("bottom", "auto");
+      setCloseImp("width", `${buttonSize}px`);
+      setCloseImp("height", `${buttonSize}px`);
+      setCloseImp("min-width", "0");
+      setCloseImp("min-height", "0");
+      setCloseImp("max-width", "none");
+      setCloseImp("max-height", "none");
+      setCloseImp("padding", "0");
+      setCloseImp("margin", "0");
+      setCloseImp("transform", "none");
+      setCloseImp("z-index", "12");
+      setCloseImp("display", "inline-flex");
+      setCloseImp("align-items", "center");
+      setCloseImp("justify-content", "center");
+      // Border/border-radius/background/box-sizing intentionally left to CSS so
+      // glass-mode rules can override (inline !important would beat them).
+      const closeSvg = tableCloseBtn.querySelector("svg");
+      if (closeSvg) {
+        closeSvg.style.setProperty("width", `${iconSize}px`, "important");
+        closeSvg.style.setProperty("height", `${iconSize}px`, "important");
+      }
+    }
+
+    D.panel.classList.add("dt-positioned");
+    return;
+  }
+
+  if (D.toggleBtn) {
+    D.toggleBtn.style.position = "";
+    D.toggleBtn.style.width = "";
+    D.toggleBtn.style.height = "";
+    D.toggleBtn.style.minWidth = "";
+    D.toggleBtn.style.minHeight = "";
+    D.toggleBtn.style.padding = "";
+    D.toggleBtn.style.display = "";
+    D.toggleBtn.style.alignItems = "";
+    D.toggleBtn.style.justifyContent = "";
+  }
+  if (icon) {
+    icon.style.width = "";
+    icon.style.height = "";
+    icon.style.display = "";
+    icon.style.objectFit = "";
+  }
+  if (cardLink) {
+    // Restore to original parent (.reader-head .links) if we moved it.
+    if (cardLink.dataset.dtMobileMoved === "1") {
+      const links = document.querySelector(".reader-head .links");
+      if (links) links.insertBefore(cardLink, links.firstChild);
+      delete cardLink.dataset.dtMobileMoved;
+    }
+    [
+      "position", "left", "right", "top", "bottom",
+      "width", "height", "min-width", "min-height", "max-width", "max-height",
+      "padding", "margin", "transform", "z-index",
+      "display", "align-items", "justify-content", "gap",
+      "opacity", "visibility", "pointer-events",
+    ].forEach((p) => cardLink.style.removeProperty(p));
+    const cardImg = cardLink.querySelector("img.cardview-toggle-icon");
+    if (cardImg) {
+      cardImg.style.removeProperty("width");
+      cardImg.style.removeProperty("height");
+      cardImg.style.removeProperty("display");
+    }
+    const cardSpan = cardLink.querySelector("span");
+    if (cardSpan) cardSpan.style.removeProperty("display");
+  }
+  if (tableCloseBtn) {
+    if (tableCloseBtn.dataset.dtMobileMoved === "1") {
+      const tableHead = document.querySelector(".reader-table-head");
+      if (tableHead) tableHead.appendChild(tableCloseBtn);
+      delete tableCloseBtn.dataset.dtMobileMoved;
+    }
+    [
+      "position", "left", "right", "top", "bottom",
+      "width", "height", "min-width", "min-height", "max-width", "max-height",
+      "padding", "margin", "transform", "z-index",
+      "display", "align-items", "justify-content",
+    ].forEach((p) => tableCloseBtn.style.removeProperty(p));
+    const closeSvg = tableCloseBtn.querySelector("svg");
+    if (closeSvg) {
+      closeSvg.style.removeProperty("width");
+      closeSvg.style.removeProperty("height");
+    }
+  }
 
   const toggleWidth = Math.max(34, Math.round(D.toggleBtn?.offsetWidth || 34));
   const toggleHalf = toggleWidth / 2;
@@ -351,6 +570,7 @@ function layoutKey() {
   if (!body) return "";
   return [
     body.classList.contains("codex-split-view") ? "split" : "full",
+    body.classList.contains("is-mobile") ? "mobile" : "desktop",
     body.classList.contains("meta-collapsed") ? "toc-closed" : "toc-open",
     body.classList.contains("reader-table-open") ? "table-open" : "table-closed",
     body.classList.contains("split-fill-left") ? "fill-left" : "",

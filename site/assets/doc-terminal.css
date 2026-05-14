@@ -89,6 +89,80 @@ body:is(.dark, .theme-balanced, .theme-half) #dt-toggle-btn .mode-switcher-icon 
   animation: ui-glow 1.9s ease-in-out infinite;
 }
 
+/* ── Mobile floating buttons: fade out when compact table or quick jump
+   panel is open, matching the .reader-header-peek-handle opacity fade. ── */
+body.is-mobile #dt-toggle-btn,
+body.is-mobile #cardLink {
+  transition: opacity 240ms ease;
+}
+
+body.is-mobile.reader-table-open #dt-toggle-btn,
+body.is-mobile.reader-table-open #cardLink,
+body.is-mobile:not(.meta-collapsed) #dt-toggle-btn,
+body.is-mobile:not(.meta-collapsed) #cardLink,
+body.is-mobile[data-mobile-panel="quickjump"] #dt-toggle-btn,
+body.is-mobile[data-mobile-panel="quickjump"] #cardLink,
+body.is-mobile[data-mobile-panel="table"] #dt-toggle-btn,
+body.is-mobile[data-mobile-panel="table"] #cardLink {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Reader table mobile close: fade in only while the table is open.
+   Once moved out of .reader-table-pane the parent's opacity no longer
+   gates it, so anchor visibility to body.reader-table-open here. ── */
+body.is-mobile #readerTableMobileClose {
+  transition: opacity 240ms ease;
+}
+
+body.is-mobile:not(.reader-table-open) #readerTableMobileClose {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.is-mobile.reader-table-open #readerTableMobileClose {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Match the .pill-btn baseline shape (8px corners, border-box) so the floating
+   mobile close button visually matches the terminal toggle and cardLink. The
+   background and border come from CSS (not inline) so glass-mode can override. */
+body.is-mobile #readerTableMobileClose {
+  border-radius: 8px !important;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, white 8%);
+  box-sizing: border-box;
+}
+
+/* Mobile compact-chart pane: drop the wrapper background fill and the 1px
+   inset frame so the chart sits cleanly over the page background. ID selector
+   is required because styles.css:5336 (landscape) at (0,5,1) and the body bg
+   rules at (0,2,1)–(0,3,1) would otherwise beat or tie this rule. */
+body.is-mobile #readerTablePane,
+body.is-mobile #readerTablePane.is-fixed,
+body.is-mobile #readerTablePane.is-bottom-anchored {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body.is-mobile #readerTablePane::after {
+  display: none !important;
+  box-shadow: none !important;
+}
+
+/* Also strip any chart-figure framing on mobile in case glass-mode rules
+   (styles.css:6314) reapply a border or shadow. */
+body.is-mobile #readerTablePane .ascii-chart-figure,
+body.is-mobile #readerTablePane .reader-table-figure {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 /* ── Panel shell ──────────────────────────────────────────────────────── */
 
 #doc-terminal-panel {
@@ -699,11 +773,51 @@ body[data-glass-mode="on"] #dt-menu-drop,
 body[data-glass-mode="on"] .dt-menu-item,
 body[data-glass-mode="on"] #dt-send-btn,
 body[data-glass-mode="on"] .dt-pane,
-body[data-glass-mode="on"] #dt-history-panel {
+body[data-glass-mode="on"] #dt-history-panel,
+body[data-glass-mode="on"] #readerTableMobileClose {
   background: color-mix(in srgb, var(--glass-bg-code) 78%, transparent 22%) !important;
   border-color: var(--glass-border) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
   backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
+}
+
+/* The terminal toggle in light glass mode is styled by styles.css:7309 with
+   --light-glass-control-surface (white) and no backdrop-filter. Match that
+   exactly on the close button instead of the dark-glass treatment from the
+   shared rule above (which only fits dark/balanced glass mode). */
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #readerTableMobileClose {
+  background: var(--light-glass-control-surface) !important;
+  border-color: var(--quickjump-light-option-border) !important;
+  box-shadow: var(--light-glass-control-shadow) !important;
+  color: var(--text) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #readerTableMobileClose:active {
+  background: var(--quickjump-light-active-fill) !important;
+  border-color: var(--quickjump-light-option-border) !important;
+  box-shadow: var(--light-glass-control-shadow) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Dark/balanced glass: transparent dark glass + heavy blur, no box-shadow. */
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) #readerTableMobileClose {
+  background: color-mix(in srgb, var(--glass-bg-code) 78%, transparent 22%) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
+}
+
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) #readerTableMobileClose:active {
+  background: color-mix(in srgb, var(--glass-bg-code) 86%, transparent 14%) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
+  backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate)) !important;
 }
 
 body[data-glass-mode="on"] #dt-cmd-box {
