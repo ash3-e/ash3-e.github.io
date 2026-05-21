@@ -197,9 +197,14 @@
     const spanEl = cardLink.querySelector("span");
     if (!spanEl) return;
     const expectedText = isCollapsed ? "Open Quick Jump" : "Close Quick Jump";
-    if (spanEl.textContent !== expectedText) {
-      const icon = isCollapsed ? "arrowleft.svg" : "arrowright.svg";
-      cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${iconPath(icon)}" alt="${expectedText}"><span>${expectedText}</span>`;
+    const isMobileReader = document.body.classList.contains("is-mobile");
+    const expectedIcon = isMobileReader
+      ? "jumpicon.svg"
+      : (isCollapsed ? "arrowleft.svg" : "arrowright.svg");
+    const currentImg = cardLink.querySelector("img");
+    const currentIconName = currentImg?.dataset.iconName || "";
+    if (spanEl.textContent !== expectedText || currentIconName !== expectedIcon) {
+      cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${iconPath(expectedIcon)}" data-icon-name="${expectedIcon}" alt="${expectedText}"><span>${expectedText}</span>`;
       cardLink.setAttribute("aria-label", expectedText);
       cardLink.setAttribute("title", expectedText);
     }
@@ -451,6 +456,7 @@
       btn.setAttribute("aria-pressed", on ? "true" : "false");
       btn.setAttribute("title", on ? "Disable lava lamp background" : "Enable lava lamp background");
       btn.setAttribute("aria-label", on ? "Disable lava lamp background" : "Enable lava lamp background");
+      if (!on) btn.blur();
     });
   };
 
@@ -783,7 +789,8 @@
   };
 
   const closeReaderModeForMobileReaderScroll = () => {
-    if (isReaderModeMenuOpen() && isReaderMobileView()) closeModeMenus();
+    if (!isReaderMobileView()) return;
+    if (isReaderModeMenuOpen()) closeModeMenus();
   };
 
   const syncReaderHeaderToolExpansion = () => {
@@ -804,7 +811,10 @@
     clearReaderModeActivityTimer();
     if (document.body) document.body.classList.remove("reader-mode-activity-active");
     $$(".mode-switcher-menu").forEach((m) => m.classList.remove("is-open"));
-    $$(".mode-switcher").forEach((m) => m.setAttribute("aria-expanded", "false"));
+    $$(".mode-switcher").forEach((m) => {
+      m.setAttribute("aria-expanded", "false");
+      m.blur();
+    });
     syncReaderHeaderToolExpansion();
   };
 
@@ -821,6 +831,11 @@
           if (!panel.classList.contains("is-open")) wrap.classList.remove("tools-visible");
         }, 190);
       }
+    }
+    const toggle = $("#searchToggle");
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.blur();
     }
     syncReaderHeaderToolExpansion();
   };
@@ -988,6 +1003,8 @@
       if (open) {
         menu.classList.add("is-open");
         trigger.setAttribute("aria-expanded", "true");
+      } else {
+        trigger.blur();
       }
       syncReaderHeaderToolExpansion();
     });
@@ -1029,6 +1046,14 @@
         return;
       }
       if (!e.target.closest(".mode-switcher-wrap") && !e.target.closest(".mode-switcher-menu")) closeModeMenus();
+      if (
+        pageType() === "reader" &&
+        $("#readerSearchPanel")?.classList.contains("is-open") &&
+        !e.target.closest("#readerSearchPanel") &&
+        !e.target.closest("#searchToggle")
+      ) {
+        closeReaderSearchPanel();
+      }
     });
 
     document.addEventListener("keydown", (e) => {
@@ -1404,10 +1429,21 @@
 
   const readerScrollTopForHeading = (rb, heading) => {
     if (!rb || !heading) return 0;
+    const layoutTop = (node) => {
+      let top = 0;
+      let current = node;
+      while (current && current instanceof HTMLElement) {
+        top += current.offsetTop || 0;
+        current = current.offsetParent;
+      }
+      return top;
+    };
+    const layoutTarget = layoutTop(heading) - layoutTop(rb) - 2;
+    if (Number.isFinite(layoutTarget) && layoutTarget >= 0) return Math.max(0, layoutTarget);
     const rbRect = rb.getBoundingClientRect();
     const hRect = heading.getBoundingClientRect();
-    const rawTop = rb.scrollTop + (hRect.top - rbRect.top) - 2;
-    return Math.max(0, Number.isFinite(rawTop) ? rawTop : 0);
+    const rectTarget = rb.scrollTop + (hRect.top - rbRect.top) - 2;
+    return Math.max(0, Number.isFinite(rectTarget) ? rectTarget : 0);
   };
 
   const scrollReaderToHeading = (rb, heading, smooth = true) => {
@@ -2230,8 +2266,10 @@
       const cardLink = document.querySelector("#cardLink");
       if (cardLink) {
         const action = "Open Quick Jump";
-        const icon = iconPath("arrowleft.svg");
-        cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${icon}" alt="${action}"><span>${action}</span>`;
+        const isMobileReader = document.body.classList.contains("is-mobile");
+        const iconName = isMobileReader ? "jumpicon.svg" : "arrowleft.svg";
+        const icon = iconPath(iconName);
+        cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${icon}" data-icon-name="${iconName}" alt="${action}"><span>${action}</span>`;
         cardLink.setAttribute("aria-label", action);
         cardLink.setAttribute("title", action);
         requestAnimationFrame(syncReaderPeekHandlePosition);
@@ -2676,10 +2714,14 @@
 
     const groups = buildTocGroups(hs);
     const headingMap = new Map();
+    const headingScrollTopCache = new Map();
     const sublists = [];
     const tocEntryEls = [];
     const manualExpanded = new Set();
     let pinnedEntryEl = null;
+    let mobileQuickJumpSelectionTimer = 0;
+    let mobileQuickJumpSelectionRaf = 0;
+    let suppressTocFollowScrollUntil = 0;
     let refreshJumpLinks = () => { };
     list.innerHTML = "";
 
@@ -2703,11 +2745,73 @@
       const until = Number.parseInt(raw || "", 10);
       return Number.isFinite(until) && until > Date.now();
     };
+    const isTocFollowScrollSuppressed = () => suppressTocFollowScrollUntil > Date.now();
+    const suppressTocFollowScroll = (duration = 1700) => {
+      suppressTocFollowScrollUntil = Date.now() + Math.max(0, duration);
+      deferredVisibleEl = null;
+      clearTimeout(deferredVisibleTimer);
+      deferredVisibleTimer = 0;
+    };
+    const isMobileQuickJumpPanelOpen = () =>
+      !!document.body &&
+      document.body.classList.contains("is-mobile") &&
+      document.body.dataset.mobilePanel === "quickjump";
+    const closeMobileQuickJumpAfterSelection = (selectedId = "") => {
+      if (!isMobileQuickJumpPanelOpen()) return;
+      clearTimeout(mobileQuickJumpSelectionTimer);
+      mobileQuickJumpSelectionTimer = window.setTimeout(() => {
+        mobileQuickJumpSelectionTimer = 0;
+        if (selectedId) setTocActiveEntry(selectedId);
+        if (isMobileQuickJumpPanelOpen()) setMobilePanel("reader");
+        if (selectedId) requestAnimationFrame(() => setTocActiveEntry(selectedId));
+      }, 1500);
+    };
+    const cachedReaderScrollTopForHeading = (heading) => {
+      if (!heading) return 0;
+      const cached = headingScrollTopCache.get(heading.id);
+      return Number.isFinite(cached) ? cached : readerScrollTopForHeading(rb, heading);
+    };
+    const animateMobileQuickJumpReaderScroll = (heading) => {
+      if (!heading) return;
+      if (mobileQuickJumpSelectionRaf) {
+        cancelAnimationFrame(mobileQuickJumpSelectionRaf);
+        mobileQuickJumpSelectionRaf = 0;
+      }
+      clearTimeout(mobileQuickJumpSelectionTimer);
+      const startTop = rb.scrollTop;
+      const targetTop = cachedReaderScrollTopForHeading(heading);
+      const distance = Math.abs(targetTop - startTop);
+      const duration = Math.max(520, Math.min(1650, Math.round(distance / 18)));
+      const startedAt = performance.now();
+      const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      const tick = (now) => {
+        mobileQuickJumpSelectionRaf = 0;
+        if (!isMobileQuickJumpPanelOpen()) return;
+        const progress = duration > 0 ? Math.min(1, (now - startedAt) / duration) : 1;
+        rb.scrollTop = startTop + ((targetTop - startTop) * ease(progress));
+        active();
+        if (progress < 1) {
+          mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
+          return;
+        }
+        rb.scrollTop = targetTop;
+        active();
+        setTocActiveEntry(heading.id);
+        window.setTimeout(() => setTocActiveEntry(heading.id), 80);
+        window.setTimeout(() => setTocActiveEntry(heading.id), 450);
+        closeMobileQuickJumpAfterSelection(heading.id);
+      };
+      mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
+    };
 
     const getVisibleTocEntries = () =>
       tocEntryEls.filter((node) => !node.closest(".toc-sublist.is-collapsed, .toc-sublist.is-hidden"));
 
     const keepEntryVisible = (el, force = false) => {
+      if (isTocFollowScrollSuppressed()) {
+        deferredVisibleEl = null;
+        return;
+      }
       if (!force && isTocAutoScrollLocked()) {
         deferredVisibleEl = el || null;
         queueKeepEntryVisible();
@@ -2791,8 +2895,13 @@
           e.preventDefault();
           manualExpanded.add(groupKey);
           setPinnedEntry(a);
-          lockTocAutoScroll(TOC_SUBLIST_TRANSITION_MS);
-          scrollReaderToHeading(rb, entry.heading, true);
+          if (isMobileQuickJumpPanelOpen()) {
+            suppressTocFollowScroll(5000);
+            animateMobileQuickJumpReaderScroll(entry.heading);
+          } else {
+            lockTocAutoScroll(TOC_SUBLIST_TRANSITION_MS);
+            scrollReaderToHeading(rb, entry.heading, true);
+          }
         };
 
         li.appendChild(a);
@@ -2826,7 +2935,12 @@
           }
           if (groupHeading && groupHeading.heading) {
             setPinnedEntry(toggle);
-            scrollReaderToHeading(rb, groupHeading.heading, true);
+            if (isMobileQuickJumpPanelOpen()) {
+              suppressTocFollowScroll(5000);
+              animateMobileQuickJumpReaderScroll(groupHeading.heading);
+            } else {
+              scrollReaderToHeading(rb, groupHeading.heading, true);
+            }
           }
         };
       } else {
@@ -2836,7 +2950,12 @@
           e.preventDefault();
           if (!groupHeading || !groupHeading.heading) return;
           setPinnedEntry(toggle);
-          scrollReaderToHeading(rb, groupHeading.heading, true);
+          if (isMobileQuickJumpPanelOpen()) {
+            suppressTocFollowScroll(5000);
+            animateMobileQuickJumpReaderScroll(groupHeading.heading);
+          } else {
+            scrollReaderToHeading(rb, groupHeading.heading, true);
+          }
         };
       }
 
@@ -2943,6 +3062,7 @@
     const recalcHeadingTops = () => {
       headingTrack.forEach((x) => {
         x.top = readerScrollTopForHeading(rb, x.heading);
+        if (!isMobileQuickJumpPanelOpen()) headingScrollTopCache.set(x.id, x.top);
       });
       measuredScrollHeight = rb.scrollHeight;
     };
@@ -2992,6 +3112,32 @@
     let lastCurId = "";
     let lastDecimalId = "";
     let lastActiveToggle = null;
+    const tocLinkForHeadingId = (id) => {
+      if (!id) return null;
+      const href = `#${id}`;
+      return Array.from(list.querySelectorAll(".toc-sublist a")).find((link) => link.getAttribute("href") === href) || null;
+    };
+    const setTocActiveEntry = (id) => {
+      const entry = headingMap.get(id);
+      const link = (entry && entry.link) || tocLinkForHeadingId(id);
+      const toggle = (entry && entry.toggle) || link?.closest(".toc-group")?.querySelector(".toc-group-toggle") || null;
+      if (!entry && !link && !toggle) return;
+      list.querySelectorAll(".toc-sublist a.active").forEach((node) => {
+        if (node !== link) node.classList.remove("active");
+      });
+      if (link) {
+        link.classList.add("active");
+        lastDecimalId = id;
+      } else {
+        lastDecimalId = "";
+      }
+      if (lastActiveToggle && lastActiveToggle !== toggle) {
+        lastActiveToggle.classList.remove("active", "is-current-block");
+      }
+      lastActiveToggle = toggle || null;
+      if (lastActiveToggle) lastActiveToggle.classList.add("active", "is-current-block");
+      lastCurId = id;
+    };
     const active = () => {
       if (!headingTrack.length) return;
       if (rb.scrollHeight !== measuredScrollHeight) recalcHeadingTops();
@@ -3075,6 +3221,9 @@
       syncTocFixedLane();
       syncReaderTableFixedLane();
       syncReaderPeekHandlePosition();
+    });
+    document.body.addEventListener("mobilequickjumpbeforeopen", () => {
+      recalcHeadingTops();
     });
     window.addEventListener("resize", () => {
       invalidateReaderChromeMetrics();
@@ -3185,8 +3334,11 @@
 
     const setCardToggleLabel = (collapsed) => {
       const action = collapsed ? "Open Quick Jump" : "Close Quick Jump";
-      const icon = collapsed ? "arrowleft.svg" : "arrowright.svg";
-      cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${iconPath(icon)}" alt="${action}"><span>${action}</span>`;
+      const isMobileReader = document.body.classList.contains("is-mobile");
+      const icon = isMobileReader
+        ? "jumpicon.svg"
+        : (collapsed ? "arrowleft.svg" : "arrowright.svg");
+      cardLink.innerHTML = `<img class="cardview-toggle-icon" src="${iconPath(icon)}" data-icon-name="${icon}" alt="${action}"><span>${action}</span>`;
       cardLink.setAttribute("aria-label", action);
       cardLink.setAttribute("title", action);
     };
@@ -3318,6 +3470,7 @@
       toggle.type = "button";
       toggle.id = "searchToggle";
       toggle.className = "pill-btn search-toggle-btn";
+      toggle.setAttribute("aria-expanded", "false");
       toggle.innerHTML = `<img src="${iconPath("magnify.svg")}" alt=""><span>Search</span>`;
     }
     const modeWrap = links.querySelector(".mode-switcher-wrap");
@@ -3361,6 +3514,8 @@
       const open = !panel.classList.contains("is-open");
       closeModeMenus();
       panel.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      if (!open) toggle.blur();
       if (open) {
         if (inputWrap) inputWrap.classList.remove("tools-visible");
       } else {
@@ -3860,6 +4015,35 @@
 
   const _mob = { mode: "desktop", panel: "reader", hubSearchToggle: false, transitionTimer: 0 };
 
+  const isMobileReaderViewportLocked = () =>
+    pageType() === "reader" &&
+    document.documentElement.classList.contains("reader-mobile-viewport-lock");
+
+  const resetMobileReaderViewportScroll = () => {
+    if (!isMobileReaderViewportLocked()) return;
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  const allowsMobileReaderPan = (target) => {
+    const el = target && target.nodeType === 1 ? target : target?.parentElement;
+    if (!el || !el.closest) return false;
+    if (document.body?.classList.contains("doc-terminal-open")) {
+      return !!el.closest("#doc-terminal-panel");
+    }
+    return !!el.closest(".reader-body, .toc-pane, .toc-scroll, .reader-table-pane");
+  };
+
+  window.addEventListener("scroll", resetMobileReaderViewportScroll, { passive: true });
+  document.addEventListener("scroll", resetMobileReaderViewportScroll, true);
+  document.addEventListener("touchmove", (e) => {
+    if (!isMobileReaderViewportLocked()) return;
+    if (allowsMobileReaderPan(e.target)) return;
+    e.preventDefault();
+    resetMobileReaderViewportScroll();
+  }, { passive: false, capture: true });
+
   const detectMobileMode = () => {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     if (!coarse) return "desktop";
@@ -3888,6 +4072,8 @@
     b.classList.toggle("is-tablet", isTablet);
     b.classList.toggle("is-portrait", mode.endsWith("portrait"));
     b.classList.toggle("is-landscape", isMobile && !mode.endsWith("portrait"));
+    document.documentElement.classList.toggle("reader-mobile-viewport-lock", isMobile && pageType() === "reader");
+    if (isMobile && pageType() === "reader") window.scrollTo(0, 0);
     scheduleMobileReaderFooterScale();
     const readerPage = pageType() === "reader";
     if (readerPage) ensureReaderTablePanel();
@@ -3944,6 +4130,9 @@
     const prev = b.dataset.mobilePanel || _mob.panel || "reader";
     const immediate = !!options.immediate;
     const phoneReaderSingleCard = b.classList.contains("is-phone");
+    if (phoneReaderSingleCard && next === "quickjump" && prev !== "quickjump") {
+      b.dispatchEvent(new CustomEvent("mobilequickjumpbeforeopen"));
+    }
     _mob.panel = next;
     b.dataset.mobilePanel = next;
     if (phoneReaderSingleCard && prev !== next && !immediate) {
@@ -3992,7 +4181,8 @@
     }
     // Close button for table pane
     const tablePane = document.getElementById("readerTablePane") || document.querySelector(".reader-table-pane");
-    if (tablePane && !tablePane.querySelector(".mobile-panel-close")) {
+    const existingTableClose = document.getElementById("readerTableMobileClose");
+    if (tablePane && !existingTableClose && !tablePane.querySelector(".mobile-panel-close")) {
       const btn = document.createElement("button");
       btn.className = "mobile-panel-close";
       btn.type = "button";

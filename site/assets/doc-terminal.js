@@ -200,17 +200,45 @@ const D = {
 
 let panelOpen = false;
 
+function isMobileReaderView() {
+  return !!document.body &&
+    (document.body.classList.contains("is-mobile") ||
+      (window.matchMedia("(pointer: coarse)").matches && window.innerWidth <= 1120));
+}
+
+function focusCommandInput() {
+  if (isMobileReaderView()) return;
+  try {
+    D.cmdInput.focus({ preventScroll: true });
+  } catch {
+    D.cmdInput.focus();
+  }
+}
+
+function resetMobileDocumentScroll() {
+  if (!isMobileReaderView()) return;
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
+
 function openPanel() {
   panelOpen = true;
+  resetMobileDocumentScroll();
+  document.body?.classList.add("doc-terminal-open");
   D.panel.classList.add("dt-open");
   D.toggleBtn?.setAttribute("aria-pressed", "true");
   D.toggleBtn?.classList.add("is-active");
   if (!feedTimer) feedTimer = setInterval(tickFeed, 2800);
-  setTimeout(() => D.cmdInput.focus(), 60);
+  setTimeout(() => {
+    resetMobileDocumentScroll();
+    focusCommandInput();
+  }, 60);
 }
 
 function closePanel() {
   panelOpen = false;
+  document.body?.classList.remove("doc-terminal-open");
   D.panel.classList.remove("dt-open");
   D.toggleBtn?.setAttribute("aria-pressed", "false");
   D.toggleBtn?.classList.remove("is-active");
@@ -270,6 +298,8 @@ function headerButtonBottomInset() {
 }
 
 const MOBILE_ICON_RATIO = 20 / 34;
+let lastMobileFloatingButtonSize = 0;
+let lastMobileFloatingButtonGap = 0;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -315,8 +345,6 @@ function positionPanel() {
   if (isMobile && D.toggleBtn) {
     const gap = controlClusterGap();
     const headerInset = headerButtonBottomInset();
-    // Center the terminal control in the right-side reader gutter, using the
-    // reader header's own control gap as the side/bottom spacing reference.
     const viewportRight = window.innerWidth || document.documentElement.clientWidth || readerBodyRect.right;
     let anchorRight = readerBodyRect.right;
     let marginWidth = Math.max(0, viewportRight - anchorRight);
@@ -328,11 +356,22 @@ function positionPanel() {
     }
     const rawButtonSize = marginWidth - 2 * gap;
     let horizontalGap = gap;
-    let buttonSize = Math.round(rawButtonSize);
-    if (buttonSize < minMobileButtonSize) {
-      buttonSize = Math.max(12, Math.round(Math.min(minMobileButtonSize, marginWidth)));
-      horizontalGap = Math.max(0, (marginWidth - buttonSize) / 2);
+    let computedButtonSize = Math.round(rawButtonSize);
+    if (computedButtonSize < minMobileButtonSize) {
+      computedButtonSize = Math.max(12, Math.round(Math.min(minMobileButtonSize, marginWidth)));
+      horizontalGap = Math.max(0, (marginWidth - computedButtonSize) / 2);
     }
+    const mobilePanel = document.body.dataset.mobilePanel || "reader";
+    if (mobilePanel === "reader" && computedButtonSize > 0) {
+      lastMobileFloatingButtonSize = computedButtonSize;
+      lastMobileFloatingButtonGap = horizontalGap;
+    }
+    const buttonSize = mobilePanel === "reader" || !lastMobileFloatingButtonSize
+      ? computedButtonSize
+      : lastMobileFloatingButtonSize;
+    horizontalGap = mobilePanel === "reader" || !lastMobileFloatingButtonGap
+      ? horizontalGap
+      : lastMobileFloatingButtonGap;
     const iconSize = Math.max(8, Math.round(buttonSize * MOBILE_ICON_RATIO));
     const toggleCenterX = anchorRight + horizontalGap + buttonSize / 2;
 
@@ -364,8 +403,7 @@ function positionPanel() {
         cardLink.dataset.dtMobileMoved = "1";
         document.body.appendChild(cardLink);
       }
-      const cardCenterX = gap + buttonSize / 2;
-      const cardLeft = Math.max(0, cardCenterX - buttonSize / 2);
+      const cardLeft = Math.max(0, horizontalGap);
       // Use setProperty with !important to defeat any conflicting CSS rules.
       const setImp = (prop, val) => cardLink.style.setProperty(prop, val, "important");
       setImp("position", "fixed");
@@ -937,7 +975,7 @@ async function submit() {
 
   D.cmdInput.value = "";
   updateMirror();
-  D.cmdInput.focus();
+  focusCommandInput();
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
@@ -987,7 +1025,7 @@ D.menuDrop.addEventListener("click", e => {
     renderFeed();
     renderStateFeed();
   }
-  D.cmdInput.focus();
+  focusCommandInput();
 });
 
 document.addEventListener("click", e => {
@@ -999,7 +1037,7 @@ document.addEventListener("click", e => {
 D.prompt.addEventListener("click", () => {
   state.historyOpen = !state.historyOpen;
   D.historyPanel.classList.toggle("dt-hidden", !state.historyOpen);
-  D.cmdInput.focus();
+  focusCommandInput();
 });
 
 // ── Feed ticker ───────────────────────────────────────────────────────────────

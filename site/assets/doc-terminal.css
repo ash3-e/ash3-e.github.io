@@ -135,6 +135,13 @@ body.is-mobile #readerTableMobileClose {
   box-sizing: border-box;
 }
 
+body.is-mobile #readerTablePane > .mobile-panel-close:not(#readerTableMobileClose),
+body.is-mobile #readerTablePane .reader-table-actions {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* Mobile compact-chart pane: drop the wrapper background fill and the 1px
    inset frame so the chart sits cleanly over the page background. ID selector
    is required because styles.css:5336 (landscape) at (0,5,1) and the body bg
