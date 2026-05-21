@@ -2510,12 +2510,40 @@
       });
     }
 
+    const readerReturnStopBottom = () => {
+      const terminalToggle = document.querySelector("#dt-toggle-btn");
+      if (!terminalToggle) return null;
+
+      const controls = [terminalToggle];
+      if (document.body.classList.contains("is-mobile")) {
+        const quickJumpToggle = document.querySelector("#cardLink");
+        if (quickJumpToggle) controls.push(quickJumpToggle);
+      }
+
+      const bottoms = controls
+        .map((control) => {
+          const rect = control.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 ? rect.bottom : null;
+        })
+        .filter((bottom) => Number.isFinite(bottom));
+
+      if (!bottoms.length) return null;
+      return document.body.classList.contains("is-mobile")
+        ? Math.max(...bottoms)
+        : bottoms[0];
+    };
+
     const lineHeight = Number.parseFloat(getComputedStyle(out || rb).lineHeight) || 24;
     const readerHeight = Math.max(0, rb.clientHeight || 0);
     const buttonHeight = Math.max(0, btn?.offsetHeight || 0);
+    const readerRect = rb.getBoundingClientRect();
+    const targetBottom = readerReturnStopBottom();
+    const alignedPadGap = Number.isFinite(targetBottom)
+      ? Math.ceil(buttonHeight + Math.max(0, readerRect.bottom - targetBottom))
+      : 0;
     const viewportGap = Math.round(readerHeight * (document.body.classList.contains("is-phone") ? 0.34 : 0.42));
     const buttonGap = Math.round(buttonHeight * 2);
-    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2), buttonGap, viewportGap);
+    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2), buttonGap, viewportGap, alignedPadGap);
     const padHeightNow = pad.offsetHeight;
     const naturalScrollHeight = Math.max(0, rb.scrollHeight - padHeightNow);
     const maxWithoutPad = Math.max(0, naturalScrollHeight - rb.clientHeight);
@@ -2524,8 +2552,30 @@
     const targetScroll = lastHeading ? readerScrollTopForHeading(rb, lastHeading) : 0;
     const requiredExtra = Math.max(0, Math.ceil(targetScroll - maxWithoutPad));
     const finalPad = bottomLineGap + requiredExtra;
+    const maxButtonOffset = Math.max(0, finalPad - buttonHeight);
+    const alignedButtonOffset = Number.isFinite(targetBottom)
+      ? targetBottom - readerRect.bottom + finalPad - buttonHeight
+      : maxButtonOffset / 2;
+    const buttonOffset = Math.max(0, Math.min(maxButtonOffset, Math.round(alignedButtonOffset)));
     pad.style.setProperty("--reader-end-pad-height", `${finalPad}px`);
+    pad.style.setProperty("--reader-return-top-offset", `${buttonOffset}px`);
   };
+
+  let readerEndPadSyncRaf = 0;
+  const scheduleReaderEndPadSync = () => {
+    if (pageType() !== "reader") return;
+    if (readerEndPadSyncRaf) return;
+    readerEndPadSyncRaf = window.requestAnimationFrame(() => {
+      readerEndPadSyncRaf = 0;
+      ensureReaderEndPad();
+    });
+  };
+  window.addEventListener("bcode:reader-floating-controls-positioned", scheduleReaderEndPadSync);
+  window.addEventListener("load", () => {
+    [0, 120, 360, 900].forEach((delay) => {
+      window.setTimeout(scheduleReaderEndPadSync, delay);
+    });
+  });
 
   const ensureReaderHeaderPeekHandle = () => {
     if (pageType() !== "reader") return;

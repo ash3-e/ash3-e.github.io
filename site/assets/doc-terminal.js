@@ -472,6 +472,7 @@ function positionPanel() {
     }
 
     D.panel.classList.add("dt-positioned");
+    window.dispatchEvent(new CustomEvent("bcode:reader-floating-controls-positioned"));
     return;
   }
 
@@ -571,6 +572,7 @@ function positionPanel() {
   D.toggleBtn.style.left = `${toggleCenterX.toFixed(2)}px`;
   D.toggleBtn.style.bottom = `${Math.round(toggleBottom)}px`;
   D.panel.classList.add("dt-positioned");
+  window.dispatchEvent(new CustomEvent("bcode:reader-floating-controls-positioned"));
 }
 
 let lastLayoutKey = "";

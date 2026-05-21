@@ -2478,7 +2478,7 @@ body[data-page-type="reader"] .reader-meta {
   min-height: var(--reader-end-pad-height, 0px);
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 0;
 }
@@ -2501,6 +2501,8 @@ body[data-page-type="reader"] .reader-meta {
   font-weight: 850;
   font-size: var(--reader-return-font-size);
   letter-spacing: 0.01em;
+  flex-shrink: 0;
+  margin-top: var(--reader-return-top-offset, 0px);
   cursor: pointer;
 }
 
