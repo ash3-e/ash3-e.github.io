@@ -2471,16 +2471,20 @@ body[data-page-type="reader"] .reader-meta {
 }
 
 .reader-end-pad {
-  --reader-return-height: 68px;
-  --reader-return-pad-x: 28px;
-  --reader-return-radius: 16px;
-  --reader-return-font-size: 17px;
+  --reader-return-height: 51px;
+  --reader-return-pad-x: 21px;
+  --reader-return-radius: 12px;
+  --reader-return-font-size: 12.75px;
   min-height: var(--reader-end-pad-height, 0px);
   width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 0;
+}
+
+body[data-page-type="reader"]:not(.is-phone) .reader-body {
+  max-height: var(--reader-body-viewport-max-height, none);
 }
 
 .reader-return-top {

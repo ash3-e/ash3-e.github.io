@@ -2486,6 +2486,27 @@
         syncReaderTableFixedLane();
       }
     }
+    if (syncReaderBodyViewportClamp()) requestAnimationFrame(ensureReaderEndPad);
+  };
+
+  const syncReaderBodyViewportClamp = () => {
+    if (pageType() !== "reader") return false;
+    const rb = $("#readerBody");
+    if (!rb || !document.body) return false;
+    if (document.body.classList.contains("is-phone")) {
+      const hadClamp = !!document.body.style.getPropertyValue("--reader-body-viewport-max-height");
+      document.body.style.removeProperty("--reader-body-viewport-max-height");
+      return hadClamp;
+    }
+
+    const rect = rb.getBoundingClientRect();
+    const viewportBottom = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight || 0;
+    const visibleHeight = Math.max(180, Math.floor(viewportBottom - Math.max(0, rect.top)));
+    const nextValue = `${visibleHeight}px`;
+    const prevValue = document.body.style.getPropertyValue("--reader-body-viewport-max-height");
+    if (prevValue === nextValue) return false;
+    document.body.style.setProperty("--reader-body-viewport-max-height", nextValue);
+    return true;
   };
 
   const ensureReaderEndPad = () => {
@@ -2509,6 +2530,8 @@
         rb.scrollTo({ top: 0, behavior: "smooth" });
       });
     }
+
+    syncReaderBodyViewportClamp();
 
     const readerReturnStopBottom = () => {
       const terminalToggle = document.querySelector("#dt-toggle-btn");
@@ -2811,7 +2834,8 @@
     const manualExpanded = new Set();
     let pinnedEntryEl = null;
     let mobileQuickJumpSelectionTimer = 0;
-    let mobileQuickJumpSelectionRaf = 0;
+    let quickJumpSelectionRaf = 0;
+    let quickJumpProgrammaticScrollUntil = 0;
     let suppressTocFollowScrollUntil = 0;
     let refreshJumpLinks = () => { };
     list.innerHTML = "";
@@ -2843,6 +2867,15 @@
       clearTimeout(deferredVisibleTimer);
       deferredVisibleTimer = 0;
     };
+    const isQuickJumpProgrammaticScroll = () => quickJumpProgrammaticScrollUntil > performance.now();
+    const cancelQuickJumpProgrammaticScroll = (prepareManualFollow = true) => {
+      quickJumpProgrammaticScrollUntil = 0;
+      if (quickJumpSelectionRaf) {
+        cancelAnimationFrame(quickJumpSelectionRaf);
+        quickJumpSelectionRaf = 0;
+      }
+      if (prepareManualFollow) lastCurId = "";
+    };
     const isMobileQuickJumpPanelOpen = () =>
       !!document.body &&
       document.body.classList.contains("is-mobile") &&
@@ -2862,37 +2895,53 @@
       const cached = headingScrollTopCache.get(heading.id);
       return Number.isFinite(cached) ? cached : readerScrollTopForHeading(rb, heading);
     };
-    const animateMobileQuickJumpReaderScroll = (heading) => {
+    const animateQuickJumpReaderScroll = (heading) => {
       if (!heading) return;
-      if (mobileQuickJumpSelectionRaf) {
-        cancelAnimationFrame(mobileQuickJumpSelectionRaf);
-        mobileQuickJumpSelectionRaf = 0;
-      }
+      cancelQuickJumpProgrammaticScroll(false);
       clearTimeout(mobileQuickJumpSelectionTimer);
       const startTop = rb.scrollTop;
       const targetTop = cachedReaderScrollTopForHeading(heading);
       const distance = Math.abs(targetTop - startTop);
-      const duration = Math.max(520, Math.min(1650, Math.round(distance / 18)));
+      if (distance <= 1) {
+        rb.scrollTop = targetTop;
+        quickJumpProgrammaticScrollUntil = performance.now() + 360;
+        suppressTocFollowScroll(520);
+        active();
+        setTocActiveEntry(heading.id);
+        closeMobileQuickJumpAfterSelection(heading.id);
+        return;
+      }
+      const isMobileReader = document.body.classList.contains("is-mobile");
+      const speed = isMobileReader ? 12 : 9;
+      const minDuration = isMobileReader ? 780 : 720;
+      const maxDuration = isMobileReader ? 2475 : 3600;
+      const duration = Math.max(minDuration, Math.min(maxDuration, Math.round(distance / speed)));
       const startedAt = performance.now();
+      quickJumpProgrammaticScrollUntil = startedAt + duration + 360;
+      suppressTocFollowScroll(duration + 520);
       const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
       const tick = (now) => {
-        mobileQuickJumpSelectionRaf = 0;
-        if (!isMobileQuickJumpPanelOpen()) return;
+        quickJumpSelectionRaf = 0;
+        if (document.body.classList.contains("is-mobile") && !isMobileQuickJumpPanelOpen()) {
+          quickJumpProgrammaticScrollUntil = 0;
+          return;
+        }
         const progress = duration > 0 ? Math.min(1, (now - startedAt) / duration) : 1;
         rb.scrollTop = startTop + ((targetTop - startTop) * ease(progress));
         active();
         if (progress < 1) {
-          mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
+          quickJumpSelectionRaf = requestAnimationFrame(tick);
           return;
         }
         rb.scrollTop = targetTop;
+        quickJumpProgrammaticScrollUntil = performance.now() + 360;
         active();
         setTocActiveEntry(heading.id);
         window.setTimeout(() => setTocActiveEntry(heading.id), 80);
         window.setTimeout(() => setTocActiveEntry(heading.id), 450);
         closeMobileQuickJumpAfterSelection(heading.id);
       };
-      mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
+      quickJumpSelectionRaf = requestAnimationFrame(tick);
     };
 
     const getVisibleTocEntries = () =>
@@ -2986,13 +3035,7 @@
           e.preventDefault();
           manualExpanded.add(groupKey);
           setPinnedEntry(a);
-          if (isMobileQuickJumpPanelOpen()) {
-            suppressTocFollowScroll(5000);
-            animateMobileQuickJumpReaderScroll(entry.heading);
-          } else {
-            lockTocAutoScroll(TOC_SUBLIST_TRANSITION_MS);
-            scrollReaderToHeading(rb, entry.heading, true);
-          }
+          animateQuickJumpReaderScroll(entry.heading);
         };
 
         li.appendChild(a);
@@ -3026,12 +3069,7 @@
           }
           if (groupHeading && groupHeading.heading) {
             setPinnedEntry(toggle);
-            if (isMobileQuickJumpPanelOpen()) {
-              suppressTocFollowScroll(5000);
-              animateMobileQuickJumpReaderScroll(groupHeading.heading);
-            } else {
-              scrollReaderToHeading(rb, groupHeading.heading, true);
-            }
+            animateQuickJumpReaderScroll(groupHeading.heading);
           }
         };
       } else {
@@ -3041,12 +3079,7 @@
           e.preventDefault();
           if (!groupHeading || !groupHeading.heading) return;
           setPinnedEntry(toggle);
-          if (isMobileQuickJumpPanelOpen()) {
-            suppressTocFollowScroll(5000);
-            animateMobileQuickJumpReaderScroll(groupHeading.heading);
-          } else {
-            scrollReaderToHeading(rb, groupHeading.heading, true);
-          }
+          animateQuickJumpReaderScroll(groupHeading.heading);
         };
       }
 
@@ -3278,8 +3311,9 @@
           lastActiveToggle.classList.add("is-current-block");
         }
       }
-      if (toggleChanged) applyExpandState(lastActiveToggle, curEntry);
-      if (curEntry) keepEntryVisible(curEntry.link || curEntry.toggle);
+      const programmaticQuickJumpScroll = isQuickJumpProgrammaticScroll();
+      if (toggleChanged && !programmaticQuickJumpScroll) applyExpandState(lastActiveToggle, curEntry);
+      if (curEntry && !programmaticQuickJumpScroll) keepEntryVisible(curEntry.link || curEntry.toggle);
     };
 
     let activeRaf = 0;
@@ -3303,6 +3337,9 @@
     rb.addEventListener("scroll", scheduleActive, { passive: true });
     rb.addEventListener("scroll", scheduleChrome, { passive: true });
     rb.addEventListener("scroll", closeReaderModeForMobileReaderScroll, { passive: true });
+    ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
+      rb.addEventListener(eventName, cancelQuickJumpProgrammaticScroll, { passive: true });
+    });
     window.addEventListener("resize", () => {
       invalidateReaderChromeMetrics();
       setUnifiedTocHeight();
