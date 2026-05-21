@@ -357,6 +357,7 @@ body:not(.codex-split-view)[data-page-type="reader"] .reader-header-peek-handle 
 .btn:hover,
 .pill:hover,
 .pill-btn:hover,
+.reader-return-top:hover,
 .dock-btn:hover,
 .mode-switcher:hover,
 .ascii-preview-btn:hover,
@@ -2470,7 +2471,11 @@ body[data-page-type="reader"] .reader-meta {
 }
 
 .reader-end-pad {
-  min-height: 0;
+  --reader-return-height: 68px;
+  --reader-return-pad-x: 28px;
+  --reader-return-radius: 16px;
+  --reader-return-font-size: 17px;
+  min-height: var(--reader-end-pad-height, 0px);
   width: 100%;
   display: flex;
   align-items: center;
@@ -2479,13 +2484,23 @@ body[data-page-type="reader"] .reader-meta {
 }
 
 .reader-return-top {
-  border: 1px solid color-mix(in srgb, var(--a1) 40%, var(--border) 60%);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--card) 88%, white 12%);
-  color: var(--a1);
-  font-weight: 800;
-  font-size: 12px;
-  padding: 8px 14px;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--reader-return-height);
+  height: var(--reader-return-height);
+  padding: 0 var(--reader-return-pad-x);
+  border-radius: var(--reader-return-radius);
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--card) 92%, white 8%);
+  color: var(--text);
+  text-decoration: none;
+  font-family: inherit;
+  font-weight: 850;
+  font-size: var(--reader-return-font-size);
+  letter-spacing: 0.01em;
   cursor: pointer;
 }
 
@@ -2694,6 +2709,7 @@ body.dark .mode-switcher-menu,
 body.dark .mode-switcher-item,
 body.dark .ascii-preview-btn,
 body.dark .fixed-doc-btn,
+body.dark .reader-return-top,
 body.dark .card,
 body.dark .doc-card,
 body.dark .reader,
@@ -2723,24 +2739,27 @@ body.dark .mode-switcher-item.is-active {
 body.dark :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn),
 body.theme-balanced :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn),
 body.theme-half :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn) {
   border-color: #4f5f7b !important;
 }
 
-body.dark :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill),
-body.theme-balanced :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill),
-body.theme-half :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill) {
+body.dark :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top),
+body.theme-balanced :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top),
+body.theme-half :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top) {
   box-shadow: inset 0 0 0 1px rgba(188, 152, 255, 0.2);
 }
 
@@ -2841,14 +2860,17 @@ body.theme-half .doc-card:hover {
 body.dark :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link):hover,
 body.theme-balanced :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link):hover,
 body.theme-half :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
+  .reader-return-top,
   .sub-pill-link):hover {
   box-shadow: var(--glow-shadow-a);
   filter: var(--glow-drop);
@@ -3249,24 +3271,6 @@ body[data-page-type="hub"] .hub-search-input-wrap .dock-input {
   min-height: 52px;
   padding-left: 122px;
   padding-right: 18px;
-}
-
-body.dark .reader-return-top,
-body.theme-balanced .reader-return-top,
-body.theme-half .reader-return-top {
-  border-color: color-mix(in srgb, #d2b2ff 66%, #5d71a5 34%);
-  color: #f2e8ff;
-  background: linear-gradient(180deg, rgba(118, 74, 204, 0.35), rgba(52, 34, 90, 0.24));
-  box-shadow: 0 8px 22px rgba(8, 7, 22, 0.5), 0 0 0 1px rgba(190, 147, 255, 0.16);
-}
-
-body.dark .reader-return-top:hover,
-body.dark .reader-return-top:focus-visible,
-body.theme-balanced .reader-return-top:hover,
-body.theme-balanced .reader-return-top:focus-visible,
-body.theme-half .reader-return-top:hover,
-body.theme-half .reader-return-top:focus-visible {
-  box-shadow: 0 10px 26px rgba(8, 7, 22, 0.58), 0 0 0 1px rgba(206, 169, 255, 0.3);
 }
 
 /* Keep non-active search highlights consistently light purple across pages/modes. */
@@ -4242,6 +4246,7 @@ body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]):not(.dark):no
 /* --- Reader head: compact for phone --- */
 body.is-phone[data-page-type="reader"] .reader-head {
   --reader-tool-height: 30px;
+  --reader-mobile-peek-top: 22px;
   --reader-tools-row-top: 42px;
   --reader-tools-links-top: 6px;
   --reader-tools-gap: 8px;
@@ -4353,6 +4358,13 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-wrap {
 body.is-phone[data-page-type="reader"] .reader-head .links :is(.pill-btn, .pill, #cardLink) {
   min-height: 30px !important;
   padding: 0 8px !important;
+}
+
+body.is-phone[data-page-type="reader"] .reader-end-pad {
+  --reader-return-height: 37.5px;
+  --reader-return-pad-x: 17.5px;
+  --reader-return-radius: 10px;
+  --reader-return-font-size: 13px;
 }
 
 body.is-phone[data-page-type="reader"] .reader-head :is(.cardview-toggle, .search-toggle-btn, .mode-switcher, .reader-table-toggle, .reader-header-peek-handle) {
@@ -4489,10 +4501,16 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-handle {
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  transform: none !important;
+  --reader-mobile-peek-height: var(--reader-tool-height, 30px);
+  --reader-mobile-peek-width: calc(var(--reader-mobile-peek-height) * var(--reader-mobile-peek-ratio, 1.5));
+  position: absolute !important;
+  top: var(--reader-mobile-peek-top, 22px) !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: var(--reader-mobile-peek-width) !important;
+  min-width: var(--reader-mobile-peek-width) !important;
+  height: var(--reader-mobile-peek-height) !important;
+  min-height: var(--reader-mobile-peek-height) !important;
   display: none;
   opacity: 0;
   pointer-events: none;
@@ -4503,7 +4521,8 @@ body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-handle {
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-line {
-  width: 14px;
+  width: calc(var(--reader-mobile-peek-width, 45px) * 0.46);
+  max-width: 24px;
 }
 
 body.is-phone[data-page-type="reader"].reader-header-hidden:not(.reader-header-peek) .reader-head .reader-header-peek-handle,
@@ -6221,7 +6240,9 @@ body[data-glass-mode="on"] .reader-table-pane::after {
 /* ── Pills / Chips / Buttons — Glass Controls ───────────────────────────── */
 
 body[data-glass-mode="on"] .pill,
-body[data-glass-mode="on"] .pill-btn {
+body[data-glass-mode="on"] .pill-btn,
+body[data-glass-mode="on"] .reader-return-top,
+body[data-glass-mode="on"] .fixed-doc-btn {
   background: var(--glass-bg-input) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-light));
   backdrop-filter: blur(var(--glass-blur-light));
@@ -6234,10 +6255,23 @@ body[data-glass-mode="on"] .pill-btn {
 }
 
 body[data-glass-mode="on"] .pill:hover,
-body[data-glass-mode="on"] .pill-btn:hover {
+body[data-glass-mode="on"] .pill-btn:hover,
+body[data-glass-mode="on"] .reader-return-top:hover,
+body[data-glass-mode="on"] .fixed-doc-btn:hover {
   background: var(--glass-bg) !important;
   border-color: var(--glass-border-bright) !important;
   box-shadow: var(--glass-glow-hover);
+}
+
+body[data-glass-mode="on"] .fixed-doc-btn {
+  box-sizing: border-box;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 10px !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-radius: 8px !important;
+  font-size: 12.5px;
 }
 
 body[data-glass-mode="on"] .pill.primary {
@@ -6879,7 +6913,7 @@ body:not([data-glass-mode="on"]) .reader-body .markdown-body :is(p, li, h1, h2, 
   text-shadow: none !important;
 }
 
-body[data-glass-mode="on"] :is(.card, .reader, .toc-pane, .doc-card, .dock, .pill, .pill-btn) {
+body[data-glass-mode="on"] :is(.card, .reader, .toc-pane, .doc-card, .dock, .pill, .pill-btn, .reader-return-top) {
   background: var(--main-glass-surface) !important;
 }
 
@@ -7030,12 +7064,16 @@ body[data-glass-mode="on"] .search-toggle-btn img {
   filter: brightness(0) invert(1) !important;
 }
 
-body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(.mode-switcher, .lava-toggle, .reader-table-toggle, .mode-text-size-row, .reader-search-panel, .reader-search-input-wrap .dock-input) {
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(.fixed-doc-btn, .reader-return-top, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-text-size-row, .reader-search-panel, .reader-search-input-wrap .dock-input) {
   background: var(--glass-bg-code) !important;
   border-color: var(--glass-border) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
   backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
   box-shadow: var(--glass-glow);
+}
+
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .fixed-doc-btn img {
+  filter: invert(1) saturate(0) brightness(1.45);
 }
 
 body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .mode-text-size-range {
@@ -7415,7 +7453,7 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) {
   --reader-search-field-shadow: var(--light-glass-control-shadow);
 }
 
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, #dt-toggle-btn, #tocToggle, #cardLink, .meta-toggle-btn, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-switcher-item, .mode-text-size-row, .reader-search-input-wrap .dock-input, .hub-search-input-wrap .dock-input, .reader-search-panel .dock-btn:not(.dock-btn-inline)) {
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, .reader-return-top, #dt-toggle-btn, #tocToggle, #cardLink, .meta-toggle-btn, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-switcher-item, .mode-text-size-row, .reader-search-input-wrap .dock-input, .hub-search-input-wrap .dock-input, .reader-search-panel .dock-btn:not(.dock-btn-inline)) {
   background: var(--light-glass-control-surface) !important;
   border-color: var(--quickjump-light-option-border) !important;
   box-shadow: var(--light-glass-control-shadow) !important;
@@ -7423,7 +7461,7 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(
   backdrop-filter: none !important;
 }
 
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(#tocToggle, #cardLink, .meta-toggle-btn) {
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, #tocToggle, #cardLink, .meta-toggle-btn) {
   min-height: 34px;
   height: 34px;
   padding: 0 10px !important;

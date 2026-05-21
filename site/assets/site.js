@@ -2511,7 +2511,11 @@
     }
 
     const lineHeight = Number.parseFloat(getComputedStyle(out || rb).lineHeight) || 24;
-    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2));
+    const readerHeight = Math.max(0, rb.clientHeight || 0);
+    const buttonHeight = Math.max(0, btn?.offsetHeight || 0);
+    const viewportGap = Math.round(readerHeight * (document.body.classList.contains("is-phone") ? 0.34 : 0.42));
+    const buttonGap = Math.round(buttonHeight * 2);
+    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2), buttonGap, viewportGap);
     const padHeightNow = pad.offsetHeight;
     const naturalScrollHeight = Math.max(0, rb.scrollHeight - padHeightNow);
     const maxWithoutPad = Math.max(0, naturalScrollHeight - rb.clientHeight);
@@ -2520,7 +2524,7 @@
     const targetScroll = lastHeading ? readerScrollTopForHeading(rb, lastHeading) : 0;
     const requiredExtra = Math.max(0, Math.ceil(targetScroll - maxWithoutPad));
     const finalPad = bottomLineGap + requiredExtra;
-    pad.style.minHeight = `${finalPad}px`;
+    pad.style.setProperty("--reader-end-pad-height", `${finalPad}px`);
   };
 
   const ensureReaderHeaderPeekHandle = () => {
@@ -2542,6 +2546,7 @@
       handleHost.appendChild(handle);
     };
     let handle = document.querySelector(".reader-header-peek-handle");
+    let mobilePeekPinnedScrollTop = 0;
     if (!handle) {
       handle = document.createElement("button");
       handle.type = "button";
@@ -2622,6 +2627,14 @@
       syncHandleToggleState();
       syncReaderSidePanels();
     };
+    const hidePinnedHeaderNow = () => {
+      if (!isHidden()) return;
+      if (!isPinned()) return;
+      document.body.classList.remove("reader-header-peek-pinned");
+      document.body.classList.remove("reader-header-peek");
+      syncHandleToggleState();
+      syncReaderSidePanels();
+    };
     const queueHideHeader = (e, delay = 220) => {
       clearHoverTimer();
       const next = e && e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget : null;
@@ -2649,14 +2662,30 @@
       }
       clearHoverTimer();
       showHeader(true);
+      if (isMobilePeekToggle()) {
+        const rb = document.getElementById("readerBody");
+        mobilePeekPinnedScrollTop = Math.max(0, rb?.scrollTop || 0);
+      }
     };
 
     if (!handle.dataset.bound) {
       handle.dataset.bound = "1";
-      handle.addEventListener("mouseenter", () => queueShowHeader(120));
-      handle.addEventListener("focus", () => showHeader(false));
-      handle.addEventListener("mouseleave", (e) => queueHideHeader(e, 220));
-      handle.addEventListener("blur", (e) => queueHideHeader(e, 120));
+      handle.addEventListener("mouseenter", () => {
+        if (isMobilePeekToggle()) return;
+        queueShowHeader(120);
+      });
+      handle.addEventListener("focus", () => {
+        if (isMobilePeekToggle()) return;
+        showHeader(false);
+      });
+      handle.addEventListener("mouseleave", (e) => {
+        if (isMobilePeekToggle()) return;
+        queueHideHeader(e, 220);
+      });
+      handle.addEventListener("blur", (e) => {
+        if (isMobilePeekToggle()) return;
+        queueHideHeader(e, 120);
+      });
       handle.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -2688,16 +2717,28 @@
 
     if (!document.body.dataset.mobilePeekOutsideBound) {
       document.body.dataset.mobilePeekOutsideBound = "1";
-      document.addEventListener("pointerdown", (e) => {
+      document.addEventListener("click", (e) => {
         if (!isMobilePeekToggle()) return;
         if (!isHidden() || !isPinned()) return;
         const target = e.target;
         if (target?.closest?.(".reader-header-peek-handle, header")) return;
-        document.body.classList.remove("reader-header-peek-pinned");
-        document.body.classList.remove("reader-header-peek");
-        syncHandleToggleState();
-        syncReaderSidePanels();
+        const readerHead = document.querySelector(".reader-head");
+        const readerHeadBottom = readerHead?.getBoundingClientRect().bottom || 0;
+        if (Number.isFinite(e.clientY) && e.clientY <= readerHeadBottom) return;
+        window.setTimeout(hidePinnedHeaderNow, 0);
       }, true);
+    }
+
+    const rb = document.getElementById("readerBody");
+    if (rb && !rb.dataset.mobilePeekScrollBound) {
+      rb.dataset.mobilePeekScrollBound = "1";
+      rb.addEventListener("scroll", () => {
+        if (!isMobilePeekToggle()) return;
+        if (!isHidden() || !isPinned()) return;
+        const scrollTop = Math.max(0, rb.scrollTop || 0);
+        if (scrollTop > mobilePeekPinnedScrollTop + 2) hidePinnedHeaderNow();
+        else mobilePeekPinnedScrollTop = Math.min(mobilePeekPinnedScrollTop, scrollTop);
+      }, { passive: true });
     }
 
     syncHandleToggleState();
@@ -4012,8 +4053,42 @@
   // Desktop remains completely unaffected (no coarse pointer = desktop).
 
   const MOBILE_PHONE_NARROW_MAX = 480;
+  const MOBILE_PEEK_RATIO_MIN = 1.5;
+  const MOBILE_PEEK_RATIO_MAX = 2;
+  const MOBILE_PEEK_RATIO_SE = { width: 375, height: 667 };
+  const MOBILE_PEEK_RATIO_PRO_MAX = { width: 430, height: 932 };
 
   const _mob = { mode: "desktop", panel: "reader", hubSearchToggle: false, transitionTimer: 0 };
+
+  const syncMobilePeekHandleRatio = () => {
+    const b = document.body;
+    if (!b || pageType() !== "reader") return;
+    if (!b.classList.contains("is-phone")) {
+      b.style.removeProperty("--reader-mobile-peek-ratio");
+      return;
+    }
+    const viewport = window.visualViewport || window;
+    const rawWidth = Math.max(1, viewport.width || window.innerWidth || 1);
+    const rawHeight = Math.max(1, viewport.height || window.innerHeight || 1);
+    const narrow = Math.min(rawWidth, rawHeight);
+    const tall = Math.max(rawWidth, rawHeight);
+    let progress = 0;
+    if (narrow <= MOBILE_PEEK_RATIO_SE.width || tall <= MOBILE_PEEK_RATIO_SE.height) {
+      progress = 0;
+    } else if (narrow >= MOBILE_PEEK_RATIO_PRO_MAX.width || tall >= MOBILE_PEEK_RATIO_PRO_MAX.height) {
+      progress = 1;
+    } else {
+      const narrowProgress =
+        (narrow - MOBILE_PEEK_RATIO_SE.width) /
+        (MOBILE_PEEK_RATIO_PRO_MAX.width - MOBILE_PEEK_RATIO_SE.width);
+      const tallProgress =
+        (tall - MOBILE_PEEK_RATIO_SE.height) /
+        (MOBILE_PEEK_RATIO_PRO_MAX.height - MOBILE_PEEK_RATIO_SE.height);
+      progress = Math.max(0, Math.min(1, (narrowProgress + tallProgress) / 2));
+    }
+    const ratio = MOBILE_PEEK_RATIO_MIN + ((MOBILE_PEEK_RATIO_MAX - MOBILE_PEEK_RATIO_MIN) * progress);
+    b.style.setProperty("--reader-mobile-peek-ratio", ratio.toFixed(4));
+  };
 
   const isMobileReaderViewportLocked = () =>
     pageType() === "reader" &&
@@ -4074,9 +4149,13 @@
     b.classList.toggle("is-landscape", isMobile && !mode.endsWith("portrait"));
     document.documentElement.classList.toggle("reader-mobile-viewport-lock", isMobile && pageType() === "reader");
     if (isMobile && pageType() === "reader") window.scrollTo(0, 0);
+    syncMobilePeekHandleRatio();
     scheduleMobileReaderFooterScale();
     const readerPage = pageType() === "reader";
-    if (readerPage) ensureReaderTablePanel();
+    if (readerPage) {
+      ensureReaderTablePanel();
+      ensureReaderEndPad();
+    }
     // Remove first-pass mobile bottom rail if present.
     const legacyRail = document.getElementById("mobileNavRail");
     if (legacyRail) legacyRail.remove();
@@ -4227,6 +4306,12 @@
   applyMobileMode();
   // Re-detect on resize / orientation change
   window.addEventListener("resize", applyMobileMode);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => {
+      syncMobilePeekHandleRatio();
+      ensureReaderEndPad();
+    });
+  }
   if (screen.orientation) {
     screen.orientation.addEventListener("change", () => {
       requestAnimationFrame(applyMobileMode);
