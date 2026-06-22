@@ -818,7 +818,13 @@
     syncReaderHeaderToolExpansion();
   };
 
+  const readerSearchHasActiveQuery = () => {
+    const input = $("#findInput");
+    return !!(input && String(input.value || "").trim());
+  };
+
   const closeReaderSearchPanel = () => {
+    if (document.body) document.body.classList.remove("reader-search-inbound");
     const panel = $("#readerSearchPanel");
     if (panel) {
       panel.classList.remove("is-open");
@@ -828,7 +834,7 @@
         panel.dataset.hideToolsToken = token;
         window.setTimeout(() => {
           if (!panel || panel.dataset.hideToolsToken !== token) return;
-          if (!panel.classList.contains("is-open")) wrap.classList.remove("tools-visible");
+          if (!panel.classList.contains("is-open") && !readerSearchHasActiveQuery()) wrap.classList.remove("tools-visible");
         }, 190);
       }
     }
@@ -1046,14 +1052,8 @@
         return;
       }
       if (!e.target.closest(".mode-switcher-wrap") && !e.target.closest(".mode-switcher-menu")) closeModeMenus();
-      if (
-        pageType() === "reader" &&
-        $("#readerSearchPanel")?.classList.contains("is-open") &&
-        !e.target.closest("#readerSearchPanel") &&
-        !e.target.closest("#searchToggle")
-      ) {
-        closeReaderSearchPanel();
-      }
+      // The search panel intentionally stays open on outside clicks / scrolling.
+      // It is only dismissed via its Close button or by opening the mode switcher.
     });
 
     document.addEventListener("keydown", (e) => {
@@ -2420,7 +2420,7 @@
     setBodyStyleVar("--reader-header-size", `${metrics.headerHeight}px`);
     setBodyStyleVar("--reader-header-shift", `${headerShift}px`);
     document.body.classList.toggle("reader-header-hidden", isHeaderHidden);
-    if (!isHeaderHidden) {
+    if (!isHeaderHidden && !document.body.classList.contains("reader-search-inbound")) {
       document.body.classList.remove("reader-header-peek");
       document.body.classList.remove("reader-header-peek-pinned");
     }
@@ -2486,27 +2486,6 @@
         syncReaderTableFixedLane();
       }
     }
-    if (syncReaderBodyViewportClamp()) requestAnimationFrame(ensureReaderEndPad);
-  };
-
-  const syncReaderBodyViewportClamp = () => {
-    if (pageType() !== "reader") return false;
-    const rb = $("#readerBody");
-    if (!rb || !document.body) return false;
-    if (document.body.classList.contains("is-phone")) {
-      const hadClamp = !!document.body.style.getPropertyValue("--reader-body-viewport-max-height");
-      document.body.style.removeProperty("--reader-body-viewport-max-height");
-      return hadClamp;
-    }
-
-    const rect = rb.getBoundingClientRect();
-    const viewportBottom = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight || 0;
-    const visibleHeight = Math.max(180, Math.floor(viewportBottom - Math.max(0, rect.top)));
-    const nextValue = `${visibleHeight}px`;
-    const prevValue = document.body.style.getPropertyValue("--reader-body-viewport-max-height");
-    if (prevValue === nextValue) return false;
-    document.body.style.setProperty("--reader-body-viewport-max-height", nextValue);
-    return true;
   };
 
   const ensureReaderEndPad = () => {
@@ -2531,42 +2510,8 @@
       });
     }
 
-    syncReaderBodyViewportClamp();
-
-    const readerReturnStopBottom = () => {
-      const terminalToggle = document.querySelector("#dt-toggle-btn");
-      if (!terminalToggle) return null;
-
-      const controls = [terminalToggle];
-      if (document.body.classList.contains("is-mobile")) {
-        const quickJumpToggle = document.querySelector("#cardLink");
-        if (quickJumpToggle) controls.push(quickJumpToggle);
-      }
-
-      const bottoms = controls
-        .map((control) => {
-          const rect = control.getBoundingClientRect();
-          return rect.width > 0 && rect.height > 0 ? rect.bottom : null;
-        })
-        .filter((bottom) => Number.isFinite(bottom));
-
-      if (!bottoms.length) return null;
-      return document.body.classList.contains("is-mobile")
-        ? Math.max(...bottoms)
-        : bottoms[0];
-    };
-
     const lineHeight = Number.parseFloat(getComputedStyle(out || rb).lineHeight) || 24;
-    const readerHeight = Math.max(0, rb.clientHeight || 0);
-    const buttonHeight = Math.max(0, btn?.offsetHeight || 0);
-    const readerRect = rb.getBoundingClientRect();
-    const targetBottom = readerReturnStopBottom();
-    const alignedPadGap = Number.isFinite(targetBottom)
-      ? Math.ceil(buttonHeight + Math.max(0, readerRect.bottom - targetBottom))
-      : 0;
-    const viewportGap = Math.round(readerHeight * (document.body.classList.contains("is-phone") ? 0.34 : 0.42));
-    const buttonGap = Math.round(buttonHeight * 2);
-    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2), buttonGap, viewportGap, alignedPadGap);
+    const bottomLineGap = Math.max(24, Math.round(lineHeight * 2));
     const padHeightNow = pad.offsetHeight;
     const naturalScrollHeight = Math.max(0, rb.scrollHeight - padHeightNow);
     const maxWithoutPad = Math.max(0, naturalScrollHeight - rb.clientHeight);
@@ -2575,30 +2520,8 @@
     const targetScroll = lastHeading ? readerScrollTopForHeading(rb, lastHeading) : 0;
     const requiredExtra = Math.max(0, Math.ceil(targetScroll - maxWithoutPad));
     const finalPad = bottomLineGap + requiredExtra;
-    const maxButtonOffset = Math.max(0, finalPad - buttonHeight);
-    const alignedButtonOffset = Number.isFinite(targetBottom)
-      ? targetBottom - readerRect.bottom + finalPad - buttonHeight
-      : maxButtonOffset / 2;
-    const buttonOffset = Math.max(0, Math.min(maxButtonOffset, Math.round(alignedButtonOffset)));
-    pad.style.setProperty("--reader-end-pad-height", `${finalPad}px`);
-    pad.style.setProperty("--reader-return-top-offset", `${buttonOffset}px`);
+    pad.style.minHeight = `${finalPad}px`;
   };
-
-  let readerEndPadSyncRaf = 0;
-  const scheduleReaderEndPadSync = () => {
-    if (pageType() !== "reader") return;
-    if (readerEndPadSyncRaf) return;
-    readerEndPadSyncRaf = window.requestAnimationFrame(() => {
-      readerEndPadSyncRaf = 0;
-      ensureReaderEndPad();
-    });
-  };
-  window.addEventListener("bcode:reader-floating-controls-positioned", scheduleReaderEndPadSync);
-  window.addEventListener("load", () => {
-    [0, 120, 360, 900].forEach((delay) => {
-      window.setTimeout(scheduleReaderEndPadSync, delay);
-    });
-  });
 
   const ensureReaderHeaderPeekHandle = () => {
     if (pageType() !== "reader") return;
@@ -2619,7 +2542,6 @@
       handleHost.appendChild(handle);
     };
     let handle = document.querySelector(".reader-header-peek-handle");
-    let mobilePeekPinnedScrollTop = 0;
     if (!handle) {
       handle = document.createElement("button");
       handle.type = "button";
@@ -2700,14 +2622,6 @@
       syncHandleToggleState();
       syncReaderSidePanels();
     };
-    const hidePinnedHeaderNow = () => {
-      if (!isHidden()) return;
-      if (!isPinned()) return;
-      document.body.classList.remove("reader-header-peek-pinned");
-      document.body.classList.remove("reader-header-peek");
-      syncHandleToggleState();
-      syncReaderSidePanels();
-    };
     const queueHideHeader = (e, delay = 220) => {
       clearHoverTimer();
       const next = e && e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget : null;
@@ -2735,30 +2649,14 @@
       }
       clearHoverTimer();
       showHeader(true);
-      if (isMobilePeekToggle()) {
-        const rb = document.getElementById("readerBody");
-        mobilePeekPinnedScrollTop = Math.max(0, rb?.scrollTop || 0);
-      }
     };
 
     if (!handle.dataset.bound) {
       handle.dataset.bound = "1";
-      handle.addEventListener("mouseenter", () => {
-        if (isMobilePeekToggle()) return;
-        queueShowHeader(120);
-      });
-      handle.addEventListener("focus", () => {
-        if (isMobilePeekToggle()) return;
-        showHeader(false);
-      });
-      handle.addEventListener("mouseleave", (e) => {
-        if (isMobilePeekToggle()) return;
-        queueHideHeader(e, 220);
-      });
-      handle.addEventListener("blur", (e) => {
-        if (isMobilePeekToggle()) return;
-        queueHideHeader(e, 120);
-      });
+      handle.addEventListener("mouseenter", () => queueShowHeader(120));
+      handle.addEventListener("focus", () => showHeader(false));
+      handle.addEventListener("mouseleave", (e) => queueHideHeader(e, 220));
+      handle.addEventListener("blur", (e) => queueHideHeader(e, 120));
       handle.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -2790,28 +2688,16 @@
 
     if (!document.body.dataset.mobilePeekOutsideBound) {
       document.body.dataset.mobilePeekOutsideBound = "1";
-      document.addEventListener("click", (e) => {
+      document.addEventListener("pointerdown", (e) => {
         if (!isMobilePeekToggle()) return;
         if (!isHidden() || !isPinned()) return;
         const target = e.target;
         if (target?.closest?.(".reader-header-peek-handle, header")) return;
-        const readerHead = document.querySelector(".reader-head");
-        const readerHeadBottom = readerHead?.getBoundingClientRect().bottom || 0;
-        if (Number.isFinite(e.clientY) && e.clientY <= readerHeadBottom) return;
-        window.setTimeout(hidePinnedHeaderNow, 0);
+        document.body.classList.remove("reader-header-peek-pinned");
+        document.body.classList.remove("reader-header-peek");
+        syncHandleToggleState();
+        syncReaderSidePanels();
       }, true);
-    }
-
-    const rb = document.getElementById("readerBody");
-    if (rb && !rb.dataset.mobilePeekScrollBound) {
-      rb.dataset.mobilePeekScrollBound = "1";
-      rb.addEventListener("scroll", () => {
-        if (!isMobilePeekToggle()) return;
-        if (!isHidden() || !isPinned()) return;
-        const scrollTop = Math.max(0, rb.scrollTop || 0);
-        if (scrollTop > mobilePeekPinnedScrollTop + 2) hidePinnedHeaderNow();
-        else mobilePeekPinnedScrollTop = Math.min(mobilePeekPinnedScrollTop, scrollTop);
-      }, { passive: true });
     }
 
     syncHandleToggleState();
@@ -2831,11 +2717,11 @@
     const headingScrollTopCache = new Map();
     const sublists = [];
     const tocEntryEls = [];
+    const searchableTocEntries = [];
     const manualExpanded = new Set();
     let pinnedEntryEl = null;
     let mobileQuickJumpSelectionTimer = 0;
-    let quickJumpSelectionRaf = 0;
-    let quickJumpProgrammaticScrollUntil = 0;
+    let mobileQuickJumpSelectionRaf = 0;
     let suppressTocFollowScrollUntil = 0;
     let refreshJumpLinks = () => { };
     list.innerHTML = "";
@@ -2867,15 +2753,6 @@
       clearTimeout(deferredVisibleTimer);
       deferredVisibleTimer = 0;
     };
-    const isQuickJumpProgrammaticScroll = () => quickJumpProgrammaticScrollUntil > performance.now();
-    const cancelQuickJumpProgrammaticScroll = (prepareManualFollow = true) => {
-      quickJumpProgrammaticScrollUntil = 0;
-      if (quickJumpSelectionRaf) {
-        cancelAnimationFrame(quickJumpSelectionRaf);
-        quickJumpSelectionRaf = 0;
-      }
-      if (prepareManualFollow) lastCurId = "";
-    };
     const isMobileQuickJumpPanelOpen = () =>
       !!document.body &&
       document.body.classList.contains("is-mobile") &&
@@ -2895,53 +2772,37 @@
       const cached = headingScrollTopCache.get(heading.id);
       return Number.isFinite(cached) ? cached : readerScrollTopForHeading(rb, heading);
     };
-    const animateQuickJumpReaderScroll = (heading) => {
+    const animateMobileQuickJumpReaderScroll = (heading) => {
       if (!heading) return;
-      cancelQuickJumpProgrammaticScroll(false);
+      if (mobileQuickJumpSelectionRaf) {
+        cancelAnimationFrame(mobileQuickJumpSelectionRaf);
+        mobileQuickJumpSelectionRaf = 0;
+      }
       clearTimeout(mobileQuickJumpSelectionTimer);
       const startTop = rb.scrollTop;
       const targetTop = cachedReaderScrollTopForHeading(heading);
       const distance = Math.abs(targetTop - startTop);
-      if (distance <= 1) {
-        rb.scrollTop = targetTop;
-        quickJumpProgrammaticScrollUntil = performance.now() + 360;
-        suppressTocFollowScroll(520);
-        active();
-        setTocActiveEntry(heading.id);
-        closeMobileQuickJumpAfterSelection(heading.id);
-        return;
-      }
-      const isMobileReader = document.body.classList.contains("is-mobile");
-      const speed = isMobileReader ? 12 : 9;
-      const minDuration = isMobileReader ? 780 : 720;
-      const maxDuration = isMobileReader ? 2475 : 3600;
-      const duration = Math.max(minDuration, Math.min(maxDuration, Math.round(distance / speed)));
+      const duration = Math.max(520, Math.min(1650, Math.round(distance / 18)));
       const startedAt = performance.now();
-      quickJumpProgrammaticScrollUntil = startedAt + duration + 360;
-      suppressTocFollowScroll(duration + 520);
       const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
       const tick = (now) => {
-        quickJumpSelectionRaf = 0;
-        if (document.body.classList.contains("is-mobile") && !isMobileQuickJumpPanelOpen()) {
-          quickJumpProgrammaticScrollUntil = 0;
-          return;
-        }
+        mobileQuickJumpSelectionRaf = 0;
+        if (!isMobileQuickJumpPanelOpen()) return;
         const progress = duration > 0 ? Math.min(1, (now - startedAt) / duration) : 1;
         rb.scrollTop = startTop + ((targetTop - startTop) * ease(progress));
         active();
         if (progress < 1) {
-          quickJumpSelectionRaf = requestAnimationFrame(tick);
+          mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
           return;
         }
         rb.scrollTop = targetTop;
-        quickJumpProgrammaticScrollUntil = performance.now() + 360;
         active();
         setTocActiveEntry(heading.id);
         window.setTimeout(() => setTocActiveEntry(heading.id), 80);
         window.setTimeout(() => setTocActiveEntry(heading.id), 450);
         closeMobileQuickJumpAfterSelection(heading.id);
       };
-      quickJumpSelectionRaf = requestAnimationFrame(tick);
+      mobileQuickJumpSelectionRaf = requestAnimationFrame(tick);
     };
 
     const getVisibleTocEntries = () =>
@@ -2994,6 +2855,7 @@
       const subEntries = g.items.filter((entry) => entry.number && entry.number.includes("."));
       const hasChildren = subEntries.length > 0;
       const groupKey = g.top || `group-${groupIndex + 1}`;
+      const groupSearchEntry = groupHeading || g.items[0] || null;
 
       const groupItem = document.createElement("li");
       groupItem.className = "toc-group";
@@ -3004,13 +2866,40 @@
       toggle.dataset.groupKey = groupKey;
       const groupNumber = g.number || String(groupIndex + 1);
       const groupNumberText = groupNumber.includes(".") ? groupNumber : `${groupNumber}.`;
-      toggle.innerHTML =
-        `<span class="toc-group-title">${esc(groupNumberText)} ${esc(g.title)}</span>` +
-        (hasChildren
-          ? '<span class="toc-caret-hit" role="button" tabindex="-1" aria-label="Toggle sub sections"><span class="toc-caret" aria-hidden="true">&#9662;</span></span>'
-          : "");
+      const groupTitle = cleanHeadingLabel(g.title);
+      const groupSearchIcon = document.createElement("img");
+      groupSearchIcon.className = "toc-group-search-icon";
+      groupSearchIcon.src = iconPath("magnify.svg");
+      groupSearchIcon.alt = "";
+      groupSearchIcon.setAttribute("aria-hidden", "true");
+      toggle.appendChild(groupSearchIcon);
+      const groupTitleEl = document.createElement("span");
+      groupTitleEl.className = "toc-group-title";
+      groupTitleEl.dataset.plainTitle = `${groupNumberText} ${groupTitle}`;
+      groupTitleEl.textContent = groupTitleEl.dataset.plainTitle;
+      toggle.appendChild(groupTitleEl);
+      if (hasChildren) {
+        const caretHit = document.createElement("span");
+        caretHit.className = "toc-caret-hit";
+        caretHit.setAttribute("role", "button");
+        caretHit.setAttribute("tabindex", "-1");
+        caretHit.setAttribute("aria-label", "Toggle sub sections");
+        caretHit.innerHTML = '<span class="toc-caret" aria-hidden="true">&#9662;</span>';
+        toggle.appendChild(caretHit);
+      }
       toggle.setAttribute("aria-expanded", "false");
       tocEntryEls.push(toggle);
+      if (groupSearchEntry && groupSearchEntry.heading) {
+        searchableTocEntries.push({
+          el: toggle,
+          labelEl: groupTitleEl,
+          heading: groupSearchEntry.heading,
+          title: groupTitleEl.dataset.plainTitle || groupTitle,
+          isDecimal: false,
+          groupKey,
+          sub: null
+        });
+      }
 
       const sub = document.createElement("ul");
       sub.className = "toc-sublist is-collapsed";
@@ -3021,21 +2910,44 @@
 
         const a = document.createElement("a");
         a.href = `#${entry.heading.id}`;
+        const searchIcon = document.createElement("img");
+        searchIcon.className = "toc-item-search-icon";
+        searchIcon.src = iconPath("magnify.svg");
+        searchIcon.alt = "";
+        searchIcon.setAttribute("aria-hidden", "true");
         const num = document.createElement("span");
         num.className = "toc-item-number";
         const entryNumber = entry.number || (g.number ? `${g.number}.${itemIndex + 1}` : `${groupIndex + 1}.${itemIndex + 1}`);
         num.textContent = entryNumber;
+        a.dataset.plainTitle = `${entryNumber} ${cleanHeadingLabel(entry.heading.textContent)}`;
         const label = document.createElement("span");
         label.className = "toc-item-label";
-        label.textContent = cleanHeadingLabel(entry.heading.textContent);
+        label.dataset.plainTitle = cleanHeadingLabel(entry.heading.textContent);
+        label.textContent = label.dataset.plainTitle;
+        a.appendChild(searchIcon);
         a.appendChild(num);
         a.appendChild(label);
         tocEntryEls.push(a);
+        searchableTocEntries.push({
+          el: a,
+          labelEl: label,
+          heading: entry.heading,
+          title: a.dataset.plainTitle || "",
+          isDecimal: true,
+          groupKey,
+          sub
+        });
         a.onclick = (e) => {
           e.preventDefault();
           manualExpanded.add(groupKey);
           setPinnedEntry(a);
-          animateQuickJumpReaderScroll(entry.heading);
+          if (isMobileQuickJumpPanelOpen()) {
+            suppressTocFollowScroll(5000);
+            animateMobileQuickJumpReaderScroll(entry.heading);
+          } else {
+            lockTocAutoScroll(TOC_SUBLIST_TRANSITION_MS);
+            scrollReaderToHeading(rb, entry.heading, true);
+          }
         };
 
         li.appendChild(a);
@@ -3069,7 +2981,12 @@
           }
           if (groupHeading && groupHeading.heading) {
             setPinnedEntry(toggle);
-            animateQuickJumpReaderScroll(groupHeading.heading);
+            if (isMobileQuickJumpPanelOpen()) {
+              suppressTocFollowScroll(5000);
+              animateMobileQuickJumpReaderScroll(groupHeading.heading);
+            } else {
+              scrollReaderToHeading(rb, groupHeading.heading, true);
+            }
           }
         };
       } else {
@@ -3079,7 +2996,12 @@
           e.preventDefault();
           if (!groupHeading || !groupHeading.heading) return;
           setPinnedEntry(toggle);
-          animateQuickJumpReaderScroll(groupHeading.heading);
+          if (isMobileQuickJumpPanelOpen()) {
+            suppressTocFollowScroll(5000);
+            animateMobileQuickJumpReaderScroll(groupHeading.heading);
+          } else {
+            scrollReaderToHeading(rb, groupHeading.heading, true);
+          }
         };
       }
 
@@ -3098,6 +3020,60 @@
       groupItem.appendChild(sub);
       list.appendChild(groupItem);
       sublists.push({ sub, toggle, hasChildren });
+    });
+
+    if (currentReaderSlug() === "intro") {
+      list.querySelectorAll(".toc-group-title").forEach((el) => {
+        const plain = el.dataset.plainTitle || "";
+        if (plain.includes("32-Parameter") && plain.includes("(and Why")) {
+          const idx = plain.indexOf("(and Why");
+          el.innerHTML = esc(plain.slice(0, idx)) + "<br>" + esc(plain.slice(idx));
+        }
+      });
+    }
+
+    const applyTocSearchHighlights = (query = "") => {
+      const q = String(query || "").trim();
+      const normalized = q.toLowerCase();
+
+      // Build set of heading IDs that have content marks in their section
+      const headingsWithContentMarks = new Set();
+      if (normalized && out) {
+        let currentHeadingId = "";
+        const walker = document.createNodeIterator(out, NodeFilter.SHOW_ELEMENT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (/^H[1-6]$/i.test(node.tagName) && node.id) {
+            currentHeadingId = node.id;
+          } else if (node.tagName === "MARK" && node.classList.contains("bh") && currentHeadingId) {
+            headingsWithContentMarks.add(currentHeadingId);
+          }
+        }
+      }
+
+      const groupMatches = new Set();
+      searchableTocEntries.forEach((entry) => {
+        const title = entry.title || entry.labelEl?.dataset.plainTitle || entry.labelEl?.textContent || "";
+        const titleMatch = !!(normalized && title.toLowerCase().includes(normalized));
+        const contentMatch = !!(entry.heading && entry.heading.id && headingsWithContentMarks.has(entry.heading.id));
+        const matches = titleMatch || contentMatch;
+        entry.el.classList.remove("toc-search-child-match");
+        entry.el.classList.toggle("toc-search-match", matches);
+        entry.el.classList.toggle("toc-search-title-match", matches);
+        if (entry.labelEl) {
+          entry.labelEl.textContent = entry.labelEl.dataset.plainTitle || title;
+        }
+        if (matches && entry.isDecimal && entry.groupKey) groupMatches.add(entry.groupKey);
+      });
+      searchableTocEntries.forEach((entry) => {
+        if (entry.isDecimal) return;
+        if (!entry.groupKey || !groupMatches.has(entry.groupKey)) return;
+        entry.el.classList.add("toc-search-match", "toc-search-child-match");
+      });
+      pane.classList.toggle("toc-searching", !!normalized);
+    };
+    document.body.addEventListener("readersearchstatechange", (event) => {
+      applyTocSearchHighlights(event?.detail?.query || "");
     });
 
     let allExpanded = false;
@@ -3311,9 +3287,8 @@
           lastActiveToggle.classList.add("is-current-block");
         }
       }
-      const programmaticQuickJumpScroll = isQuickJumpProgrammaticScroll();
-      if (toggleChanged && !programmaticQuickJumpScroll) applyExpandState(lastActiveToggle, curEntry);
-      if (curEntry && !programmaticQuickJumpScroll) keepEntryVisible(curEntry.link || curEntry.toggle);
+      if (toggleChanged) applyExpandState(lastActiveToggle, curEntry);
+      if (curEntry) keepEntryVisible(curEntry.link || curEntry.toggle);
     };
 
     let activeRaf = 0;
@@ -3337,9 +3312,6 @@
     rb.addEventListener("scroll", scheduleActive, { passive: true });
     rb.addEventListener("scroll", scheduleChrome, { passive: true });
     rb.addEventListener("scroll", closeReaderModeForMobileReaderScroll, { passive: true });
-    ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
-      rb.addEventListener(eventName, cancelQuickJumpProgrammaticScroll, { passive: true });
-    });
     window.addEventListener("resize", () => {
       invalidateReaderChromeMetrics();
       setUnifiedTocHeight();
@@ -3634,7 +3606,7 @@
       panel.dataset.hideToolsToken = token;
       window.setTimeout(() => {
         if (!panel || panel.dataset.hideToolsToken !== token) return;
-        if (!panel.classList.contains("is-open")) inputWrap.classList.remove("tools-visible");
+        if (!panel.classList.contains("is-open") && !readerSearchHasActiveQuery()) inputWrap.classList.remove("tools-visible");
       }, 190);
     };
 
@@ -3643,9 +3615,12 @@
       closeModeMenus();
       panel.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      if (!open) toggle.blur();
+      if (!open) {
+        toggle.blur();
+        if (document.body) document.body.classList.remove("reader-search-inbound");
+      }
       if (open) {
-        if (inputWrap) inputWrap.classList.remove("tools-visible");
+        if (inputWrap) inputWrap.classList.toggle("tools-visible", readerSearchHasActiveQuery());
       } else {
         deferHideInlineTools();
       }
@@ -3783,6 +3758,8 @@
       syncReaderToolRow();
       syncReaderHeaderToolExpansion();
       const jumpToInitialPosition = () => {
+        const params = new URLSearchParams(location.search);
+        if (params.has("search") && String(params.get("q") || "").trim()) return;
         if (!scrollReaderToHash()) scrollReaderToJump();
       };
       requestAnimationFrame(() => requestAnimationFrame(jumpToInitialPosition));
@@ -3815,7 +3792,12 @@
       });
     }
 
-    const q = new URLSearchParams(location.search).get("q") || "";
+    const initialSearchParams = new URLSearchParams(location.search);
+    const q = initialSearchParams.get("q") || "";
+    const searchOpenParam = initialSearchParams.has("search");
+    const requestedMatchIndex = Number.parseInt(initialSearchParams.get("matchIndex") || "", 10);
+    const READER_SEARCH_MIN_CHARS = 3;
+    const READER_SEARCH_DEBOUNCE_MS = 500;
     const i = $("#findInput");
     const fb = $("#findBtn");
     const fp = $("#findPrevBtn");
@@ -3826,6 +3808,7 @@
     const out = $("#content");
     const panel = $("#readerSearchPanel");
     const inputWrap = panel ? panel.querySelector(".reader-search-input-wrap") : null;
+    const searchToggle = $("#searchToggle");
 
     const cardLink = $("#cardLink");
     if (cardLink) cardLink.classList.remove("primary");
@@ -3834,14 +3817,37 @@
     let marks = [];
     let activeIndex = -1;
     let lastQuery = "";
-    const deferHideInlineTools = () => {
-      if (!inputWrap || !panel) return;
-      const token = String(Date.now());
-      panel.dataset.hideToolsToken = token;
-      window.setTimeout(() => {
-        if (!panel || panel.dataset.hideToolsToken !== token) return;
-        if (!panel.classList.contains("is-open")) inputWrap.classList.remove("tools-visible");
-      }, 190);
+    let searchDebounceTimer = 0;
+    const clearSearchDebounce = () => {
+      if (!searchDebounceTimer) return;
+      window.clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = 0;
+    };
+    const syncQuickJumpSearchHighlights = (query = "") => {
+      if (!document.body) return;
+      document.body.dispatchEvent(new CustomEvent("readersearchstatechange", {
+        detail: { query: String(query || "").trim() }
+      }));
+    };
+    const pinReaderSearchHeader = () => {
+      if (!document.body || !searchOpenParam) return;
+      document.body.classList.add("reader-header-peek", "reader-header-peek-pinned", "reader-search-inbound");
+      document.body.style.setProperty("--reader-card-header-shift", "0px");
+      if (panel) panel.classList.add("is-open");
+      if (searchToggle) searchToggle.setAttribute("aria-expanded", "true");
+      if (inputWrap) inputWrap.classList.add("tools-visible");
+      syncReaderHeaderToolExpansion();
+      requestAnimationFrame(() => {
+        updateReaderChromeMotion();
+        syncReaderPeekHandlePosition();
+      });
+    };
+    const openSearchPanelFromInbound = () => {
+      if (!panel || !searchOpenParam) return;
+      panel.classList.add("is-open");
+      if (searchToggle) searchToggle.setAttribute("aria-expanded", "true");
+      if (inputWrap) inputWrap.classList.add("tools-visible");
+      syncReaderHeaderToolExpansion();
     };
 
     const syncCounter = () => {
@@ -3851,23 +3857,60 @@
       cn.textContent = `${current}/${total}`;
     };
 
+    const getJumpHeading = () => {
+      const jump = initialSearchParams.get("jump") || "";
+      if (!jump.trim()) return null;
+      const wanted = cleanHeadingLabel(normalizeMojibake(jump)).toLowerCase();
+      if (!wanted) return null;
+      const hs = [...out.querySelectorAll("h1,h2,h3,h4")];
+      const score = (h) => {
+        const label = cleanHeadingLabel(h.textContent || "").toLowerCase();
+        if (!label) return -1;
+        if (label === wanted) return 3;
+        if (label.startsWith(wanted)) return 2;
+        if (label.includes(wanted) || wanted.includes(label)) return 1;
+        return -1;
+      };
+      return hs
+        .map((h) => ({ h, s: score(h) }))
+        .filter((x) => x.s >= 0)
+        .sort((a, b) => b.s - a.s)[0]?.h || null;
+    };
+
+    const nearestMarkIndexForJump = () => {
+      const heading = getJumpHeading();
+      if (!heading || !marks.length) return -1;
+      const headingTop = heading.getBoundingClientRect().top;
+      return marks
+        .map((mark, index) => ({ index, distance: Math.abs(mark.getBoundingClientRect().top - headingTop) }))
+        .sort((a, b) => a.distance - b.distance)[0]?.index ?? -1;
+    };
+
     const setActiveMark = (index, smooth) => {
       marks.forEach((m, idx) => m.classList.toggle("bh-active", idx === index));
       if (index >= 0 && marks[index]) {
-        marks[index].scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "center" });
+        const rb = $("#readerBody");
+        if (rb) {
+          const rbRect = rb.getBoundingClientRect();
+          const markRect = marks[index].getBoundingClientRect();
+          const markTopInRb = rb.scrollTop + (markRect.top - rbRect.top);
+          const target = markTopInRb - Math.round(rb.clientHeight / 2);
+          rb.scrollTo({ top: Math.max(0, target), behavior: smooth ? "smooth" : "auto" });
+        }
       }
       syncCounter();
     };
 
-    const runSearch = (value, step = 0) => {
+    const runSearch = (value, step = 0, options = {}) => {
       const qv = String(value || "").trim();
 
-      if (!qv) {
+      if (!qv || (!options.force && qv.length < READER_SEARCH_MIN_CHARS)) {
         findMarks(out, "");
         marks = [];
         activeIndex = -1;
         lastQuery = "";
         qLinks("");
+        syncQuickJumpSearchHighlights("");
         syncCounter();
         return;
       }
@@ -3876,10 +3919,19 @@
       if (!sameQuery) {
         findMarks(out, qv);
         marks = [...out.querySelectorAll("mark.bh")];
-        activeIndex = marks.length ? (step < 0 ? marks.length - 1 : 0) : -1;
+        let nextIndex = marks.length ? (step < 0 ? marks.length - 1 : 0) : -1;
+        if (marks.length && Number.isInteger(options.activeIndex)) {
+          nextIndex = Math.max(0, Math.min(marks.length - 1, options.activeIndex));
+        } else if (marks.length && options.preferJump) {
+          const jumpIndex = nearestMarkIndexForJump();
+          if (jumpIndex >= 0) nextIndex = jumpIndex;
+        }
+        activeIndex = nextIndex;
         lastQuery = qv;
         qLinks(qv);
-        setActiveMark(activeIndex, true);
+        syncQuickJumpSearchHighlights(qv);
+        setActiveMark(activeIndex, options.smooth !== false);
+        if (options.pinHeader) pinReaderSearchHeader();
         return;
       }
 
@@ -3887,76 +3939,156 @@
         findMarks(out, qv);
         marks = [...out.querySelectorAll("mark.bh")];
         activeIndex = marks.length ? (step < 0 ? marks.length - 1 : 0) : -1;
-        setActiveMark(activeIndex, true);
+        syncQuickJumpSearchHighlights(qv);
+        setActiveMark(activeIndex, options.smooth !== false);
+        if (options.pinHeader) pinReaderSearchHeader();
         return;
       }
 
       if (step !== 0) {
         activeIndex = (activeIndex + step + marks.length) % marks.length;
+      } else if (Number.isInteger(options.activeIndex)) {
+        activeIndex = Math.max(0, Math.min(marks.length - 1, options.activeIndex));
+      } else if (options.preferJump) {
+        const jumpIndex = nearestMarkIndexForJump();
+        if (jumpIndex >= 0) activeIndex = jumpIndex;
       }
-      setActiveMark(activeIndex, true);
+      syncQuickJumpSearchHighlights(qv);
+      setActiveMark(activeIndex, options.smooth !== false);
+      if (options.pinHeader) pinReaderSearchHeader();
     };
 
-    const closeSearchAndClear = () => {
-      if (i) i.value = "";
-      runSearch("", 0);
-      if (panel) panel.classList.remove("is-open");
-      deferHideInlineTools();
+    const runSearchIfReady = (value, step = 0, options = {}) => {
+      const qv = String(value || "").trim();
+      if (!qv || (!options.force && qv.length < READER_SEARCH_MIN_CHARS)) {
+        runSearch("", 0);
+        return false;
+      }
+      runSearch(qv, step, options);
+      return true;
     };
 
     if (fb) {
       fb.onclick = () => {
-        runSearch(i ? i.value : "", 1);
+        clearSearchDebounce();
+        runSearchIfReady(i ? i.value : "", 1, { force: true });
         if (inputWrap && String(i ? i.value : "").trim()) inputWrap.classList.add("tools-visible");
       };
     }
     if (fn) {
       fn.onclick = () => {
-        runSearch(i ? i.value : "", 1);
+        clearSearchDebounce();
+        runSearchIfReady(i ? i.value : "", 1, { force: true });
         if (inputWrap && String(i ? i.value : "").trim()) inputWrap.classList.add("tools-visible");
       };
     }
     if (fp) {
       fp.onclick = () => {
-        runSearch(i ? i.value : "", -1);
+        clearSearchDebounce();
+        runSearchIfReady(i ? i.value : "", -1, { force: true });
         if (inputWrap && String(i ? i.value : "").trim()) inputWrap.classList.add("tools-visible");
       };
     }
     if (fc) {
       fc.onclick = () => {
+        clearSearchDebounce();
         if (i) i.value = "";
         runSearch("", 0);
-        if (inputWrap) inputWrap.classList.add("tools-visible");
+        if (inputWrap) inputWrap.classList.remove("tools-visible");
         if (i) i.focus();
       };
     }
     if (cb) {
-      cb.onclick = closeSearchAndClear;
+      cb.onclick = closeReaderSearchPanel;
     }
     if (i) {
       i.addEventListener("input", () => {
-        runSearch(i.value, 0);
+        clearSearchDebounce();
+        const value = i.value;
+        if (String(value || "").trim().length < READER_SEARCH_MIN_CHARS) {
+          runSearch("", 0);
+        } else {
+          searchDebounceTimer = window.setTimeout(() => {
+            searchDebounceTimer = 0;
+            runSearchIfReady(value, 0, { smooth: false });
+          }, READER_SEARCH_DEBOUNCE_MS);
+        }
         if (!inputWrap) return;
         if (String(i.value || "").trim()) inputWrap.classList.add("tools-visible");
       });
       i.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === "ArrowDown") {
           e.preventDefault();
-          runSearch(i.value, 1);
+          clearSearchDebounce();
+          runSearchIfReady(i.value, 1, { force: true });
           if (inputWrap && String(i.value || "").trim()) inputWrap.classList.add("tools-visible");
         } else if (e.key === "ArrowUp") {
           e.preventDefault();
-          runSearch(i.value, -1);
+          clearSearchDebounce();
+          runSearchIfReady(i.value, -1, { force: true });
           if (inputWrap && String(i.value || "").trim()) inputWrap.classList.add("tools-visible");
         }
       });
     }
 
-    if (q) {
+    // As the reader scrolls, advance the active match (and counter) to the visible
+    // match nearest the top of the card — but only once the current active match
+    // has scrolled out of view, so it doesn't flicker while still on screen.
+    let activeMarkScrollRAF = 0;
+    const updateActiveMarkFromScroll = () => {
+      if (!marks.length) return;
+      const rb = $("#readerBody");
+      if (!rb) return;
+      const rbRect = rb.getBoundingClientRect();
+      const topEdge = rbRect.top;
+      const bottomEdge = rbRect.bottom;
+      const isVisible = (mark) => {
+        const r = mark.getBoundingClientRect();
+        return r.bottom > topEdge && r.top < bottomEdge;
+      };
+      if (activeIndex >= 0 && marks[activeIndex] && isVisible(marks[activeIndex])) return;
+      let bestIndex = -1;
+      let bestDistance = Infinity;
+      marks.forEach((mark, index) => {
+        if (!isVisible(mark)) return;
+        const distance = Math.abs(mark.getBoundingClientRect().top - topEdge);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestIndex = index;
+        }
+      });
+      if (bestIndex < 0 || bestIndex === activeIndex) return;
+      activeIndex = bestIndex;
+      marks.forEach((mark, index) => mark.classList.toggle("bh-active", index === bestIndex));
+      syncCounter();
+    };
+    const scheduleActiveMarkFromScroll = () => {
+      if (activeMarkScrollRAF) return;
+      activeMarkScrollRAF = requestAnimationFrame(() => {
+        activeMarkScrollRAF = 0;
+        updateActiveMarkFromScroll();
+      });
+    };
+    const readerBodyForMarkScroll = $("#readerBody");
+    if (readerBodyForMarkScroll) {
+      readerBodyForMarkScroll.addEventListener("scroll", scheduleActiveMarkFromScroll, { passive: true });
+    }
+
+    if (q && searchOpenParam) {
       if (i) i.value = q;
-      runSearch(q, 0);
+      openSearchPanelFromInbound();
+      const hasJump = !!(initialSearchParams.get("jump") || "").trim();
+      const useJump = hasJump || !Number.isInteger(requestedMatchIndex);
+      requestAnimationFrame(() => {
+        runSearchIfReady(q, 0, {
+          activeIndex: useJump ? undefined : requestedMatchIndex,
+          preferJump: useJump,
+          smooth: false
+        });
+      });
     } else {
       qLinks("");
+      syncQuickJumpSearchHighlights("");
       syncCounter();
     }
     if (shouldExportPreview()) {
@@ -4140,42 +4272,8 @@
   // Desktop remains completely unaffected (no coarse pointer = desktop).
 
   const MOBILE_PHONE_NARROW_MAX = 480;
-  const MOBILE_PEEK_RATIO_MIN = 1.5;
-  const MOBILE_PEEK_RATIO_MAX = 2;
-  const MOBILE_PEEK_RATIO_SE = { width: 375, height: 667 };
-  const MOBILE_PEEK_RATIO_PRO_MAX = { width: 430, height: 932 };
 
   const _mob = { mode: "desktop", panel: "reader", hubSearchToggle: false, transitionTimer: 0 };
-
-  const syncMobilePeekHandleRatio = () => {
-    const b = document.body;
-    if (!b || pageType() !== "reader") return;
-    if (!b.classList.contains("is-phone")) {
-      b.style.removeProperty("--reader-mobile-peek-ratio");
-      return;
-    }
-    const viewport = window.visualViewport || window;
-    const rawWidth = Math.max(1, viewport.width || window.innerWidth || 1);
-    const rawHeight = Math.max(1, viewport.height || window.innerHeight || 1);
-    const narrow = Math.min(rawWidth, rawHeight);
-    const tall = Math.max(rawWidth, rawHeight);
-    let progress = 0;
-    if (narrow <= MOBILE_PEEK_RATIO_SE.width || tall <= MOBILE_PEEK_RATIO_SE.height) {
-      progress = 0;
-    } else if (narrow >= MOBILE_PEEK_RATIO_PRO_MAX.width || tall >= MOBILE_PEEK_RATIO_PRO_MAX.height) {
-      progress = 1;
-    } else {
-      const narrowProgress =
-        (narrow - MOBILE_PEEK_RATIO_SE.width) /
-        (MOBILE_PEEK_RATIO_PRO_MAX.width - MOBILE_PEEK_RATIO_SE.width);
-      const tallProgress =
-        (tall - MOBILE_PEEK_RATIO_SE.height) /
-        (MOBILE_PEEK_RATIO_PRO_MAX.height - MOBILE_PEEK_RATIO_SE.height);
-      progress = Math.max(0, Math.min(1, (narrowProgress + tallProgress) / 2));
-    }
-    const ratio = MOBILE_PEEK_RATIO_MIN + ((MOBILE_PEEK_RATIO_MAX - MOBILE_PEEK_RATIO_MIN) * progress);
-    b.style.setProperty("--reader-mobile-peek-ratio", ratio.toFixed(4));
-  };
 
   const isMobileReaderViewportLocked = () =>
     pageType() === "reader" &&
@@ -4236,13 +4334,9 @@
     b.classList.toggle("is-landscape", isMobile && !mode.endsWith("portrait"));
     document.documentElement.classList.toggle("reader-mobile-viewport-lock", isMobile && pageType() === "reader");
     if (isMobile && pageType() === "reader") window.scrollTo(0, 0);
-    syncMobilePeekHandleRatio();
     scheduleMobileReaderFooterScale();
     const readerPage = pageType() === "reader";
-    if (readerPage) {
-      ensureReaderTablePanel();
-      ensureReaderEndPad();
-    }
+    if (readerPage) ensureReaderTablePanel();
     // Remove first-pass mobile bottom rail if present.
     const legacyRail = document.getElementById("mobileNavRail");
     if (legacyRail) legacyRail.remove();
@@ -4393,12 +4487,6 @@
   applyMobileMode();
   // Re-detect on resize / orientation change
   window.addEventListener("resize", applyMobileMode);
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", () => {
-      syncMobilePeekHandleRatio();
-      ensureReaderEndPad();
-    });
-  }
   if (screen.orientation) {
     screen.orientation.addEventListener("change", () => {
       requestAnimationFrame(applyMobileMode);

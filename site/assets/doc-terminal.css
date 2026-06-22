@@ -675,9 +675,34 @@ body[data-glass-mode="on"] .dt-pane-foot {
   word-break: break-word;
 }
 
-.dt-guide-bullet { color: var(--dt-fg); flex: 0 0 auto; }
+.dt-guide-bullet { color: var(--dt-fg); flex: 0 0 1.4ch; text-align: center; }
 .dt-guide-code   { flex: 0 0 auto; }
 .dt-guide-desc   { color: var(--dt-dim); flex: 1 1 auto; min-width: 0; }
+
+.dt-guide-rule .dt-guide-code {
+  flex-basis: 2.2ch;
+}
+
+.dt-guide-command .dt-guide-code,
+.dt-guide-example .dt-guide-code {
+  flex-basis: 10ch;
+}
+
+.dt-guide-example-title {
+  color: #d56cff;
+  font-weight: 700;
+}
+
+.dt-guide-continuation {
+  padding-left: 16.2ch;
+}
+
+.dt-guide-continuation code {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  background: transparent;
+}
 
 .dt-blank-line { height: var(--dt-rh); }
 
@@ -694,6 +719,23 @@ body[data-glass-mode="on"] .dt-pane-foot {
 
 .dt-output-prefix { color: var(--dt-fg); }
 
+.dt-response-tag {
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  font-weight: 700;
+}
+
+.dt-response-tag-ok {
+  color: #70ff66;
+  text-decoration-color: #70ff66;
+}
+
+.dt-response-tag-error {
+  color: #ff5b72;
+  text-decoration-color: #ff5b72;
+}
+
 .dt-state-line {
   display: flex;
   align-items: baseline;
@@ -702,8 +744,9 @@ body[data-glass-mode="on"] .dt-pane-foot {
 }
 
 .dt-state-bullet { color: var(--dt-fg); flex: 0 0 1ch; text-align: center; }
-.dt-state-key    { color: var(--dt-dim); flex: 0 0 auto; }
+.dt-state-key    { color: var(--dt-dim); flex: 0 0 19ch; }
 .dt-state-val    { color: var(--dt-fg); }
+.dt-state-enabled { color: #70ff66; }
 
 .dt-bcode-line pre,
 .dt-bcode-line code,

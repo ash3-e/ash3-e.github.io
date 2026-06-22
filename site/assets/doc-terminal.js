@@ -21,40 +21,46 @@ if (!document.querySelector(".reader-head")) {
 
 // ── Guide content (mirrors app.js) ───────────────────────────────────────────
 
-const GUIDE_ENTRIES = [
-  { cmd: "24A 0.0s",   desc: "set blob target" },
-  { cmd: "4.8B 0.0s",  desc: "set blob radius" },
-  { cmd: "0.18C 0.0s", desc: "raise buoyancy" },
-  { cmd: ">20A 0.0s",  desc: "clamp to at least 20 blobs" },
-  { cmd: "0.0q",        desc: "query current sim snapshot" },
-  { cmd: "1g",           desc: "enable glass rendering mode" },
-  { cmd: "0g",           desc: "disable glass rendering mode" },
+const GUIDE_QUERY_COMMANDS = [
+  { cmd: "Vq", desc: "query average absolute blob velocity" },
+  { cmd: "Rq", desc: "query average blob radius" },
 ];
 
-const GUIDE_NOTES = [
-  "A B C drive the lamp profile.",
-  "H I J K arrive from the sim snapshot.",
-  "u traffic stays in the unsolicited feed.",
-  "g toggles glass UI rendering layer.",
+const GUIDE_PRIMARY_COMMANDS = [
+  { cmd: "s", desc: "latches the line with the set command." },
+  { cmd: "q", desc: "queries the current lava-lamp state." },
+  { cmd: "r", desc: "reset configurable values" },
+  { cmd: "c", desc: "clear all loaded blobs" },
+  { cmd: "p", desc: "pause/unpause the simulation" },
+];
+
+const GUIDE_GLASS_COMMANDS = [
+  { cmd: "1g", desc: "enable glass rendering mode" },
+  { cmd: "0g", desc: "disable glass rendering mode" },
+];
+
+const GUIDE_CONTROL_COMMANDS = [
+  { cmd: "Rr", desc: "reset radius variation" },
+  { cmd: "Br", desc: "reset blob-count bounds" },
 ];
 
 // ── Seeded history / feed ────────────────────────────────────────────────────
 
 const SEEDED_HISTORY = [
-  { cmd: "24A 0.0s",    output: "24A 0.0s" },
-  { cmd: "4.8B 0.0s",   output: "4.8B 0.0s" },
-  { cmd: "0.18C 0.0s",  output: "0.18C 0.0s" },
-  { cmd: ">20A 0.0s",   output: "24A 0.0s" },
-  { cmd: "0.0q",         output: "312H 24I 0.63J 60K 0.0q" },
+  { cmd: "1.0Rs", output: "1.0R^s" },
+  { cmd: "1.0Vs", output: "1.0V^s" },
+  { cmd: ">14Bs", output: ">14B^s" },
+  { cmd: "<24Bs", output: "<24B^s" },
+  { cmd: "1.0Fs", output: "1.0F^s" },
 ];
 
 const SEEDED_FEED = [
-  "301H 24I 0.61J 59K 0.0u",
-  "305H 24I 0.62J 60K 0.1u",
-  "309H 24I 0.63J 60K 0.2u",
-  "!309H 24I 0.63J 58K 0.3u",
-  "312H 24I 0.64J 60K 0.4u",
-  "318H 25I 0.66J 60K 0.5u",
+  "20B 1V 6R 0.0u",
+  "20B 0.99V 6R 0.1u",
+  "19B 1.02V 6.1R 0.2u",
+  "!19B 0.98V 6R 0.3u",
+  "20B 1V 6R 0.4u",
+  "21B 1.03V 5.9R 0.5u",
 ];
 
 // ── Runtime state ────────────────────────────────────────────────────────────
@@ -64,15 +70,29 @@ const state = {
   historyOpen: false,
   homeHistory: [...SEEDED_HISTORY],
   reqresp:     [...SEEDED_HISTORY],
-  feed:        [...SEEDED_FEED],
+  feed:        SEEDED_FEED.map((line, index) => ({ seq: index + 1, line })),
+  feedSequence: SEEDED_FEED.length,
+  guideCommand: ">14Bs",
+  guideParsed: null,
   live: { text: "", latched: false, stateName: "normal", errors: [] },
 };
 
-const sim = {
-  A: 24, B: 4.8, C: 0.18,
-  H: 312, I: 24, J: 0.63, K: 60,
+const SIM_DEFAULTS = {
+  blobs: 20,
+  minBlobs: 14,
+  maxBlobs: 24,
+  radiusSpread: 1.0,
+  velocitySpread: 1.0,
+  blobForce: 1.0,
+  averageVelocity: 1.0,
+  averageRadius: 6.0,
+  glass: document.body?.dataset.glassMode === "on",
+  paused: false,
+  cleared: false,
   tick: 0.5,
 };
+
+const sim = Object.assign({}, SIM_DEFAULTS);
 
 let feedTimer = null;
 
@@ -472,7 +492,6 @@ function positionPanel() {
     }
 
     D.panel.classList.add("dt-positioned");
-    window.dispatchEvent(new CustomEvent("bcode:reader-floating-controls-positioned"));
     return;
   }
 
@@ -572,7 +591,6 @@ function positionPanel() {
   D.toggleBtn.style.left = `${toggleCenterX.toFixed(2)}px`;
   D.toggleBtn.style.bottom = `${Math.round(toggleBottom)}px`;
   D.panel.classList.add("dt-positioned");
-  window.dispatchEvent(new CustomEvent("bcode:reader-floating-controls-positioned"));
 }
 
 let lastLayoutKey = "";
@@ -696,6 +714,104 @@ function highlightBcode(text) {
   }
 }
 
+function highlightResponseBcode(text) {
+  const source = String(text);
+  const tagMatch = source.match(/(-?\d+(?:\.\d+)?\\|\\[a-z]|\^[a-z])(?=$|\s)/);
+  if (!tagMatch) return highlightBcode(source);
+
+  const index = tagMatch.index;
+  const tag = tagMatch[0];
+  const before = source.slice(0, index);
+  const after = source.slice(index + tag.length);
+  const className = tag[0] === "^" ? "dt-response-tag dt-response-tag-ok" : "dt-response-tag dt-response-tag-error";
+
+  return [
+    highlightBcode(before),
+    `<span class="${className}">${escapeHtml(tag)}</span>`,
+    highlightBcode(after),
+  ].join("");
+}
+
+const RESPONSE_ERROR_CODES = Object.freeze({
+  GEN: Object.freeze({
+    CMD_UNKNOWN: "-1.0",
+    RES_UNKNOWN: "-1.1",
+    SEQ_MISSING: "-1.2",
+    SEQ_UNKNOWN: "-1.3",
+    PAYLOAD_MISSING: "-1.4",
+    PAYLOAD_OVERFLOW: "-1.5",
+    PAYLOAD_INVALID: "-1.6",
+    INDEX_MISSING: "-1.7",
+    INDEX_UNKNOWN: "-1.8",
+    PARAM_MISSING: "-1.9",
+    PARAM_OVERRANGE: "-1.10",
+    PARAM_UNDERRANGE: "-1.11",
+    PARAM_BADQUAL: "-1.12",
+    PARAM_INVALID: "-1.13",
+    RESP_OVERFLOW: "-1.14",
+    RANGE_MISSING: "-1.15",
+    RANGE_OVERFLOW: "-1.16",
+    LINE_MISSING: "-1.17",
+  }),
+  ML: Object.freeze({
+    EXPECTED: "-2.0",
+    LAST_MISSING: "-2.1",
+    LAST_OVERFLOW: "-2.2",
+    LAST_ALTERED: "-2.3",
+    CNTR_START: "-2.4",
+    CNTR_OVERRANGE: "-2.5",
+    CNTR_SEQUENCE: "-2.6",
+  }),
+  REST_GENERIC: Object.freeze({
+    MALFORMED: "-95.1",
+    INVALID_TARGET: "-95.2",
+    ACCESS_DENIED: "-95.3",
+    NOT_SUPPORTED: "-95.4",
+    BUSY: "-95.5",
+  }),
+  UPDATE: Object.freeze({
+    MALFORMED: "-98.1",
+    PARAM_MISSING: "-98.10",
+    INVALID_COMBINATION: "-98.11",
+    VALUE_REJECTED: "-98.12",
+    LOCKED_OUT: "-98.20",
+    CONFLICT: "-98.22",
+    COMMIT_FAILED: "-98.23",
+  }),
+  DELTA: Object.freeze({
+    MALFORMED: "-100.1",
+    PARAM_NOT_SUPPORTED: "-100.10",
+    WOULD_EXCEED_RANGE: "-100.11",
+    WOULD_BE_INVALID: "-100.12",
+    LOCKED_OUT: "-100.20",
+    CONFLICT: "-100.22",
+    COMMIT_FAILED: "-100.23",
+  }),
+  CONTROL: Object.freeze({
+    MALFORMED: "-99.1",
+    LOCKED_OUT: "-99.20",
+    ILLEGAL_STATE: "-99.21",
+    CONFLICT: "-99.22",
+    SEQ_MISSING: "-99.30",
+  }),
+  FEED: Object.freeze({
+    MALFORMED: "-102.1",
+    NOT_SUPPORTED: "-102.4",
+    BUSY: "-102.5",
+    INVALID_RANGE: "-102.10",
+    RELEASE_REJECTED: "-102.11",
+    PLAYBACK_REJECTED: "-102.12",
+    EVENT_NOT_FOUND: "-102.13",
+    RELEASE_PRECONDITION_FAILED: "-102.14",
+    SINGLE_EVENT_UNSUPPORTED: "-102.15",
+    RANGE_UNSUPPORTED: "-102.16",
+    RELEASE_TARGET_INVALID: "-102.17",
+  }),
+  ALLOCATE: Object.freeze({
+    GROUP: "-105",
+  }),
+});
+
 function fmtNum(v) {
   if (!Number.isFinite(v)) return String(v);
   if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
@@ -721,41 +837,139 @@ function composeLine(params, cmdValue, cmdCode, opts = {}) {
   return opts.leading ? opts.leading + s : s;
 }
 
-function snapshotParts() {
-  return [
-    { term: "H", value: fmtNum(sim.H) },
-    { term: "I", value: fmtNum(sim.I) },
-    { term: "J", value: fmtNum(sim.J) },
-    { term: "K", value: fmtNum(sim.K) },
-  ];
-}
-
-function buildTelemetryLine({ tick = sim.tick, stale = false } = {}) {
-  return composeLine(snapshotParts(), fmtNum(tick), "u", { leading: stale ? "!" : "" });
+function normalizeBlobBounds() {
+  sim.minBlobs = Math.max(0, Math.round(sim.minBlobs));
+  sim.maxBlobs = Math.max(0, Math.round(sim.maxBlobs));
+  if (sim.minBlobs > sim.maxBlobs) sim.maxBlobs = sim.minBlobs;
 }
 
 // ── Simulation helpers ────────────────────────────────────────────────────────
 
 function resetSim() {
-  sim.A = 24; sim.B = 4.8; sim.C = 0.18;
-  sim.H = 312; sim.I = 24; sim.J = 0.63; sim.K = 60; sim.tick = 0.5;
+  Object.assign(sim, SIM_DEFAULTS, { glass: document.body?.dataset.glassMode === "on" });
+  normalizeBlobBounds();
 }
 
-function updateDerived() {
-  sim.H = Math.max(280, Math.round(255 + sim.A * 2.3 + sim.B * 7.5 + sim.C * 145 + Math.random() * 8));
-  sim.I = Math.max(1, Math.round(sim.A + (Math.random() * 2 - 0.5)));
-  sim.J = Number(Math.min(0.98, 0.44 + sim.H / 1600 + sim.C * 0.18).toFixed(2));
-  sim.K = Math.max(57, Math.min(61, Math.round(60 - Math.abs(sim.C - 0.18) * 10 + (Math.random() * 2 - 1))));
+function applyLavaState(detail = {}) {
+  if (typeof detail.blobs === "number" && Number.isFinite(detail.blobs)) sim.blobs = Math.round(detail.blobs);
+  if (typeof detail.minBlobs === "number" && Number.isFinite(detail.minBlobs)) sim.minBlobs = Math.round(detail.minBlobs);
+  if (typeof detail.maxBlobs === "number" && Number.isFinite(detail.maxBlobs)) sim.maxBlobs = Math.round(detail.maxBlobs);
+  if (typeof detail.radiusSpread === "number" && Number.isFinite(detail.radiusSpread)) sim.radiusSpread = detail.radiusSpread;
+  if (typeof detail.velocitySpread === "number" && Number.isFinite(detail.velocitySpread)) sim.velocitySpread = detail.velocitySpread;
+  if (typeof detail.blobForce === "number" && Number.isFinite(detail.blobForce)) sim.blobForce = detail.blobForce;
+  if (typeof detail.averageVelocity === "number" && Number.isFinite(detail.averageVelocity)) sim.averageVelocity = detail.averageVelocity;
+  if (typeof detail.averageRadius === "number" && Number.isFinite(detail.averageRadius)) sim.averageRadius = detail.averageRadius;
+  if (typeof detail.glass === "boolean") sim.glass = detail.glass;
+  if (typeof detail.paused === "boolean") sim.paused = detail.paused;
+  if (typeof detail.cleared === "boolean") sim.cleared = detail.cleared;
+  normalizeBlobBounds();
 }
 
-function dispatchLavaParams(A, B, C) {
-  const detail = {};
-  if (A != null) detail.A = A;
-  if (B != null) detail.B = B;
-  if (C != null) detail.C = C;
-  if (Object.keys(detail).length > 0) {
-    window.dispatchEvent(new CustomEvent("bcode:lava-params", { detail }));
+function dispatchLavaParams(detail) {
+  if (!detail || Object.keys(detail).length === 0) return;
+  applyLavaState(detail);
+  window.dispatchEvent(new CustomEvent("bcode:lava-params", { detail }));
+}
+
+function dispatchLavaControl(detail) {
+  window.dispatchEvent(new CustomEvent("bcode:lava-control", { detail }));
+}
+
+function snapshotLine() {
+  return [
+    `${sim.blobs}B`,
+    `>${sim.minBlobs}B`,
+    `<${sim.maxBlobs}B`,
+    `${fmtNum(sim.radiusSpread)}R`,
+    `${fmtNum(sim.velocitySpread)}V`,
+    `${fmtNum(sim.blobForce)}F`,
+    `${sim.glass ? 1 : 0}g`,
+    "q"
+  ].join(" ");
+}
+
+function queryLine(parsed) {
+  if (parsed.params.V) return `${fmtNum(sim.averageVelocity)}Vq`;
+  if (parsed.params.R) return `${fmtNum(sim.averageRadius)}Rq`;
+  return snapshotLine();
+}
+
+function buildTelemetryLine({ tick = sim.tick, stale = false } = {}) {
+  const lead = stale ? "!" : "";
+  return `${lead}${sim.blobs}B ${fmtNum(sim.averageVelocity)}V ${fmtNum(sim.averageRadius)}R ${fmtNum(tick)}u`;
+}
+
+function formatFeedEntry(entry, index = 0) {
+  if (typeof entry === "string") return `${index + 1}] ^\\ ${entry}`;
+  return `${entry.seq}] ^\\ ${entry.line}`;
+}
+
+function addAcceptedResponseTag(output, parsed) {
+  if (!parsed?.cmd?.code || !output) return output;
+  const cmd = parsed.cmd.code;
+  const text = String(output).trim();
+  if (text.includes(`^${cmd}`) || text.includes(`\\${cmd}`)) return text;
+  return text.endsWith(cmd) ? `${text.slice(0, -cmd.length)}^${cmd}` : `^${cmd} ${text}`;
+}
+
+function splitTrailingCommand(text) {
+  const source = String(text || "").trimEnd();
+  const match = source.match(/^(.*)([a-z])$/);
+  return match ? { body: match[1], cmd: match[2] } : null;
+}
+
+function rejectedResponseTag(requestText, errorCode = RESPONSE_ERROR_CODES.GEN.PARAM_INVALID) {
+  const request = splitTrailingCommand(requestText);
+  if (request) return `${errorCode}\\ ${String(requestText).trim()}`;
+  return `${RESPONSE_ERROR_CODES.GEN.LINE_MISSING}\\s`;
+}
+
+function percentText(value) {
+  return `±${Math.round(value * 100)}%`;
+}
+
+function currentGuideSetCommands() {
+  return [
+    { cmd: `${fmtNum(sim.radiusSpread)}Rs`,  desc: "set blob radius variation (1.0 default)" },
+    { cmd: `${fmtNum(sim.velocitySpread)}Vs`,  desc: "set blob velocity variation (1.0 default)" },
+    { cmd: `>${sim.minBlobs}Bs`,  desc: "set minimum blob count" },
+    { cmd: `<${sim.maxBlobs}Bs`,  desc: "set maximum blob count" },
+    { cmd: `${fmtNum(sim.blobForce)}Fs`,  desc: "set blob attraction/repulsion force (1.0 default)" },
+  ];
+}
+
+function stagedDescription(parsed) {
+  if (!parsed) return '-> stage B as "at least 14 blobs,"';
+  const params = parsed.params || {};
+  if (params.R) return `-> stage R as "radius variation ${fmtNum(sim.radiusSpread)},"`;
+  if (params.V) return `-> stage V as "velocity variation ${fmtNum(sim.velocitySpread)},"`;
+  if (params.B) {
+    const kind = params.B.lessthan ? "at most" : "at least";
+    const value = params.B.lessthan ? sim.maxBlobs : sim.minBlobs;
+    return `-> stage B as "${kind} ${value} blobs,"`;
   }
+  if (params.F) return `-> stage F as "blob force ${fmtNum(sim.blobForce)},"`;
+  return "-> stage the current command";
+}
+
+function guideExampleDescription(parsed, raw) {
+  if (!parsed) return stagedDescription(parsed);
+  switch (parsed.cmd.code) {
+    case "s": return stagedDescription(parsed);
+    case "q": return "-> query the current lava-lamp state";
+    case "r": return Object.keys(parsed.params).length ? "-> reset selected configurable values" : "-> reset all configurable values";
+    case "c": return "-> clear all loaded blobs from the simulation";
+    case "p": return parsed.cmd.hasValue && parsed.cmd.value === 0 ? "-> resume the simulation" : "-> pause the simulation";
+    case "g": return parsed.cmd.hasValue && parsed.cmd.value < 1 ? "-> disable glass rendering mode" : "-> enable glass rendering mode";
+    default: return `-> parse ${raw}`;
+  }
+}
+
+function guideExampleContinuation(parsed) {
+  if (!parsed || parsed.cmd.code === "s") {
+    return `then <code class="dt-guide-code hljs language-bcode">${highlightBcode("s")}</code> commits the update with the set command.`;
+  }
+  return "";
 }
 
 // ── DOM builders (mirror app.js) ─────────────────────────────────────────────
@@ -774,7 +988,7 @@ function mkOutputLine(text) {
   pre.className = "dt-output-prefix";
   pre.textContent = "\u25cb ";
   const body = document.createElement("span");
-  body.innerHTML = highlightBcode(text);
+  body.innerHTML = highlightResponseBcode(text);
   d.append(pre, body);
   return d;
 }
@@ -785,7 +999,7 @@ function mkBlank() {
   return d;
 }
 
-function mkStateLine(bullet, key, val) {
+function mkStateLine(bullet, key, val, valueClass = "") {
   const d = document.createElement("div");
   d.className = "dt-state-line";
   const b = document.createElement("span");
@@ -794,6 +1008,7 @@ function mkStateLine(bullet, key, val) {
   k.className = "dt-state-key"; k.textContent = key + ": ";
   const v = document.createElement("span");
   v.className = "dt-state-val"; v.textContent = val;
+  if (valueClass) v.classList.add(valueClass);
   d.append(b, k, v);
   return d;
 }
@@ -802,34 +1017,62 @@ function mkStateLine(bullet, key, val) {
 
 function renderGuide() {
   D.docsBody.innerHTML = "";
-  GUIDE_ENTRIES.forEach((entry, i) => {
+
+  const appendRow = (bulletText, cmdText, descText, extra = "") => {
     const row = document.createElement("div");
-    row.className = "dt-guide-entry";
+    row.className = `dt-guide-entry${extra ? ` ${extra}` : ""}`;
 
     const bullet = document.createElement("span");
     bullet.className = "dt-guide-bullet";
-    bullet.textContent = i === 0 ? "\u25cf" : "\u25cb";
+    bullet.textContent = bulletText;
 
     const code = document.createElement("code");
     code.className = "dt-guide-code hljs language-bcode";
-    code.innerHTML = highlightBcode(entry.cmd);
+    code.innerHTML = highlightBcode(cmdText);
 
     const desc = document.createElement("span");
     desc.className = "dt-guide-desc";
-    desc.textContent = entry.desc;
+    desc.textContent = descText;
 
     row.append(bullet, code, desc);
     D.docsBody.append(row);
-  });
+  };
 
+  GUIDE_PRIMARY_COMMANDS.forEach(entry => appendRow("\u2022", entry.cmd, entry.desc, "dt-guide-rule"));
   D.docsBody.append(mkBlank());
 
-  GUIDE_NOTES.forEach(note => {
-    const d = document.createElement("div");
-    d.className = "dt-guide-note";
-    d.textContent = note;
-    D.docsBody.append(d);
-  });
+  [
+    ["R", "controls random radius spread."],
+    ["V", "controls random velocity spread."],
+    ["B", "controls blob-count bounds."],
+    ["F", "controls blob-to-blob force scaling."],
+  ].forEach(([cmd, desc]) => appendRow("\u2022", cmd, desc, "dt-guide-rule"));
+
+  D.docsBody.append(mkBlank());
+  currentGuideSetCommands().forEach(entry => appendRow("o", entry.cmd, entry.desc, "dt-guide-command"));
+  D.docsBody.append(mkBlank());
+  GUIDE_QUERY_COMMANDS.forEach(entry => appendRow("o", entry.cmd, entry.desc, "dt-guide-command"));
+  GUIDE_CONTROL_COMMANDS.forEach(entry => appendRow("o", entry.cmd, entry.desc, "dt-guide-command"));
+  D.docsBody.append(mkBlank());
+  GUIDE_GLASS_COMMANDS.forEach(entry => appendRow("o", entry.cmd, entry.desc, "dt-guide-command"));
+
+  D.docsBody.append(mkBlank());
+  const divider = document.createElement("div");
+  divider.className = "dt-guide-note dt-guide-divider";
+  divider.textContent = "------------------------------------------------";
+  D.docsBody.append(divider);
+
+  const title = document.createElement("div");
+  title.className = "dt-guide-note dt-guide-example-title";
+  title.textContent = "Example breakdown:";
+  D.docsBody.append(title);
+
+  appendRow("\u2022", state.guideCommand, guideExampleDescription(state.guideParsed, state.guideCommand), "dt-guide-example");
+
+  const continuation = document.createElement("div");
+  continuation.className = "dt-guide-note dt-guide-continuation";
+  continuation.innerHTML = guideExampleContinuation(state.guideParsed);
+  D.docsBody.append(continuation);
 }
 
 function renderHistory() {
@@ -854,21 +1097,23 @@ function renderReqResp() {
 
 function renderFeed() {
   D.feedBody.innerHTML = "";
-  state.feed.forEach(line => D.feedBody.append(mkHlLine(line)));
+  state.feed.forEach((entry, index) => D.feedBody.append(mkHlLine(formatFeedEntry(entry, index))));
   D.feedBody.scrollTop = D.feedBody.scrollHeight;
 }
 
 function renderStateFeed() {
   D.stateBody.innerHTML = "";
-  const ps = state.live.stateName || "normal";
   [
-    { key: "parser",       val: state.live.errors.length ? `${ps} / error` : ps },
-    { key: "blobs",        val: String(sim.I) },
-    { key: "cells",        val: String(sim.H) },
-    { key: "density mean", val: String(sim.J) },
-    { key: "fps",          val: String(sim.K) },
-    { key: "status",       val: state.live.errors.length ? "parse error" : "ready" },
-  ].forEach(item => D.stateBody.append(mkStateLine("\u2022", item.key, item.val)));
+    { key: "blobs",            val: String(sim.blobs) },
+    { key: "min blobs",        val: String(sim.minBlobs) },
+    { key: "max blobs",        val: String(sim.maxBlobs) },
+    { key: "max/min radius",   val: `\u00b1${fmtNum(sim.radiusSpread * 100)}%` },
+    { key: "max/min velocity", val: `\u00b1${fmtNum(sim.velocitySpread * 12)}%` },
+    { key: "blob force",       val: `\u00b1${fmtNum(Math.abs(sim.blobForce - 1) * 100)}%` },
+    { key: "average velocity", val: fmtNum(sim.averageVelocity) },
+    { key: "average radius",   val: fmtNum(sim.averageRadius) },
+    { key: "glass",            val: sim.glass ? "enabled" : "disabled", valueClass: sim.glass ? "dt-state-enabled" : "" },
+  ].forEach(item => D.stateBody.append(mkStateLine("\u2022", item.key, item.val, item.valueClass)));
 }
 
 // ── Input mirror + live parser ────────────────────────────────────────────────
@@ -903,51 +1148,233 @@ function analyzeLive(text) {
   return snap;
 }
 
-async function parseLine(text) {
-  try {
-    const lines = await BCODe.parseData(text);
-    return lines[0] || null;
-  } catch {
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function parseTerminalCommand(text) {
+  const source = text.trim();
+  if (!source) return { errorCode: RESPONSE_ERROR_CODES.GEN.LINE_MISSING };
+  const parsed = { params: {}, cmd: null };
+  let i = 0;
+
+  const skipSpace = () => {
+    while (i < source.length && /\s/.test(source[i])) i++;
+  };
+
+  while (i < source.length) {
+    skipSpace();
+    if (i >= source.length) break;
+
+    const field = { greaterthan: false, lessthan: false, indefinite: false, hasValue: false, value: NaN };
+    while (source[i] === ">" || source[i] === "<" || source[i] === "?") {
+      if (source[i] === ">") field.greaterthan = true;
+      if (source[i] === "<") field.lessthan = true;
+      if (source[i] === "?") field.indefinite = true;
+      i++;
+      skipSpace();
+    }
+
+    let sign = 1;
+    if (source[i] === "-" && /[0-9.]/.test(source[i + 1] || "")) {
+      sign = -1;
+      i++;
+    }
+
+    const numberStart = i;
+    while (i < source.length && /[0-9]/.test(source[i])) i++;
+    if (source[i] === ".") {
+      i++;
+      while (i < source.length && /[0-9]/.test(source[i])) i++;
+    }
+    const numberText = source.slice(numberStart, i);
+    if (numberText && numberText !== ".") {
+      field.hasValue = true;
+      field.value = sign * Number(numberText);
+    }
+
+    skipSpace();
+    if (i >= source.length) return { errorCode: RESPONSE_ERROR_CODES.GEN.LINE_MISSING };
+    const term = source[i++];
+
+    if ("RVBF".includes(term)) {
+      parsed.params[term] = field;
+    } else if (/[a-z]/.test(term)) {
+      parsed.cmd = Object.assign({ code: term }, field);
+      skipSpace();
+      if (i < source.length) return { errorCode: RESPONSE_ERROR_CODES.GEN.PARAM_INVALID };
+      break;
+    } else {
+      return { errorCode: RESPONSE_ERROR_CODES.GEN.PARAM_INVALID };
+    }
+  }
+
+  if (!parsed.cmd) return { errorCode: RESPONSE_ERROR_CODES.GEN.LINE_MISSING };
+  return parsed;
+}
+
+function rangeErrorCode(value, min, max) {
+  if (!Number.isFinite(value)) return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+  if (value < min) return RESPONSE_ERROR_CODES.GEN.PARAM_UNDERRANGE;
+  if (value > max) return RESPONSE_ERROR_CODES.GEN.PARAM_OVERRANGE;
+  return null;
+}
+
+function validateTerminalCommand(parsed) {
+  if (!parsed?.cmd) return RESPONSE_ERROR_CODES.GEN.LINE_MISSING;
+  const cmd = parsed.cmd.code;
+  const params = parsed.params || {};
+  const paramKeys = Object.keys(params);
+
+  if (!"sqgrcp".includes(cmd)) return RESPONSE_ERROR_CODES.GEN.CMD_UNKNOWN;
+  if (parsed.cmd.indefinite || parsed.cmd.greaterthan || parsed.cmd.lessthan) {
+    return RESPONSE_ERROR_CODES.GEN.PARAM_BADQUAL;
+  }
+
+  for (const key of paramKeys) {
+    const field = params[key];
+    if (field.indefinite) return RESPONSE_ERROR_CODES.GEN.PARAM_BADQUAL;
+  }
+
+  if (cmd === "s") {
+    if (!paramKeys.length) return RESPONSE_ERROR_CODES.GEN.PARAM_MISSING;
+    for (const key of paramKeys) {
+      const field = params[key];
+      if (!field.hasValue) return RESPONSE_ERROR_CODES.GEN.PARAM_MISSING;
+      if ((field.greaterthan || field.lessthan) && key !== "B") {
+        return RESPONSE_ERROR_CODES.GEN.PARAM_BADQUAL;
+      }
+      if (key === "R" || key === "V" || key === "F") {
+        const err = rangeErrorCode(field.value, 0, 10);
+        if (err) return err;
+      } else if (key === "B") {
+        const err = rangeErrorCode(field.value, 0, 120);
+        if (err) return err;
+      }
+    }
     return null;
   }
+
+  if (cmd === "q") {
+    if (paramKeys.some((key) => !["R", "V"].includes(key))) return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    if (paramKeys.some((key) => params[key].hasValue || params[key].greaterthan || params[key].lessthan)) {
+      return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    }
+    return null;
+  }
+
+  if (cmd === "r") {
+    if (paramKeys.some((key) => params[key].hasValue || params[key].greaterthan || params[key].lessthan)) {
+      return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    }
+    return null;
+  }
+
+  if (cmd === "c") {
+    if (paramKeys.length) return RESPONSE_ERROR_CODES.CONTROL.MALFORMED;
+    return null;
+  }
+
+  if (cmd === "p" || cmd === "g") {
+    if (paramKeys.length) return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    if (parsed.cmd.hasValue && parsed.cmd.value !== 0 && parsed.cmd.value !== 1) {
+      return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    }
+    return null;
+  }
+
+  return RESPONSE_ERROR_CODES.GEN.CMD_UNKNOWN;
 }
 
 // ── Command processing ────────────────────────────────────────────────────────
 
-function applySet(line) {
-  const touched = [];
-  let A = null, B = null, C = null;
-  ["A", "B", "C"].forEach(term => {
-    if (!line.bool(term)) return;
-    const f  = line.params[term];
-    const nv = line.numeric(term);
-    if      (f.greaterthan) sim[term] = Math.max(sim[term], nv);
-    else if (f.lessthan)    sim[term] = Math.min(sim[term], nv);
-    else                    sim[term] = nv;
-    touched.push({ term, value: fmtNum(sim[term]) });
-    if (term === "A") A = sim.A;
-    if (term === "B") B = sim.B;
-    if (term === "C") C = sim.C;
-  });
-  updateDerived();
-  dispatchLavaParams(A, B, C);
-  return composeLine(touched, "0.0", "s");
+function applySet(raw, parsed) {
+  const detail = {};
+  const setSpread = (term, key) => {
+    const field = parsed.params[term];
+    if (!field || !field.hasValue) return;
+    const value = clampNumber(field.value, 0, 10);
+    sim[key] = value;
+    detail[key] = value;
+  };
+
+  setSpread("R", "radiusSpread");
+  setSpread("V", "velocitySpread");
+
+  if (parsed.params.B && parsed.params.B.hasValue) {
+    const value = clampNumber(Math.round(parsed.params.B.value), 0, 120);
+    if (parsed.params.B.lessthan) {
+      sim.maxBlobs = value;
+      detail.maxBlobs = value;
+    } else {
+      sim.minBlobs = value;
+      detail.minBlobs = value;
+    }
+    normalizeBlobBounds();
+    detail.minBlobs = sim.minBlobs;
+    detail.maxBlobs = sim.maxBlobs;
+  }
+
+  if (parsed.params.F && parsed.params.F.hasValue) {
+    const value = clampNumber(parsed.params.F.value, 0, 10);
+    sim.blobForce = value;
+    detail.blobForce = value;
+  }
+
+  if (Object.keys(detail).length) sim.cleared = false;
+  dispatchLavaParams(detail);
+  return raw;
 }
 
-function applyGlassMode(line) {
-  const nv = line.cmd ? parseFloat(line.cmd.strValue) : 0;
-  const enable = nv >= 1;
+function applyGlassMode(parsed) {
+  const enable = parsed.cmd.hasValue ? parsed.cmd.value >= 1 : true;
+  sim.glass = enable;
   window.dispatchEvent(new CustomEvent("bcode:glass-mode", { detail: { enabled: enable } }));
-  return composeLine([], enable ? "1" : "0", "g");
+  return `${enable ? 1 : 0}g`;
 }
 
-function generateOutput(raw, line) {
-  if (!line) return null;
-  switch (line.code) {
-    case "s": return applySet(line);
-    case "q": return composeLine(snapshotParts(), "0.0", "q");
-    case "r": resetSim(); return composeLine([], "0.0", "r");
-    case "g": return applyGlassMode(line);
+function resetKeysFromParams(params) {
+  const keys = ["R", "V", "B", "F"].filter((key) => params[key]);
+  return keys.length ? keys : ["R", "V", "B", "F"];
+}
+
+function applyReset(parsed) {
+  const keys = resetKeysFromParams(parsed.params);
+  if (keys.includes("R")) sim.radiusSpread = SIM_DEFAULTS.radiusSpread;
+  if (keys.includes("V")) sim.velocitySpread = SIM_DEFAULTS.velocitySpread;
+  if (keys.includes("B")) {
+    sim.minBlobs = SIM_DEFAULTS.minBlobs;
+    sim.maxBlobs = SIM_DEFAULTS.maxBlobs;
+  }
+  if (keys.includes("F")) sim.blobForce = SIM_DEFAULTS.blobForce;
+  normalizeBlobBounds();
+  dispatchLavaControl({ command: "reset", keys });
+  return `${Object.keys(parsed.params).join("")}r`;
+}
+
+function applyClear() {
+  sim.blobs = 0;
+  sim.cleared = false;
+  dispatchLavaControl({ command: "clear" });
+  return "c";
+}
+
+function applyPause(parsed) {
+  const paused = parsed.cmd.hasValue ? parsed.cmd.value !== 0 : !sim.paused;
+  sim.paused = paused;
+  dispatchLavaControl({ command: "pause", paused });
+  return parsed.cmd.hasValue ? `${paused ? 1 : 0}p` : "p";
+}
+
+function generateOutput(raw, parsed) {
+  if (!parsed) return null;
+  switch (parsed.cmd.code) {
+    case "s": return applySet(raw, parsed);
+    case "q": return queryLine(parsed);
+    case "r": return applyReset(parsed);
+    case "c": return applyClear();
+    case "p": return applyPause(parsed);
+    case "g": return applyGlassMode(parsed);
     default:  return raw;
   }
 }
@@ -965,12 +1392,27 @@ async function submit() {
   if (!text) return;
 
   let output = text;
+  let parsed = null;
+  let errorCode = RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+  let accepted = false;
   try {
-    const line = await parseLine(text);
-    if (line) output = generateOutput(text, line) ?? text;
-  } catch { /* echo raw */ }
+    parsed = parseTerminalCommand(text);
+    errorCode = parsed?.errorCode || validateTerminalCommand(parsed);
+    if (!errorCode) {
+      output = generateOutput(text, parsed) ?? text;
+      output = addAcceptedResponseTag(output, parsed);
+      accepted = true;
+      state.guideCommand = text;
+      state.guideParsed = parsed;
+    }
+  } catch {
+    errorCode = RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+  }
+
+  if (!accepted) output = rejectedResponseTag(text, errorCode);
 
   appendTransaction(text, output);
+  renderGuide();
   renderHistory();
   renderReqResp();
   renderStateFeed();
@@ -1024,6 +1466,7 @@ D.menuDrop.addEventListener("click", e => {
     updateMirror();
   } else if (item.dataset.action === "clear") {
     state.feed.length = 0;
+    state.feedSequence = 0;
     renderFeed();
     renderStateFeed();
   }
@@ -1045,11 +1488,13 @@ D.prompt.addEventListener("click", () => {
 // ── Feed ticker ───────────────────────────────────────────────────────────────
 
 function tickFeed() {
+  if (sim.paused) return;
   sim.tick = Number((sim.tick + 0.1).toFixed(1));
-  sim.H = Math.max(280, Math.min(360, sim.H + Math.round(Math.random() * 8 - 3)));
-  sim.I = Math.max(1,   Math.min(48,  sim.I + Math.round(Math.random() * 2 - 0.3)));
-  sim.J = Number(Math.min(0.99, 0.45 + sim.H / 1600 + Math.random() * 0.02).toFixed(2));
-  sim.K = Math.max(57,  Math.min(61,  59 + Math.round(Math.random() * 2)));
+  if (!window.__bcodeLava) {
+    sim.blobs = Math.max(0, sim.blobs + Math.round(Math.random() * 2 - 0.8));
+    sim.averageVelocity = Number(Math.max(0, sim.averageVelocity + (Math.random() * 0.08 - 0.04)).toFixed(2));
+    sim.averageRadius = Number(Math.max(1, sim.averageRadius + (Math.random() * 0.08 - 0.04)).toFixed(1));
+  }
 
   const stale = Math.random() < 0.08;
   let line;
@@ -1057,10 +1502,11 @@ function tickFeed() {
     line = buildTelemetryLine({ tick: sim.tick, stale });
   } catch {
     const t = fmtNum(sim.tick);
-    line = `${stale ? "!" : ""}${sim.H}H ${sim.I}I ${sim.J}J ${sim.K}K ${t}u`;
+    line = `${stale ? "!" : ""}${sim.blobs}B ${fmtNum(sim.averageVelocity)}V ${fmtNum(sim.averageRadius)}R ${t}u`;
   }
 
-  state.feed.push(line);
+  state.feedSequence += 1;
+  state.feed.push({ seq: state.feedSequence, line });
   if (state.feed.length > 50) state.feed.shift();
 
   renderFeed();
@@ -1081,6 +1527,29 @@ D.cmdInput.addEventListener("keydown", async e => {
 });
 
 D.sendBtn.addEventListener("click", () => submit());
+
+window.addEventListener("bcode:lava-state", (e) => {
+  if (!e || !e.detail) return;
+  applyLavaState(e.detail);
+  renderGuide();
+  renderStateFeed();
+});
+
+const glassObserver = new MutationObserver(() => {
+  sim.glass = document.body?.dataset.glassMode === "on";
+  renderStateFeed();
+});
+if (document.body) {
+  glassObserver.observe(document.body, { attributes: true, attributeFilter: ["data-glass-mode"] });
+}
+
+queueMicrotask(() => {
+  if (window.__bcodeLava && typeof window.__bcodeLava.getState === "function") {
+    applyLavaState(window.__bcodeLava.getState());
+    renderGuide();
+    renderStateFeed();
+  }
+});
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") closeMenu();

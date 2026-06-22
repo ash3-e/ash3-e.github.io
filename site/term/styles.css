@@ -430,11 +430,37 @@ body {
 
 .guide-bullet {
   color: var(--fg);
-  flex: 0 0 auto;
+  flex: 0 0 1.4ch;
+  text-align: center;
 }
 
 .guide-code {
   flex: 0 0 auto;
+}
+
+.guide-rule .guide-code {
+  flex-basis: 2.2ch;
+}
+
+.guide-command .guide-code,
+.guide-example .guide-code {
+  flex-basis: 10ch;
+}
+
+.guide-example-title {
+  color: #d56cff;
+  font-weight: 700;
+}
+
+.guide-continuation {
+  padding-left: 16.2ch;
+}
+
+.guide-continuation code {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  background: transparent;
 }
 
 .guide-desc {
@@ -463,6 +489,23 @@ body {
   color: var(--fg);
 }
 
+.response-tag {
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  font-weight: 700;
+}
+
+.response-tag-ok {
+  color: #70ff66;
+  text-decoration-color: #70ff66;
+}
+
+.response-tag-error {
+  color: #ff5b72;
+  text-decoration-color: #ff5b72;
+}
+
 /* State feed: bullet + key: val lines */
 .state-line {
   display: flex;
@@ -479,11 +522,15 @@ body {
 
 .state-key {
   color: var(--dim);
-  flex: 0 0 auto;
+  flex: 0 0 19ch;
 }
 
 .state-val {
   color: var(--fg);
+}
+
+.state-enabled {
+  color: #70ff66;
 }
 
 .bcode-line pre,

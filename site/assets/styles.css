@@ -357,7 +357,6 @@ body:not(.codex-split-view)[data-page-type="reader"] .reader-header-peek-handle 
 .btn:hover,
 .pill:hover,
 .pill-btn:hover,
-.reader-return-top:hover,
 .dock-btn:hover,
 .mode-switcher:hover,
 .ascii-preview-btn:hover,
@@ -1840,6 +1839,11 @@ body.reader-table-lane-syncing[data-page-type="reader"] .reader-table-pane.is-fi
 }
 
 .toc-group-toggle {
+  --toc-group-search-icon-edge: 6px;
+  --toc-group-search-icon-gap: 6px;
+  --toc-group-search-icon-size: 0.72em;
+  --toc-group-search-icon-block: 6px;
+  position: relative;
   width: 100%;
   border: 1px solid transparent;
   background: transparent;
@@ -1955,9 +1959,14 @@ body.reader-table-lane-syncing[data-page-type="reader"] .reader-table-pane.is-fi
 }
 
 .toc-sublist a {
+  --toc-search-icon-edge: 6px;
+  --toc-search-icon-gap: 6px;
+  --toc-search-icon-size: 0.72em;
+  --toc-search-icon-block: 5px;
   display: grid;
   grid-template-columns: 4.6ch minmax(0, 1fr);
   column-gap: 6px;
+  position: relative;
   padding: 5px 6px;
   border-radius: 7px;
   text-decoration: none;
@@ -1965,6 +1974,98 @@ body.reader-table-lane-syncing[data-page-type="reader"] .reader-table-pane.is-fi
   font-size: 10.8px;
   color: rgba(0, 0, 0, 0.82);
   line-height: 1.2;
+}
+
+.toc-item-search-icon {
+  position: absolute;
+  left: var(--toc-search-icon-edge);
+  top: calc(var(--toc-search-icon-block) + 0.6em);
+  width: var(--toc-search-icon-size);
+  height: var(--toc-search-icon-size);
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(-50%);
+  filter: brightness(0) saturate(100%) invert(18%) sepia(90%) saturate(5000%) hue-rotate(265deg) brightness(0.85);
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.toc-group-search-icon {
+  position: absolute;
+  right: var(--toc-group-search-icon-edge);
+  top: calc(var(--toc-group-search-icon-block) + 0.6em);
+  width: var(--toc-group-search-icon-size);
+  height: var(--toc-group-search-icon-size);
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(-50%);
+  filter: brightness(0) saturate(100%) invert(18%) sepia(90%) saturate(5000%) hue-rotate(265deg) brightness(0.85);
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.toc-sublist a.toc-search-match {
+  background: rgba(98, 0, 255, 0.12);
+  padding-left: calc(var(--toc-search-icon-edge) + var(--toc-search-icon-size) + var(--toc-search-icon-gap));
+}
+
+.toc-sublist a.toc-search-match .toc-item-search-icon {
+  opacity: 0.9;
+}
+
+.toc-group-toggle.toc-search-match:not(.toc-search-child-match) .toc-group-search-icon {
+  opacity: 0.9;
+}
+
+.toc-group-toggle.toc-search-match {
+  background: rgba(98, 0, 255, 0.12);
+  border-color: color-mix(in srgb, var(--a1) 42%, var(--border) 58%);
+}
+
+.toc-group-toggle.toc-search-title-match {
+  padding-right: calc(var(--toc-group-search-icon-edge) + var(--toc-group-search-icon-size) + var(--toc-group-search-icon-gap));
+}
+
+body.is-phone[data-page-type="reader"] .toc-group-toggle {
+  --toc-group-search-icon-block: 10px;
+}
+
+body.is-phone[data-page-type="reader"] .toc-sublist a {
+  --toc-search-icon-block: 8px;
+}
+
+body.is-phone[data-page-type="reader"] .toc-sublist a.toc-search-match {
+  padding-left: calc(var(--toc-search-icon-edge) + var(--toc-search-icon-size) + var(--toc-search-icon-gap));
+}
+
+body.is-phone[data-page-type="reader"] .toc-group-toggle.toc-search-title-match {
+  padding-right: calc(var(--toc-group-search-icon-edge) + var(--toc-group-search-icon-size) + var(--toc-group-search-icon-gap));
+}
+
+.toc-group-toggle.toc-search-child-match:not(.active) {
+  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.12);
+}
+
+/* Dark & balanced quick-jump search-term highlight — match the light-mode
+   decimal "hit" fill (the soft 0.12 wash is invisible on dark surfaces). */
+body:is(.dark, .theme-balanced, .theme-half) .toc-sublist a.toc-search-match,
+body:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.toc-search-match {
+  background: rgba(98, 0, 255, 0.22) !important;
+}
+
+body:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.toc-search-match {
+  border-color: color-mix(in srgb, var(--a1) 70%, #000 30%) !important;
+}
+
+/* Dark/balanced: diffuse pink "plumbing"-colored glow behind the quick-jump
+   magnify icon (the byte-stream terminal line hue) so the search hit is easier
+   to spot. Kept low-opacity — purely a locator, not a fill. */
+body:is(.dark, .theme-balanced, .theme-half) .toc-sublist a.toc-search-match .toc-item-search-icon,
+body:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.toc-search-match:not(.toc-search-child-match) .toc-group-search-icon {
+  filter:
+    brightness(0) saturate(100%) invert(18%) sepia(90%) saturate(5000%) hue-rotate(265deg) brightness(0.85)
+    drop-shadow(0 0 4px color-mix(in srgb, var(--bcode-plumbing) 42%, transparent 58%))
+    drop-shadow(0 0 9px color-mix(in srgb, var(--bcode-plumbing) 24%, transparent 76%)) !important;
 }
 
 .toc-item-number {
@@ -2025,6 +2126,24 @@ body[data-page-type="reader"].reader-card-motion-ready .reader {
     max-width 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
     border-color 220ms ease,
     box-shadow 220ms ease;
+}
+
+body[data-page-type="reader"].reader-search-inbound .reader {
+  transform: translateY(0) !important;
+}
+
+body[data-page-type="reader"].reader-search-inbound main {
+  padding-top: var(--reader-main-top-pad) !important;
+}
+
+body[data-page-type="reader"].reader-search-inbound .reader-grid,
+body[data-page-type="reader"].reader-search-inbound .reader-wrap,
+body[data-page-type="reader"].reader-search-inbound .reader {
+  height: calc(100vh - var(--reader-main-top-pad, 0px)) !important;
+}
+
+body[data-page-type="reader"].reader-search-inbound .reader-head {
+  min-height: calc(var(--reader-tools-row-top) + var(--reader-tool-height) + var(--reader-tools-gap));
 }
 
 .reader-head {
@@ -2427,7 +2546,7 @@ body[data-page-type="reader"] .reader-meta {
 .dock-btn-inline {
   border: 0;
   background: transparent;
-  color: color-mix(in srgb, var(--text) 64%, transparent 36%);
+  color: color-mix(in srgb, var(--text) 82%, transparent 18%);
   line-height: 1;
   font-size: 12px;
 }
@@ -2455,7 +2574,7 @@ body[data-page-type="reader"] .reader-meta {
   font-style: italic;
   font-size: 11px;
   font-weight: 600;
-  color: rgba(132, 140, 156, 0.92);
+  color: color-mix(in srgb, var(--text) 82%, transparent 18%);
   pointer-events: none;
   font-variant-numeric: tabular-nums;
   opacity: 0;
@@ -2471,42 +2590,22 @@ body[data-page-type="reader"] .reader-meta {
 }
 
 .reader-end-pad {
-  --reader-return-height: 51px;
-  --reader-return-pad-x: 21px;
-  --reader-return-radius: 12px;
-  --reader-return-font-size: 12.75px;
-  min-height: var(--reader-end-pad-height, 0px);
+  min-height: 0;
   width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 0;
 }
 
-body[data-page-type="reader"]:not(.is-phone) .reader-body {
-  max-height: var(--reader-body-viewport-max-height, none);
-}
-
 .reader-return-top {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--reader-return-height);
-  height: var(--reader-return-height);
-  padding: 0 var(--reader-return-pad-x);
-  border-radius: var(--reader-return-radius);
-  border: 1px solid var(--border);
-  box-sizing: border-box;
-  background: color-mix(in srgb, var(--card) 92%, white 8%);
-  color: var(--text);
-  text-decoration: none;
-  font-family: inherit;
-  font-weight: 850;
-  font-size: var(--reader-return-font-size);
-  letter-spacing: 0.01em;
-  flex-shrink: 0;
-  margin-top: var(--reader-return-top-offset, 0px);
+  border: 1px solid color-mix(in srgb, var(--a1) 40%, var(--border) 60%);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card) 88%, white 12%);
+  color: var(--a1);
+  font-weight: 800;
+  font-size: 12px;
+  padding: 8px 14px;
   cursor: pointer;
 }
 
@@ -2715,7 +2814,6 @@ body.dark .mode-switcher-menu,
 body.dark .mode-switcher-item,
 body.dark .ascii-preview-btn,
 body.dark .fixed-doc-btn,
-body.dark .reader-return-top,
 body.dark .card,
 body.dark .doc-card,
 body.dark .reader,
@@ -2745,27 +2843,24 @@ body.dark .mode-switcher-item.is-active {
 body.dark :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn),
 body.theme-balanced :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn),
 body.theme-half :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link,
   .meta-toggle-btn) {
   border-color: #4f5f7b !important;
 }
 
-body.dark :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top),
-body.theme-balanced :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top),
-body.theme-half :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill, .reader-return-top) {
+body.dark :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill),
+body.theme-balanced :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill),
+body.theme-half :is(.mode-switcher, .ascii-preview-btn, .mode-switcher-item, .dock-btn, .pill-btn, .pill) {
   box-shadow: inset 0 0 0 1px rgba(188, 152, 255, 0.2);
 }
 
@@ -2866,17 +2961,14 @@ body.theme-half .doc-card:hover {
 body.dark :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link):hover,
 body.theme-balanced :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link):hover,
 body.theme-half :is(.btn, .pill, .pill-btn, .dock-btn, .mode-switcher, .ascii-preview-btn,
   .mode-switcher-item,
   .fixed-doc-btn,
-  .reader-return-top,
   .sub-pill-link):hover {
   box-shadow: var(--glow-shadow-a);
   filter: var(--glow-drop);
@@ -2909,7 +3001,7 @@ body.theme-balanced .dock-btn-inline,
 body.theme-half .dock-btn-inline {
   background: transparent !important;
   border: 0 !important;
-  color: #dbe4fb !important;
+  color: var(--text) !important;
 }
 
 body.dark .reader-search-panel .dock-input:focus,
@@ -2976,8 +3068,7 @@ body.dark .toc-group-toggle:hover {
 }
 
 body.dark .toc-sublist a.active {
-  background: #171f31 !important;
-  color: #f1f6ff !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body.dark .toc-sublist a.toc-pinned:not(.active),
@@ -2987,9 +3078,7 @@ body.theme-half .toc-sublist a.toc-pinned:not(.active) {
 }
 
 body.dark .toc-group-toggle.active {
-  background: color-mix(in srgb, #171f31 72%, #000 28%) !important;
-  border-color: color-mix(in srgb, #171f31 44%, #000 56%) !important;
-  color: #f1f6ff !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body.dark .toc-group-toggle.toc-pinned:not(.active),
@@ -3019,15 +3108,12 @@ body.theme-half .toc-sublist a {
 
 body.theme-balanced .toc-sublist a.active,
 body.theme-half .toc-sublist a.active {
-  background: #233047 !important;
-  color: #f4f8ff !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body.theme-balanced .toc-group-toggle.active,
 body.theme-half .toc-group-toggle.active {
-  background: color-mix(in srgb, #233047 72%, #000 28%) !important;
-  border-color: color-mix(in srgb, #233047 44%, #000 56%) !important;
-  color: #f4f8ff !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body.theme-balanced .dock-btn-close,
@@ -3063,7 +3149,7 @@ body.theme-half .markdown-body pre code {
 body.dark .find-count-inline,
 body.theme-balanced .find-count-inline,
 body.theme-half .find-count-inline {
-  color: rgba(188, 196, 210, 0.92) !important;
+  color: var(--text) !important;
 }
 
 body.dark .reader-body .markdown-body,
@@ -3277,6 +3363,24 @@ body[data-page-type="hub"] .hub-search-input-wrap .dock-input {
   min-height: 52px;
   padding-left: 122px;
   padding-right: 18px;
+}
+
+body.dark .reader-return-top,
+body.theme-balanced .reader-return-top,
+body.theme-half .reader-return-top {
+  border-color: color-mix(in srgb, #d2b2ff 66%, #5d71a5 34%);
+  color: #f2e8ff;
+  background: linear-gradient(180deg, rgba(118, 74, 204, 0.35), rgba(52, 34, 90, 0.24));
+  box-shadow: 0 8px 22px rgba(8, 7, 22, 0.5), 0 0 0 1px rgba(190, 147, 255, 0.16);
+}
+
+body.dark .reader-return-top:hover,
+body.dark .reader-return-top:focus-visible,
+body.theme-balanced .reader-return-top:hover,
+body.theme-balanced .reader-return-top:focus-visible,
+body.theme-half .reader-return-top:hover,
+body.theme-half .reader-return-top:focus-visible {
+  box-shadow: 0 10px 26px rgba(8, 7, 22, 0.58), 0 0 0 1px rgba(206, 169, 255, 0.3);
 }
 
 /* Keep non-active search highlights consistently light purple across pages/modes. */
@@ -4252,7 +4356,6 @@ body.is-phone[data-page-type="reader"]:not([data-glass-mode="on"]):not(.dark):no
 /* --- Reader head: compact for phone --- */
 body.is-phone[data-page-type="reader"] .reader-head {
   --reader-tool-height: 30px;
-  --reader-mobile-peek-top: 22px;
   --reader-tools-row-top: 42px;
   --reader-tools-links-top: 6px;
   --reader-tools-gap: 8px;
@@ -4364,13 +4467,6 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-wrap {
 body.is-phone[data-page-type="reader"] .reader-head .links :is(.pill-btn, .pill, #cardLink) {
   min-height: 30px !important;
   padding: 0 8px !important;
-}
-
-body.is-phone[data-page-type="reader"] .reader-end-pad {
-  --reader-return-height: 37.5px;
-  --reader-return-pad-x: 17.5px;
-  --reader-return-radius: 10px;
-  --reader-return-font-size: 13px;
 }
 
 body.is-phone[data-page-type="reader"] .reader-head :is(.cardview-toggle, .search-toggle-btn, .mode-switcher, .reader-table-toggle, .reader-header-peek-handle) {
@@ -4507,16 +4603,10 @@ body.is-phone[data-page-type="reader"] .reader-head .mode-switcher-menu.has-size
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-handle {
-  --reader-mobile-peek-height: var(--reader-tool-height, 30px);
-  --reader-mobile-peek-width: calc(var(--reader-mobile-peek-height) * var(--reader-mobile-peek-ratio, 1.5));
-  position: absolute !important;
-  top: var(--reader-mobile-peek-top, 22px) !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  width: var(--reader-mobile-peek-width) !important;
-  min-width: var(--reader-mobile-peek-width) !important;
-  height: var(--reader-mobile-peek-height) !important;
-  min-height: var(--reader-mobile-peek-height) !important;
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
   display: none;
   opacity: 0;
   pointer-events: none;
@@ -4527,8 +4617,7 @@ body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-handle {
 }
 
 body.is-phone[data-page-type="reader"] .reader-head .reader-header-peek-line {
-  width: calc(var(--reader-mobile-peek-width, 45px) * 0.46);
-  max-width: 24px;
+  width: 14px;
 }
 
 body.is-phone[data-page-type="reader"].reader-header-hidden:not(.reader-header-peek) .reader-head .reader-header-peek-handle,
@@ -5732,12 +5821,11 @@ body[data-glass-mode="on"].is-phone[data-page-type="reader"]:is(.dark, .theme-ba
 }
 
 body[data-glass-mode="on"].is-phone[data-page-type="reader"]:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.active {
-  background: color-mix(in srgb, var(--toc-sublist-glass-active) 78%, rgba(0, 0, 0, 0.7) 22%) !important;
-  border-color: color-mix(in srgb, var(--toc-sublist-glass-active-outline) 64%, rgba(0, 0, 0, 0.78) 36%) !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body[data-glass-mode="on"].is-phone[data-page-type="reader"]:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.active.is-current-block {
-  border-color: color-mix(in srgb, var(--toc-sublist-glass-active-outline) 50%, rgba(0, 0, 0, 0.84) 50%) !important;
+  background: rgba(98, 0, 255, 0.16) !important;
   box-shadow: none !important;
 }
 
@@ -6246,9 +6334,7 @@ body[data-glass-mode="on"] .reader-table-pane::after {
 /* ── Pills / Chips / Buttons — Glass Controls ───────────────────────────── */
 
 body[data-glass-mode="on"] .pill,
-body[data-glass-mode="on"] .pill-btn,
-body[data-glass-mode="on"] .reader-return-top,
-body[data-glass-mode="on"] .fixed-doc-btn {
+body[data-glass-mode="on"] .pill-btn {
   background: var(--glass-bg-input) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-light));
   backdrop-filter: blur(var(--glass-blur-light));
@@ -6261,23 +6347,10 @@ body[data-glass-mode="on"] .fixed-doc-btn {
 }
 
 body[data-glass-mode="on"] .pill:hover,
-body[data-glass-mode="on"] .pill-btn:hover,
-body[data-glass-mode="on"] .reader-return-top:hover,
-body[data-glass-mode="on"] .fixed-doc-btn:hover {
+body[data-glass-mode="on"] .pill-btn:hover {
   background: var(--glass-bg) !important;
   border-color: var(--glass-border-bright) !important;
   box-shadow: var(--glass-glow-hover);
-}
-
-body[data-glass-mode="on"] .fixed-doc-btn {
-  box-sizing: border-box;
-  min-height: 34px;
-  height: 34px;
-  padding: 0 10px !important;
-  border-width: 1px !important;
-  border-style: solid !important;
-  border-radius: 8px !important;
-  font-size: 12.5px;
 }
 
 body[data-glass-mode="on"] .pill.primary {
@@ -6696,12 +6769,6 @@ body[data-glass-mode="on"] #findBtn.dock-btn {
   color: #fff !important;
 }
 
-/* ── Magnifying Glass Icon — Black in All Modes ────────────────────────── */
-
-body[data-glass-mode="on"] .reader-search-input-icon {
-  filter: none !important;
-}
-
 body[data-glass-mode="on"] .search-toggle-btn img {
   filter: invert(1) brightness(2) !important;
 }
@@ -6919,7 +6986,7 @@ body:not([data-glass-mode="on"]) .reader-body .markdown-body :is(p, li, h1, h2, 
   text-shadow: none !important;
 }
 
-body[data-glass-mode="on"] :is(.card, .reader, .toc-pane, .doc-card, .dock, .pill, .pill-btn, .reader-return-top) {
+body[data-glass-mode="on"] :is(.card, .reader, .toc-pane, .doc-card, .dock, .pill, .pill-btn) {
   background: var(--main-glass-surface) !important;
 }
 
@@ -6988,14 +7055,14 @@ body[data-glass-mode="on"] .toc-sublist a.toc-pinned:not(.active) {
 body[data-glass-mode="on"].theme-balanced,
 body[data-glass-mode="on"].theme-half {
   --toc-sublist-glass-hover: rgba(86, 61, 150, 0.26);
-  --toc-sublist-glass-active: rgba(171, 133, 255, 0.42);
-  --toc-sublist-glass-active-outline: rgba(171, 133, 255, 0.72);
+  --toc-sublist-glass-active: rgba(98, 0, 255, 0.16);
+  --toc-sublist-glass-active-outline: transparent;
 }
 
 body[data-glass-mode="on"].dark {
   --toc-sublist-glass-hover: rgba(72, 49, 128, 0.26);
-  --toc-sublist-glass-active: rgba(148, 110, 235, 0.38);
-  --toc-sublist-glass-active-outline: rgba(148, 110, 235, 0.62);
+  --toc-sublist-glass-active: rgba(98, 0, 255, 0.16);
+  --toc-sublist-glass-active-outline: transparent;
 }
 
 body[data-glass-mode="on"] :is(.dock-input, .search-input, input[type="search"], input[type="text"], .hub-search-input-wrap .dock-input, .reader-search-input-wrap .dock-input) {
@@ -7061,25 +7128,16 @@ body[data-glass-mode="on"] #findBtn.dock-btn:hover {
   box-shadow: var(--glow-shadow-b) !important;
 }
 
-body[data-glass-mode="on"] .reader-search-input-icon {
-  filter: brightness(0) saturate(100%) !important;
-  opacity: 0.88;
-}
-
 body[data-glass-mode="on"] .search-toggle-btn img {
   filter: brightness(0) invert(1) !important;
 }
 
-body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(.fixed-doc-btn, .reader-return-top, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-text-size-row, .reader-search-panel, .reader-search-input-wrap .dock-input) {
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(.mode-switcher, .lava-toggle, .reader-table-toggle, .mode-text-size-row, .reader-search-panel, .reader-search-input-wrap .dock-input) {
   background: var(--glass-bg-code) !important;
   border-color: var(--glass-border) !important;
   -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
   backdrop-filter: blur(var(--glass-blur-heavy)) saturate(var(--glass-saturate));
   box-shadow: var(--glass-glow);
-}
-
-body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .fixed-doc-btn img {
-  filter: invert(1) saturate(0) brightness(1.45);
 }
 
 body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .mode-text-size-range {
@@ -7381,6 +7439,11 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc
   z-index: 1;
 }
 
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc-group-search-icon {
+  position: absolute;
+  z-index: 1;
+}
+
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc-sublist {
   position: relative;
   isolation: isolate;
@@ -7447,6 +7510,26 @@ body[data-page-type="reader"][data-glass-mode="on"]:not(.codex-split-view):not(.
   background: rgba(98, 0, 255, 0.16) !important;
 }
 
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.toc-item-search-icon, .toc-group-search-icon) {
+  filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(42, 0, 68, 0.46)) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc-sublist a.toc-search-match {
+  background: rgba(98, 0, 255, 0.12) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--glass-border) 46%, transparent 54%) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc-group-toggle.toc-search-title-match:not(.toc-search-child-match) {
+  background: rgba(98, 0, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.98) !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .toc-group-toggle.toc-search-title-match:not(.toc-search-child-match)::after {
+  border-color: color-mix(in srgb, var(--glass-border-bright) 57%, rgba(149, 111, 232, 0.6) 43%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--glass-border) 44%, rgba(149, 111, 232, 0.52) 56%);
+}
+
 /* Light-glass: unify control styling with mode-switcher button (including search field) */
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) {
   --light-glass-control-surface-base: color-mix(in srgb, var(--card) 92%, white 8%);
@@ -7459,7 +7542,7 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) {
   --reader-search-field-shadow: var(--light-glass-control-shadow);
 }
 
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, .reader-return-top, #dt-toggle-btn, #tocToggle, #cardLink, .meta-toggle-btn, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-switcher-item, .mode-text-size-row, .reader-search-input-wrap .dock-input, .hub-search-input-wrap .dock-input, .reader-search-panel .dock-btn:not(.dock-btn-inline)) {
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, #dt-toggle-btn, #tocToggle, #cardLink, .meta-toggle-btn, .mode-switcher, .lava-toggle, .reader-table-toggle, .mode-switcher-item, .mode-text-size-row, .reader-search-input-wrap .dock-input, .hub-search-input-wrap .dock-input, .reader-search-panel .dock-btn:not(.dock-btn-inline)) {
   background: var(--light-glass-control-surface) !important;
   border-color: var(--quickjump-light-option-border) !important;
   box-shadow: var(--light-glass-control-shadow) !important;
@@ -7467,7 +7550,7 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(
   backdrop-filter: none !important;
 }
 
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(.fixed-doc-btn, #tocToggle, #cardLink, .meta-toggle-btn) {
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) :is(#tocToggle, #cardLink, .meta-toggle-btn) {
   min-height: 34px;
   height: 34px;
   padding: 0 10px !important;
@@ -7498,26 +7581,6 @@ body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #fin
 
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) #findBtn.dock-btn:hover {
   box-shadow: var(--glow-shadow-b) !important;
-}
-
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .reader-search-input-wrap::before {
-  content: "";
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  transform: translateY(-50%);
-  z-index: 8;
-  pointer-events: none;
-  background: color-mix(in srgb, var(--text) 58%, transparent 42%);
-  -webkit-mask: url("magnify.svg") center / contain no-repeat;
-  mask: url("magnify.svg") center / contain no-repeat;
-}
-
-body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .reader-search-input-icon {
-  opacity: 0 !important;
-  filter: none !important;
 }
 
 body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .mode-text-size-range {
@@ -7761,13 +7824,22 @@ body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) :is(.reader-b
 
 /* ── 2026-04-07 dark/balanced integer highlight uses darker decimal palette */
 body[data-glass-mode="on"]:is(.dark, .theme-balanced) .toc-group-toggle.active {
-  background: color-mix(in srgb, var(--toc-sublist-glass-active) 78%, rgba(0, 0, 0, 0.7) 22%) !important;
-  border-color: color-mix(in srgb, var(--toc-sublist-glass-active-outline) 64%, rgba(0, 0, 0, 0.78) 36%) !important;
+  background: rgba(98, 0, 255, 0.16) !important;
 }
 
 body[data-glass-mode="on"]:is(.dark, .theme-balanced) .toc-group-toggle.active.is-current-block {
-  border-color: color-mix(in srgb, var(--toc-sublist-glass-active-outline) 50%, rgba(0, 0, 0, 0.84) 50%) !important;
+  background: rgba(98, 0, 255, 0.16) !important;
   box-shadow: none !important;
+}
+
+/* Dark/balanced glass quick-jump search-term highlight — fill + border parity
+   with the light-glass treatment (light glass adds these via the inset border,
+   dark/balanced glass otherwise fell back to the invisible base 0.12 wash). */
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .toc-sublist a.toc-search-match,
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .toc-group-toggle.toc-search-title-match:not(.toc-search-child-match) {
+  background: rgba(98, 0, 255, 0.22) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a1) 70%, #000 30%) !important;
+  color: #f4f8ff !important;
 }
 
 /* Search input and font-size slider share one inactive/active glow model. */
@@ -7946,4 +8018,37 @@ body[data-glass-mode="on"].is-phone[data-page-type="reader"]:not(.dark):not(.the
   color: var(--text) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+   Reader search — glass modes reuse the EXACT non-glass colors for the
+   magnify icon, the result counter, and the inline nav (prev / next / clear)
+   so they stay legible. Light glass mirrors light; balanced/dark/half glass
+   mirror the dark theme.
+   ─────────────────────────────────────────────────────────────────────── */
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .reader-search-input-icon {
+  filter: none !important;
+  opacity: 0.75 !important;
+}
+
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .reader-search-input-icon {
+  filter: invert(1) saturate(0) brightness(1.45) !important;
+  opacity: 1 !important;
+}
+
+body[data-glass-mode="on"]:not(.dark):not(.theme-balanced):not(.theme-half) .reader-search-panel :is(.find-count-inline, .dock-btn-inline, .dock-btn-icon) {
+  color: color-mix(in srgb, var(--text) 82%, transparent 18%) !important;
+}
+
+body[data-glass-mode="on"]:is(.dark, .theme-balanced, .theme-half) .reader-search-panel :is(.find-count-inline, .dock-btn-inline, .dock-btn-icon) {
+  color: var(--text) !important;
+}
+
+/* The glass input field is lifted to z-index:7 (rule above), which otherwise
+   paints OVER the magnify icon, counter, and nav — hiding them. Lift those
+   above the field so they stay visible and clickable in every glass mode. */
+body[data-glass-mode="on"] .reader-search-input-icon,
+body[data-glass-mode="on"] .find-count-inline,
+body[data-glass-mode="on"] .reader-search-inline-nav {
+  z-index: 8 !important;
 }

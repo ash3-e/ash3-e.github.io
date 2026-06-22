@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Documentation</title>
-  <link rel="stylesheet" href="../assets/tree-styles.css" />
+  <link rel="stylesheet" href="../assets/tree-styles.css?v=tree-search-find-arrow-20260601" />
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css">
   <link rel="stylesheet" href="../assets/hljs-theme.css">
@@ -27,53 +27,60 @@
   <main>
     <div class="container">
       <div class="stack">
-        <section class="card tree-hero-card mode-switcher-host">
-          <div class="mode-switcher-wrap tree-mode-switcher-wrap">
-            <button type="button" class="mode-switcher" id="treeThemeToggle" aria-expanded="false" aria-label="Theme switcher">
-              <img class="mode-switcher-icon" id="treeThemeIcon" alt="">
-              <span class="mode-caret">&#9662;</span>
-            </button>
-            <button type="button" class="mode-switcher lava-toggle" id="treeLavaToggle" aria-pressed="true" aria-label="Toggle lava lamp background">
-              <img class="mode-switcher-icon lava-toggle-icon" src="../assets/lava.svg" alt="Lava lamp">
-            </button>
-            <div class="mode-switcher-menu" id="treeThemeMenu">
-              <div class="mode-switcher-row">
-                <button type="button" class="mode-switcher-item" data-mode="light">
-                  <img class="mode-switcher-item-icon" src="../assets/sun.svg" alt="">
-                  <span class="mode-switcher-item-label">Light</span>
-                  <span class="mode-switcher-check">&#10003;</span>
-                </button>
-                <button type="button" class="mode-switcher-item" data-mode="balanced">
-                  <img class="mode-switcher-item-icon" src="../assets/half.svg" alt="">
-                  <span class="mode-switcher-item-label">Balanced</span>
-                  <span class="mode-switcher-check">&#10003;</span>
-                </button>
-                <button type="button" class="mode-switcher-item" data-mode="dark">
-                  <img class="mode-switcher-item-icon" src="../assets/moon.svg" alt="">
-                  <span class="mode-switcher-item-label">Dark</span>
-                  <span class="mode-switcher-check">&#10003;</span>
-                </button>
+        <section class="card tree-hero-card tree-control-card mode-switcher-host">
+          <div class="tree-node-header tree-control-head">
+            <h1 class="tree-node-title tree-control-title">
+              <span class="tree-node-title-label">Documentation Tree Map</span>
+            </h1>
+            <div class="mode-switcher-wrap tree-mode-switcher-wrap">
+              <button type="button" class="mode-switcher" id="treeThemeToggle" aria-expanded="false" aria-label="Theme switcher">
+                <img class="mode-switcher-icon" id="treeThemeIcon" alt="">
+                <span class="mode-caret">&#9662;</span>
+              </button>
+              <button type="button" class="mode-switcher lava-toggle" id="treeLavaToggle" aria-pressed="true" aria-label="Toggle lava lamp background">
+                <img class="mode-switcher-icon lava-toggle-icon" src="../assets/lava.svg" alt="Lava lamp">
+              </button>
+              <div class="mode-switcher-menu" id="treeThemeMenu">
+                <div class="mode-switcher-row">
+                  <button type="button" class="mode-switcher-item" data-mode="light">
+                    <img class="mode-switcher-item-icon" src="../assets/sun.svg" alt="">
+                    <span class="mode-switcher-item-label">Light</span>
+                    <span class="mode-switcher-check">&#10003;</span>
+                  </button>
+                  <button type="button" class="mode-switcher-item" data-mode="balanced">
+                    <img class="mode-switcher-item-icon" src="../assets/half.svg" alt="">
+                    <span class="mode-switcher-item-label">Balanced</span>
+                    <span class="mode-switcher-check">&#10003;</span>
+                  </button>
+                  <button type="button" class="mode-switcher-item" data-mode="dark">
+                    <img class="mode-switcher-item-icon" src="../assets/moon.svg" alt="">
+                    <span class="mode-switcher-item-label">Dark</span>
+                    <span class="mode-switcher-check">&#10003;</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-          <h1>Documentation</h1>
-          <p>Interactive architecture map. Hover softly highlights, click once previews, click again opens.</p>
+          <div class="tree-control-body">
           <div class="search-row hub-top-search">
             <div class="hub-search-input-wrap reader-search-input-wrap">
               <img class="reader-search-input-icon" src="../assets/magnify.svg" alt="">
+              <span class="reader-search-input-loader" role="status" aria-label="Searching" aria-hidden="true"></span>
               <input id="docSearch" class="dock-input" type="search" placeholder="Search documentation..."
                 aria-label="Search documentation">
               <button type="button" id="treeSearchClear" class="tree-search-clear" aria-label="Clear search">&times;</button>
+              <button type="button" id="treeSearchFind" class="tree-search-find" aria-label="Search documentation" title="Search">&#8594;</button>
             </div>
-            <span class="tree-search-meta" id="treeSearchMeta" aria-live="polite">Search within Documentation</span>
           </div>
           <div class="tree-search-help" aria-hidden="true">
             <div class="tree-sitemap-legend">
               <span class="tree-legend-pill">Click Selects Preview</span>
-              <span class="tree-legend-pill">Double Click to Jump to Document</span>
-              <span class="tree-legend-pill">Search for Contextual Preview</span>
-              <span class="tree-legend-pill">Scroll Preview</span>
+              <span class="tree-legend-pill">Double Click Jumps</span>
+              <span class="tree-legend-pill">Contextual Search Preview</span>
+              <span class="tree-legend-pill">Scroll Tree Nodes</span>
             </div>
+          </div>
+          <span class="tree-search-meta" id="treeSearchMeta" aria-live="polite">Search within Documentation</span>
           </div>
         </section>
 
@@ -121,25 +128,11 @@
       </div>
     </div>
   </main>
-  <footer>
-    <div class="footer-content">
-      <nav aria-label="Docs">
-        <a href="../docs/bcode-intro-v2.html">Intro</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-syntax-v13.html">Syntax</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-meta-v9.html">BCODe.meta</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-meta-library-semantics-v9.html">BCODe.meta Library Semantics</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-rest-v6.1.3.html">BCODe.rest</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-best-practices-v13.html">Best Practices</a> <span class="footer-sep">|</span>
-        <a href="../docs/bcode-telemetry-guide.html">Telemetry Guide</a>
-      </nav>
-      <p class="footer-right">BCODe</p>
-    </div>
-  </footer>
   <script src="../assets/tree-docs-data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="../assets/bcode_lang.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="../assets/tree-site.js"></script>
+  <script src="../assets/tree-site.js?v=tree-search-find-arrow-20260601"></script>
   <script src="../assets/lavalamp.js"></script>
 </body>
 

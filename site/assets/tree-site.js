@@ -948,22 +948,8 @@
       ]
     },
     interpretation: {
-      paragraphs: [
-        "After a line has been accepted structurally, this page explains what the field is actually allowed to mean. It preserves uncertainty, bounds, stale state, and diagnostic classes as first-class parts of the value so downstream code can reason about real telemetry conditions without flattening everything into a single convenient number. The result is a semantic model that treats engineering honesty as part of the protocol rather than as an optional post-processing habit.",
-        "Interpretation acts as the semantic hinge of the stack. It connects the raw parser output to application truth, clarifies why quality and intent stay attached to the field itself, and explains why reducers, accessors, and APIs depend on disciplined interpretation rather than on ad hoc downstream guesses."
-      ],
-      bullets: [
-        "Meaning starts after parsing succeeds.",
-        "Quality remains attached to values.",
-        "Bounds carry operational intent.",
-        "Staleness stays explicit.",
-        "Diagnostics remain machine-readable.",
-        "Typed access needs semantic discipline.",
-        "Reducers depend on value classes.",
-        "APIs inherit these meanings.",
-        "False precision is intentionally avoided.",
-        "Operational honesty is preserved."
-      ]
+      paragraphs: [],
+      bullets: []
     },
     "meta-v9": {
       paragraphs: [
@@ -1778,7 +1764,7 @@
     { id: "freestyle", kind: "concept", title: "FREESTYLE", x: 61.93, y: 67.56, w: 16.18, h: 5.16, previewKey: "freestyle", centerTitle: true },
     { id: "syntax", kind: "doc", slug: "syntax", x: TREE_STACK_CENTER_X - (TREE_STANDARD_NODE_W / 2), y: 61.26, w: TREE_STANDARD_NODE_W, h: 14.68, treeTitle: "BCODe.syntax" },
     { id: "best-practices", kind: "doc", slug: "best-practices", x: 71.36, y: 81.83, w: 21.73, h: 14.68, treeTitle: "Best Practices" },
-    { id: "intro", kind: "doc", slug: "intro", x: TREE_STACK_CENTER_X - (TREE_INTRO_NODE_W / 2), y: 80.76, w: TREE_INTRO_NODE_W, h: 14.68, treeTitle: "Intro", gallery: true }
+    { id: "intro", kind: "doc", slug: "intro", x: TREE_STACK_CENTER_X - (TREE_STANDARD_NODE_W / 2), y: 80.76, w: TREE_STANDARD_NODE_W, h: 14.68, treeTitle: "Intro", gallery: true }
   ];
   const SHIFT_EXEMPT_NODE_IDS = new Set(["intro", "best-practices", "telemetry-guide"]);
 
@@ -1847,6 +1833,164 @@
   const getMajorHeadingNumber = (value) => {
     const number = extractHeadingNumber(value);
     return number ? number.split(".")[0] : "";
+  };
+  const TREE_SEARCH_MIN_CHARS = 3;
+  const TREE_SEARCH_DEBOUNCE_MS = 500;
+  const TREE_ROW_VISIBLE_DEFAULT_MIN = 4;
+  const TREE_ROW_VISIBLE_DEFAULT_MAX = 4;
+  const TREE_HEADING_LABEL_OVERRIDES = new Map([
+    ["intro:8:measurement quality as first-class data integrated deep dive", "Measurement Quality"],
+    ["intro:8:measurement quality as first-class data", "Measurement Quality"]
+  ]);
+  const TREE_SECTION_TITLE_OVERRIDES = {
+    intro: {
+      1: "Introduction",
+      2: "Continuous Streams",
+      3: "Structural Philosophy",
+      4: "Atomic Line Model",
+      5: "32-Parameter Reality",
+      6: "Multi-Parameter Telemetry",
+      7: "Numeric Shape Preservation",
+      8: "Measurement Quality",
+      9: "Payloads",
+      10: "Multiline Atomic Packets",
+      11: "Command & Response",
+      12: "Resource-Oriented Streams",
+      13: "Sequence Tracking",
+      14: "Telemetry Case Study",
+      15: "Scientific Instrumentation",
+      16: "Reducers & Masks",
+      17: "Architecture Recap",
+      18: "Closing Narrative"
+    },
+    syntax: {
+      1: "Scope",
+      2: "Metanotation & Abstraction",
+      3: "Streaming Model",
+      4: "ASCII Column Grammar",
+      5: "Line Structure & Latching",
+      6: "Whitespace",
+      7: "Comments",
+      8: "Payloads",
+      9: "Fields",
+      10: "Numbers & Frac. Width",
+      11: "Scientific Exponent Suffix",
+      12: "Implementation Limits",
+      13: "Interleaving",
+      14: "Opaque Regions & Recognition",
+      15: "Conformance",
+      16: "Error Handling & Resync"
+    },
+    interpretation: {
+      1: "Scope",
+      2: "Parsed Field Model",
+      3: "Quality-First Telemetry",
+      4: "Orthogonal Staleness",
+      5: "Base Qualifier Truth Table",
+      6: "Field Numeric Variants",
+      7: "Exponent Semantics",
+      8: "API Consumer Recommendations",
+      9: "Transform Stage Cookbook",
+      10: "Bitmask Line Reduction",
+      11: "Mask Policy Examples",
+      12: "C API Quick Reference"
+    },
+    "meta-v9": {
+      1: "Policy Knobs Implementation",
+      2: "Reserved Meta Parameters",
+      3: "Command/Response & Rules",
+      4: "Multiline Batching with '['",
+      5: "Sequence Counters with ']'",
+      6: "Parser Reset Event",
+      7: "Meta Events Emitted"
+    },
+    rest: {
+      1: "Semantic Anchor",
+      2: "Resource Lookup (Discovery)",
+      3: "Indexing '@'",
+      4: "Command Letters",
+      5: "Field Model & Diagnostics",
+      6: "Sequence & Ordinals",
+      7: "Response vs. Unsolicited",
+      8: "Operation Semantics",
+      9: "Worked Examples",
+      10: "Instantiation & Instance Life",
+      11: "Error Reporting"
+    },
+    "telemetry-guide": {
+      1: "Not 'Just Numbers'",
+      2: "Telemetry-Friendly Syntax",
+      3: "Numbers Premises & Intent",
+      4: "Qualifiers & Data Quality",
+      5: "Multi-Interpretation Telemetry",
+      6: "Telemetry Stream Context",
+      7: "Scalable Complexity",
+      8: "Putting it Together",
+      9: "Design Practices & Gotchas",
+      10: "Glossary",
+      11: "Additional Deployment Items"
+    },
+    "meta-library-semantics": {
+      1: "Scope",
+      2: "Normative References",
+      3: "Terminology",
+      4: "Public API Contracts",
+      5: "BCODe.meta Semantics",
+      6: "Library-Specific Payloads",
+      7: "Resync & Dropped Signaling",
+      8: "TX Semantics",
+      9: "Mapping Events/Policies",
+      10: "Conformance & Deviations"
+    },
+    "best-practices": {
+      1: "Purpose",
+      2: "Layering Model",
+      3: "32-Parameter Reality",
+      4: "Simple Tasks",
+      5: "Encode Quality",
+      6: "Control Intent",
+      7: "Interparameter Dependency",
+      8: "BCODe.meta",
+      9: "BCODe.rest",
+      10: "Streaming-First Design",
+      11: "JSON vs BCODe",
+      12: "Choose Something Else"
+    },
+    cfg: {
+      1: "Scope",
+      2: "Normative Language",
+      3: "General Model",
+      4: "Variable Classes",
+      5: "Environment Binding",
+      6: "Next-Line Substitution",
+      7: "Non-Emitting Scope",
+      8: "BCODe.meta Emission",
+      9: "Ignore Negative Response",
+      10: "Capture Wait Token",
+      11: "Wait Token Identity",
+      12: "Wait on Token",
+      13: "Section Scope",
+      14: "Error Handling",
+      15: "Summary of Control Families"
+    }
+  };
+  const isIntegerHeadingNumber = (number) => /^\d+$/.test(String(number || ""));
+  const isDecimalHeadingNumber = (number) => /^\d+\.\d+(?:\.\d+)*$/.test(String(number || ""));
+  const getHeadingDisplayLabel = (slug, section) => {
+    const number = String(section?.number || extractHeadingNumber(section?.text || section?.label || "") || "");
+    const titleOverride = TREE_SECTION_TITLE_OVERRIDES[slug]?.[number];
+    if (titleOverride) return titleOverride;
+    const rawLabel = cleanHeadingLabel(section?.label || section?.text || "");
+    const normalized = normalizeText(rawLabel.replace(/\([^)]*\)/g, " ").replace(/[^\w\s.-]+/g, " "));
+    const override = TREE_HEADING_LABEL_OVERRIDES.get(`${slug}:${number}:${normalized}`)
+      || TREE_HEADING_LABEL_OVERRIDES.get(`${slug}:${number}:${normalizeText(rawLabel)}`);
+    return override || rawLabel;
+  };
+  const getHeadingRowKey = (slug, section, index, kind) => {
+    const id = String(section?.id || "").trim();
+    const number = String(section?.number || "").trim();
+    const basis = id || previewSlug(`${number} ${section?.label || section?.text || index}`);
+    return `${kind}:${slug}:${basis || index}`;
   };
   const previewMarkdownCache = new Map();
   const previewArticleCache = new Map();
@@ -2282,6 +2426,9 @@
     if (!article) return [];
     const children = [...article.children];
     if (!children.length) return [];
+    if (source.fullDocument) {
+      return children.length > 1 && isHeadingElement(children[0]) ? children.slice(1) : children;
+    }
     if (source.fullMajorSection && (source.majorSectionId || source.majorNumber)) {
       const majorStart = (() => {
         if (source.majorSectionId) {
@@ -2591,6 +2738,10 @@
 
   const findPreviewScrollTarget = (root, source = {}) => {
     if (!root) return null;
+    if (source.scrollToSection || source.sectionId || source.sectionLabel) {
+      const sectionStart = findPreviewSectionStart(root, source);
+      if (sectionStart) return sectionStart;
+    }
     const wantedMatch = normalizeText(source.matchText || "");
     if (wantedMatch) {
       const elements = [...root.querySelectorAll("p,li,blockquote,pre,td,th,h1,h2,h3,h4,h5,h6,div")];
@@ -2605,7 +2756,8 @@
   };
 
   const scrollPreviewSnippetToMatch = (snippet, preview) => {
-    if (!snippet || !preview?.snippetQuery) return;
+    if (!snippet || !preview?.renderSource?.slug) return;
+    if (!preview.snippetQuery && !preview.renderSource.scrollToSection) return;
     const scrollToMatch = () => {
       const target = findPreviewScrollTarget(snippet, preview.renderSource || {});
       if (!target) return;
@@ -2720,6 +2872,7 @@
         const block = getTopLevelPreviewBlock(article, heading);
         const blockIndex = block ? blocks.indexOf(block) : Math.round((index / Math.max(1, rows.length - 1)) * Math.max(0, blocks.length - 1));
         return {
+          key: row.key || row.label,
           label: row.label,
           row,
           section: heading ? {
@@ -2780,7 +2933,8 @@
           sentenceMatchCount: sentenceMatchCount || 1,
           tokenCount: countTokenMatches(sourceText, query),
           matchType: countExactMatches(sourceText, query) > 0 ? "exact" : "loose",
-          hasValidSentence: true
+          hasValidSentence: true,
+          matchIndex: index
         };
       })
       .filter(Boolean);
@@ -2825,8 +2979,10 @@
       (b.sentenceMatchCount || 0) - (a.sentenceMatchCount || 0) ||
       Math.abs((a.sectionOffset ?? Number.MAX_SAFE_INTEGER) - anchorOffset) - Math.abs((b.sectionOffset ?? Number.MAX_SAFE_INTEGER) - anchorOffset) ||
       (a.sectionOffset || Number.MAX_SAFE_INTEGER) - (b.sectionOffset || Number.MAX_SAFE_INTEGER);
-    const assignRowHit = (label, group, jumpSection) => {
-      const existing = rowHitMap.get(label) || { label, hits: [], groups: [], primaryHit: null, primaryGroup: null, jumpSection: jumpSection || group.majorSection || group.primaryHit?.section };
+    const assignRowHit = (rowKey, group, jumpSection) => {
+      const row = getDocRowConfig(slug, rowKey);
+      const label = row?.label || rowKey;
+      const existing = rowHitMap.get(rowKey) || { key: rowKey, label, hits: [], groups: [], primaryHit: null, primaryGroup: null, jumpSection: jumpSection || group.majorSection || group.primaryHit?.section };
       if (jumpSection) existing.jumpSection = jumpSection;
       existing.groups.push(group);
       existing.hits.push(...group.hits);
@@ -2835,7 +2991,7 @@
         existing.primaryGroup = group;
         existing.primaryHit = group.primaryHit;
       }
-      rowHitMap.set(label, existing);
+      rowHitMap.set(rowKey, existing);
     };
 
     [...majorGroups.values()].forEach((group) => {
@@ -2847,18 +3003,45 @@
           a.sectionIndex - b.sectionIndex
         )[0];
       if (!nearest) return;
-      assignRowHit(nearest.label, group, nearest.section || group.majorSection || group.primaryHit?.section);
+      assignRowHit(nearest.key || nearest.label, group, nearest.section || group.majorSection || group.primaryHit?.section);
+    });
+
+    markHits.forEach((hit) => {
+      const hitNumber = hit.section?.number || extractHeadingNumber(hit.section?.text || hit.section?.label || "");
+      if (!isDecimalHeadingNumber(hitNumber)) return;
+      const decimalAnchor = rowAnchors.find((entry) =>
+        entry.row?.isDecimalHeading &&
+        (entry.section?.id === hit.section?.id || normalizeText(entry.section?.label) === normalizeText(hit.section?.label))
+      );
+      if (!decimalAnchor) return;
+      const group = {
+        key: `decimal:${decimalAnchor.key}`,
+        majorSection: decimalAnchor.section,
+        majorNumber: hit.majorNumber || getMajorHeadingNumber(hit.section?.text || hit.section?.label || ""),
+        hits: [hit],
+        sectionOffset: hit.sectionOffset,
+        exactCount: hit.exactCount || 0,
+        sentenceMatchCount: hit.sentenceMatchCount || 0,
+        tokenCount: hit.tokenCount || 0,
+        hitCount: 1,
+        primaryHit: hit
+      };
+      assignRowHit(decimalAnchor.key || decimalAnchor.label, group, decimalAnchor.section || hit.section);
+      if (decimalAnchor.row?.parentKey) {
+        assignRowHit(decimalAnchor.row.parentKey, group, decimalAnchor.section || hit.section);
+      }
     });
 
     getDocRows(slug).forEach((row) => {
       const label = row.label;
       if (slug === "intro" && row.gallery) return;
-      if (!normalizeText(label).includes(q) || rowHitMap.has(label)) return;
-      const anchor = rowAnchors.find((entry) => entry.label === label);
+      const rowKey = row.key || row.label;
+      if (!normalizeText(label).includes(q) || rowHitMap.has(rowKey)) return;
+      const anchor = rowAnchors.find((entry) => entry.key === rowKey || entry.label === label);
       if (!anchor) return;
       const sourceText = cleanLabel((blocks[anchor.sectionIndex]?.textContent) || anchor.section?.text || "");
       if (!normalizeText(sourceText).includes(q)) return;
-      assignRowHit(label, {
+      const labelGroup = {
         majorSection: anchor.section,
         majorNumber: getMajorHeadingNumber(anchor.section?.text || anchor.section?.label || ""),
         hits: [],
@@ -2883,16 +3066,20 @@
           tokenCount: countTokenMatches(sourceText, query),
           matchType: "loose"
         }
-      }, anchor.section);
+      };
+      assignRowHit(rowKey, labelGroup, anchor.section);
+      if (row.isDecimalHeading && row.parentKey) assignRowHit(row.parentKey, labelGroup, anchor.section);
     });
 
     const exampleMatches = slug === "intro"
       ? getIntroGalleryItems().filter((section) => normalizeText(buildExamplePreviewText(section)).includes(q))
       : [];
-    const introGalleryRowLabel = getDocRows("intro").find((row) => row.gallery)?.label || "";
-    if (slug === "intro" && exampleMatches.length && introGalleryRowLabel) {
+    const introGalleryRow = getDocRows("intro").find((row) => row.gallery);
+    const introGalleryRowLabel = introGalleryRow?.label || "";
+    const introGalleryRowKey = introGalleryRow?.key || introGalleryRowLabel;
+    if (slug === "intro" && exampleMatches.length && introGalleryRowKey) {
       const exampleText = buildExamplePreviewText(exampleMatches[0]);
-      assignRowHit(introGalleryRowLabel, {
+      assignRowHit(introGalleryRowKey, {
         majorSection: exampleMatches[0],
         majorNumber: "",
         hits: [],
@@ -2918,42 +3105,6 @@
           matchType: "exact"
         }
       }, exampleMatches[0]);
-    }
-
-    if (rowHitMap.size > 3) {
-      const ranked = [...rowHitMap.entries()]
-        .map(([label, entry]) => {
-          const ph = entry.primaryHit || {};
-          const pg = entry.primaryGroup || {};
-          const hitOffset = ph.sectionOffset ?? ((ph.sectionIndex || 0) * 1000);
-          const anchorDist = rowAnchors.length
-            ? Math.min(...rowAnchors
-              .filter((a) => a.label === label)
-              .map((a) => Math.abs((a.sectionOffset ?? a.sectionIndex) - hitOffset)))
-            : 0;
-          return {
-            label,
-            entry,
-            exactCount: pg.exactCount || ph.exactCount || 0,
-            sentenceMatchCount: pg.sentenceMatchCount || ph.sentenceMatchCount || 0,
-            tokenCount: pg.tokenCount || ph.tokenCount || 0,
-            hitCount: pg.hitCount || 0,
-            anchorDist: isFinite(anchorDist) ? anchorDist : 9999,
-            sectionOffset: hitOffset
-          };
-        })
-        .sort((a, b) =>
-          b.exactCount - a.exactCount ||
-          b.hitCount - a.hitCount ||
-          b.sentenceMatchCount - a.sentenceMatchCount ||
-          b.tokenCount - a.tokenCount ||
-          a.anchorDist - b.anchorDist ||
-          a.sectionOffset - b.sectionOffset
-        );
-      const keep = new Set(ranked.slice(0, 3).map((r) => r.label));
-      [...rowHitMap.keys()].forEach((label) => {
-        if (!keep.has(label)) rowHitMap.delete(label);
-      });
     }
 
     const primaryEntry = [...rowHitMap.values()]
@@ -3079,8 +3230,8 @@
     stackWidth: 1200,
     mapInnerWidth: 1150.5081,
     mapInnerHeight: 1008.1333,
-    previewWidth: 520,
-    galleryWidth: 520,
+    previewWidth: 600,
+    galleryWidth: 600,
     panelGap: 24,
     viewportRightPad: 18
   };
@@ -3105,6 +3256,7 @@
     if (options.searchQuery) params.set("q", options.searchQuery);
     if (options.jump) params.set("jump", options.jump);
     if (options.searchOpen) params.set("search", "1");
+    if (Number.isInteger(options.matchIndex) && options.matchIndex >= 0) params.set("matchIndex", String(options.matchIndex));
     const query = params.toString();
     const hash = options.hash ? `#${options.hash}` : "";
     return `${file}${query ? `?${query}` : ""}${hash}`;
@@ -3113,8 +3265,170 @@
   const getDocSummary = (slug) => DOC_PORTAL_META[slug]?.summary || docsBySlug.get(slug)?.description || "";
   const getDocMetaLabel = (slug) => docsBySlug.get(slug)?.preview_title || "";
   const getDocTitle = (slug) => docsBySlug.get(slug)?.display_title || slug;
-  const getDocRows = (slug) => (DOC_ROW_CONFIGS[slug] || []).map((row) => ({ ...row, type: "row" }));
-  const getDocRowConfig = (slug, label) => getDocRows(slug).find((row) => row.label === label) || null;
+  const generatedDocRowsCache = new Map();
+  const getAuthoredRowConfig = (slug, labelOrSection = "") => {
+    const rows = DOC_ROW_CONFIGS[slug] || [];
+    const wanted = normalizeText(labelOrSection);
+    if (!wanted) return null;
+    return rows.find((row) => {
+      const candidates = [row.label, row.jumpLabel, row.jumpId].map((value) => normalizeText(value));
+      return candidates.includes(wanted);
+    }) || null;
+  };
+  const getDocRows = (slug) => {
+    if (generatedDocRowsCache.has(slug)) {
+      return generatedDocRowsCache.get(slug).map((row) => ({ ...row }));
+    }
+    const sections = getSectionsForSlug(slug);
+    const rows = [];
+    const latestIntegerByMajor = new Map();
+    sections.forEach((section, sectionIndex) => {
+      const number = String(section?.number || extractHeadingNumber(section?.text || section?.label || "") || "").trim();
+      if (!isIntegerHeadingNumber(number) && !isDecimalHeadingNumber(number)) return;
+      if (isDecimalHeadingNumber(number)) return;
+      if ((slug === "telemetry-guide" && number === "0") || (slug === "intro" && number === "19")) return;
+      const kind = isDecimalHeadingNumber(number) ? "decimal" : "integer";
+      const fullLabel = cleanHeadingLabel(section?.label || section?.text || "");
+      const displayNumber = String(rows.length + 1);
+      const displayLabel = TREE_SECTION_TITLE_OVERRIDES[slug]?.[displayNumber] || getHeadingDisplayLabel(slug, section);
+      const key = getHeadingRowKey(slug, section, sectionIndex, kind);
+      const majorNumber = displayNumber;
+      const sourceMajorNumber = number.split(".")[0] || "";
+      const authored = getAuthoredRowConfig(slug, fullLabel) || getAuthoredRowConfig(slug, displayLabel) || {};
+      let parentKey = "";
+      let parentLabel = "";
+      let parentNumber = "";
+      if (kind === "integer") {
+        parentKey = key;
+        parentLabel = displayLabel;
+        parentNumber = displayNumber;
+      } else {
+        const parent = latestIntegerByMajor.get(sourceMajorNumber);
+        parentKey = parent?.key || "";
+        parentLabel = parent?.label || "";
+        parentNumber = parent?.number || sourceMajorNumber;
+      }
+      const row = {
+        ...authored,
+        type: "row",
+        key,
+        label: displayLabel,
+        fullLabel,
+        originalLabel: fullLabel,
+        number: displayNumber,
+        sourceNumber: number,
+        majorNumber,
+        sourceMajorNumber,
+        parentKey,
+        parentLabel,
+        parentNumber,
+        jumpId: section?.id || authored.jumpId || "",
+        jumpLabel: fullLabel || authored.jumpLabel || displayLabel,
+        section,
+        sectionIndex,
+        sectionOffset: getSectionAnchorOffset(slug, section),
+        isGeneratedHeading: true,
+        isIntegerHeading: kind === "integer",
+        isDecimalHeading: kind === "decimal",
+        gallery: !!(slug === "intro" && number === "19")
+      };
+      rows.push(row);
+      if (row.isIntegerHeading) {
+        latestIntegerByMajor.set(sourceMajorNumber, {
+          key,
+          label: displayLabel,
+          number: displayNumber,
+          section,
+          sectionIndex
+        });
+      }
+    });
+    generatedDocRowsCache.set(slug, rows);
+    return rows.map((row) => ({ ...row }));
+  };
+  const getDocIntegerRows = (slug) => getDocRows(slug).filter((row) => !row.isDecimalHeading);
+  const getDocRowConfig = (slug, keyOrLabel) => getDocRows(slug).find((row) =>
+    row.key === keyOrLabel ||
+    row.label === keyOrLabel ||
+    row.fullLabel === keyOrLabel ||
+    row.originalLabel === keyOrLabel
+  ) || null;
+  const TREE_PREVIEW_PILL_LABEL_OVERRIDES = new Map([
+    ["the bcode layering model", "Layering Model"],
+    ["the 32-parameter reality", "32-Parameter Reality"],
+    ["make simple tasks simple", "Simple Tasks"],
+    ["metanotation & abstraction", "Metanotation"],
+    ["line structure & latching", "Line Latching"],
+    ["numbers & frac. width", "Numbers & Width"],
+    ["scientific exponent suffix", "Exponent Suffix"],
+    ["parsed field model", "Parsed Fields"],
+    ["quality-first telemetry", "Quality-First"],
+    ["base qualifier truth table", "Qualifier Table"],
+    ["api consumer recommendations", "API Consumers"],
+    ["policy knobs implementation", "Policy Knobs"],
+    ["reserved meta parameters", "Reserved Meta"],
+    ["command/response & rules", "Command/Response"],
+    ["multiline batching with '['", "Multiline Batching"],
+    ["resource lookup (discovery)", "Resource Lookup"],
+    ["field model & diagnostics", "Diagnostics"],
+    ["sequence & ordinals", "Sequences"],
+    ["response vs. unsolicited", "Responses"],
+    ["telemetry as not 'just numbers'", "Not Just Numbers"],
+    ["telemetry-friendly syntax", "Telemetry Syntax"],
+    ["numbers premises & intent", "Numbers & Intent"],
+    ["qualifiers & data quality", "Data Quality"],
+    ["multi-interpretation telemetry", "Interpretations"],
+    ["normative references", "References"],
+    ["public api contracts", "API Contracts"],
+    ["bcodemeta semantics", "Meta Semantics"],
+    ["library-specific payloads", "Payloads"],
+    ["normative language", "Language"],
+    ["environment binding", "Env Binding"],
+    ["next-line substitution", "Line Substitution"]
+  ]);
+  const getPreviewPillDisplayLabel = (value) => {
+    const raw = cleanLabel(value);
+    const override = TREE_PREVIEW_PILL_LABEL_OVERRIDES.get(normalizeText(raw));
+    if (override) return override;
+    let compact = raw
+      .replace(/^The\s+BCODe\s+/i, "")
+      .replace(/^The\s+/i, "")
+      .replace(/\s*\([^)]*\)\s*/g, " ")
+      .replace(/\bBCODe\.(meta|rest)\s+Convention\b/gi, "BCODe.$1")
+      .replace(/\bQualifiers:\s*/i, "")
+      .replace(/\bRecommendations\b/gi, "")
+      .replace(/\bImplementation\b/gi, "")
+      .replace(/\bSemantics\b/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    const words = compact.split(/\s+/).filter(Boolean);
+    if (words.length > 3) compact = words.slice(0, 3).join(" ");
+    return compact || raw;
+  };
+  const getPreviewPillConfig = (row) => ({
+    key: row.key || row.label,
+    label: row.label,
+    displayLabel: getPreviewPillDisplayLabel(row.label),
+    title: row.fullLabel || row.originalLabel || row.label
+  });
+  const getPreviewPillsForDoc = (slug) => getDocIntegerRows(slug).map(getPreviewPillConfig).slice(0, 4);
+  const normalizePreviewPill = (pill) => {
+    if (pill && typeof pill === "object") {
+      return {
+        key: pill.key || pill.label || pill.displayLabel || "",
+        label: pill.label || pill.displayLabel || pill.key || "",
+        displayLabel: pill.displayLabel || getPreviewPillDisplayLabel(pill.label || pill.key || ""),
+        title: pill.title || pill.label || pill.displayLabel || pill.key || ""
+      };
+    }
+    const label = cleanLabel(pill);
+    return {
+      key: label,
+      label,
+      displayLabel: getPreviewPillDisplayLabel(label),
+      title: label
+    };
+  };
   const countWords = (text) => cleanLabel(text).split(/\s+/).filter(Boolean).length;
   const ensureSentence = (text) => {
     const clean = cleanLabel(text);
@@ -3147,7 +3461,7 @@
     ],
     interpretation: [
       null,
-      "Taken as a semantic layer, the document shows how accepted lines become trustworthy values without severing quality, bounds, freshness, or diagnostic meaning from the field. It gives the rest of the stack a disciplined account of what software may expose, reduce, or automate, which is why later APIs and operational policies can stay honest instead of improvising their own value logic."
+      null
     ],
     "meta-v9": [
       null,
@@ -3179,10 +3493,7 @@
       "Every later page inherits that discipline, which is why the syntax chapter spends so much time on byte classes, termination rules, and recoverable structure.",
       "The broader effect is that semantic and operational layers can build upward without reopening questions about what the wire is allowed to mean structurally."
     ],
-    interpretation: [
-      "That choice prevents convenience APIs from laundering away uncertainty, and it gives downstream tooling a basis for treating measured reality as something richer than a scalar payload.",
-      "Seen beside the rest of the architecture, the page defines what later reducers, accessors, and libraries must preserve if they want to stay faithful to the field."
-    ],
+    interpretation: [],
     "meta-v9": [
       "Requests, responses, unsolicited events, and resets are therefore treated as readable line conventions rather than as invisible session machinery.",
       "Because the document keeps interaction on the same visible wire, later tooling can expose conversation state without inventing a second control grammar around the protocol."
@@ -3383,7 +3694,7 @@
       doc.display_title,
       doc.preview_title,
       getDocSummary(slug),
-      ...getDocRows(slug).map((row) => row.label),
+      ...getDocRows(slug).flatMap((row) => [row.label, row.fullLabel, row.number]),
       ...getSectionsForSlug(slug).map((section) => section.label),
       doc.corpus_text
     ].join(" ");
@@ -3414,6 +3725,7 @@
   const findSectionForRow = (slug, rowOrLabel) => {
     const row = typeof rowOrLabel === "string" ? getDocRowConfig(slug, rowOrLabel) : rowOrLabel;
     if (!row) return null;
+    if (row.section) return coerceRowSection(slug, row, row.section);
     if (row.jumpId) {
       const exactById = findSectionById(slug, row.jumpId);
       if (exactById) return coerceRowSection(slug, row, exactById);
@@ -3734,6 +4046,7 @@
         ? getSectionAnchorOffset(slug, section)
         : resolvedIndex * 1000;
       return {
+        key: row.key || row.label,
         label: row.label,
         row,
         section,
@@ -3909,23 +4222,27 @@
       .map((section, sectionIndex) => {
         const sourceText = buildSectionPreviewText(slug, section);
         const preview = buildSentenceAwarePreview(sourceText, query);
+        const sectionOffset = getSectionAnchorOffset(slug, section);
         return {
           section,
           sectionIndex,
-          sectionOffset: getSectionAnchorOffset(slug, section),
+          sectionOffset,
           sourceText: preview.text || "",
           exactCount: preview.exactCount || 0,
           sentenceMatchCount: preview.sentenceCount || 0,
           tokenCount: preview.tokenCount || 0,
           matchType: preview.matchType || "none",
-          hasValidSentence: preview.startIndex >= 0
+          hasValidSentence: preview.startIndex >= 0,
+          matchIndex: Math.max(0, countExactMatches(corpus.slice(0, sectionOffset), query))
         };
       })
       .filter((hit) => hit.hasValidSentence && !!hit.sourceText && (normalizeText(hit.sourceText).includes(q) || hit.tokenCount > 0));
 
     const rowHitMap = new Map();
-    const assignRowHit = (label, hit, jumpSection) => {
-      const existing = rowHitMap.get(label) || { label, hits: [], primaryHit: null, jumpSection: jumpSection || hit.section };
+    const assignRowHit = (rowKey, hit, jumpSection) => {
+      const row = getDocRowConfig(slug, rowKey);
+      const label = row?.label || rowKey;
+      const existing = rowHitMap.get(rowKey) || { key: rowKey, label, hits: [], primaryHit: null, jumpSection: jumpSection || hit.section };
       if (jumpSection) existing.jumpSection = jumpSection;
       existing.hits.push(hit);
       const anchorOffset = getSectionAnchorOffset(slug, existing.jumpSection || hit.section);
@@ -3941,7 +4258,7 @@
           (hitDistance === primaryDistance && hit.exactCount === (existing.primaryHit.exactCount || 0) && hit.sentenceMatchCount === (existing.primaryHit.sentenceMatchCount || 0) && hit.tokenCount === (existing.primaryHit.tokenCount || 0) && (hit.sectionOffset || Number.MAX_SAFE_INTEGER) < (existing.primaryHit.sectionOffset || Number.MAX_SAFE_INTEGER))) {
         existing.primaryHit = hit;
       }
-      rowHitMap.set(label, existing);
+      rowHitMap.set(rowKey, existing);
     };
 
     const anchorConfigs = getRowAnchorConfigs(slug);
@@ -3963,18 +4280,33 @@
           a.sectionIndex - b.sectionIndex
         )[0];
       if (!nearest) return;
-      assignRowHit(nearest.label, hit, nearest.section || hit.section);
+      assignRowHit(nearest.key || nearest.label, hit, nearest.section || hit.section);
+    });
+
+    normalSectionHits.forEach((hit) => {
+      const hitNumber = hit.section?.number || extractHeadingNumber(hit.section?.text || hit.section?.label || "");
+      if (!isDecimalHeadingNumber(hitNumber)) return;
+      const decimalAnchor = eligibleAnchors.find((entry) =>
+        entry.row?.isDecimalHeading &&
+        (entry.section?.id === hit.section?.id || normalizeText(entry.section?.label) === normalizeText(hit.section?.label))
+      );
+      if (!decimalAnchor) return;
+      assignRowHit(decimalAnchor.key || decimalAnchor.label, hit, decimalAnchor.section || hit.section);
+      if (decimalAnchor.row?.parentKey) {
+        assignRowHit(decimalAnchor.row.parentKey, hit, decimalAnchor.section || hit.section);
+      }
     });
 
     getDocRows(slug).forEach((row) => {
       const label = row.label;
       if (slug === "intro" && row.gallery) return;
-      if (!normalizeText(label).includes(q) || rowHitMap.has(label)) return;
-      const anchor = eligibleAnchors.find((entry) => entry.label === label);
+      const rowKey = row.key || row.label;
+      if (!normalizeText(label).includes(q) || rowHitMap.has(rowKey)) return;
+      const anchor = eligibleAnchors.find((entry) => entry.key === rowKey || entry.label === label);
       const sourceText = buildSectionPreviewText(slug, anchor?.section || { label, excerpt: getDocSummary(slug) });
       const preview = buildSentenceAwarePreview(sourceText, query);
       if (preview.startIndex < 0 || !preview.text) return;
-      assignRowHit(label, {
+      const labelHit = {
         section: anchor?.section || findSectionForRow(slug, row) || { label, excerpt: getDocSummary(slug) },
         sectionIndex: anchor?.sectionIndex ?? 0,
         sectionOffset: anchor?.sectionOffset ?? ((anchor?.sectionIndex ?? 0) * 1000),
@@ -3982,18 +4314,25 @@
         exactCount: preview.exactCount || 0,
         sentenceMatchCount: preview.sentenceCount || 0,
         tokenCount: preview.tokenCount || 0,
-        matchType: preview.matchType || "loose"
-      }, anchor?.section || findSectionForRow(slug, row));
+        matchType: preview.matchType || "loose",
+        matchIndex: Math.max(0, countExactMatches(corpus.slice(0, anchor?.sectionOffset || 0), query))
+      };
+      assignRowHit(rowKey, labelHit, anchor?.section || findSectionForRow(slug, row));
+      if (row.isDecimalHeading && row.parentKey) {
+        assignRowHit(row.parentKey, labelHit, anchor?.section || findSectionForRow(slug, row));
+      }
     });
 
-    const introGalleryRowLabel = getDocRows("intro").find((row) => row.gallery)?.label || "";
+    const introGalleryRow = getDocRows("intro").find((row) => row.gallery);
+    const introGalleryRowLabel = introGalleryRow?.label || "";
+    const introGalleryRowKey = introGalleryRow?.key || introGalleryRowLabel;
     const exampleMatches = slug === "intro"
       ? getIntroGalleryItems().filter((section) =>
         normalizeText(buildExamplePreviewText(section)).includes(q))
       : [];
-    if (slug === "intro" && exampleMatches.length && introGalleryRowLabel) {
+    if (slug === "intro" && exampleMatches.length && introGalleryRowKey) {
       const exampleText = buildExamplePreviewText(exampleMatches[0]);
-      assignRowHit(introGalleryRowLabel, {
+      assignRowHit(introGalleryRowKey, {
         section: exampleMatches[0],
         sectionIndex: Number.MAX_SAFE_INTEGER,
         sectionOffset: Number.MAX_SAFE_INTEGER,
@@ -4001,41 +4340,9 @@
         exactCount: countExactMatches(exampleText, query),
         sentenceMatchCount: splitIntoSentences(exampleText).filter((sentence) => normalizeText(sentence).includes(q)).length,
         tokenCount: countTokenMatches(exampleText, query),
-        matchType: "exact"
+        matchType: "exact",
+        matchIndex: Math.max(0, countExactMatches(corpus, query))
       }, exampleMatches[0]);
-    }
-
-    if (rowHitMap.size > 3) {
-      const ranked = [...rowHitMap.entries()]
-        .map(([label, entry]) => {
-          const ph = entry.primaryHit || {};
-          const hitOffset = ph.sectionOffset ?? ((ph.sectionIndex || 0) * 1000);
-          const anchorDist = eligibleAnchors.length
-            ? Math.min(...eligibleAnchors
-              .filter((a) => a.label === label)
-              .map((a) => Math.abs((a.sectionOffset ?? (a.sectionIndex * 1000)) - hitOffset)))
-            : 0;
-          return {
-            label,
-            entry,
-            exactCount: ph.exactCount || 0,
-            sentenceMatchCount: ph.sentenceMatchCount || 0,
-            tokenCount: ph.tokenCount || 0,
-            anchorDist: isFinite(anchorDist) ? anchorDist : 9999,
-            sectionOffset: hitOffset
-          };
-        })
-        .sort((a, b) =>
-          b.exactCount - a.exactCount ||
-          b.sentenceMatchCount - a.sentenceMatchCount ||
-          b.tokenCount - a.tokenCount ||
-          a.anchorDist - b.anchorDist ||
-          a.sectionOffset - b.sectionOffset
-        );
-      const keep = new Set(ranked.slice(0, 3).map((r) => r.label));
-      [...rowHitMap.keys()].forEach((label) => {
-        if (!keep.has(label)) rowHitMap.delete(label);
-      });
     }
 
     const primaryHit = [...rowHitMap.values()]
@@ -4074,8 +4381,10 @@
       summary: getDocSummary(slug),
       renderSource: {
         slug,
+        fullDocument: true,
         sectionId: searchContext ? (jumpSection?.id || "") : "",
         sectionLabel: searchContext ? (jumpSection?.label || jumpSection?.text || "") : "",
+        scrollToSection: searchContext,
         majorSectionId: searchContext ? (jumpSection?.id || "") : "",
         majorNumber: searchContext ? (searchResult?.primaryHit?.majorNumber || getMajorHeadingNumber(jumpSection?.text || jumpSection?.label || "")) : "",
         fullMajorSection: searchContext,
@@ -4087,10 +4396,10 @@
         : (getDocPreviewContent(slug).paragraphs || []),
       snippetBullets: searchContext ? [] : (getDocPreviewContent(slug).bullets || []),
       snippetQuery: searchContext ? options.query : "",
-      pills: getDocRows(slug).map((row) => row.label).slice(0, 4),
+      pills: getPreviewPillsForDoc(slug),
       href: matchedSection
-        ? readerHref(slug, searchContext ? { searchQuery: options.query, jump: matchedSection.label, searchOpen: true } : {})
-        : readerHref(slug, searchContext ? { searchQuery: options.query, searchOpen: true } : {})
+        ? readerHref(slug, searchContext ? { searchQuery: options.query, jump: matchedSection.label, searchOpen: true, matchIndex: searchResult?.primaryHit?.matchIndex } : {})
+        : readerHref(slug, searchContext ? { searchQuery: options.query, searchOpen: true, matchIndex: searchResult?.primaryHit?.matchIndex } : {})
     };
   };
 
@@ -4098,7 +4407,9 @@
     const rowConfig = getDocRowConfig(slug, label);
     const section = rowConfig ? findSectionForRow(slug, rowConfig) : findSectionByLabel(slug, label);
     const searchResult = options.searchResult || null;
-    const rowMatch = searchResult?.rowHitMap instanceof Map ? searchResult.rowHitMap.get(label) : null;
+    const rowMatch = searchResult?.rowHitMap instanceof Map
+      ? (searchResult.rowHitMap.get(rowConfig?.key || label) || searchResult.rowHitMap.get(label))
+      : null;
     const jumpSection = rowConfig
       ? coerceRowSection(slug, rowConfig, rowMatch?.jumpSection || section)
       : (rowMatch?.jumpSection || section);
@@ -4139,8 +4450,10 @@
       summary: cleanLabel(jumpSection?.label || section?.label || label),
       renderSource: {
         slug,
+        fullDocument: true,
         sectionId: String(previewSection?.id || jumpSection?.id || section?.id || rowConfig?.jumpId || ""),
         sectionLabel: cleanLabel(previewSection?.label || previewSection?.text || jumpSection?.label || section?.label || rowConfig?.jumpLabel || label),
+        scrollToSection: true,
         majorSectionId: searchContext ? String(previewSection?.id || "") : "",
         majorNumber: searchContext ? String(rowMatch?.primaryGroup?.majorNumber || rowMatch?.primaryHit?.majorNumber || getMajorHeadingNumber(previewSection?.text || previewSection?.label || "")) : "",
         fullMajorSection: searchContext,
@@ -4150,13 +4463,14 @@
       snippetParagraphs: searchContext ? searchSnippetParagraphs : (rowPreview.paragraphs || []),
       snippetBullets: searchContext ? [] : (rowPreview.bullets || []),
       snippetQuery: searchContext ? options.query : "",
-      pills: getDocRows(slug).map((row) => row.label).slice(0, 4),
-      activePill: label,
+      pills: getPreviewPillsForDoc(slug),
+      activePill: rowConfig?.label || label,
+      activePillKey: rowConfig?.key || label,
       href: (searchContext ? previewSection : jumpSection)
         ? readerHref(
           slug,
           searchContext
-            ? { searchQuery: options.query, jump: cleanLabel(rowMatch?.primaryHit?.section?.label || rowMatch?.primaryHit?.section?.text || previewSection?.label || previewSection?.text || jumpSection?.label || ""), searchOpen: true }
+            ? { searchQuery: options.query, jump: cleanLabel(rowMatch?.primaryHit?.section?.label || rowMatch?.primaryHit?.section?.text || previewSection?.label || previewSection?.text || jumpSection?.label || ""), searchOpen: true, matchIndex: rowMatch?.primaryHit?.matchIndex }
             : { jump: jumpSection.label }
         )
         : readerHref(slug)
@@ -4181,7 +4495,7 @@
       snippetBullets: [],
       snippetQuery: options.searchContext ? options.query : "",
       pills: [section.number || "Example", "Example Gallery"],
-      href: readerHref("intro", options.searchContext ? { searchQuery: options.query, jump: displayLabel } : { hash: canonicalSectionId || section.id })
+      href: readerHref("intro", options.searchContext ? { searchQuery: options.query, jump: displayLabel, searchOpen: true } : { hash: canonicalSectionId || section.id })
     };
   };
 
@@ -4215,15 +4529,16 @@
     const useScrollableSearch = !!preview.snippetQuery
       && !!preview.renderSource?.slug;
     const useScrollablePreview = useScrollableDefault || useScrollableSearch;
+    const hasFormattedDocPreview = !!preview.renderSource?.slug;
     const snippetParagraphs = preview.snippetParagraphs || [preview.snippetSource || preview.summary || ""];
-    const fallbackHtml = fitPreviewSentences(
+    const fallbackHtml = hasFormattedDocPreview ? "" : fitPreviewSentences(
         snippetParagraphs.length ? snippetParagraphs : [preview.snippetSource || ""],
         preview.snippetQuery || "",
         preview.snippetBullets || buildPreviewBulletPoints(preview)
       );
-    if (useScrollableSearch) {
+    if (hasFormattedDocPreview) {
       snippet.classList.add("is-loading");
-      snippet.innerHTML = '<div class="tree-preview-loading">Loading formatted preview...</div>';
+      snippet.innerHTML = '<div class="tree-preview-loader" role="status" aria-label="Loading formatted preview"></div>';
     } else {
       snippet.innerHTML = fallbackHtml;
     }
@@ -4236,16 +4551,19 @@
           ? { fit: false }
           : (useScrollableSearch ? { fit: false } : {})
       );
-      if (token !== previewRenderToken || state.preview !== preview || !rendered) return;
+      if (token !== previewRenderToken || state.preview !== preview) return;
+      if (!rendered) throw new Error("Formatted preview unavailable");
       snippet.classList.remove("is-loading");
       snippet.innerHTML = "";
       snippet.appendChild(rendered);
       snippet.classList.toggle("is-scrollable", useScrollablePreview);
-      if (useScrollableSearch) scrollPreviewSnippetToMatch(snippet, preview);
+      scrollPreviewSnippetToMatch(snippet, preview);
     } catch {
       if (token !== previewRenderToken || state.preview !== preview) return;
       snippet.classList.remove("is-loading");
-      snippet.innerHTML = fallbackHtml;
+      snippet.innerHTML = hasFormattedDocPreview
+        ? '<div class="tree-preview-loading">Formatted preview unavailable.</div>'
+        : fallbackHtml;
       snippet.classList.toggle("is-scrollable", useScrollablePreview);
     }
   };
@@ -4266,11 +4584,21 @@
     const pillsHost = $("#treePreviewSubrows");
     pillsHost.innerHTML = "";
     (preview.pills || []).forEach((pill) => {
+      const pillConfig = normalizePreviewPill(pill);
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "tree-preview-pill";
-      btn.textContent = pill;
-      if ((preview.activePill && preview.activePill === pill) || (state.selection?.rowKey && state.selection.label === pill)) {
+      btn.textContent = pillConfig.displayLabel;
+      btn.dataset.pillLabel = pillConfig.label;
+      btn.dataset.rowKey = pillConfig.key;
+      if (pillConfig.title && pillConfig.title !== pillConfig.displayLabel) btn.title = pillConfig.title;
+      const activeValues = [
+        preview.activePill,
+        preview.activePillKey,
+        state.selection?.label,
+        state.selection?.rowIdentity
+      ].filter(Boolean);
+      if (activeValues.includes(pillConfig.label) || activeValues.includes(pillConfig.key)) {
         btn.classList.add("is-active");
       }
       btn.addEventListener("click", (event) => {
@@ -4279,7 +4607,7 @@
         if (!slug) return;
         const nodeConfig = TREE_LAYOUT.find((n) => n.slug === slug);
         if (!nodeConfig) return;
-        const rowConfig = getDocRowConfig(slug, pill);
+        const rowConfig = getDocRowConfig(slug, btn.dataset.rowKey || "") || getDocRowConfig(slug, btn.dataset.pillLabel || "");
         if (!rowConfig) return;
         const target = buildRowSelectionTarget(nodeConfig, rowConfig);
         if (isSameSelection(target)) {
@@ -4320,6 +4648,35 @@
     for (let i = 0; i < 8; i++) {
       const mid = (lo + hi) / 2;
       if (fitsInLines(mid)) lo = mid; else hi = mid;
+    }
+    host.style.setProperty("--pill-scale", `${Math.round(lo * 1000) / 1000}`);
+  };
+
+  const fitControlPills = () => {
+    const host = document.querySelector(".tree-control-card .tree-sitemap-legend");
+    if (!host) return;
+    const pills = [...host.querySelectorAll(".tree-legend-pill")];
+    if (!pills.length) { host.style.removeProperty("--pill-scale"); return; }
+    host.style.removeProperty("--pill-scale");
+    let lo = 0.76;
+    let hi = 1;
+    const fits = (scale) => {
+      host.style.setProperty("--pill-scale", `${scale}`);
+      void host.offsetWidth;
+      const hostRect = host.getBoundingClientRect();
+      const boundaryRect = host.closest(".tree-control-body")?.getBoundingClientRect() || hostRect;
+      if (!boundaryRect.width) return true;
+      const firstTop = pills[0].getBoundingClientRect().top;
+      return pills.every((pill) => {
+        const rect = pill.getBoundingClientRect();
+        return Math.abs(rect.top - firstTop) < 2
+          && rect.left >= boundaryRect.left - 0.5
+          && rect.right <= boundaryRect.right + 0.5;
+      });
+    };
+    for (let i = 0; i < 16; i++) {
+      const mid = (lo + hi) / 2;
+      if (fits(mid)) lo = mid; else hi = mid;
     }
     host.style.setProperty("--pill-scale", `${Math.round(lo * 1000) / 1000}`);
   };
@@ -4747,13 +5104,16 @@
 
   const buildRowSelectionTarget = (nodeConfig, rowConfig) => {
     const nodeId = `node-${nodeConfig.id}`;
-    const rowKey = `${nodeId}:${rowConfig.label}`;
+    const rowIdentity = rowConfig.key || rowConfig.label;
+    const rowKey = `${nodeId}:${rowIdentity}`;
     const searchResult = nodeConfig.slug ? state.searchResults.get(nodeConfig.slug) : null;
-    const rowMatch = searchResult?.rowHitMap instanceof Map ? searchResult.rowHitMap.get(rowConfig.label) : null;
+    const rowMatch = searchResult?.rowHitMap instanceof Map
+      ? (searchResult.rowHitMap.get(rowIdentity) || searchResult.rowHitMap.get(rowConfig.label))
+      : null;
     const searchContext = !!(state.query && rowMatch);
     const preview = rowConfig.conceptual
       ? getPreviewForConcept("node")
-      : getPreviewForRow(nodeConfig.slug, rowConfig.label, {
+      : getPreviewForRow(nodeConfig.slug, rowIdentity, {
         query: searchContext ? state.query : "",
         searchResult: searchContext ? searchResult : null
       });
@@ -4763,6 +5123,7 @@
       slug: nodeConfig.slug || "",
       nodeId,
       rowKey,
+      rowIdentity,
       label: rowConfig.label,
       href: preview?.href || "",
       preview,
@@ -4799,8 +5160,13 @@
     if (selection.kind === "row") {
       const nodeConfig = TREE_LAYOUT.find((node) => `node-${node.id}` === selection.nodeId);
       if (!nodeConfig) return null;
-      const label = selection.label || selection.rowKey?.split(":").slice(1).join(":") || "";
-      const rowConfig = buildNodeRows(nodeConfig).find((row) => row.label === label);
+      const rowIdentity = selection.rowIdentity || selection.rowKey?.replace(`${selection.nodeId}:`, "") || "";
+      const label = selection.label || rowIdentity;
+      const rowConfig = buildNodeRows(nodeConfig).find((row) =>
+        row.key === rowIdentity ||
+        row.label === label ||
+        row.fullLabel === label
+      );
       return rowConfig ? buildRowSelectionTarget(nodeConfig, rowConfig) : null;
     }
     if (selection.kind === "example") {
@@ -4808,6 +5174,42 @@
       return section ? buildExampleSelectionTarget(section) : null;
     }
     return null;
+  };
+
+  const getNodeDefaultVisibleRowCount = (node) => {
+    const raw = Number(node?.dataset?.defaultVisibleRows || TREE_ROW_VISIBLE_DEFAULT_MIN);
+    if (!Number.isFinite(raw) || raw <= 0) return TREE_ROW_VISIBLE_DEFAULT_MIN;
+    return Math.max(1, Math.min(TREE_ROW_VISIBLE_DEFAULT_MAX, Math.round(raw)));
+  };
+
+  const syncNodeDefaultVisibleRows = (node) => {
+    if (!node) return;
+    const body = node.querySelector(".tree-node-body");
+    const header = node.querySelector(".tree-node-header");
+    const rows = [...body?.querySelectorAll(".tree-node-row:not(.tree-node-row-decimal)") || []];
+    if (!body || !header || !rows.length) return;
+
+    const rowCount = rows.length;
+    const rowHeight = rows.find((row) => row.getBoundingClientRect().height > 0)?.getBoundingClientRect().height || 0;
+    if (!rowHeight) {
+      const fallbackRows = Math.min(rowCount, TREE_ROW_VISIBLE_DEFAULT_MIN);
+      body.style.setProperty("--tree-node-visible-rows", `${fallbackRows}`);
+      node.dataset.defaultVisibleRows = String(fallbackRows);
+      return;
+    }
+
+    const availableHeight = Math.max(0, node.getBoundingClientRect().height - header.getBoundingClientRect().height);
+    const cleanFitRows = Math.floor((availableHeight + 0.5) / rowHeight);
+    const desiredRows = cleanFitRows >= TREE_ROW_VISIBLE_DEFAULT_MAX
+      ? TREE_ROW_VISIBLE_DEFAULT_MAX
+      : (cleanFitRows >= TREE_ROW_VISIBLE_DEFAULT_MIN ? TREE_ROW_VISIBLE_DEFAULT_MIN : cleanFitRows);
+    const visibleRows = Math.max(1, Math.min(rowCount, desiredRows || TREE_ROW_VISIBLE_DEFAULT_MIN));
+    body.style.setProperty("--tree-node-visible-rows", `${visibleRows}`);
+    node.dataset.defaultVisibleRows = String(visibleRows);
+  };
+
+  const syncAllNodeDefaultVisibleRows = () => {
+    document.querySelectorAll(".tree-sitemap-node").forEach(syncNodeDefaultVisibleRows);
   };
 
   const renderSearchStateUI = () => {
@@ -4822,14 +5224,45 @@
         hitEl.textContent = count > 0 ? `${count}` : "";
         hitEl.classList.toggle("is-visible", count > 0);
       }
-    });
+      let hasOffscreenMatch = false;
+      node.querySelectorAll(".tree-node-row").forEach((row) => {
+        const rowKey = row.dataset.rowId || row.dataset.label || "";
+        const rowConfig = slug ? getDocRowConfig(slug, rowKey) : null;
+        const entry = result?.rowHitMap instanceof Map
+          ? (result.rowHitMap.get(rowKey) || result.rowHitMap.get(row.dataset.label || ""))
+          : null;
+        const matches = !!(state.query && entry);
+        row.classList.toggle("is-search-match", matches);
+        if (rowConfig) renderTreeRowLabel(row, rowConfig, state.query, matches);
+        if (matches) {
+          const defaultIndex = Number(row.dataset.rowIndex || "0");
+          const defaultVisibleRows = getNodeDefaultVisibleRowCount(node);
+          if (defaultIndex >= defaultVisibleRows || row.classList.contains("tree-node-row-decimal")) {
+            hasOffscreenMatch = true;
+          }
+        }
+      });
+      node.classList.toggle("has-offscreen-search-match", !!(state.query && hasOffscreenMatch));
 
-    document.querySelectorAll(".tree-node-row, .tree-example-row").forEach((row) => {
-      const slug = row.dataset.slug;
-      const label = row.dataset.label;
-      const result = slug ? state.searchResults.get(slug) : null;
-      const matchesSection = !!result && result.rowMatches.includes(label);
-      row.classList.toggle("is-search-match", matchesSection);
+      // On a search hit, scroll the node so the first matching title sits at the
+      // top (the slot title "1" normally occupies). If the hit is too near the
+      // end to reach the top, clamp to the lowest natural scroll position that
+      // still keeps it visible. Reset to the top when not matching / no query.
+      const body = node.querySelector(".tree-node-body");
+      if (body) {
+        let scrolled = false;
+        if (state.query && matched) {
+          const firstRow = body.querySelector(".tree-node-row");
+          const hitRow = body.querySelector(".tree-node-row.is-search-match");
+          if (firstRow && hitRow) {
+            const target = hitRow.offsetTop - firstRow.offsetTop;
+            const maxScroll = Math.max(0, body.scrollHeight - body.clientHeight);
+            body.scrollTop = Math.max(0, Math.min(target, maxScroll));
+            scrolled = true;
+          }
+        }
+        if (!scrolled) body.scrollTop = 0;
+      }
     });
 
     document.querySelectorAll(".tree-example-row").forEach((row) => {
@@ -4847,6 +5280,28 @@
     }
   };
 
+  const setSearchLoading = (active) => {
+    const wrap = $(".reader-search-input-wrap");
+    if (wrap) wrap.classList.toggle("is-searching", !!active);
+  };
+
+  // Resolve once every in-tree-map magnify.svg icon has finished loading,
+  // so the search-field spinner only stops when the tree icons are ready.
+  const waitForTreeSearchIcons = () => {
+    const icons = $$(".tree-node-row-search-icon, .tree-node-row-inline-search-icon")
+      .filter((img) => !img.complete);
+    if (!icons.length) return Promise.resolve();
+    return Promise.all(icons.map((img) => new Promise((resolve) => {
+      const done = () => {
+        img.removeEventListener("load", done);
+        img.removeEventListener("error", done);
+        resolve();
+      };
+      img.addEventListener("load", done);
+      img.addEventListener("error", done);
+    })));
+  };
+
   const updateSearchState = async () => {
     const token = ++searchUpdateToken;
     const query = state.query;
@@ -4854,8 +5309,11 @@
       state.searchResults = new Map();
       if (token !== searchUpdateToken) return;
       renderSearchStateUI();
+      setSearchLoading(false);
       return;
     }
+
+    setSearchLoading(true);
 
     const entries = await Promise.all(TREE_SLUGS.map(async (slug) => {
       const rendered = await findDocSearchMatchesFromRendered(slug, query).catch(() => null);
@@ -4869,6 +5327,35 @@
     if (token !== searchUpdateToken || query !== state.query) return;
     state.searchResults = new Map(entries);
     renderSearchStateUI();
+    await waitForTreeSearchIcons();
+    if (token !== searchUpdateToken || query !== state.query) return;
+    setSearchLoading(false);
+  };
+
+  const getRowLabelHtml = (rowConfig, query = "", isMatch = false) => {
+    const title = isMatch && query
+      ? highlightQueryHtml(rowConfig.label || "", query)
+      : esc(rowConfig.label || "");
+    const number = rowConfig.number
+      ? `<span class="tree-node-row-number">${esc(rowConfig.number)}</span>`
+      : "";
+    if (rowConfig.isDecimalHeading) {
+      return `
+        ${number}
+        <img class="tree-node-row-inline-search-icon" src="${iconPath("magnify.svg")}" alt="" aria-hidden="true">
+        <span class="tree-node-row-label-text">${title}</span>
+      `;
+    }
+    return `
+      ${number}
+      <span class="tree-node-row-label-text">${title}</span>
+    `;
+  };
+
+  const renderTreeRowLabel = (row, rowConfig, query = "", isMatch = false) => {
+    const label = row?.querySelector(".tree-node-row-label");
+    if (!label) return;
+    label.innerHTML = getRowLabelHtml(rowConfig, query, isMatch);
   };
 
   const buildNodeRows = (nodeConfig) => {
@@ -4911,11 +5398,39 @@
       node.classList.add("tree-node-centered");
     }
 
-    node.addEventListener("mouseenter", () => setHoveredTarget(node.dataset.nodeId, ""));
-    node.addEventListener("mouseleave", () => clearHoveredTarget());
-    node.addEventListener("focusin", () => setHoveredTarget(node.dataset.nodeId, ""));
+    let scrollbarTimer = 0;
+    const clearScrollbarTimer = () => {
+      if (!scrollbarTimer) return;
+      window.clearTimeout(scrollbarTimer);
+      scrollbarTimer = 0;
+    };
+    const showDelayedScrollbar = () => {
+      clearScrollbarTimer();
+      scrollbarTimer = window.setTimeout(() => {
+        scrollbarTimer = 0;
+        node.classList.add("is-scrollbar-ready");
+      }, 250);
+    };
+    const hideDelayedScrollbar = () => {
+      clearScrollbarTimer();
+      node.classList.remove("is-scrollbar-ready");
+    };
+
+    node.addEventListener("mouseenter", () => {
+      setHoveredTarget(node.dataset.nodeId, "");
+      showDelayedScrollbar();
+    });
+    node.addEventListener("mouseleave", () => {
+      clearHoveredTarget();
+      hideDelayedScrollbar();
+    });
+    node.addEventListener("focusin", () => {
+      setHoveredTarget(node.dataset.nodeId, "");
+      node.classList.add("is-scrollbar-ready");
+    });
     node.addEventListener("focusout", () => {
       if (!node.contains(document.activeElement)) clearHoveredTarget();
+      if (!node.contains(document.activeElement)) hideDelayedScrollbar();
     });
 
     titleBtn.addEventListener("click", (event) => {
@@ -4935,20 +5450,25 @@
     });
 
     const body = node.querySelector(".tree-node-body");
-    buildNodeRows(nodeConfig).forEach((rowConfig) => {
+    buildNodeRows(nodeConfig).forEach((rowConfig, rowIndex) => {
       const isGalleryRow = !!(nodeConfig.slug === "intro" && rowConfig.gallery);
+      const rowIdentity = rowConfig.key || rowConfig.label;
       const row = document.createElement("button");
       row.type = "button";
-      row.className = `tree-node-row${isGalleryRow ? " tree-node-row-gallery is-glowing" : ""}`;
+      row.className = `tree-node-row${rowConfig.isDecimalHeading ? " tree-node-row-decimal" : ""}${isGalleryRow ? " tree-node-row-gallery is-glowing" : ""}`;
       row.dataset.slug = nodeConfig.slug || "";
       row.dataset.label = rowConfig.label;
-      row.dataset.rowKey = `${node.dataset.nodeId}:${rowConfig.label}`;
+      row.dataset.rowId = rowIdentity;
+      row.dataset.rowKey = `${node.dataset.nodeId}:${rowIdentity}`;
+      row.dataset.rowIndex = String(rowIndex);
+      row.dataset.parentKey = rowConfig.parentKey || "";
+      row.dataset.number = rowConfig.number || "";
+      row.title = rowConfig.fullLabel || rowConfig.label || "";
       row.innerHTML = `
-        <span class="tree-node-row-label">
-          <span class="tree-node-row-label-text">${esc(rowConfig.label)}</span>
-        </span>
-        <img class="tree-node-row-search-icon" src="${iconPath("magnify.svg")}" alt="" aria-hidden="true">
+        <span class="tree-node-row-label"></span>
+        ${rowConfig.isDecimalHeading ? "" : `<img class="tree-node-row-search-icon" src="${iconPath("magnify.svg")}" alt="" aria-hidden="true">`}
       `;
+      renderTreeRowLabel(row, rowConfig, "", false);
       if (isGalleryRow) {
         row.insertAdjacentHTML("afterbegin",
           `<span class="tree-node-toggle" aria-hidden="true"><span class="tree-node-toggle-icon">&#9664;</span></span>`);
@@ -4992,6 +5512,7 @@
     });
 
     tree.appendChild(node);
+    syncNodeDefaultVisibleRows(node);
   };
 
   const isTreeSplitView = () =>
@@ -5079,6 +5600,7 @@
       if (nodeConfig.kind === "label") return;
       buildNode(nodeConfig);
     });
+    syncAllNodeDefaultVisibleRows();
     renderGalleryPanel();
     renderConnectors();
   };
@@ -5099,25 +5621,28 @@
     const input = $("#docSearch");
     if (!input) return;
     const clearBtn = $("#treeSearchClear");
+    const findBtn = $("#treeSearchFind");
     let searchTimer = null;
-    const syncSearchFromField = (immediate = false) => {
+    // force=true: manual submit (Enter / find arrow) bypasses the min-char gate
+    const syncSearchFromField = (immediate = false, force = false) => {
       const raw = cleanLabel(input.value);
       if (clearBtn) clearBtn.classList.toggle("is-visible", !!raw);
       if (searchTimer) { clearTimeout(searchTimer); searchTimer = null; }
-      if (normalizeText(raw).length < 4) {
+      const hasText = !!normalizeText(raw);
+      if ((!force && normalizeText(raw).length < TREE_SEARCH_MIN_CHARS) || (force && !hasText)) {
         if (state.query) {
           state.query = "";
           updateSearchState();
         }
         return;
       }
-      if (!immediate) {
+      if (!immediate && !force) {
         searchTimer = setTimeout(() => {
           searchTimer = null;
           state.query = raw;
           showDefaultPreview();
           updateSearchState();
-        }, 500);
+        }, TREE_SEARCH_DEBOUNCE_MS);
         return;
       }
       if (state.query === raw && state.searchResults.size) return;
@@ -5125,10 +5650,23 @@
       showDefaultPreview();
       updateSearchState();
     };
+    const submitSearch = () => syncSearchFromField(true, true);
 
     input.addEventListener("input", () => {
       syncSearchFromField(false);
     });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitSearch();
+      }
+    });
+    if (findBtn) {
+      findBtn.addEventListener("click", () => {
+        submitSearch();
+        input.focus();
+      });
+    }
     input.addEventListener("focus", () => {
       syncSearchFromField(true);
     });
@@ -5226,15 +5764,50 @@
     }
   };
 
+  // Shrink the numbered tree-row titles uniformly so the longest one fits on a
+  // single line with at least one space before the search-hit magnify icon.
+  // All rows share one scale ("resized equally"), derived from the tightest row.
+  const fitTreeRowTitles = () => {
+    const rows = $$(".tree-node-row:not(.tree-node-row-decimal)").filter((row) =>
+      row.querySelector(".tree-node-row-number") && row.querySelector(".tree-node-row-label-text"));
+    if (!rows.length) {
+      document.body.style.setProperty("--tree-tree-row-fit-scale", "1");
+      return;
+    }
+    // Reset to natural size first so the measurement is not compounded.
+    document.body.style.setProperty("--tree-tree-row-fit-scale", "1");
+    void document.body.offsetWidth;
+    const uiScale = parseFloat(getComputedStyle(document.body).getPropertyValue("--tree-ui-scale")) || 1;
+    const iconWidth = 11 * uiScale; // .tree-node-row-search-icon width
+    const labelGap = 6 * uiScale;   // .tree-node-row-label flex gap
+    let minScale = 1;
+    rows.forEach((row) => {
+      if (!row.clientWidth) return;
+      const number = row.querySelector(".tree-node-row-number");
+      const text = row.querySelector(".tree-node-row-label-text");
+      const cs = getComputedStyle(row);
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const avail = row.clientWidth - padX;
+      if (avail <= 0) return;
+      const space = (parseFloat(cs.fontSize) || 0) * 0.6; // ~one monospace char
+      // offsetWidth/scrollWidth are pre-transform layout px, matching clientWidth.
+      const required = number.offsetWidth + labelGap + text.scrollWidth + space + iconWidth;
+      if (required <= avail) return;
+      const scale = avail / required;
+      if (scale < minScale) minScale = scale;
+    });
+    const fit = Math.max(0.5, Math.round(minScale * 1000) / 1000);
+    document.body.style.setProperty("--tree-tree-row-fit-scale", `${fit}`);
+  };
+
   const layoutPortalPanels = () => {
     const stack = document.querySelector(".stack");
     const hero = document.querySelector(".tree-hero-card");
     const mapCard = document.querySelector(".tree-sitemap-card");
     const shell = $("#treeSitemapShell");
     const preview = $("#treePreviewCard");
-    const footer = document.querySelector("footer");
     const header = document.querySelector("header");
-    if (!stack || !hero || !mapCard || !shell || !preview || !footer || !header) return;
+    if (!stack || !hero || !mapCard || !shell || !preview || !header) return;
 
     const is1080Boost = shouldUse1080GeometryScale();
     const geometryScale = is1080Boost ? TREE_1080_GEOMETRY_SCALE : 1;
@@ -5272,11 +5845,13 @@
     void document.body.offsetWidth;
 
     // Proportional vertical scaling from 2560x1440 canonical reference.
-    // Canonical gaps (compact-hero, geometryScale=1): main-pad-top 6, stack-gap 10, main-pad-bottom 8.
+    // Keep the outer top/bottom breathing room equal so the right column latches
+    // visually between the page header and viewport bottom.
     const CANONICAL_VH = 1440;
     const vhScale = window.innerHeight / CANONICAL_VH;
-    const scaledMainPadTop = Math.max(2, Math.round(6 * vhScale));
-    const scaledMainPadBottom = Math.max(2, Math.round(8 * vhScale));
+    const scaledOuterPad = Math.max(2, Math.round(8 * vhScale));
+    const scaledMainPadTop = scaledOuterPad;
+    const scaledMainPadBottom = scaledOuterPad;
     const scaledStackGap = Math.max(2, Math.round(10 * vhScale));
 
     const mainEl = document.querySelector("main");
@@ -5288,7 +5863,6 @@
     const container = document.querySelector(".container");
     const containerRect = container ? container.getBoundingClientRect() : stack.getBoundingClientRect();
     const headerRect = header.getBoundingClientRect();
-    const footerRect = footer.getBoundingClientRect();
     const containerWidth = containerRect.width;
 
     // The sitemap shell now occupies the card footprint directly, so the outer card
@@ -5296,8 +5870,8 @@
     const cardPadX = TREE_CARD_PADDING.x * geometryScale;
     const cardPadY = TREE_CARD_PADDING.y * geometryScale;
 
-    // Vertical span between header and footer, minus proportional padding.
-    const totalSpan = Math.max(0, footerRect.top - headerRect.bottom);
+    // Vertical span between header and viewport bottom, minus proportional padding.
+    const totalSpan = Math.max(0, window.innerHeight - headerRect.bottom);
     const usableSpan = Math.max(200, totalSpan - scaledMainPadTop - scaledMainPadBottom);
 
     // Ultra-compact for very short viewports: hide description paragraph.
@@ -5312,6 +5886,13 @@
     const searchRow = hero.querySelector(".search-row.hub-top-search");
     const searchHelp = hero.querySelector(".tree-search-help");
     if (searchRow && searchHelp) {
+      if (hero.classList.contains("tree-control-card")) {
+        searchHelp.style.marginTop = "";
+        searchHelp.style.height = "";
+        searchRow.style.marginTop = "";
+        searchRow.style.gridTemplateColumns = "";
+        searchRow.style.justifyContent = "";
+      } else {
       const inSplitHero = document.body.classList.contains("tree-split-view");
       searchHelp.style.marginTop = "0px";
       searchHelp.style.height = "";
@@ -5350,6 +5931,7 @@
         const remainingSpace = Math.max(0, heroInnerBottom - searchRowRect.bottom);
         searchHelp.style.height = `${Math.round(remainingSpace)}px`;
       }
+      }
     }
 
     // Adjust node heights to accommodate scaled tree-map text at lower resolutions.
@@ -5375,8 +5957,9 @@
     const paddedW = stageBounds.width;
     const paddedH = stageBounds.height;
 
-    // Available space for the map card.
-    const maxMapH = Math.max(240, usableSpan - scaledStackGap - heroNatural);
+    // Available space for the map card. The control card floats in the right
+    // column, so the sitemap owns the full vertical lane.
+    const maxMapH = Math.max(240, usableSpan);
 
     // Stage scale: fit padded content within available card interior (height-first).
     const scaleByH = Math.max(0, maxMapH - cardPadY) / paddedH;
@@ -5405,46 +5988,62 @@
       Math.min(readerPanelWidth, Math.round(splitLaneHeightEstimate * readerPanelAspect))
     );
 
-    // Preview width at height-estimated scale, then available width for map card.
+    // Preview width estimate for horizontal placement. The side cards should keep
+    // a reader-like width while the sitemap itself is scaled from the lane height.
     const inSplitView = document.body.classList.contains("tree-split-view");
     const inPhoneView = isTreePhoneView();
     const splitPreviewScale = inSplitView ? 0.7 : 1;
     const previewBase = TREE_LAYOUT_BASE.previewWidth * (is1080Boost ? 0.9 : 1) * splitPreviewScale;
     const gap = inPhoneView ? 0 : (inSplitView ? readerPanelGap : TREE_LAYOUT_BASE.panelGap);
-    const previewWEst = inPhoneView ? 0 : (inSplitView ? splitSideCardWidthEstimate : Math.round(previewBase * scaleByH));
+    const legacyMapHForWidth = Math.max(240, usableSpan - scaledStackGap - heroNatural);
+    const legacyScaleByHForWidth = Math.max(0, legacyMapHForWidth - cardPadY) / paddedH;
+    const previewWEst = inPhoneView ? 0 : (inSplitView ? splitSideCardWidthEstimate : Math.round(previewBase));
     const maxMapW = Math.max(400, containerWidth - previewWEst - gap);
     const scaleByW = Math.max(0, maxMapW - cardPadX) / paddedW;
 
-    // Final scale: constrained by both axes.
+    // Final scale: desktop is height-led so the visible treemap fills the same
+    // vertical lane as the reader card + gap + preview card. Phone keeps the
+    // width constraint because there is no side column to absorb the footprint.
     const stageScale = Math.max(0.15, Math.min(scaleByH, scaleByW));
 
-    // Snug card dimensions: tightly wraps the scaled sitemap stage.
+    // Snug card dimensions: tightly wrap the scaled sitemap stage. Since desktop
+    // scale is height-led, width follows the authored stage aspect ratio.
     const mapCardWidth = Math.round(paddedW * stageScale + cardPadX);
-    // In split view, fill the full usable height so cards reach the footer
+    // Fill the full usable height so cards reach the bottom breathing room.
     const naturalMapH = Math.round(paddedH * stageScale + cardPadY);
-    const mapCardH = inSplitView ? Math.max(naturalMapH, maxMapH) : naturalMapH;
+    const mapCardH = Math.max(naturalMapH, maxMapH);
 
-    // Clamp hero if usableSpan is too small for both cards.
-    const heroH = Math.max(HERO_MIN, usableSpan - scaledStackGap - mapCardH);
-    if (heroH < heroNatural - 1) {
-      hero.style.height = `${Math.round(heroH)}px`;
-      hero.style.overflow = "hidden";
-    }
+    // Paint the sitemap at real computed dimensions instead of relying on a CSS
+    // transform. This makes the visible card itself equal to the target lane.
+    const stageVisualWidth = Math.max(1, mapCardWidth - cardPadX);
+    const stageVisualHeight = Math.max(1, mapCardH - cardPadY);
+    const stageOffsetX = 0;
+    const stageOffsetY = 0;
 
-    // Stage offset: center the scaled stage inside any extra shell height.
-    const scaledW = stageBounds.width * stageScale;
-    const scaledH = stageBounds.height * stageScale;
-    const innerMapWidth = Math.max(0, mapCardWidth - cardPadX);
-    const innerMapHeight = Math.max(0, mapCardH - cardPadY);
-    const centeredInsetX = Math.max(0, (innerMapWidth - scaledW) / 2);
-    const centeredInsetY = Math.max(0, (innerMapHeight - scaledH) / 2);
-    const stageOffsetX = Math.round(centeredInsetX * 1000) / 1000;
-    const stageOffsetY = Math.round(centeredInsetY * 1000) / 1000;
+    const sideColumnWidthEstimate = inPhoneView
+      ? 0
+      : (inSplitView ? splitSideCardWidthEstimate : Math.round(previewBase));
+    const groupWidthEstimate = mapCardWidth + (inPhoneView ? 0 : gap + sideColumnWidthEstimate);
+    const centeredStackLeft = containerRect.left + ((containerWidth - mapCardWidth) / 2);
+    const targetGroupLeft = containerRect.left + Math.max(0, (containerWidth - groupWidthEstimate) / 2);
+    const stackShiftX = (!inPhoneView && !inSplitView)
+      ? Math.round(targetGroupLeft - centeredStackLeft)
+      : 0;
 
     stack.style.setProperty("--tree-stack-width", `${mapCardWidth}px`);
+    stack.style.transform = "";
+    if (!inPhoneView && !inSplitView && stackShiftX) {
+      stack.style.marginLeft = `${stackShiftX}px`;
+      stack.style.marginRight = `${-stackShiftX}px`;
+    } else {
+      stack.style.marginLeft = "";
+      stack.style.marginRight = "";
+    }
     mapCard.style.setProperty("--tree-map-card-height", `${Math.round(mapCardH)}px`);
     mapCard.style.setProperty("--tree-map-card-offset-y", "0px");
     shell.style.setProperty("--tree-stage-scale", `${stageScale}`);
+    shell.style.setProperty("--tree-stage-width", `${Math.round(stageVisualWidth)}px`);
+    shell.style.setProperty("--tree-stage-height", `${Math.round(stageVisualHeight)}px`);
     shell.style.setProperty("--tree-stage-offset-x", `${stageOffsetX}px`);
     shell.style.setProperty("--tree-stage-offset-y", `${stageOffsetY}px`);
 
@@ -5452,16 +6051,31 @@
     const mapCardRect = mapCard.getBoundingClientRect();
     const stackRect = stack.getBoundingClientRect();
     const sideLaneRect = stackRect.height > 0 ? stackRect : mapCardRect;
-    const previewHeight = Math.max(0, Math.round(sideLaneRect.height));
+    const sideLaneHeight = Math.max(0, Math.round(sideLaneRect.height));
     const splitSideCardWidth = Math.max(
       160,
-      Math.min(readerPanelWidth, Math.round(previewHeight * readerPanelAspect))
+      Math.min(readerPanelWidth, Math.round(sideLaneHeight * readerPanelAspect))
     );
     // Preview card: use the full stack lane height so side cards latch vertically
     // like the documentation reader, not just to the lower sitemap card.
-    const previewWidth = inSplitView ? splitSideCardWidth : Math.round(previewBase * stageScale);
-    const previewTop = Math.round(sideLaneRect.top);
+    let previewWidth = inSplitView ? splitSideCardWidth : Math.round(previewBase);
+    const sideColumnTop = Math.round(mapCardRect.top);
     const previewLeft = Math.round(sideLaneRect.right + gap);
+    const sideColumnBottom = Math.round(mapCardRect.bottom);
+    if (!inPhoneView) {
+      const sideRightPad = Math.max(8, scaledMainPadBottom);
+      const maxVisiblePreviewWidth = Math.floor(window.innerWidth - previewLeft - sideRightPad);
+      previewWidth = Math.max(180, Math.min(previewWidth, maxVisiblePreviewWidth));
+    }
+
+    hero.style.setProperty("--tree-control-width", `${previewWidth}px`);
+    hero.style.setProperty("--tree-control-top", `${sideColumnTop}px`);
+    hero.style.setProperty("--tree-control-left", `${previewLeft}px`);
+    void hero.offsetWidth;
+
+    const controlRect = hero.getBoundingClientRect();
+    const previewTop = Math.round(controlRect.bottom + scaledStackGap);
+    const previewHeight = Math.max(160, sideColumnBottom - previewTop);
 
     preview.style.setProperty("--tree-preview-width", `${previewWidth}px`);
     preview.style.setProperty("--tree-preview-height", `${previewHeight}px`);
@@ -5485,8 +6099,17 @@
     // Sync preview/gallery mutual exclusion in split view
     syncSplitPreviewGallery();
 
+    // Row density depends on the final card scale; keep default node rows clean
+    // after every resize/layout pass.
+    syncAllNodeDefaultVisibleRows();
+
     // Re-fit preview pills after layout changes (resize, split-view toggle).
+    fitControlPills();
     fitPreviewPills($("#treePreviewSubrows"));
+
+    // Uniformly shrink numbered tree-row titles so the longest fits one line
+    // with a space before the search magnify icon (recomputed each layout pass).
+    fitTreeRowTitles();
   };
 
   const positionPreviewCard = () => {
