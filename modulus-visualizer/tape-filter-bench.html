@@ -58,7 +58,9 @@ body{
 .stage{flex:1; min-width:0}
 .rail{width:328px; flex:none}
 /* Both panels sit in one scroller, so their rulings physically cannot drift. */
-.panels{display:flex; flex:none; align-items:flex-start; height:100vh; overflow-y:auto; overflow-x:hidden}
+.panels{display:flex; flex-direction:column; flex:none; height:100vh}
+.ptrack{display:flex; align-items:flex-start; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden}
+.sheetgrip{display:none}
 .rail,.npanel .ninner{display:flex; flex-direction:column; min-height:100vh}
 .seg.hdr{margin-top:8px}
 .seg.hdr button{font-size:10px; padding:5px 6px}
@@ -82,7 +84,7 @@ body{
   transition:transform .34s cubic-bezier(.4,0,.2,1), opacity .26s ease;
 }
 .npanel.open .ninner{transform:none; opacity:1}
-@media (max-width:900px){ .bench{flex-direction:column; height:auto} .rail{width:auto} .npanel.open{width:auto} }
+
 
 .stage{position:relative; display:grid; place-items:center; padding:40px; min-height:60vh; overflow:auto}
 
@@ -252,6 +254,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   border:1px solid var(--gborder);
   box-shadow:var(--gshadow), var(--gglow);
 }
+.tone,.gtone{opacity:calc(var(--tone-alpha) * var(--swap-fade, 1))}
 .specimen::before{ content:''; position:absolute; inset:0; z-index:3; pointer-events:none; background:var(--glass-sheen) }
 .specimen[data-accent=top]{border-top:3px solid var(--accent-dim)}
 .specimen[data-accent=left]{border-left:3px solid var(--accent-dim)}
@@ -457,6 +460,97 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
 .nhandle::after{top:50%; left:4px; right:4px; height:1px; transform:translateY(-50%)}
 .nhandle:active{cursor:grabbing}
 .nhandle[hidden]{display:none}
+
+/* ── full-screen preview ──────────────────────────────────────────────────
+   Same edge-to-edge contract the inventory app uses for its document viewer:
+   fixed inset 0 above everything, with a 44px close control. */
+.fs .stage{position:fixed; inset:0; z-index:220; padding:0; background:#07040d;
+  display:grid; place-items:center; overflow:auto}
+.fs .panels,.fs .zoom-dock{display:none}
+.fs .stage::after{opacity:.25}
+.fsclose{
+  display:none; position:fixed; top:max(14px,env(safe-area-inset-top)); right:14px; z-index:221;
+  width:44px; height:44px; padding:0; border-radius:14px; cursor:pointer;
+  color:var(--ink); font-size:15px; line-height:1;
+  border:1px solid var(--glass-border-bright); background:var(--glass-bg-elevated);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:var(--glass-shadow);
+}
+.fs .fsclose{display:grid; place-items:center}
+.fsrotate{display:none}
+
+/* ── mobile: controls become a bottom sheet, preview stays visible ────────
+   Modelled on the inventory app's node-sheet peek: a fixed sheet resting at a
+   short peek strip, dragged up to min(72dvh,680px), same 430ms curve. */
+@media (max-width:900px){
+  .bench{flex-direction:column; height:auto; min-height:100dvh}
+  .stage{padding:16px 12px calc(var(--peek-h) + 26px); min-height:auto}
+
+  .panels{
+    position:fixed; inset:auto 0 0 0; z-index:61;
+    height:min(72dvh,680px); width:100vw;
+    border-top:1px solid var(--glass-border-bright);
+    border-radius:16px 16px 0 0;
+    background:var(--glass-noise), var(--glass-bg-elevated);
+    backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    box-shadow:var(--glass-shadow-elevated);
+    transform:translateY(var(--sheet-y, calc(min(72dvh,680px) - var(--peek-h))));
+    transition:var(--sheet-tr, transform 430ms cubic-bezier(.18,.78,.22,1));
+    will-change:transform;
+  }
+  .sheetgrip{
+    display:block; flex:none; height:var(--peek-h); padding:7px 12px 0;
+    touch-action:none; user-select:none; -webkit-user-select:none; cursor:grab;
+  }
+  .sheetgrip:active{cursor:grabbing}
+  .grip{display:block; width:46px; height:4px; margin:0 auto 7px;
+    border-radius:999px; background:rgba(218,227,246,.48)}
+  .griptabs{display:flex; gap:6px}
+  .griptabs button{
+    flex:1; padding:5px 6px; font:inherit; font-size:10px; letter-spacing:.08em;
+    color:var(--ink-faint); background:var(--glass-bg-input);
+    border:1px solid var(--glass-border); border-radius:6px; cursor:pointer;
+  }
+  .griptabs button.on{color:#0a0418; background:var(--accent); border-color:var(--accent); font-weight:600}
+
+  /* One scroller, snapping horizontally: swipe left/right moves between the
+     two panels, and the same element still scrolls vertically. */
+  .ptrack{overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch}
+  .ptrack::-webkit-scrollbar{display:none}
+  .rail,.npanel{width:100vw !important; min-width:100vw; flex:none;
+    scroll-snap-align:start; min-height:0; border-left:0}
+  /* Mobile shows one panel at a time, so the map panel is always laid out and
+     the desktop slide-out/clip is off. */
+  .npanel{clip-path:none; transition:none}
+  .npanel .ninner{width:100%; transform:none; opacity:1}
+  .railhead{height:auto; min-height:0 !important; position:static}
+  section.grp{min-height:0 !important}
+  .row,.nrow{grid-template-columns:64px 1fr 46px}
+  .nrow{grid-template-columns:18px 60px 1fr 46px}
+  input[type=range]{height:26px}
+  input[type=range]::-webkit-slider-thumb{width:15px; height:15px; margin-top:-7px}
+  .seg button,.io button{min-height:32px}
+  .ck{width:17px; height:17px; min-width:17px}
+  .zoom-dock{right:12px; bottom:calc(var(--peek-h) + 14px); width:auto; left:12px}
+
+  /* Phone full screen is a landscape surface: in portrait the preview is
+     rotated a quarter turn into the long axis and the prompt explains why,
+     rather than showing a letterboxed sliver. */
+  .fs .stage{padding:0}
+  .fs .specimen{transform:var(--fs-rot, none); transform-origin:center}
+  .fs .fsrotate{
+    display:block; position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom));
+    z-index:221; transform:translateX(-50%); white-space:nowrap;
+    padding:7px 13px; border-radius:999px; font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--ink-dim);
+    border:1px solid var(--glass-border); background:var(--glass-bg-elevated);
+    backdrop-filter:blur(var(--glass-blur));
+  }
+}
+@media (max-width:900px) and (orientation:landscape){
+  .fs .fsrotate{display:none}
+}
 </style>
 </head>
 <body>
@@ -597,6 +691,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
         <button id="zoomOut" type="button">&minus;</button>
         <button id="zoomReset" type="button">reset</button>
         <button id="zoomIn" type="button">+</button>
+        <button id="fsBtn" type="button" title="full screen preview">&#9974;</button>
       </div>
     </div>
     <div class="specimen" id="spec" style="--w:520px; --h:340px; --fill:#7a4bd8">
@@ -629,6 +724,13 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   </div>
 
   <div class="panels" id="panels">
+    <div class="sheetgrip" id="sheetgrip">
+      <span class="grip"></span>
+      <span class="griptabs">
+        <button data-pane="0" class="on">Normal map</button><button data-pane="1">Tape filter</button>
+      </span>
+    </div>
+    <div class="ptrack" id="ptrack">
   <aside class="npanel" id="npanel">
     <div class="ninner" id="ninner">
       <div class="railhead">
@@ -886,6 +988,10 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
       <h2>Cursor</h2>
       <div class="seg" style="margin-bottom:7px"><button id="cursorT" aria-pressed="true">origin cursor</button></div>
       <div class="row"><label for="curs">opacity</label><input id="curs" type="range" min="0" max="100" step="1" value="100"><output id="curs_o"></output></div>
+      <div class="seg" id="ptests" style="margin-bottom:7px">
+        <button data-pt="A">A</button><button data-pt="B">B</button><button data-pt="C">C</button>
+        <button data-pt="D">D</button><button data-pt="E">E</button><button data-pt="F" disabled>F</button>
+      </div>
       <div class="io" id="ioS">
         <button id="saveS">save</button>
         <button id="impS">import</button>
@@ -896,7 +1002,10 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
       <span>frame <b id="fps">—</b></span><span>chambers <b id="lyr">1</b></span><span>mode <b id="md">flat</b></span>
     </div>
   </aside>
+    </div>
   </div>
+  <button class="fsclose" id="fsClose" type="button" title="exit full screen (esc)">&#10005;</button>
+  <div class="fsrotate" id="fsRotate">rotate to landscape for the full preview</div>
 </div>
 
 <div class="drop" id="drop">
@@ -1529,15 +1638,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     const target = {};
     if (S.latch) { if (!GHOST) return; SHARED.forEach(k => target[k] = GHOST[k]); }
     else SHARED.forEach(k => target[k] = S[k]);
-    const from = {}; SHARED.forEach(k => from[k] = N[k]);
-    const t0 = performance.now(), DUR = 3000;
-    const ease = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2;
-    (function step(t) {
-      const u = Math.min(1, (t - t0) / DUR), e = ease(u);
-      SHARED.forEach(k => { N[k] = from[k] + (target[k] - from[k]) * e; });
-      paintPanel(); apply();
-      if (u < 1) retT = requestAnimationFrame(step); else retT = null;
-    })(t0);
+    animateTo({N: target}, 3000);
   });
 
   // Ghost knobs: the map's pre-relatch value, drawn 25% larger than the live
@@ -1693,6 +1794,105 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     apply();
   });
 
+  const PRESETS = {
+    A: {"v":1,"S":{"showCursor":true,"preset":"t2","glass":"input","zoom":1,"w":520,"h":340,"latch":false,"disp":"relief","tint":"#6200ff","blend":"normal","emit":"mirror","reach":100,"inksurf":"input","panel":true,"ncursor":false,"curs":100,"ncurs":100,"bead":22,"gb":19,"gsat":190,"gbri":128,"rim":34,"spk":100,"content":false,"vanish":85,"vwidth":57,"vstrength":63,"nrm":true,"nblend":"normal","nmix":100,"azi":37,"ele":46,"relh":3,"cell":13,"hard":48,"dense":81,"sparse":69,"speed":180,"run":48,"jit":71,"dir":0,"flip":true,"running":true,"mirror":false,"ex":0,"ey":0,"alpha":100,"ox":50,"oy":51},"N":{"preset":"t2","cell":6,"hard":40,"dense":64,"sparse":20,"reach":100,"speed":180,"run":48,"jit":71,"dir":0,"flip":false,"emit":"mirror","vanish":85,"vwidth":57,"vstrength":63,"ox":50,"oy":51,"px":50,"py":50,"bevel":"flat","enc":"height","remap":"swap","detail":"sharp","view":"over","amp":10,"rad":55,"ex":0,"ey":28,"mix":100,"blend":"overlay"},"L":{"preset":false,"cell":false,"hard":false,"dense":false,"sparse":false,"reach":false,"speed":false,"run":false,"jit":false,"dir":false,"flip":false,"emit":false,"vanish":false,"vwidth":false,"vstrength":false,"ox":true,"oy":true,"bevel":false,"ex":false,"ey":false}},
+    B: {"v":1,"S":{"showCursor":true,"preset":"t2","glass":"input","zoom":1.6,"w":520,"h":340,"latch":false,"disp":"relief","tint":"#6200ff","blend":"normal","emit":"mirror","reach":100,"inksurf":"input","panel":true,"ncursor":false,"curs":100,"ncurs":100,"bead":22,"gb":19,"gsat":190,"gbri":128,"rim":34,"spk":100,"content":false,"vanish":85,"vwidth":55,"vstrength":95.5,"nrm":true,"nblend":"normal","nmix":100,"azi":37,"ele":46,"relh":2,"cell":3,"hard":48,"dense":81,"sparse":69,"speed":180,"run":48,"jit":71,"dir":0,"flip":true,"running":true,"mirror":false,"ex":0,"ey":0,"alpha":100,"ox":50,"oy":51},"N":{"preset":"t2","cell":3,"hard":60,"dense":100,"sparse":100,"reach":100,"speed":180,"run":48,"jit":71,"dir":0,"flip":false,"emit":"mirror","vanish":62.5,"vwidth":37,"vstrength":45,"ox":50,"oy":51,"px":50,"py":50,"bevel":"flat","enc":"height","remap":"gl","detail":"sharp","view":"over","amp":10,"rad":55,"ex":0,"ey":28,"mix":100,"blend":"overlay"},"L":{"preset":false,"cell":false,"hard":false,"dense":false,"sparse":false,"reach":false,"speed":false,"run":false,"jit":false,"dir":false,"flip":false,"emit":false,"vanish":false,"vwidth":false,"vstrength":false,"ox":true,"oy":true,"bevel":false,"ex":false,"ey":false}},
+    C: {"v":1,"S":{"showCursor":true,"preset":"t8","glass":"input","zoom":2.4,"w":520,"h":340,"latch":false,"disp":"relief","tint":"#6200ff","blend":"screen","emit":"single","reach":100,"inksurf":"input","panel":true,"ncursor":false,"curs":100,"ncurs":100,"bead":36,"gb":6,"gsat":295,"gbri":160,"rim":54,"spk":24,"content":false,"vanish":100,"vwidth":98,"vstrength":100,"nrm":true,"nblend":"normal","nmix":33,"azi":0,"ele":63,"relh":2,"cell":3,"hard":33,"dense":47,"sparse":100,"speed":127,"run":15,"jit":100,"dir":100,"flip":true,"running":true,"mirror":false,"ex":25,"ey":11,"alpha":98,"ox":50,"oy":50},"N":{"preset":"t3","cell":5,"hard":60,"dense":61,"sparse":100,"reach":100,"speed":144,"run":22,"jit":99,"dir":181,"flip":false,"emit":"edges","vanish":93,"vwidth":50,"vstrength":92,"ox":50,"oy":51,"px":50,"py":50,"bevel":"dome","enc":"tangent","remap":"swap","detail":"fine","view":"over","amp":210,"rad":165,"ex":45,"ey":28,"mix":100,"blend":"soft-light"},"L":{"preset":false,"cell":false,"hard":false,"dense":false,"sparse":false,"reach":false,"speed":false,"run":false,"jit":false,"dir":false,"flip":false,"emit":false,"vanish":false,"vwidth":false,"vstrength":false,"ox":true,"oy":true,"bevel":false,"ex":false,"ey":false}},
+    D: {"v":1,"S":{"showCursor":true,"preset":"t8","glass":"input","zoom":2.4,"w":520,"h":340,"latch":false,"disp":"relief","tint":"#6200ff","blend":"screen","emit":"mirror","reach":100,"inksurf":"input","panel":true,"ncursor":false,"curs":100,"ncurs":100,"bead":36,"gb":6,"gsat":295,"gbri":160,"rim":54,"spk":24,"content":false,"vanish":100,"vwidth":98,"vstrength":100,"nrm":true,"nblend":"normal","nmix":61,"azi":0,"ele":63,"relh":2,"cell":3,"hard":33,"dense":47,"sparse":100,"speed":127,"run":15,"jit":100,"dir":100,"flip":true,"running":true,"mirror":false,"ex":25,"ey":11,"alpha":98,"ox":50,"oy":50},"N":{"preset":"t3","cell":5,"hard":60,"dense":61,"sparse":100,"reach":89,"speed":144,"run":22,"jit":99,"dir":181,"flip":false,"emit":"edges","vanish":36,"vwidth":45.5,"vstrength":100,"ox":50,"oy":51,"px":50,"py":50,"bevel":"dome","enc":"tangent","remap":"dx","detail":"blur","view":"over","amp":210,"rad":340,"ex":45,"ey":28,"mix":100,"blend":"overlay"},"L":{"preset":false,"cell":false,"hard":false,"dense":false,"sparse":false,"reach":false,"speed":false,"run":false,"jit":false,"dir":false,"flip":false,"emit":false,"vanish":false,"vwidth":false,"vstrength":false,"ox":true,"oy":true,"bevel":false,"ex":false,"ey":false}},
+    E: {"v":1,"S":{"showCursor":true,"preset":"t6","glass":"chrome","zoom":2.4,"w":520,"h":340,"latch":false,"disp":"relief","tint":"#7fe3d4","blend":"screen","emit":"mirror","reach":59,"inksurf":"overlay","panel":true,"ncursor":false,"curs":100,"ncurs":100,"bead":36,"gb":13,"gsat":400,"gbri":164,"rim":100,"spk":100,"content":false,"vanish":89.5,"vwidth":88,"vstrength":19,"nrm":true,"nblend":"normal","nmix":61,"azi":359,"ele":43,"relh":6,"cell":12,"hard":60,"dense":48,"sparse":86,"speed":180,"run":48,"jit":100,"dir":169,"flip":false,"running":true,"mirror":false,"ex":18,"ey":28,"alpha":100,"ox":50,"oy":50},"N":{"preset":"t3","cell":4,"hard":60,"dense":100,"sparse":81,"reach":58,"speed":180,"run":48,"jit":99,"dir":359,"flip":true,"emit":"edges","vanish":65.5,"vwidth":83,"vstrength":100,"ox":50,"oy":51,"px":50,"py":50,"bevel":"cone","enc":"tangent","remap":"dx","detail":"sharp","view":"over","amp":400,"rad":115,"ex":45,"ey":28,"mix":100,"blend":"overlay"},"L":{"preset":false,"cell":false,"hard":false,"dense":false,"sparse":false,"reach":false,"speed":false,"run":false,"jit":false,"dir":false,"flip":false,"emit":false,"vanish":false,"vwidth":false,"vstrength":false,"ox":true,"oy":true,"bevel":false,"ex":false,"ey":false}}
+  };
+
+  // ── animated state transitions ───────────────────────────────────────────
+  // One engine for presets, Return, and anything else that sets many controls
+  // at once: numbers ease, and discrete toggles cross-fade at the midpoint so
+  // the change still reads as one motion rather than a snap.
+  const NUM_S = ['zoom','cell','hard','dense','sparse','reach','speed','run','jit','dir',
+                 'vanish','vwidth','vstrength','ex','ey','alpha','ox','oy','curs','ncurs',
+                 'bead','gb','gsat','gbri','rim','spk','azi','ele','relh','nmix','w','h'];
+  const NUM_N = ['cell','hard','dense','sparse','reach','speed','run','jit','dir',
+                 'vanish','vwidth','vstrength','ox','oy','px','py','amp','rad','ex','ey','mix'];
+  const DISC_S = ['preset','glass','disp','tint','blend','emit','inksurf','latch','panel',
+                  'nrm','ncursor','showCursor','content','flip','running','nblend'];
+  const DISC_N = ['preset','emit','flip','bevel','enc','remap','detail','view','blend'];
+  const easeIO = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2;
+  let animT = null, animEnd = null;
+
+  function animateTo(t, dur) {
+    if (animT) { cancelAnimationFrame(animT); animT = null; }
+    if (animEnd) { clearTimeout(animEnd); animEnd = null; }
+    dur = dur || 1600;
+    const tS = t.S || {}, tN = t.N || {}, tL = t.L || {};
+    const fS = {}, fN = {};
+    NUM_S.forEach(k => { if (k in tS && typeof tS[k] === 'number') fS[k] = S[k]; });
+    NUM_N.forEach(k => { if (k in tN && typeof tN[k] === 'number') fN[k] = N[k]; });
+    const t0 = performance.now();
+    let flipped = false;
+    (function step(now) {
+      const u = Math.min(1, (now - t0) / dur), e = easeIO(u);
+      for (const k in fS) S[k] = fS[k] + (tS[k] - fS[k]) * e;
+      for (const k in fN) N[k] = fN[k] + (tN[k] - fN[k]) * e;
+      // Discrete values swap once, at the midpoint, under cover of a brief
+      // dissolve on the specimen — a slider can tween, a preset name cannot.
+      if (!flipped && u >= 0.5) {
+        flipped = true;
+        DISC_S.forEach(k => { if (k in tS) S[k] = tS[k]; });
+        DISC_N.forEach(k => { if (k in tN) N[k] = tN[k]; });
+        Object.keys(tL).forEach(k => {
+          L[k] = tL[k]; const c = el('L_' + k); if (c) c.checked = !!L[k];
+        });
+        latched = S.latch;
+        repaintAllButtons();
+      }
+      spec.style.setProperty('--swap-fade', (0.55 + 0.45 * Math.abs(2 * u - 1)).toFixed(3));
+      sync.forEach(f => f());
+      el('zoomRange').value = S.zoom;
+      el('zoomValue').textContent = Math.round(S.zoom * 100) + '%';
+      paintPanel(); apply();
+      if (u < 1) { animT = requestAnimationFrame(step); return; }
+      finish();
+    })(t0);
+
+    // At heavy zoom with lighting on, rAF can fall below one frame per second,
+    // so the eased loop cannot be relied on to deliver a final tick. A
+    // wall-clock timer guarantees the state lands whatever frames do.
+    animEnd = setTimeout(finish, dur + 40);
+
+    function finish() {
+      if (animEnd) { clearTimeout(animEnd); animEnd = null; }
+      if (animT) { cancelAnimationFrame(animT); animT = null; }
+      // Land exactly. Relying on the final eased frame leaves values a hair
+      // short whenever the last rAF is throttled or coalesced.
+      animT = null;
+      for (const k in fS) S[k] = tS[k];
+      for (const k in fN) N[k] = tN[k];
+      if (!flipped) {
+        DISC_S.forEach(k => { if (k in tS) S[k] = tS[k]; });
+        DISC_N.forEach(k => { if (k in tN) N[k] = tN[k]; });
+        Object.keys(tL).forEach(k => { L[k] = tL[k]; const c = el('L_' + k); if (c) c.checked = !!L[k]; });
+        latched = S.latch;
+      }
+      repaintAllButtons();
+      spec.style.setProperty('--swap-fade', 1);
+      sync.forEach(f => f());
+      el('zoomRange').value = S.zoom;
+      el('zoomValue').textContent = Math.round(S.zoom * 100) + '%';
+      paintPanel(); apply();
+    }
+  }
+
+  function repaintAllButtons() {
+    [['presets','p','preset'],['emits','e','emit'],['surfaces','g','glass'],['displays','d','disp'],
+     ['inksurf','s','inksurf'],['tints','t','tint'],['blends','b','blend']].forEach(([box,a,k]) => {
+      const b = el(box); if (!b) return;
+      [...b.querySelectorAll('button')].forEach(x => x.setAttribute('aria-pressed', String(x.dataset[a]) === String(S[k])));
+    });
+    el('flip').setAttribute('aria-pressed', S.flip);
+    el('play').setAttribute('aria-pressed', S.running);
+    el('play').textContent = S.running ? 'running' : 'held';
+    el('cursorT').setAttribute('aria-pressed', S.showCursor);
+    el('ncursorT').setAttribute('aria-pressed', S.ncursor);
+  }
+
   // ── save / import ────────────────────────────────────────────────────────
   const snapshot = () => ({v:1, saved:new Date().toISOString(), S:{...S}, N:{...N}, L:{...L}});
   function restore(o) {
@@ -1748,6 +1948,15 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   }
   wireIO('S'); wireIO('N');
 
+  // Preset tests: the five saved states, eased into over 1.6s.
+  el('ptests').addEventListener('click', e => {
+    const b = e.target.closest('button[data-pt]'); if (!b || b.disabled) return;
+    const p = PRESETS[b.dataset.pt]; if (!p) return;
+    [...el('ptests').querySelectorAll('button')].forEach(x => x.setAttribute('aria-pressed', x === b));
+    S.panel = true;
+    animateTo(p, 1600);
+  });
+
   const drop = el('drop'), dropbox = el('dropbox'), dropfile = el('dropfile');
   const readState = file => {
     const r = new FileReader();
@@ -1768,6 +1977,120 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   });
   drop.addEventListener('click', e => { if (e.target === drop) drop.classList.remove('on'); });
   addEventListener('keydown', e => { if (e.key === 'Escape') drop.classList.remove('on'); });
+
+  // ── full-screen preview ──────────────────────────────────────────────────
+  // Fits the specimen to the viewport rather than just hiding the chrome, so
+  // the preview actually gains size. On a phone the target is landscape: in
+  // portrait the specimen is rotated a quarter turn into the long axis, which
+  // is the only way to give it real area on a 390px-wide screen.
+  let fsOn = false, fsPrevZoom = 1;
+  function fitFullscreen() {
+    if (!fsOn) return;
+    const pad = 28;
+    const vw = innerWidth - pad, vh = innerHeight - pad;
+    const phone = matchMedia('(max-width:900px)').matches;
+    const portrait = matchMedia('(orientation:portrait)').matches;
+    const rot = phone && portrait;
+    // When rotated, the specimen's width runs down the viewport's height.
+    const availW = rot ? vh : vw, availH = rot ? vw : vh;
+    const z = Math.min(availW / S.w, availH / S.h);
+    spec.style.setProperty('--fs-rot', rot ? 'rotate(90deg)' : 'none');
+    // Set S.zoom directly rather than through setZoom: full screen is allowed
+    // past the dock's 2.4 ceiling, since the point is to fill the viewport.
+    S.zoom = Math.max(0.4, Math.round(z * 100) / 100);
+    el('zoomRange').value = Math.min(2.4, Math.max(0.8, S.zoom));
+    el('zoomValue').textContent = Math.round(S.zoom * 100) + '%';
+    apply();
+  }
+  function setFullscreen(on) {
+    if (on === fsOn) return;
+    fsOn = on;
+    document.body.classList.toggle('fs', on);
+    if (on) { fsPrevZoom = S.zoom; fitFullscreen(); }
+    else {
+      spec.style.setProperty('--fs-rot', 'none');
+      setZoom(fsPrevZoom);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+  }
+  el('fsBtn').addEventListener('click', () => {
+    setFullscreen(true);
+    // Native fullscreen where it is available; the CSS layer stands alone if
+    // the request is refused, so the feature never depends on it.
+    const r = document.documentElement.requestFullscreen;
+    if (r) r.call(document.documentElement).catch(() => {});
+    if (screen.orientation && screen.orientation.lock)
+      screen.orientation.lock('landscape').catch(() => {});
+  });
+  el('fsClose').addEventListener('click', () => setFullscreen(false));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && fsOn) setFullscreen(false); });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && fsOn) setFullscreen(false);
+  });
+  addEventListener('resize', fitFullscreen);
+  addEventListener('orientationchange', () => setTimeout(fitFullscreen, 120));
+
+  // ── mobile sheet ─────────────────────────────────────────────────────────
+  // Drag the grip to move between the resting peek and open; commit past 10px,
+  // otherwise spring back. Same thresholds and curve as the inventory sheet.
+  const PEEK = 52, COMMIT = 10;
+  const panels = el('panels'), grip = el('sheetgrip'), ptrack = el('ptrack');
+  const isPhone = () => matchMedia('(max-width:900px)').matches;
+  let sheetOpen = false;
+  document.documentElement.style.setProperty('--peek-h', PEEK + 'px');
+
+  const sheetClosedY = () => Math.min(innerHeight * 0.72, 680) - PEEK;
+  function setSheet(open, instant) {
+    sheetOpen = open;
+    panels.style.setProperty('--sheet-tr', instant ? 'none' : '');
+    panels.style.setProperty('--sheet-y', (open ? 0 : sheetClosedY()) + 'px');
+    if (instant) requestAnimationFrame(() => panels.style.removeProperty('--sheet-tr'));
+  }
+
+  let gy0 = null, gmoved = 0;
+  grip.addEventListener('pointerdown', e => {
+    if (!isPhone() || e.target.closest('.griptabs')) return;
+    gy0 = e.clientY; gmoved = 0;
+    grip.setPointerCapture(e.pointerId);
+    panels.style.setProperty('--sheet-tr', 'none');
+  });
+  grip.addEventListener('pointermove', e => {
+    if (gy0 === null) return;
+    const dy = e.clientY - gy0; gmoved = Math.max(gmoved, Math.abs(dy));
+    const base = sheetOpen ? 0 : sheetClosedY();
+    panels.style.setProperty('--sheet-y',
+      Math.max(0, Math.min(sheetClosedY(), base + dy)) + 'px');
+  });
+  const gripUp = e => {
+    if (gy0 === null) return;
+    const dy = e.clientY - gy0;
+    gy0 = null;
+    panels.style.removeProperty('--sheet-tr');
+    if (gmoved < 4) setSheet(!sheetOpen);                 // tap toggles
+    else if (sheetOpen) setSheet(dy < COMMIT);
+    else setSheet(-dy >= COMMIT);
+  };
+  grip.addEventListener('pointerup', gripUp);
+  grip.addEventListener('pointercancel', () => { gy0 = null; panels.style.removeProperty('--sheet-tr'); });
+
+  // Which panel the horizontal snap is resting on.
+  const tabs = [...grip.querySelectorAll('.griptabs button')];
+  function showPane(i, smooth) {
+    ptrack.scrollTo({left: i * ptrack.clientWidth, behavior: smooth ? 'smooth' : 'auto'});
+    tabs.forEach((b, j) => b.classList.toggle('on', j === i));
+  }
+  tabs.forEach((b, i) => b.addEventListener('click', () => {
+    showPane(i, true);
+    if (!sheetOpen) setSheet(true);
+  }));
+  ptrack.addEventListener('scroll', () => {
+    if (!isPhone()) return;
+    const i = Math.round(ptrack.scrollLeft / Math.max(1, ptrack.clientWidth));
+    tabs.forEach((b, j) => b.classList.toggle('on', j === i));
+  }, {passive:true});
+
+  addEventListener('resize', () => { if (isPhone()) setSheet(sheetOpen, true); });
+  if (isPhone()) setSheet(false, true);
 
   let dragging = false;
   const place = e => {
