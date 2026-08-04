@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lain Pet</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="pet" aria-label="Lain desktop pet">
+      <div id="interaction-region" data-bridge-active="false">
+        <span id="hover-bridge" aria-hidden="true"></span>
+        <section id="activity-bubble" aria-label="Lain terminal" data-visible="false" data-expanded="false" data-tone="neutral">
+          <span class="crt-scanlines" aria-hidden="true"></span>
+          <span class="crt-glass" aria-hidden="true"></span>
+          <div id="bubble-title-row">
+            <strong id="bubble-title">
+              <span id="title-throbber" class="terminal-prompt" data-active="false" aria-hidden="true">&gt;</span>
+              <span id="bubble-title-text">Lain</span>
+              <span id="title-loading-dots" class="live-loading-dots" data-active="false" aria-hidden="true"><i></i><i></i><i></i></span>
+            </strong>
+            <span id="bubble-controls">
+              <button id="minimize-toggle" class="title-control" type="button" aria-label="Minimize Lain to the system tray" title="Minimize Lain to the system tray"><span class="minimize-icon" aria-hidden="true">_</span></button>
+              <button id="pin-toggle" class="title-control" type="button" aria-label="Keep Lain on top" aria-pressed="true" title="Keep Lain on top"><span class="pin-icon" aria-hidden="true"></span></button>
+            </span>
+          </div>
+          <div id="bubble-copy" aria-live="polite">
+            <span id="bubble-detail">
+              <span id="bubble-detail-text">Drag to move</span>
+              <span id="detail-loading-dots" class="live-loading-dots" data-active="false" aria-hidden="true"><i></i><i></i><i></i></span>
+            </span>
+            <span id="bubble-progress" hidden>
+              <span id="bubble-progress-text"></span>
+              <span id="progress-loading-dots" class="live-loading-dots" data-active="false" aria-hidden="true"><i></i><i></i><i></i></span>
+            </span>
+            <span id="bubble-stage" hidden>
+              <span id="bubble-stage-text"></span>
+              <span id="stage-loading-dots" class="live-loading-dots" data-active="false" aria-hidden="true"><i></i><i></i><i></i></span>
+            </span>
+            <span id="bubble-commentary" role="button" tabindex="0" aria-label="Expand thinking message" aria-pressed="false" data-loading="false" data-latched="false" data-truncated="false" hidden>
+              <span id="commentary-throbber" aria-hidden="true"></span>
+              <span id="bubble-commentary-text"></span>
+            </span>
+            <span id="bubble-meta">
+              <span id="bubble-meta-text">Click Lain to bring the task forward</span>
+            </span>
+            <span id="bubble-activity" hidden>
+              <span id="bubble-activity-text"></span>
+              <span id="bubble-activity-file"></span>
+              <span id="bubble-activity-add"></span>
+              <span id="bubble-activity-remove"></span>
+              <span id="activity-loading-dots" class="live-loading-dots" data-active="false" aria-hidden="true"><i></i><i></i><i></i></span>
+            </span>
+          </div>
+          <form id="reply-form" autocomplete="off">
+            <label class="visually-hidden" for="reply-input">Reply or follow up with Lain</label>
+            <textarea id="reply-input" rows="1" maxlength="4000" spellcheck="true" placeholder="reply / follow up"></textarea>
+          </form>
+          <span id="bubble-feedback" role="status" aria-live="polite" hidden></span>
+          <span id="bubble-tail" aria-hidden="true"></span>
+        </section>
+        <div id="sprite-stage">
+          <span id="ground-shadow" aria-hidden="true"></span>
+          <img id="sprite" draggable="false" alt="Lain in a brown bear onesie" />
+        </div>
+      </div>
+      <span id="status">idle</span>
+    </main>
+    <aside id="debug-panel" hidden>
+      <strong>Animation preview</strong>
+      <div id="debug-buttons"></div>
+    </aside>
+    <script src="animation-plan.js"></script>
+    <script src="animation-runtime.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
