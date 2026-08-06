@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>modulus-link</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07040d;
+        --panel: rgba(14, 8, 32, .88);
+        --line: rgba(198, 168, 255, .22);
+        --line-hi: rgba(198, 168, 255, .5);
+        --text: #efe8ff;
+        --dim: #a294c4;
+        --accent: #c6a8ff;
+        --good: #57e08a;
+        --warn: #ffb37a;
+        --bad: #ff7a7a;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font: 12px/1.5 'Spline Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: .01em;
+        overflow: hidden;
+      }
+
+      /* ── single-preset view ───────────────────────────────────────── */
+      #stage { position: fixed; inset: 0; }
+      #stage > * { position: absolute; inset: 0; }
+      body[data-view='grid'] #stage { display: none; }
+
+      /* ── six-panel grid ───────────────────────────────────────────── */
+      #gridview { position: fixed; inset: 0; display: flex; flex-direction: column; }
+      body[data-view='single'] #gridview { display: none; }
+
+      .gridhead {
+        display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+        padding: 11px 16px; flex: none;
+        border-bottom: 1px solid var(--line); background: var(--panel);
+      }
+      .gridhead h1 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .22em;
+        text-transform: uppercase; color: var(--accent); }
+      .gridhead .note { color: var(--dim); font-size: 10.5px; }
+      .gridhead .note b { color: var(--text); }
+
+      .tiles {
+        flex: 1; min-height: 0; display: grid; gap: 10px; padding: 10px;
+        grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
+      }
+      .tile {
+        position: relative; overflow: hidden; min-height: 0;
+        border: 1px solid var(--line); border-radius: 6px; background: #07040d;
+        cursor: zoom-in; transition: border-color .14s;
+      }
+      .tile:hover { border-color: var(--accent); }
+      .tile__host { position: absolute; inset: 0; overflow: hidden; }
+      .tile__host > * { position: absolute; inset: 0; }
+      .tile__tag {
+        position: absolute; z-index: 5; top: 8px; left: 8px;
+        display: flex; gap: 8px; align-items: baseline;
+        padding: 3px 9px; border: 1px solid var(--line); border-radius: 4px;
+        background: rgba(7, 3, 15, .74); pointer-events: none;
+      }
+      .tile__tag b { font-size: 13px; letter-spacing: .1em; }
+      .tile__tag span { color: var(--dim); font-size: 10px; }
+      .tile--drop {
+        display: grid; place-content: center; text-align: center;
+        border-style: dashed; cursor: pointer; color: var(--dim);
+        font-size: 10.5px; line-height: 1.8; padding: 16px;
+      }
+      .tile--drop:hover, .tile--drop.over { color: var(--text); border-color: var(--accent); }
+      .tile--drop b { color: var(--accent); }
+
+      /* ── controls panel (single view) ─────────────────────────────── */
+      .panel {
+        position: fixed; z-index: 10; top: 14px; left: 14px; width: 268px;
+        max-height: calc(100vh - 28px); overflow-y: auto;
+        padding: 12px 14px 14px;
+        border: 1px solid var(--line); border-radius: 12px;
+        background: var(--panel); backdrop-filter: blur(18px) saturate(1.6);
+        box-shadow: 0 16px 48px rgba(0,0,0,.56);
+        transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s;
+      }
+      body[data-view='grid'] .panel { display: none; }
+      body.hidechrome .panel { transform: translateX(calc(-100% - 20px)); opacity: 0; }
+
+      h1 { margin: 0 0 2px; font-size: 12px; font-weight: 700; letter-spacing: .22em;
+        text-transform: uppercase; color: var(--accent); }
+      .sub { margin: 0 0 12px; color: var(--dim); font-size: 10.5px; }
+
+      section { margin-top: 13px; }
+      h2 { margin: 0 0 7px; font-size: 9.5px; font-weight: 600; letter-spacing: .24em;
+        text-transform: uppercase; color: var(--dim);
+        display: flex; justify-content: space-between; align-items: baseline; }
+      h2 em { font-style: normal; color: var(--accent); letter-spacing: .06em; }
+      h2 em#fidelity { color: var(--good); }
+      h2 em#fidelity.traded { color: var(--warn); }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+      .chip {
+        position: relative; padding: 5px 9px;
+        border: 1px solid var(--line); border-radius: 5px;
+        background: rgba(255,255,255,.02); color: var(--dim);
+        font: inherit; font-size: 11px; cursor: pointer;
+      }
+      .chip:hover { color: var(--text); border-color: var(--line-hi); }
+      .chip[aria-pressed='true'] { color: #120a20; background: var(--accent);
+        border-color: var(--accent); font-weight: 600; }
+      .chip .x { margin-left: 6px; opacity: .55; font-weight: 700; }
+      .chip .x:hover { opacity: 1; }
+      .chip.wide { width: 100%; margin-top: 5px; text-align: left; }
+      /* Return-to-panels sits ahead of preset A, as its own control. */
+      .chip.back { color: var(--accent); border-color: var(--line-hi);
+        font-weight: 700; padding: 5px 8px; margin-right: 3px; }
+      .chip.back:hover { background: rgba(198,168,255,.16); }
+
+      label.row { display: grid; grid-template-columns: 58px 1fr 40px; gap: 8px;
+        align-items: center; margin-bottom: 6px; color: var(--dim); font-size: 10.5px; }
+      label.row output { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+      input[type=range] { -webkit-appearance: none; appearance: none; width: 100%;
+        height: 16px; background: none; cursor: ew-resize; }
+      input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--line-hi); }
+      input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 9px; height: 9px;
+        margin-top: -4px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 0 3px rgba(180,125,255,.18); }
+
+      .drop { margin-top: 8px; padding: 14px 10px; border: 1px dashed var(--line);
+        border-radius: 8px; text-align: center; color: var(--dim);
+        font-size: 10.5px; line-height: 1.7; cursor: pointer; }
+      .drop:hover, .drop.over { border-color: var(--accent); color: var(--text); }
+      .drop b { color: var(--accent); }
+      #file { display: none; }
+
+      .readout { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px;
+        font-size: 10.5px; color: var(--dim); }
+      .readout b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+      .fps { font-size: 18px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+      .fps.ok { color: var(--good); }
+      .fps.mid { color: var(--warn); }
+      .fps.low { color: var(--bad); }
+      .bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden; }
+      .bar i { display: block; height: 100%; background: var(--accent); }
+      .err { margin-top: 6px; color: var(--bad); font-size: 10.5px; }
+      .foot { margin: 8px 0 0; color: var(--dim); font-size: 9.5px; line-height: 1.6; }
+      .hint { position: fixed; z-index: 10; right: 14px; bottom: 12px; color: var(--dim); font-size: 10.5px; }
+    </style>
+    <script type="module" crossorigin src="./assets/index-BJVml7hN.js"></script>
+  </head>
+  <body data-view="grid">
+    <div id="gridview">
+      <div class="gridhead">
+        <h1>modulus-link</h1>
+        <span class="note">Click a panel to open it with the full controls.
+          Panels render at reduced cost — <b>open one</b> for true output.</span>
+      </div>
+      <div class="tiles" id="tiles"></div>
+    </div>
+
+    <div id="stage"></div>
+
+    <div class="panel" id="panel">
+      <h1>modulus-link</h1>
+      <p class="sub">Modulus visualizer preview · WebGL</p>
+
+      <section>
+        <h2>Preset <em id="presetName">A</em></h2>
+        <div class="chips" id="presets"></div>
+      </section>
+
+      <section>
+        <h2>Import</h2>
+        <div class="drop" id="drop">
+          Drop <b>Modulus JSON</b> exports here<br />or click to choose files
+        </div>
+        <input type="file" id="file" accept="application/json,.json" multiple />
+        <div class="err" id="err" hidden></div>
+      </section>
+
+      <section>
+        <h2>Quality <em id="fidelity">baseline</em></h2>
+        <label class="row">
+          <span>Render</span>
+          <input type="range" id="scale" min="0.5" max="1" step="0.05" value="1" />
+          <output id="scaleOut">100%</output>
+        </label>
+        <label class="row">
+          <span>Target</span>
+          <input type="range" id="target" min="30" max="144" step="5" value="80" />
+          <output id="targetOut">80</output>
+        </label>
+        <button class="chip wide" id="detail" aria-pressed="true">Lighting detail: high</button>
+        <button class="chip wide" id="boxes" aria-pressed="true">Blur: 3 box (SVG)</button>
+        <button class="chip wide" id="auto" aria-pressed="false">Auto-hold target</button>
+        <p class="foot" id="cost">All settings at baseline, nothing traded.</p>
+      </section>
+
+      <section>
+        <h2>Performance <em id="verdict"></em></h2>
+        <div class="fps" id="fps">–</div>
+        <div class="bar"><i id="fpsbar" style="width:0%"></i></div>
+        <div class="readout" style="margin-top:7px">
+          <span>GPU</span><b id="gpu">–</b>
+          <span>ceiling</span><b id="ceil">–</b>
+          <span>rAF p50</span><b id="p50">–</b>
+          <span>p95</span><b id="p95">–</b>
+          <span>canvas</span><b id="res">–</b>
+        </div>
+        <p class="foot">GPU time comes from timer queries, so the ceiling does
+          not depend on your display refresh rate.</p>
+      </section>
+    </div>
+
+    <div class="hint">G — panels · H — hide panel · F — fullscreen</div>
+  </body>
+</html>
