@@ -1,0 +1,52 @@
+# Publishes this site to GitHub Pages.
+#
+# This replaces the legacy "deploy from a branch" Pages build, which wedged: a
+# deployment failed mid-publish, the retry never left `queued`, and it could not
+# be cancelled, blocking every later push. Driving the same build from a
+# workflow makes the queue ours rather than the shared legacy builder's.
+#
+# The build step is `actions/jekyll-build-pages`, the same container the legacy
+# path used, so output is unchanged. That matters: the site root is rendered by
+# Jekyll from README.md, so this cannot be swapped for a plain file upload
+# (and .nojekyll would break the root page for the same reason).
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a publish in flight — a half-finished deploy is how the legacy
+# builder got stuck in the first place.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
