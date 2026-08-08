@@ -3,1553 +3,778 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tape filter — bench</title>
+<title>Modulus visualizer — WebGL fast renderer</title>
 <style>
-/* ─────────────────────────────────────────────────────────────
-   BCODe-adjacent shell. Approximated from the balanced-glass
-   language (deep violet ground, hairline lilac edges, low-tint
-   translucency). Swap the tokens below for your real ones.
-   ───────────────────────────────────────────────────────────── */
-:root{
-  --accent:#c6a8ff;
-  --accent-dim:rgba(198,168,255,.45);
-  --ink:#f0f3ff;
-  --ink-dim:rgba(218,227,246,.78);
-  --ink-faint:rgba(218,227,246,.42);
-  --mono:"Spline Sans Mono",ui-monospace,"Cascadia Mono",monospace;
-  --glass-blur:24px;
-  --glass-saturate:1.8;
-  --glass-border:rgba(198,168,255,.14);
-  --glass-border-bright:rgba(198,168,255,.28);
-  --glass-glow:0 0 0 1px rgba(198,168,255,.08) inset, 0 1px 0 rgba(198,168,255,.14) inset;
-  --glass-shadow:0 8px 32px rgba(0,0,0,.48), 0 2px 8px rgba(0,0,0,.28);
-  --glass-shadow-elevated:0 16px 48px rgba(0,0,0,.56), 0 4px 12px rgba(0,0,0,.32);
-  --glass-sheen:linear-gradient(135deg, rgba(198,168,255,.06) 0%, transparent 50%, rgba(198,168,255,.02) 100%);
-  --glass-noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  --glass-bg-main:rgba(8,4,20,.54);
-  --glass-bg-elevated:rgba(14,8,32,.82);
-  --glass-bg-chrome:rgba(10,6,24,.58);
-  --glass-bg-code:rgba(4,2,12,.8);
-  --glass-bg-input:rgba(6,2,16,.68);
-  --bc-glass-overlay:rgba(7,3,18,.8);
-  --bc-glass-blur-heavy:30px;
-  --bc-glass-border-bright:rgba(216,196,255,.42);
-  --bc-glass-shadow-overlay:0 28px 72px rgba(0,0,0,.66), 0 10px 24px rgba(0,0,0,.42);
-  --bc-glass-glow:inset 0 .5px 0 rgba(255,255,255,.45), inset 0 1.5px 5px rgba(198,168,255,.1);
-  --data:#7fe3d4;
-  --ck-stroke:#9182ff;   /* overlay-blue-purple-stroke */
-  --ck-fill:#5b4bff;     /* overlay-blue-purple */
-  --ck-green:#57e08a;    /* jobs-active-green */
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; background:#0a0418; color:var(--ink-dim);
-  font:12px/1.5 var(--mono); letter-spacing:.01em;
-  background-image:
-    radial-gradient(120% 90% at 20% 6%, #2a0a5e 0%, transparent 58%),
-    radial-gradient(90% 80% at 88% 94%, #120033 0%, transparent 55%),
-    linear-gradient(#0a0418,#0a0418);
-  -webkit-font-smoothing:antialiased;
-}
-
-/* ── layout ─────────────────────────────────────────── */
-.bench{display:flex; height:100vh; align-items:stretch}
-.stage{flex:1; min-width:0}
-.rail{width:328px; flex:none}
-/* Both panels sit in one scroller, so their rulings physically cannot drift. */
-.panels{display:flex; flex:none; align-items:stretch; height:100vh; overflow-y:auto; overflow-x:hidden}
-
-/* Normal-map panel. Slides out from behind the main panel and settles to its
-   left, pushing the stage across. Width drives the layout, so the stage really
-   reflows rather than being covered over. */
-.npanel{
-  width:0; flex:none; overflow:hidden; transition:width .34s cubic-bezier(.4,0,.2,1);
-  border-left:1px solid var(--glass-border);
-  background:var(--glass-noise), var(--glass-bg-chrome);
-  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));
-}
-.npanel.open{width:316px}
-.npanel .ninner{
-  width:316px;
-  transform:translateX(26px); opacity:0;
-  transition:transform .34s cubic-bezier(.4,0,.2,1), opacity .26s ease;
-}
-.npanel.open .ninner{transform:none; opacity:1}
-@media (max-width:900px){ .bench{flex-direction:column; height:auto} .rail{width:auto} .npanel.open{width:auto} }
-
-.stage{position:relative; display:grid; place-items:center; padding:40px; min-height:60vh; overflow:auto}
-
-/* Zoom dock — same control shape as the portal's full-screen PDF preview:
-   0.8-2.4 at 0.05, a value pill, and -/reset/+ . Sizes go through calc()
-   rather than a transform, so everything re-renders crisp at scale. */
-.zoom-dock{
-  position:fixed; right:var(--dock-right, 350px); bottom:22px; width:250px; padding:12px 14px; z-index:6;
-  transition:right .34s cubic-bezier(.4,0,.2,1);
-  border-radius:16px; background:var(--glass-noise), var(--glass-bg-elevated);
-  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  border:1px solid var(--glass-border-bright); box-shadow:var(--glass-shadow-elevated);
-}
-.zoom-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px}
-.zoom-label{font-size:9.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--accent); font-weight:600}
-.zoom-value{
-  padding:3px 9px; border-radius:999px; background:var(--glass-bg-input);
-  border:1px solid var(--glass-border); color:var(--ink); font-size:10.5px;
-  min-width:54px; text-align:center; font-variant-numeric:tabular-nums;
-}
-.zoom-buttons{display:flex; gap:6px; margin-top:8px}
-.zoom-buttons button{
-  flex:1; height:26px; border-radius:8px; border:1px solid var(--glass-border);
-  background:var(--glass-bg-input); color:var(--ink-dim); cursor:pointer; font:inherit; font-size:11px;
-}
-.zoom-buttons button:hover{color:var(--ink); border-color:var(--glass-border-bright)}
-.stage::after{ /* faint bench grid, sits behind the specimen */
-  content:''; position:absolute; inset:0; pointer-events:none; opacity:.5;
-  background-image:
-    linear-gradient(var(--glass-border) 1px,transparent 1px),
-    linear-gradient(90deg,var(--glass-border) 1px,transparent 1px);
-  background-size:64px 64px; mask-image:radial-gradient(70% 60% at 50% 50%,#000,transparent 100%);
-  z-index:0;
-}
-
-.rail{
-  border-left:1px solid var(--glass-border); background:var(--glass-noise),var(--glass-bg-chrome);
-  backdrop-filter:blur(18px) saturate(130%);
-  display:flex; flex-direction:column;
-}
-@media (max-width:900px){ .rail{border-left:0; border-top:1px solid var(--glass-border)} }
-
-.railhead{padding:16px 18px 12px; border-bottom:1px solid var(--glass-border); position:sticky; top:0; background:rgba(18,11,33,.92); backdrop-filter:blur(18px); z-index:3}
-.railhead h1{display:flex; align-items:center; justify-content:space-between; gap:10px;
-  margin:0; font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-dim)}
-.railhead p{margin:5px 0 0; color:var(--ink-faint); font-size:10.5px; letter-spacing:.04em}
-
-section.grp{padding:14px 18px; border-bottom:1px solid var(--glass-border)}
-.grp > h2{
-  margin:0 0 11px; font-size:9.5px; font-weight:600; letter-spacing:.24em;
-  text-transform:uppercase; color:var(--accent); display:flex; justify-content:space-between; align-items:baseline;
-}
-.grp > h2 em{font-style:normal; color:var(--ink-faint); letter-spacing:.08em; font-size:9.5px}
-
-/* ── controls ───────────────────────────────────────── */
-.row{display:grid; grid-template-columns:78px 1fr 44px; gap:9px; align-items:center; margin-bottom:8px}
-.row:last-child{margin-bottom:0}
-.row label{color:var(--ink-faint); font-size:10.5px; letter-spacing:.05em}
-.row output{color:var(--data); font-size:10.5px; text-align:right; font-variant-numeric:tabular-nums}
-input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:16px; background:none; cursor:ew-resize}
-input[type=range]::-webkit-slider-runnable-track{height:1px; background:var(--glass-border-bright)}
-input[type=range]::-moz-range-track{height:1px; background:var(--glass-border-bright)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:9px; height:9px; margin-top:-4px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 3px rgba(180,125,255,.18)}
-input[type=range]::-moz-range-thumb{width:9px; height:9px; border:0; border-radius:50%; background:var(--accent)}
-input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:4px}
-
-.seg{display:flex; flex-wrap:wrap; gap:4px}
-.seg button{
-  flex:1 1 auto; min-width:44px; padding:6px 7px; font:inherit; font-size:10px; letter-spacing:.08em;
-  color:var(--ink-faint); background:rgba(255,255,255,.02); border:1px solid var(--glass-border); border-radius:4px; cursor:pointer;
-  transition:color .12s, border-color .12s, background .12s;
-}
-.seg button:hover{color:var(--ink-dim); border-color:var(--glass-border-bright)}
-.seg button[aria-pressed=true]{color:#120a20; background:var(--accent); border-color:var(--accent); font-weight:600}
-.seg button:focus-visible{outline:1px solid var(--accent); outline-offset:2px}
-/* Latch checkbox — lifted from .jobs-entry__check in Lab_Address_Inventory:
-   appearance:none square, clip-path tick scaling 0 -> 1. Idle is the lighter
-   purple stroke over nothing, hover fills with the darker purple, and checked
-   turns the tick and border green over that purple fill. */
-.ck{
-  -webkit-appearance:none; appearance:none; box-sizing:border-box;
-  display:grid; place-content:center; width:14px; height:14px; min-width:14px;
-  margin:0; padding:0; border:1px solid var(--ck-stroke); border-radius:0;
-  background:transparent; cursor:pointer; color:var(--ck-green);
-  transition:background .12s, border-color .12s;
-}
-.ck::before{
-  content:""; width:8px; height:8px; background:currentColor; transform:scale(0);
-  clip-path:polygon(14% 44%, 0 59%, 39% 100%, 100% 22%, 84% 8%, 38% 72%);
-  transition:transform .12s ease;
-}
-.ck:hover{background:var(--ck-fill)}
-.ck:checked{border-color:var(--ck-green); background:var(--ck-fill)}
-.ck:checked::before{transform:scale(1)}
-.ck:focus-visible{outline:1px solid var(--accent); outline-offset:2px}
-/* Spacers keep the two panels on the same horizontal rulings where a control
-   has no normal-map counterpart. Same box as the real thing, just inert. */
-.spacer{height:22px; margin-bottom:7px; border-radius:4px;
-  border:1px dashed var(--glass-border); opacity:.45}
-.spacer.seg-h{height:28px}
-.grp.void > h2{color:var(--ink-faint)}
-.grp.void > h2::after{content:'n/a'; color:var(--ink-faint); letter-spacing:.06em; text-transform:none}
-.nrow{display:grid; grid-template-columns:14px 62px 1fr 44px; gap:8px; align-items:center; margin-bottom:7px}
-.nrow label{color:var(--ink-faint); font-size:10.5px}
-.nrow output{color:var(--data); font-size:10.5px; text-align:right; font-variant-numeric:tabular-nums}
-.nseg{display:grid; grid-template-columns:14px 1fr; gap:8px; align-items:center; margin-bottom:7px}
-.npanel .seg button{min-width:38px}
-
-.swatches{display:flex; gap:6px}
-.swatches button{width:100%; height:22px; border-radius:5px; border:1px solid var(--glass-border); cursor:pointer; padding:0}
-.swatches button[aria-pressed=true]{border-color:var(--ink); box-shadow:0 0 0 2px rgba(240,243,255,.2)}
-
-.swatches{display:flex; gap:6px}
-.swatches button{width:100%; height:22px; border-radius:4px; border:1px solid var(--glass-border); cursor:pointer; padding:0}
-.swatches button[aria-pressed=true]{border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.18)}
-
-.meter{
-  margin-top:auto; padding:12px 18px; border-top:1px solid var(--glass-border);
-  display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--ink-faint); font-size:10px; letter-spacing:.06em;
-}
-.meter b{color:var(--data); font-weight:600; font-variant-numeric:tabular-nums}
-.note{color:var(--ink-faint); font-size:10px; line-height:1.65; letter-spacing:.03em; margin:0}
-.note code{color:var(--ink-dim)}
-
-/* ─────────────────────────────────────────────────────────────
-   THE SPECIMEN — glass shape + tone filter
-   ───────────────────────────────────────────────────────────── */
-.specimen{
-  position:relative; z-index:1; isolation:isolate; overflow:hidden;
-  width:var(--w); height:var(--h); flex:none; border-radius:var(--gr);
-  background:var(--glass-noise), var(--gbg);
-  backdrop-filter:blur(var(--gblur)) saturate(var(--glass-saturate));
-  border:1px solid var(--gborder);
-  box-shadow:var(--gshadow), var(--gglow);
-}
-.specimen::before{ content:''; position:absolute; inset:0; z-index:3; pointer-events:none; background:var(--glass-sheen) }
-.specimen[data-accent=top]{border-top:3px solid var(--accent-dim)}
-.specimen[data-accent=left]{border-left:3px solid var(--accent-dim)}
-.specimen .caption{
-  position:absolute; left:14px; bottom:11px; z-index:4; pointer-events:none;
-  color:rgba(255,255,255,.5); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
-}
-
-/* ── liquid glass ink ───────────────────────────────────
-   Real refraction: backdrop-filter clipped to a bead mask, so each dot
-   genuinely blurs and saturates the glass behind it. The trade is that a CSS
-   mask cannot be thresholded, so bead radius is fixed and the ramp fades the
-   beads out instead of shrinking them. */
-/* Something structured for the beads to refract. */
-.content{position:absolute; inset:0; z-index:1; padding:16px 18px; display:none;
-  color:var(--ink); font:11px/1.7 var(--mono); letter-spacing:.06em; overflow:hidden}
-.showcontent .content{display:block}
-.content b{color:var(--accent); letter-spacing:.16em}
-.content p{margin:.35rem 0; color:var(--ink-dim)}
-.content .bar{display:block; height:7px; margin:7px 0; border-radius:4px;
-  background:linear-gradient(90deg,var(--accent),#1fb6a6 60%,#e0a12a)}
-.content .bar.b2{width:62%; background:linear-gradient(90deg,#6200ff,var(--accent))}
-
-.gtone{position:absolute; inset:0; z-index:2; pointer-events:none; display:none}
-.glassmode .gtone{display:block}
-.glassmode .tone{display:none}
-
-.gs{
-  position:absolute; inset:0; display:none;
-  backdrop-filter:blur(var(--gb)) saturate(var(--gsat)) brightness(var(--gbri));
-  -webkit-backdrop-filter:blur(var(--gb)) saturate(var(--gsat)) brightness(var(--gbri));
-  opacity:var(--tone-alpha);
-  -webkit-mask-image:var(--beadmask), var(--mramp), var(--cvanish), var(--vx), var(--vy);
-  mask-image:var(--beadmask), var(--mramp), var(--cvanish), var(--vx), var(--vy);
-  -webkit-mask-size:var(--cell) var(--cell), 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  mask-size:var(--cell) var(--cell), 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  -webkit-mask-repeat:repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  mask-repeat:repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  -webkit-mask-position:0 0, 0 0, 0 0, 0 0, 0 0;
-  mask-position:0 0, 0 0, 0 0, 0 0, 0 0;
-  -webkit-mask-composite:source-in; mask-composite:intersect;
-  animation:gflow var(--dur) linear infinite;
-}
-.gs.on{display:block}
-@keyframes gflow{ to{
-  -webkit-mask-position:var(--cfx) var(--cfy), 0 0, 0 0, 0 0, 0 0;
-  mask-position:var(--cfx) var(--cfy), 0 0, 0 0, 0 0, 0 0;
-} }
-/* radial emitters scale the tile instead of sliding it */
-.gs[data-anim=burst]{animation:gburst var(--dur-r) linear infinite}
-.gs[data-anim="burst-b"]{animation:gburst-b var(--dur-r) linear infinite}
-@keyframes gburst{
-  0%{-webkit-mask-size:var(--cell) var(--cell),100% 100%,100% 100%,100% 100%,100% 100%; mask-size:var(--cell) var(--cell),100% 100%,100% 100%,100% 100%,100% 100%; opacity:0}
-  22%,78%{opacity:var(--tone-alpha)}
-  100%{-webkit-mask-size:calc(var(--cell)*2) calc(var(--cell)*2),100% 100%,100% 100%,100% 100%,100% 100%; mask-size:calc(var(--cell)*2) calc(var(--cell)*2),100% 100%,100% 100%,100% 100%,100% 100%; opacity:0}
-}
-@keyframes gburst-b{
-  0%{-webkit-mask-size:calc(var(--cell)*2) calc(var(--cell)*2),100% 100%,100% 100%,100% 100%,100% 100%; mask-size:calc(var(--cell)*2) calc(var(--cell)*2),100% 100%,100% 100%,100% 100%,100% 100%; opacity:0}
-  22%,78%{opacity:var(--tone-alpha)}
-  100%{-webkit-mask-size:var(--cell) var(--cell),100% 100%,100% 100%,100% 100%,100% 100%; mask-size:var(--cell) var(--cell),100% 100%,100% 100%,100% 100%,100% 100%; opacity:0}
-}
-/* bright edge on each bead: a ring from XOR of two bead radii */
-.rim{
-  position:absolute; inset:0; background:rgba(255,255,255,var(--rim));
-  -webkit-mask-image:
-    radial-gradient(circle at 50% 50%, #000 0 var(--bead-r), transparent calc(var(--bead-r) + .8px)),
-    radial-gradient(circle at 50% 50%, #000 0 calc(var(--bead-r) - 1px), transparent calc(var(--bead-r) - .3px));
-  mask-image:
-    radial-gradient(circle at 50% 50%, #000 0 var(--bead-r), transparent calc(var(--bead-r) + .8px)),
-    radial-gradient(circle at 50% 50%, #000 0 calc(var(--bead-r) - 1px), transparent calc(var(--bead-r) - .3px));
-  -webkit-mask-size:var(--cell) var(--cell); mask-size:var(--cell) var(--cell);
-  -webkit-mask-composite:xor; mask-composite:exclude;
-}
-/* Tight off-centre highlight. Refraction alone is nearly invisible against a
-   flat backdrop, so the bead needs a specular to read as a bead. */
-.spk{
-  position:absolute; inset:0; background:rgba(255,255,255,var(--spk));
-  -webkit-mask-image:radial-gradient(circle at 37% 33%, #000 0 calc(var(--bead-r) * .30), transparent calc(var(--bead-r) * .52));
-  mask-image:radial-gradient(circle at 37% 33%, #000 0 calc(var(--bead-r) * .30), transparent calc(var(--bead-r) * .52));
-  -webkit-mask-size:var(--cell) var(--cell); mask-size:var(--cell) var(--cell);
-}
-.paused .gs,.glassmode.paused .gs{animation-play-state:paused}
-@media (prefers-reduced-motion:reduce){ .gs{animation:none !important} }
-
-/* ── tone stack ─────────────────────────────────────── */
-.tone{
-  position:absolute; inset:0; pointer-events:none;
-  isolation:isolate;
-  opacity:var(--tone-alpha);
-  /* edge vanish: rectangular inset fade on all four sides */
-  -webkit-mask-image:
-    linear-gradient(90deg,transparent 0,#000 var(--edge-x),#000 calc(100% - var(--edge-x)),transparent 100%),
-    linear-gradient(180deg,transparent 0,#000 var(--edge-y),#000 calc(100% - var(--edge-y)),transparent 100%);
-  mask-image:
-    linear-gradient(90deg,transparent 0,#000 var(--edge-x),#000 calc(100% - var(--edge-x)),transparent 100%),
-    linear-gradient(180deg,transparent 0,#000 var(--edge-y),#000 calc(100% - var(--edge-y)),transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-composite:intersect;
-}
-
-/* the threshold chamber: everything inside gets crushed to 1-bit */
-.screen{position:absolute; inset:0; overflow:hidden; background:#fff; filter:var(--chain)}
-
-/* Every mode emits ink on transparency now, so the blend mode is a styling
-   choice rather than the thing preventing the paper from covering the glass. */
-.tone{mix-blend-mode:var(--blend)}
-
-/* the halftone screen itself: one cone per cell.
-   Thresholding a cone at a varying level = varying dot radius at fixed pitch.
-   This is the whole trick, and it is the same geometry the tapes use. */
-/* The halftone screen: one cone per cell. Thresholding a cone at a varying
-   level = varying dot radius at fixed pitch — the tapes' exact geometry.
-   The noise layer rides along with the lattice, so dot sizes travel with the
-   dots instead of staying pinned to the screen. Without it the grating slides
-   but nothing observable moves. */
-.lattice{
-  position:absolute; inset:0;
-  background-image:var(--noise), radial-gradient(circle at 50% 50%, #000 0%, #fff 100%);
-  background-size:var(--tile) var(--tile), var(--cell) var(--cell);
-  background-blend-mode:soft-light, normal;
-}
-/* flow mode oversizes the layer by the travel distance so the trailing
-   edge never pulls away from the shape */
-.flow .lattice{inset:calc(-1 * var(--over-y)) calc(-1 * var(--over-x))}
-.ch{display:none}
-.ch.on{display:block}
-/* Per-emitter opacity envelope, anchored at that emitter's own spawn edge and
-   oriented along its own travel. Every emitter gets its own, all driven by the
-   one vanish slider. */
-.ch{-webkit-mask-image:var(--cvanish); mask-image:var(--cvanish)}
-
-/* the density ramp — pushes the threshold up (white) or down (black).
-   Black end  -> dots grow toward a merged mesh.
-   White end  -> dots shrink to nothing. */
-/* Each chamber owns its ramp and its travel vector, so an arbitrary number of
-   emitters can run at once without per-chamber special cases. */
-.ramp{position:absolute; inset:0; background-image:var(--cramp)}
-
-/* Second emitter: same sliders, ramp and travel both reflected through the
-   axis, so dots spawn at the opposite edge and run the other way. Multiply
-   lets the two chambers share the shape without either hiding the other. */
-
-
-/* Normals is its own chamber rather than a display mode, so it can sit over
-   whichever ink mode is running. It reads the same ramp and lattice as
-   chamber A, so the map lines up with the ink it is describing. */
-.screen.s-n{display:none; filter:var(--nchain); mix-blend-mode:var(--nblend); opacity:var(--nalpha);
-  -webkit-mask-image:var(--cvanish); mask-image:var(--cvanish)}
-.screen.s-n{display:none}
-.nrm .screen.s-n.on{display:block}
-.tone.solo .ch{display:none}
-.tone.solo .gs{display:none}
-/* When unlatched the normals chamber runs its own preset, which may not be the
-   same kind as the ink's, so it drives its own animation rather than inheriting
-   .tone's flow/burst class. */
-.s-n.nflow .lattice{animation:flow var(--dur) linear infinite; inset:calc(-1 * var(--over-y)) calc(-1 * var(--over-x))}
-.s-n.nburst .lattice{animation:burst var(--dur-r) linear infinite; transform-origin:var(--ox) var(--oy); inset:0}
-.s-n .ramp{position:absolute; inset:0; background-image:var(--ramp)}
-
-/* motion. transform-only, so it stays on the compositor. */
-.flow .lattice{animation:flow var(--dur) linear infinite}
-@keyframes flow{ to{ transform:translate(var(--cfx), var(--cfy)) } }
-
-.burst .lattice{animation:burst var(--dur-r) linear infinite; transform-origin:var(--ox) var(--oy)}
-.burst .lattice.b{animation-delay:calc(var(--dur-r) / -2)}
-/* Mirrored radial: a ring at the rim collapsing inward, spawning exactly where
-   the outward stream despawns. */
-.burst .ch[data-anim="burst-b"] .lattice{animation-name:burst-b}
-@keyframes burst-b{ 0%{transform:scale(2); opacity:0} 20%{opacity:1} 78%{opacity:1} 100%{transform:scale(1); opacity:0} }
-@keyframes burst{
-  0%  { transform:scale(1);   opacity:0 }
-  22% { opacity:1 }
-  78% { opacity:1 }
-  100%{ transform:scale(2);   opacity:0 }
-}
-.paused .lattice{animation-play-state:paused}
-@media (prefers-reduced-motion:reduce){ .lattice{animation:none !important} }
-
-/* origin handle, radial mode only */
-.handle{
-  position:absolute; z-index:5; left:var(--ox); top:var(--oy); width:26px; height:26px;
-  transform:translate(-50%,-50%); border-radius:50%; cursor:grab; touch-action:none;
-  border:1px solid rgba(255,255,255,.6); background:rgba(255,255,255,.08);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4);
-}
-.handle::after{content:''; position:absolute; inset:11px; border-radius:50%; background:#fff}
-.handle:active{cursor:grabbing}
-.handle[hidden]{display:none}
-.handle{opacity:var(--cursor-alpha, 1)}
-
-/* Normal-layer cursor. Deliberately a different instrument from the round
-   violet origin handle: square, crosshaired, in the latch green. */
-.nhandle{
-  position:absolute; z-index:6; left:var(--npx); top:var(--npy);
-  width:26px; height:26px; transform:translate(-50%,-50%);
-  cursor:grab; touch-action:none; opacity:var(--ncursor-alpha, 1);
-  border:1px solid var(--ck-green); border-radius:2px;
-  background:rgba(87,224,138,.08);
-  box-shadow:0 0 0 1px rgba(0,0,0,.55), 0 0 14px rgba(87,224,138,.32);
-}
-.nhandle::before,.nhandle::after{content:''; position:absolute; background:var(--ck-green)}
-.nhandle::before{left:50%; top:4px; bottom:4px; width:1px; transform:translateX(-50%)}
-.nhandle::after{top:50%; left:4px; right:4px; height:1px; transform:translateY(-50%)}
-.nhandle:active{cursor:grabbing}
-.nhandle[hidden]{display:none}
+  html, body { height: 100%; margin: 0; }
+  body { background: #0a0418; color: rgba(218,227,246,.78); font: 12px/1.5 "Spline Sans Mono", ui-monospace, "Cascadia Mono", monospace; overflow: hidden; }
+  #host, .visualizer-stage { position: fixed; inset: 0; }
+  .visualizer-stage--gl canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hud { position: fixed; right: 14px; bottom: 14px; z-index: 5; display: flex; gap: 6px; align-items: center;
+    padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(198,168,255,.28); background: rgba(14,8,32,.82); }
+  .hud button { min-width: 34px; padding: 6px 8px; font: inherit; color: rgba(218,227,246,.78);
+    background: rgba(255,255,255,.02); border: 1px solid rgba(198,168,255,.14); border-radius: 4px; cursor: pointer; }
+  .hud button[aria-pressed="true"] { color: #120a20; background: #c6a8ff; border-color: #c6a8ff; font-weight: 600; }
+  .hud b { color: #7fe3d4; min-width: 58px; text-align: right; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
-
-<svg class="fx" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
-  <!-- Height field -> shaded relief. feDiffuseLighting/feSpecularLighting derive
-       surface normals from the alpha channel: the same height-map -> normal step
-       NormalMap-Online performs with a Sobel pass. -->
-
-  <!-- Luminance -> alpha, then flood with the ink colour. The white paper that
-       the contrast pass needs never reaches the compositor: it leaves this
-       filter as transparency. The glass therefore cannot be occluded, and no
-       blend mode is required to make that true. -->
-  <filter id="ink" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="a" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feFlood id="inkFlood" flood-color="#c6a8ff" result="c"/>
-    <feComposite in="c" in2="a" operator="in"/>
-  </filter>
-  <!-- Liquid glass ink: the dot body takes a translucent glass surface colour,
-       and a specular pass off the same height field gives the wet sheen. -->
-  <filter id="glass" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur id="gBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feFlood id="glassFlood" flood-color="rgba(8,4,20,.54)" result="body"/>
-    <feComposite in="body" in2="ink" operator="in" result="tint"/>
-    <feSpecularLighting id="gSpec" in="h" surfaceScale="5" specularConstant="1.5"
-                        specularExponent="32" lighting-color="#ffffff" result="spc">
-      <feDistantLight id="gL1" azimuth="135" elevation="52"/>
-    </feSpecularLighting>
-    <feComposite in="spc" in2="ink" operator="in" result="sheen"/>
-    <feBlend in="sheen" in2="tint" mode="screen"/>
-  </filter>
-
-  <filter id="relief" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur id="rBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feDiffuseLighting id="rDiff" in="h" surfaceScale="5" diffuseConstant="1.05" lighting-color="#b79cff" result="dif">
-      <feDistantLight id="rL1" azimuth="135" elevation="52"/>
-    </feDiffuseLighting>
-    <feSpecularLighting id="rSpec" in="h" surfaceScale="5" specularConstant="1.2" specularExponent="24" lighting-color="#ffffff" result="spc">
-      <feDistantLight id="rL2" azimuth="135" elevation="52"/>
-    </feSpecularLighting>
-    <feComposite in="spc" in2="ink" operator="in" result="spcIn"/>
-    <feComposite in="dif" in2="ink" operator="in" result="difIn"/>
-    <feBlend in="spcIn" in2="difIn" mode="screen"/>
-  </filter>
-
-  <!-- The normal map itself, RGB packed. Sobel runs twice per axis with reversed
-       kernels because feConvolveMatrix clamps negatives to zero; differencing the
-       two halves recovers the signed gradient. Flat areas land on (.5,.5,1). -->
-
-  <!-- Diffuse only: same normals, no specular pass. Roughly half the cost. -->
-  <filter id="matte" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur id="mBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feDiffuseLighting id="mDiff" in="h" surfaceScale="5" diffuseConstant="1.15" lighting-color="#c6a8ff" result="dif">
-      <feDistantLight id="mL1" azimuth="135" elevation="52"/>
-    </feDiffuseLighting>
-    <feComposite in="dif" in2="ink" operator="in"/>
-  </filter>
-  <!-- The three encodings the map can be shown in, besides the packed tangent
-       map: the height field the normals come from, its gradient magnitude, and
-       the raw thresholded dots the whole chain starts from. -->
-  <filter id="nheight" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur class="mapBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feColorMatrix in="h" result="hc" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 0 1"/>
-    <feComposite in="hc" in2="ink" operator="in"/>
-  </filter>
-
-  <filter id="nslope" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur class="mapBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feColorMatrix in="h" result="hc" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 0 1"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="1 0 -1  2 0 -2  1 0 -1" result="gxp"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="-1 0 1  -2 0 2  -1 0 1" result="gxn"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="1 2 1  0 0 0  -1 -2 -1" result="gyp"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="-1 -2 -1  0 0 0  1 2 1" result="gyn"/>
-    <feComposite in="gxp" in2="gxn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="mx"/>
-    <feComposite in="gyp" in2="gyn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="my"/>
-    <feComposite in="mx" in2="my" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="mag"/>
-    <feComposite in="mag" in2="ink" operator="in"/>
-  </filter>
-
-  <filter id="nraw" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feFlood flood-color="#e8e2ff" result="c"/>
-    <feComposite in="c" in2="ink" operator="in"/>
-  </filter>
-
-  <filter id="normals" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-    <feColorMatrix result="ink" type="matrix"
-      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -0.2126 -0.7152 -0.0722 0 1"/>
-    <feGaussianBlur id="nBlur" class="mapBlur" in="ink" stdDeviation="1.2" result="h"/>
-    <feColorMatrix in="h" result="hc" type="matrix" values="0 0 0 1 0  0 0 0 1 0  0 0 0 1 0  0 0 0 0 1"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="1 0 -1  2 0 -2  1 0 -1" result="gxp"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="-1 0 1  -2 0 2  -1 0 1" result="gxn"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="1 2 1  0 0 0  -1 -2 -1" result="gyp"/>
-    <feConvolveMatrix class="mapConv" in="hc" order="3 3" preserveAlpha="true" divisor="4" kernelMatrix="-1 -2 -1  0 0 0  1 2 1" result="gyn"/>
-    <!-- Scale/offset via feColorMatrix (which can hold A at 1) and combine with
-         k2=k3=1 so alpha clamps to 1. Doing the 0.5/-0.5/+0.5 in one arithmetic
-         composite instead drops alpha to 0.5, and unpremultiplying then drives
-         R,G to 1.0 — the whole map washes white. -->
-    <feColorMatrix in="gxp" result="xp" type="matrix" values=" 0.5 0 0 0 0    0 0 0 0 0   0 0 0 0 0  0 0 0 0 1"/>
-    <feColorMatrix in="gxn" result="xn" type="matrix" values="-0.5 0 0 0 0.5  0 0 0 0 0   0 0 0 0 0  0 0 0 0 1"/>
-    <feComposite in="xp" in2="xn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="nx"/>
-    <feColorMatrix in="gyp" result="yp" type="matrix" values="0 0 0 0 0   0.5 0 0 0 0    0 0 0 0 0  0 0 0 0 1"/>
-    <feColorMatrix in="gyn" result="yn" type="matrix" values="0 0 0 0 0  -0.5 0 0 0 0.5  0 0 0 0 0  0 0 0 0 1"/>
-    <feComposite in="yp" in2="yn" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="ny"/>
-    <feComposite in="nx" in2="ny" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="rg"/>
-    <feFlood flood-color="#0000ff" result="bz"/>
-    <feComposite in="rg" in2="bz" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="nrm"/>
-    <feComposite in="nrm" in2="ink" operator="in" result="clipped"/>
-    <feColorMatrix id="nRemap" in="clipped" type="matrix"
-      values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
-  </filter>
-</defs></svg>
-
-<div class="bench">
-  <div class="stage" id="stage">
-    <div class="zoom-dock">
-      <div class="zoom-head"><span class="zoom-label">Zoom</span><span class="zoom-value" id="zoomValue">100%</span></div>
-      <input id="zoomRange" type="range" min="0.8" max="2.4" step="0.05" value="1">
-      <div class="zoom-buttons">
-        <button id="zoomOut" type="button">&minus;</button>
-        <button id="zoomReset" type="button">reset</button>
-        <button id="zoomIn" type="button">+</button>
-      </div>
-    </div>
-    <div class="specimen" id="spec" style="--w:520px; --h:340px; --fill:#7a4bd8">
-      <div class="tone" id="tone">
-        <div class="screen ch on" id="ch0"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen ch"    id="ch1"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen ch"    id="ch2"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen ch"    id="ch3"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen s-n" id="chn0"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen s-n" id="chn1"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen s-n" id="chn2"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-        <div class="screen s-n" id="chn3"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-      </div>
-      <div class="content" id="content">
-        <b>LAB-A / SHELF-C / DRAWER-M</b>
-        <p>0x41 0x53 0x48 0x33 · addr 4·C·12</p>
-        <span class="bar"></span><span class="bar b2"></span>
-        <p>z1q.us/7Q4KDR — canonical address string</p>
-      </div>
-      <div class="gtone" id="gtone">
-        <div class="gs" id="gs0"><div class="rim"></div><div class="spk"></div></div>
-        <div class="gs" id="gs1"><div class="rim"></div><div class="spk"></div></div>
-        <div class="gs" id="gs2"><div class="rim"></div><div class="spk"></div></div>
-        <div class="gs" id="gs3"><div class="rim"></div><div class="spk"></div></div>
-      </div>
-      <div class="handle" id="handle" hidden></div>
-      <div class="nhandle" id="nhandle" hidden></div>
-      <span class="caption" id="cap">tape3 · vertical</span>
-    </div>
-  </div>
-
-  <div class="panels" id="panels">
-  <aside class="npanel" id="npanel">
-    <div class="ninner" id="ninner">
-      <div class="railhead">
-        <h1>Normal map
-          <input class="ck" type="checkbox" id="L_all" checked
-                 title="follow the tape filter for everything, or release everything">
-        </h1>
-        <p id="lcount">ticked = follows the tape filter</p>
-      </div>
-
-      <section class="grp">
-        <h2>Filter <em id="ncov">&nbsp;</em></h2>
-        <div class="nseg"><input class="ck" type="checkbox" id="L_preset" checked title="follow the tape filter">
-          <div class="seg" id="npresets"><button data-np="t3" aria-pressed=true>t3</button><button data-np="t3a">t3a</button><button data-np="t4">t4</button><button data-np="t1">t1</button><button data-np="t2">t2</button><button data-np="t5">t5</button><button data-np="t6">t6</button><button data-np="t7">t7</button><button data-np="t8">t8</button></div></div>
-      </section>
-
-      <section class="grp">
-        <h2>Screen</h2>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_cell" checked title="follow the tape filter"><label for="ncell">pitch</label><input id="ncell" type="range" min="3" max="16" step="1" value="6"><output id="ncell_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_hard" checked title="follow the tape filter"><label for="nhard">edge</label><input id="nhard" type="range" min="2" max="60" step="1" value="22"><output id="nhard_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_dense" checked title="follow the tape filter"><label for="ndense">dense end</label><input id="ndense" type="range" min="0" max="100" step="1" value="40"><output id="ndense_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_sparse" checked title="follow the tape filter"><label for="nsparse">sparse end</label><input id="nsparse" type="range" min="0" max="100" step="1" value="88"><output id="nsparse_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_reach" checked title="follow the tape filter"><label for="nreach">reach</label><input id="nreach" type="range" min="8" max="100" step="1" value="100"><output id="nreach_o"></output></div>
-      </section>
-
-      <section class="grp">
-        <h2>Motion</h2>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_speed" checked title="follow the tape filter"><label for="nspeed">speed</label><input id="nspeed" type="range" min="2" max="180" step="1" value="42"><output id="nspeed_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_run" checked title="follow the tape filter"><label for="nrun">drift</label><input id="nrun" type="range" min="6" max="48" step="1" value="22"><output id="nrun_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_jit" checked title="follow the tape filter"><label for="njit">grain</label><input id="njit" type="range" min="0" max="100" step="1" value="58"><output id="njit_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_dir" checked title="follow the tape filter"><label for="ndir">heading</label><input id="ndir" type="range" min="0" max="359" step="1" value="0"><output id="ndir_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_vanish" checked title="follow the tape filter"><label for="nvan">vanish</label><input id="nvan" type="range" min="0" max="100" step="0.5" value="100"><output id="nvan_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_vwidth" checked title="follow the tape filter"><label for="nvw">van. width</label><input id="nvw" type="range" min="4" max="100" step="0.5" value="100"><output id="nvw_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_vstrength" checked title="follow the tape filter"><label for="nvs">van. strength</label><input id="nvs" type="range" min="0.5" max="60" step="0.5" value="10"><output id="nvs_o"></output></div>
-        <p class="note" style="margin-top:9px">each emitter carries its own map
-        chamber, so edges and corners map four.</p>
-        <div class="nseg"><input class="ck" type="checkbox" id="L_flip" checked title="follow the tape filter">
-          <div class="seg" style="margin-top:10px"><button id="nflip">reverse</button><button disabled>&nbsp;</button></div></div>
-        <div class="nseg"><input class="ck" type="checkbox" id="L_emit" checked title="follow the tape filter">
-          <div class="seg" id="nemits" style="margin-top:5px"><button data-ne="single">single</button><button data-ne="mirror" aria-pressed=true>mirror</button><button data-ne="edges">edges</button><button data-ne="corners">corners</button></div></div>
-      </section>
-
-      <section class="grp">
-        <h2>Edge fade</h2>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_ex" checked title="follow the tape filter"><label for="nex">left · right</label><input id="nex" type="range" min="0" max="45" step="1" value="0"><output id="nex_o"></output></div>
-        <div class="nrow"><input class="ck" type="checkbox" id="L_ey" checked title="follow the tape filter"><label for="ney">top · bottom</label><input id="ney" type="range" min="0" max="45" step="1" value="0"><output id="ney_o"></output></div>
-        <div class="nrow"><span></span><label for="nmix">strength</label><input id="nmix" type="range" min="0" max="100" step="1" value="100"><output id="nmix_o"></output></div>
-      </section>
-
-      <section class="grp">
-        <h2>Bevel <em>height profile</em></h2>
-        <div class="nseg"><input class="ck" type="checkbox" id="L_bevel" checked title="follow the tape filter">
-          <div class="seg" id="nbevels">
-            <button data-bv="dome" aria-pressed="true">dome</button><button data-bv="cone">cone</button>
-            <button data-bv="pillow">pillow</button><button data-bv="chisel">chisel</button>
-            <button data-bv="round">round</button><button data-bv="flat">flat</button>
-          </div></div>
-      </section>
-
-      <section class="grp">
-        <h2>Map <em>vs. Ink</em></h2>
-        <div class="nseg"><span></span>
-          <div class="seg" id="nencs">
-            <button data-en="tangent" aria-pressed="true">tangent</button><button data-en="height">height</button>
-            <button data-en="slope">slope</button><button data-en="raw">raw</button>
-          </div></div>
-        <div class="nseg"><span></span>
-          <div class="seg" id="ndetails">
-            <button data-dt="fine">fine</button><button data-dt="sharp">sharp</button>
-            <button data-dt="medium" aria-pressed="true">med</button><button data-dt="soft">soft</button>
-            <button data-dt="wide">wide</button><button data-dt="blur">blur</button>
-          </div></div>
-        <div class="nseg"><span></span>
-          <div class="swatches" id="nremaps">
-            <button data-rm="gl" aria-pressed="true" title="OpenGL +Y" style="background:linear-gradient(135deg,#8080ff,#57e08a)"></button>
-            <button data-rm="dx" title="DirectX -Y" style="background:linear-gradient(135deg,#8080ff,#e04a6b)"></button>
-            <button data-rm="fx" title="flip X" style="background:linear-gradient(135deg,#8080ff,#e0a12a)"></button>
-            <button data-rm="swap" title="swap R/G" style="background:linear-gradient(135deg,#8080ff,#7fe3d4)"></button>
-            <button data-rm="flat" title="flatten Z" style="background:linear-gradient(135deg,#8080ff,#c6a8ff)"></button>
-          </div></div>
-        <div class="nseg"><span></span>
-          <div class="seg" id="nblends">
-            <button data-nb="normal" aria-pressed="true">normal</button><button data-nb="overlay">over</button>
-            <button data-nb="screen">screen</button><button data-nb="soft-light">soft</button>
-          </div></div>
-        <div class="nrow"><span></span><label for="namp">amplitude</label><input id="namp" type="range" min="10" max="400" step="5" value="100"><output id="namp_o"></output></div>
-        <div class="nrow"><span></span><label for="nrad">radius</label><input id="nrad" type="range" min="20" max="400" step="5" value="100"><output id="nrad_o"></output></div>
-        <div class="nseg"><span></span>
-          <div class="seg" id="nviews">
-            <button data-vw="over" aria-pressed="true">over</button>
-            <button data-vw="solo">solo</button><button data-vw="hide">hide</button>
-          </div></div>
-        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>        <div class="nrow"><span></span><span></span><div class="spacer"></div><span></span></div>
-      </section>
-
-      <section class="grp void">
-        <h2>Host</h2>
-        <div class="nseg"><span></span><div class="spacer seg-h"></div></div>
-      </section>
-
-      <section class="grp">
-        <p class="note">Bevel, amplitude and radius reshape the height field the
-        normals are derived from — the map's own equivalent of the ink's surface
-        and lighting, which a packed normal map has no use for.</p>
-      </section>
-
-      <section class="grp">
-        <h2>Cursor</h2>
-        <div class="nseg"><span></span><div class="seg"><button id="ncursorT">normal-layer cursor</button></div></div>
-        <div class="nrow"><span></span><label for="ncurs">opacity</label><input id="ncurs" type="range" min="0" max="100" step="1" value="100"><output id="ncurs_o"></output></div>
-      </section>
-    </div>
-  </aside>
-
-  <aside class="rail">
-    <div class="railhead">
-      <h1>Tape filter</h1>
-      <p>Halftone lattice · fixed pitch · variable radius</p>
-    </div>
-
-    <section class="grp">
-      <h2>Reference <em id="covreadout">coverage 0.03 → 0.74</em></h2>
-      <div class="seg" id="presets">
-        <button data-p="t3" aria-pressed="true">tape3</button>
-        <button data-p="t3a">tape3a</button>
-        <button data-p="t4">tape4</button>
-        <button data-p="t1">tape1</button>
-        <button data-p="t2">tape2</button>
-        <button data-p="t5">corner</button>
-        <button data-p="t6">band</button>
-        <button data-p="t7">bias</button>
-        <button data-p="t8">ring</button>
-      </div>
-    </section>
-
-    <section class="grp">
-      <h2>Screen</h2>
-      <div class="row"><label for="cell">pitch</label><input id="cell" type="range" min="3" max="16" step="1" value="6"><output id="cell_o"></output></div>
-      <div class="row"><label for="hard">edge</label><input id="hard" type="range" min="2" max="60" step="1" value="22"><output id="hard_o"></output></div>
-      <div class="row"><label for="dense">dense end</label><input id="dense" type="range" min="0" max="100" step="1" value="72"><output id="dense_o"></output></div>
-      <div class="row"><label for="sparse">sparse end</label><input id="sparse" type="range" min="0" max="100" step="1" value="88"><output id="sparse_o"></output></div>
-      <div class="row"><label for="reach">reach</label><input id="reach" type="range" min="8" max="100" step="1" value="100"><output id="reach_o"></output></div>
-    </section>
-
-    <section class="grp">
-      <h2>Motion</h2>
-      <div class="row"><label for="speed">speed</label><input id="speed" type="range" min="2" max="180" step="1" value="42"><output id="speed_o"></output></div>
-      <div class="row"><label for="run">drift</label><input id="run" type="range" min="6" max="48" step="1" value="22"><output id="run_o"></output></div>
-      <div class="row"><label for="jit">grain</label><input id="jit" type="range" min="0" max="100" step="1" value="58"><output id="jit_o"></output></div>
-      <div class="row"><label for="dir">heading</label><input id="dir" type="range" min="0" max="359" step="1" value="0"><output id="dir_o"></output></div>
-      <div class="row" style="margin-top:8px"><label for="van">vanish</label><input id="van" type="range" min="0" max="100" step="0.5" value="100"><output id="van_o"></output></div>
-      <div class="row"><label for="vw">van. width</label><input id="vw" type="range" min="4" max="100" step="0.5" value="100"><output id="vw_o"></output></div>
-      <div class="row"><label for="vs">van. strength</label><input id="vs" type="range" min="0.5" max="60" step="0.5" value="10"><output id="vs_o"></output></div>
-      <p class="note" style="margin-top:9px">heading snaps to the nearest lattice
-        vector <b id="vec" style="color:var(--data);font-weight:600">0,-1</b>, which keeps the loop seamless.</p>
-      <div class="seg" style="margin-top:10px">
-        <button id="play" aria-pressed="true">running</button>
-        <button id="flip">reverse</button>
-      </div>
-      <div class="seg" id="emits" style="margin-top:5px">
-        <button data-e="single">single</button>
-        <button data-e="mirror" aria-pressed="true">mirror</button>
-        <button data-e="edges">edges</button>
-        <button data-e="corners">corners</button>
-      </div>
-    </section>
-
-    <section class="grp">
-      <h2>Edge fade</h2>
-      <div class="row"><label for="edgex">left · right</label><input id="edgex" type="range" min="0" max="45" step="1" value="0"><output id="edgex_o"></output></div>
-      <div class="row"><label for="edgey">top · bottom</label><input id="edgey" type="range" min="0" max="45" step="1" value="0"><output id="edgey_o"></output></div>
-      <div class="row"><label for="alpha">strength</label><input id="alpha" type="range" min="0" max="100" step="1" value="100"><output id="alpha_o"></output></div>
-    </section>
-
-    <section class="grp">
-      <h2>Surface <em>ash3-e/database</em></h2>
-      <div class="seg" id="surfaces">
-        <button data-g="main" aria-pressed="true">main</button>
-        <button data-g="elevated">elevated</button>
-        <button data-g="chrome">chrome</button>
-        <button data-g="code">code</button>
-        <button data-g="input">input</button>
-        <button data-g="overlay">overlay</button>
-      </div>
-    </section>
-
-    <section class="grp">
-      <h2>Ink</h2>
-      <div class="seg" id="displays" style="margin-bottom:7px">
-        <button data-d="flat" aria-pressed="true">flat</button>
-        <button data-d="relief">relief</button>
-        <button data-d="matte">matte</button>
-        <button data-d="glass">glass</button>
-      </div>
-      <div class="seg" id="inksurf" style="margin-bottom:7px">
-        <button data-s="main" aria-pressed="true">main</button>
-        <button data-s="elevated">elev</button>
-        <button data-s="chrome">chrome</button>
-        <button data-s="code">code</button>
-        <button data-s="input">input</button>
-        <button data-s="overlay">ovl</button>
-      </div>
-      <div class="swatches" id="tints" style="margin-bottom:7px">
-        <button data-t="#c6a8ff" style="background:#c6a8ff" aria-pressed="true"></button>
-        <button data-t="#f0f3ff" style="background:#f0f3ff"></button>
-        <button data-t="#6200ff" style="background:#6200ff"></button>
-        <button data-t="#7fe3d4" style="background:#7fe3d4"></button>
-        <button data-t="#0a0418" style="background:#0a0418"></button>
-      </div>
-      <div class="seg" id="blends" style="margin-bottom:8px">
-        <button data-b="normal" aria-pressed="true">normal</button>
-        <button data-b="screen">screen</button>
-        <button data-b="overlay">overlay</button>
-        <button data-b="multiply">multiply</button>
-      </div>
-      <div class="row"><label for="azi">light &#952;</label><input id="azi" type="range" min="0" max="359" step="1" value="135"><output id="azi_o"></output></div>
-      <div class="row"><label for="ele">light &#966;</label><input id="ele" type="range" min="5" max="88" step="1" value="52"><output id="ele_o"></output></div>
-      <div class="row"><label for="bead">bead</label><input id="bead" type="range" min="10" max="50" step="1" value="34"><output id="bead_o"></output></div>
-      <div class="row"><label for="gb">refract</label><input id="gb" type="range" min="0" max="24" step="1" value="7"><output id="gb_o"></output></div>
-      <div class="row"><label for="gsat">saturate</label><input id="gsat" type="range" min="50" max="400" step="5" value="190"><output id="gsat_o"></output></div>
-      <div class="row"><label for="gbri">lift</label><input id="gbri" type="range" min="60" max="200" step="2" value="118"><output id="gbri_o"></output></div>
-      <div class="row"><label for="rim">rim</label><input id="rim" type="range" min="0" max="100" step="1" value="34"><output id="rim_o"></output></div>
-      <div class="row"><label for="spk">specular</label><input id="spk" type="range" min="0" max="100" step="1" value="55"><output id="spk_o"></output></div>
-      <div class="row"><label for="relh">height</label><input id="relh" type="range" min="1" max="16" step="1" value="5"><output id="relh_o"></output></div>
-      <div class="seg" id="nrms" style="margin-top:9px">
-        <button id="nrmT">normals off</button>
-        <button data-nb="normal" aria-pressed="true">raw</button>
-        <button data-nb="overlay">over</button>
-      </div>
-      <div class="seg" style="margin-top:5px">
-        <button id="nlatch" aria-pressed="true">latched to filter</button>
-      </div>
-      <div class="row" style="margin-top:7px"><label for="nmix">normals</label><input id="nmix" type="range" min="0" max="100" step="1" value="100"><output id="nmix_o"></output></div>
-    </section>
-
-    <section class="grp">
-      <h2>Host</h2>
-      <div class="seg" style="margin-bottom:7px">
-        <button id="cont" aria-pressed="true">sample content</button>
-      </div>
-      <div class="seg" id="sizes">
-        <button data-w="180" data-h="180">180&#178;</button>
-        <button data-w="520" data-h="340" aria-pressed="true">520&#215;340</button>
-        <button data-w="760" data-h="150">760&#215;150</button>
-      </div>
-    </section>
-
-    <section class="grp">
-      <p class="note"><b>flat</b> is compositor-cheap: only <code>transform</code> moves per frame. <b>matte</b>, <b>relief</b> and <b>normals</b> re-run an SVG filter every frame and cost real time — see the frame meter. The dot geometry, the ramp and the threshold are static CSS — no canvas, no per-frame JS, no animated <code>feTurbulence</code>.</p>
-    </section>
-
-    <section class="grp">
-      <h2>Cursor</h2>
-      <div class="seg" style="margin-bottom:7px"><button id="cursorT" aria-pressed="true">origin cursor</button></div>
-      <div class="row"><label for="curs">opacity</label><input id="curs" type="range" min="0" max="100" step="1" value="100"><output id="curs_o"></output></div>
-    </section>
-
-    <div class="meter">
-      <span>frame <b id="fps">—</b></span><span>chambers <b id="lyr">1</b></span><span>mode <b id="md">flat</b></span>
-    </div>
-  </aside>
-  </div>
+<div id="host"></div>
+<div class="hud">
+  <button data-p="A" aria-pressed="true">A</button><button data-p="B">B</button><button data-p="C">C</button><button data-p="D">D</button><button data-p="E">E</button>
+  <b id="fps">—</b>
 </div>
-
 <script>
-(() => {
-  const spec = document.getElementById('spec');
-  const tone = document.getElementById('tone');
-  const handle = document.getElementById('handle');
-  const cap = document.getElementById('cap');
-
-  // Presets transcribed from the ink-coverage profiles measured off each PNG.
-  // `cov` is the real measured start→end coverage of that tape, shown as the target.
-  // Glass surfaces, straight from the site's token set.
-  const G = {
-    main:     {bg:'var(--glass-bg-main)',     blur:'var(--glass-blur)',          border:'var(--glass-border)',           shadow:'var(--glass-shadow)',            glow:'var(--glass-glow)',    r:'12px'},
-    elevated: {bg:'var(--glass-bg-elevated)', blur:'var(--glass-blur)',          border:'var(--glass-border-bright)',    shadow:'var(--glass-shadow-elevated)',   glow:'var(--glass-glow)',    r:'14px', accent:'top'},
-    chrome:   {bg:'var(--glass-bg-chrome)',   blur:'var(--glass-blur)',          border:'var(--glass-border)',           shadow:'var(--glass-shadow)',            glow:'var(--glass-glow)',    r:'2px',  accent:'left'},
-    code:     {bg:'var(--glass-bg-code)',     blur:'var(--glass-blur)',          border:'var(--glass-border)',           shadow:'var(--glass-glow)',              glow:'var(--glass-glow)',    r:'2px'},
-    input:    {bg:'var(--glass-bg-input)',    blur:'var(--glass-blur)',          border:'var(--glass-border)',           shadow:'var(--glass-glow)',              glow:'var(--glass-glow)',    r:'8px'},
-    overlay:  {bg:'var(--bc-glass-overlay)',  blur:'var(--bc-glass-blur-heavy)', border:'var(--bc-glass-border-bright)', shadow:'var(--bc-glass-shadow-overlay)', glow:'var(--bc-glass-glow)', r:'12px'},
-  };
-
-  const P = {
-    t3:  {name:'tape3 · vertical',   kind:'linear', angle:0,   dir:0,   dense:40, sparse:88, ex:0,  ey:0,  mir:1, cov:'0.74 → 0.05 → 0.74'},
-    t3a: {name:'tape3a · one-way',   kind:'linear', angle:0,   dir:0,   dense:26, sparse:88, ex:14, ey:0,         cov:'0.03 → 0.70, edges 0'},
-    t4:  {name:'tape4 · horizontal', kind:'linear', angle:90,  dir:90,  dense:42, sparse:40, ex:9,  ey:5,         cov:'0.86 → 0.14'},
-    t1:  {name:'tape1 · mirrored',   kind:'linear', angle:90,  dir:90,  dense:20, sparse:52, ex:2,  ey:6,  mir:1, cov:'0.48 → 0.11 → 0.50'},
-    t2:  {name:'tape2 · radial',     kind:'radial', angle:0,   dir:0,   dense:44, sparse:92, ex:6,  ey:4,  mir:1, ox:45, oy:20, cov:'0.82 core → 0.00 rim'},
-    t5:  {name:'corner · radial',    kind:'radial', angle:0,   dir:0,   dense:46, sparse:90, ex:5,  ey:5,         ox:4,  oy:96, cov:'dense at one corner'},
-    t6:  {name:'band · centre',      kind:'band',   angle:0,   dir:0,   dense:48, sparse:86, ex:4,  ey:0,  mir:1, cov:'0.05 → 0.80 → 0.05'},
-    t7:  {name:'bias · diagonal',    kind:'linear', angle:135, dir:135, dense:38, sparse:84, ex:6,  ey:6,         cov:'corner to corner'},
-    t8:  {name:'ring · annulus',     kind:'ring',   angle:0,   dir:0,   dense:52, sparse:88, ex:5,  ey:5,  ox:50, oy:50, cov:'sparse core, dense mid, 0 rim'},
-  };
-
-  // feFlood needs a literal colour, so the surface alphas are inlined here.
-  const GBG = {main:'rgba(8,4,20,.54)', elevated:'rgba(14,8,32,.82)', chrome:'rgba(10,6,24,.58)',
-               code:'rgba(4,2,12,.8)', input:'rgba(6,2,16,.68)', overlay:'rgba(7,3,18,.8)'};
-
-  // Independent normal-map settings, used when the latch is off.
-  // Every normal-map setting can independently follow the tape filter (L[k]
-  // true) or use the panel's own value.
-  const NKEYS = ['preset','cell','hard','dense','sparse','reach','speed','run','jit',
-                 'dir','flip','emit','vanish','vwidth','vstrength','ox','oy'];
-  const N = {preset:'t3', cell:6, hard:22, dense:40, sparse:88, reach:100,
-             speed:42, run:22, jit:58, dir:0, flip:false, emit:'mirror',
-             vanish:100, vwidth:100, vstrength:10, ox:45, oy:20};
-  const L = {}; NKEYS.forEach(k => L[k] = true);
-  // px/py are the normal-layer cursor position, deliberately outside NKEYS: it
-  // is a placement control rather than a filter setting, so it is never latched.
-  N.px = 45; N.py = 20;   // matches the ink cursor's default
-  // Normal-map-only parameters. These shape the height field the normals are
-  // derived from — the map's counterpart to the ink's surface and lighting.
-  Object.assign(N, {bevel:'dome', enc:'tangent', remap:'gl', detail:'medium', view:'over',
-                    amp:100, rad:100, ex:0, ey:0, mix:100, blend:'normal'});
-  L.bevel = true; L.ex = true; L.ey = true;
-  // Bevel is the map's counterpart to the ink's Surface, so latching it maps
-  // the six surfaces onto the six height profiles by position.
-  const GKEYS = ['main','elevated','chrome','code','input','overlay'];
-  const BKEYS = ['dome','cone','pillow','chisel','round','flat'];
-  const DETAIL = {fine:30, sharp:55, medium:100, soft:160, wide:240, blur:340};
-  const BEVEL = {dome:[1,1], cone:[0.55,1.35], pillow:[1.9,0.8], chisel:[0.32,1.7], round:[1.45,0.9], flat:[2.8,0.45]};
-  // Channel remaps, as a final feColorMatrix on the packed map.
-  const REMAP = {
-    gl:   '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0',
-    dx:   '1 0 0 0 0  0 -1 0 0 1  0 0 1 0 0  0 0 0 1 0',
-    fx:   '-1 0 0 0 1  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0',
-    swap: '0 1 0 0 0  1 0 0 0 0  0 0 1 0 0  0 0 0 1 0',
-    flat: '1 0 0 0 0  0 1 0 0 0  0 0 0.35 0 0.4  0 0 0 1 0',
-  };
-
-  const S = {
-    showCursor:true,
-    preset:'t3', glass:'main', zoom:1, w:520, h:340, latch:true, disp:'flat', tint:'#c6a8ff', blend:'normal', emit:'mirror', reach:100, inksurf:'main', ncursor:false, curs:100, ncurs:100, bead:34, gb:7, gsat:190, gbri:118, rim:34, spk:55, content:true, vanish:100, vwidth:100, vstrength:10, nrm:false, nblend:'normal', nmix:100, azi:135, ele:52, relh:5,
-    cell:6, hard:22, dense:40, sparse:88,
-    speed:42, run:22, jit:58, dir:0, flip:false, running:true, mirror:false,
-    ex:0, ey:0, alpha:100, ox:45, oy:20,
-  };
-
-  const el = id => document.getElementById(id);
-  const bind = (id, key, fmt) => {
-    const i = el(id), o = el(id+'_o');
-    i.addEventListener('input', () => { S[key] = +i.value; o.textContent = fmt(+i.value); apply(); });
-    return () => { i.value = S[key]; o.textContent = fmt(S[key]); };
-  };
-
-  const sync = [
-    bind('cell','cell', v => v+'px'),
-    bind('hard','hard', v => v+'×'),
-    bind('dense','dense', v => v+'%'),
-    bind('sparse','sparse', v => v+'%'),
-    bind('speed','speed', v => v+'/s'),
-    bind('run','run', v => v+' cells'),
-    bind('jit','jit', v => v+'%'),
-    bind('dir','dir', v => v+'°'),
-    bind('edgex','ex', v => v+'%'),
-    bind('edgey','ey', v => v+'%'),
-    bind('alpha','alpha', v => v+'%'),
-    bind('azi','azi', v => v+'°'),
-    bind('ele','ele', v => v+'°'),
-    bind('relh','relh', v => v),
-    bind('nmix','nmix', v => v+'%'),
-    bind('bead','bead', v => v+'%'),
-    bind('gb','gb', v => v+'px'),
-    bind('gsat','gsat', v => (v/100).toFixed(2)),
-    bind('gbri','gbri', v => (v/100).toFixed(2)),
-    bind('rim','rim', v => v+'%'),
-    bind('spk','spk', v => v+'%'),
-    bind('van','vanish', v => v.toFixed(1)+'%'),
-    bind('reach','reach', v => v.toFixed(0)+'%'),
-    bind('curs','curs', v => v+'%'),
-    bind('ncurs','ncurs', v => v+'%'),
-    bind('vw','vwidth', v => v.toFixed(1)+'%'),
-    bind('vs','vstrength', v => v.toFixed(1)+'%'),
-  ];
-
-  // Seamless noise tile, rasterised once per parameter change and then carried
-  // by the lattice's transform. stitchTiles keeps the edges continuous so the
-  // loop has no seam. At grain 0 this flattens to mid-grey and does nothing.
-  let noiseKey = '', noiseVal = 'none';
-  function noise(tile, cell, jit) {
-    const key = tile+'/'+cell+'/'+jit;
-    if (key === noiseKey) return noiseVal;
-    const k = (jit / 100) * 1.7, i = (0.5 - 0.5 * k).toFixed(4);
-    const f = (1 / (cell * 3)).toFixed(4);
-    const fn = c => `<feFunc${c} type="linear" slope="${k.toFixed(4)}" intercept="${i}"/>`;
-    const svg =
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${tile}" height="${tile}">`
-      + `<filter id="n" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">`
-      + `<feTurbulence type="fractalNoise" baseFrequency="${f}" numOctaves="3" seed="11" stitchTiles="stitch"/>`
-      + `<feColorMatrix type="matrix" values="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1"/>`
-      + `<feComponentTransfer>${fn('R')}${fn('G')}${fn('B')}</feComponentTransfer>`
-      + `</filter><rect width="100%" height="100%" filter="url(#n)"/></svg>`;
-    noiseKey = key;
-    noiseVal = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-    return noiseVal;
-  }
-
-  // Primitive lattice vectors up to 3 cells. Any heading rounds to one of
-  // these, so translate() always lands the grid back on itself.
-  const gcd = (a,b) => b ? gcd(b, a%b) : a;
-  const VEC = [];
-  for (let q = -3; q <= 3; q++) for (let r = -3; r <= 3; r++)
-    if ((q || r) && gcd(Math.abs(q), Math.abs(r)) === 1) VEC.push([q, r]);
-
-  function snap(ux, uy) {
-    let best = VEC[0], dot = -2;
-    for (const [q, r] of VEC) {
-      const d = (q*ux + r*uy) / Math.hypot(q, r);
-      if (d > dot) { dot = d; best = [q, r]; }
+const PATTERNS = {
+    t1: { kind: 'linear', angle: 90 },
+    t2: { kind: 'radial', angle: 0 },
+    t3: { kind: 'linear', angle: 0 },
+    t3a: { kind: 'linear', angle: 0 },
+    t4: { kind: 'linear', angle: 90 },
+    t5: { kind: 'radial', angle: 0 },
+    t6: { kind: 'band', angle: 0 },
+    t7: { kind: 'linear', angle: 135 },
+    t8: { kind: 'ring', angle: 0 },
+};
+const SURFACES = {
+    main: [8, 4, 20, .54],
+    elevated: [14, 8, 32, .82],
+    chrome: [10, 6, 24, .58],
+    code: [4, 2, 12, .8],
+    input: [6, 2, 16, .68],
+    overlay: [7, 3, 18, .8],
+};
+const KIND_ID = { linear: 0, radial: 1, ring: 2, band: 3 };
+const ANIM_ID = { flow: 0, burst: 1, 'burst-b': 2 };
+const BLEND_ID = { normal: 0, screen: 1, overlay: 2, 'soft-light': 3, multiply: 4 };
+const MAX_CHAMBERS = 4;
+const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+const VECTORS = [];
+for (let q = -3; q <= 3; q += 1) {
+    for (let r = -3; r <= 3; r += 1) {
+        if ((q || r) && gcd(Math.abs(q), Math.abs(r)) === 1)
+            VECTORS.push([q, r]);
+    }
+}
+function numeric(source, key, fallback = 0) {
+    const value = source[key];
+    return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+function textual(source, key, fallback = '') {
+    const value = source[key];
+    return typeof value === 'string' ? value : fallback;
+}
+function logical(source, key, fallback = false) {
+    const value = source[key];
+    return typeof value === 'boolean' ? value : fallback;
+}
+function toDotState(source) {
+    return {
+        preset: textual(source, 'preset', 't3'),
+        cell: numeric(source, 'cell', 6),
+        hard: numeric(source, 'hard', 22),
+        dense: numeric(source, 'dense', 40),
+        sparse: numeric(source, 'sparse', 88),
+        reach: numeric(source, 'reach', 100),
+        speed: numeric(source, 'speed', 42),
+        run: numeric(source, 'run', 22),
+        jit: numeric(source, 'jit', 58),
+        dir: numeric(source, 'dir', 0),
+        flip: logical(source, 'flip'),
+        emit: textual(source, 'emit', 'single'),
+        vanish: numeric(source, 'vanish', 100),
+        vwidth: numeric(source, 'vwidth', 100),
+        vstrength: numeric(source, 'vstrength', 10),
+        ox: numeric(source, 'ox', 50),
+        oy: numeric(source, 'oy', 50),
+    };
+}
+function snapVector(x, y) {
+    let best = VECTORS[0];
+    let bestDot = -2;
+    for (const vector of VECTORS) {
+        const dot = (vector[0] * x + vector[1] * y) / Math.hypot(vector[0], vector[1]);
+        if (dot > bestDot) {
+            bestDot = dot;
+            best = vector;
+        }
     }
     return best;
-  }
-
-  // ── ramp construction ────────────────────────────────
-  // Alpha-composited over the cone lattice, so it shifts the threshold:
-  // black raises coverage, white drops it, transparent leaves it at 50%.
-  // ── ramp builders ────────────────────────────────────────────────────────
-  // Everything here reads from a passed-in state, so the normal map can run a
-  // completely different configuration from the ink using the same code path.
-  // `reach` is how far across the element one emitter's territory extends; at
-  // 100 a single emitter's effect runs all the way to the far edge.
-  function buildRamp(st, kind, angle, half, invert) {
-    const D = (st.dense/100).toFixed(3), Sp = (st.sparse/100).toFixed(3);
-    const R = Math.max(8, Math.min(100, st.reach));
-    const p = f => (f * R).toFixed(2);
-    if (kind === 'radial') {
-      if (invert)  // dense at the rim, gone by mid-radius: the collapsing ring
-        return `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%,`
-          + ` rgba(255,255,255,${Sp}) 0%, rgba(255,255,255,${Sp}) 44%, rgba(255,255,255,0) 58%,`
-          + ` rgba(0,0,0,0) 66%, rgba(0,0,0,${D}) 100%)`;
-      return `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%,`
-        + ` rgba(0,0,0,${D}) 0%, rgba(0,0,0,0) ${p(0.34)}%,`
-        + ` rgba(255,255,255,0) ${p(0.44)}%, rgba(255,255,255,${Sp}) ${p(0.96)}%)`;
+}
+function heading(state, angle) {
+    const radians = (angle + (state.flip ? 180 : 0)) * Math.PI / 180;
+    return snapVector(Math.sin(radians), -Math.cos(radians));
+}
+function vanishRange(state) {
+    const base = Math.max(8, Math.min(100, state.reach));
+    const span = base * Math.max(4, Math.min(100, state.vwidth)) / 100;
+    const opaque = Math.max(0, Math.min(100, state.vanish)) / 100 * span;
+    const soft = Math.min(span, opaque + Math.max(0.5, span * (state.vstrength / 100)));
+    return [opaque / 100, soft / 100];
+}
+function buildChambers(state, renderScale) {
+    const pattern = PATTERNS[state.preset] ?? PATTERNS.t3;
+    const radial = pattern.kind === 'radial' || pattern.kind === 'ring';
+    const [vanOpaque, vanSoft] = vanishRange(state);
+    const make = (kind, angle, half, invert, vector, animation) => {
+        const sourceCell = state.cell;
+        const sourceTile = Math.max(sourceCell, state.run * sourceCell);
+        const cell = sourceCell * renderScale;
+        const tile = sourceTile * renderScale;
+        const duration = animation === 'flow'
+            ? Math.max(0.05, Math.hypot(vector[0], vector[1]) * sourceTile / Math.max(1, state.speed))
+            : 260 / Math.max(1, state.speed);
+        return {
+            kind: KIND_ID[kind],
+            anim: ANIM_ID[animation],
+            angle: (angle + (kind !== 'radial' && kind !== 'ring' && state.flip ? 180 : 0)) * Math.PI / 180,
+            half: half ? 1 : 0,
+            invert: invert ? 1 : 0,
+            origin: [state.ox / 100, state.oy / 100],
+            reach: Math.max(8, Math.min(100, state.reach)) / 100,
+            dense: state.dense / 100,
+            sparse: state.sparse / 100,
+            vanish: [vanOpaque, vanSoft],
+            cell,
+            tile,
+            flow: [vector[0] * tile, vector[1] * tile],
+            duration,
+            rampOpacity: 0.3 + state.hard / 200,
+            noiseSlope: (state.jit / 100) * 1.7,
+        };
+    };
+    if (state.emit === 'edges' || state.emit === 'corners') {
+        return [0, 90, 180, 270].map((angle) => (make('linear', angle, true, false, heading(state, angle), 'flow')));
     }
-    if (kind === 'ring')
-      return `radial-gradient(circle farthest-side at ${st.ox}% ${st.oy}%,`
-        + ` rgba(255,255,255,${Sp}) 0%, rgba(255,255,255,0) 20%, rgba(0,0,0,0) 28%,`
-        + ` rgba(0,0,0,${D}) ${p(0.46)}%, rgba(0,0,0,0) ${p(0.64)}%,`
-        + ` rgba(255,255,255,0) ${p(0.72)}%, rgba(255,255,255,${Sp}) 100%)`;
-    if (kind === 'band') {
-      if (half)
-        return `linear-gradient(${angle}deg,`
-          + ` rgba(255,255,255,${Sp}) 0%, rgba(255,255,255,0) 26%, rgba(0,0,0,0) 36%,`
-          + ` rgba(0,0,0,${D}) 50%, rgba(0,0,0,${D}) 100%)`;
-      return `linear-gradient(${angle}deg,`
-        + ` rgba(255,255,255,${Sp}) 0%, rgba(255,255,255,0) 26%, rgba(0,0,0,0) 36%, rgba(0,0,0,${D}) 50%,`
-        + ` rgba(0,0,0,0) 64%, rgba(255,255,255,0) 74%, rgba(255,255,255,${Sp}) 100%)`;
-    }
-    if (half)
-      // Dense at this emitter's own edge, gone by `reach`. At reach 100 this is
-      // identical to the full ramp, so the effect runs edge to edge.
-      return `linear-gradient(${angle}deg,`
-        + ` rgba(0,0,0,${D}) 0%, rgba(0,0,0,0) ${p(0.46)}%,`
-        + ` rgba(255,255,255,0) ${p(0.58)}%, rgba(255,255,255,${Sp}) ${p(1)}%,`
-        + ` rgba(255,255,255,${Sp}) 100%)`;
-    return `linear-gradient(${angle}deg,`
-      + ` rgba(0,0,0,${D}) 0%, rgba(0,0,0,0) 48%,`
-      + ` rgba(255,255,255,0) 52%, rgba(255,255,255,${Sp}) 100%)`;
-  }
-
-  // Dense right at one corner tip, gone by mid-field.
-  function cornerRamp(st, x, y) {
-    const D = (st.dense/100).toFixed(3), Sp = (st.sparse/100).toFixed(3);
-    const R = Math.max(8, Math.min(100, st.reach));
-    // Percentage radii, not farthest-side: at a corner, farthest-side resolves
-    // to the element's full width, so four blobs would cover everything. An
-    // ellipse sized as a fraction of the box keeps each blob on its own tip.
-    const r = (R * 0.5).toFixed(2);
-    return `radial-gradient(ellipse ${r}% ${r}% at ${x}% ${y}%,`
-      + ` rgba(0,0,0,${D}) 0%, rgba(0,0,0,0) 52%,`
-      + ` rgba(255,255,255,0) 64%, rgba(255,255,255,${Sp}) 100%)`;
-  }
-
-  const head = (st, ang) => {
-    const r = (ang + (st.flip ? 180 : 0)) * Math.PI / 180;
-    return snap(Math.sin(r), -Math.cos(r));
-  };
-
-  // A CSS mask cannot be thresholded, so the glass path needs plain alpha ramps:
-  // opaque where dense, clear where sparse. Beads fade rather than shrinking.
-  function maskRamp(st, kind, angle, half, invert) {
-    const R = Math.max(8, Math.min(100, st.reach));
-    if (kind === 'radial')
-      return invert
-        ? `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%, transparent 44%, #000 100%)`
-        : `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%, #000 0%, transparent ${(R*0.64).toFixed(2)}%)`;
-    if (kind === 'ring')
-      return `radial-gradient(circle farthest-side at ${st.ox}% ${st.oy}%, transparent 16%, #000 ${(R*0.44).toFixed(2)}%, transparent ${(R*0.76).toFixed(2)}%)`;
-    if (kind === 'band')
-      return half ? `linear-gradient(${angle}deg, transparent 8%, #000 50%, #000 100%)`
-                  : `linear-gradient(${angle}deg, transparent 8%, #000 50%, transparent 92%)`;
-    return `linear-gradient(${angle}deg, #000 0%, transparent ${R.toFixed(2)}%)`;
-  }
-  function cornerMaskRamp(st, x, y) {
-    const R = Math.max(8, Math.min(100, st.reach));
-    const r = (R * 0.5).toFixed(2);
-    return `radial-gradient(ellipse ${r}% ${r}% at ${x}% ${y}%, #000 0%, transparent 58%)`;
-  }
-
-  // Opacity envelope measured from an emitter's spawn edge, along its travel.
-  // Opaque out to `vanish` of that emitter's reach, then to zero over
-  // `strength`. `width` rescales how much of the reach the range covers.
-  // `reverse` moves the anchor to the opposite edge so regions swap with flow.
-  function vanEnv(st) {
-    const base = Math.max(8, Math.min(100, st.reach));
-    const span = base * Math.max(4, Math.min(100, st.vwidth)) / 100;
-    const v    = Math.max(0, Math.min(100, st.vanish)) / 100 * span;
-    const soft = Math.min(span, v + Math.max(0.5, span * (st.vstrength / 100)));
-    return [v, soft];
-  }
-  function vanishMask(st, kind, angle, half, invert) {
-    const [v, soft] = vanEnv(st);
-    if (kind === 'radial' || kind === 'ring') {
-      return invert
-        ? `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%,`
-          + ` transparent ${(100 - soft).toFixed(2)}%, #000 ${(100 - v).toFixed(2)}%, #000 100%)`
-        : `radial-gradient(circle farthest-corner at ${st.ox}% ${st.oy}%,`
-          + ` #000 0%, #000 ${v.toFixed(2)}%, transparent ${soft.toFixed(2)}%)`;
-    }
-    const a = angle + (st.flip ? 180 : 0);
-    return `linear-gradient(${a}deg, #000 0%, #000 ${v.toFixed(2)}%, transparent ${soft.toFixed(2)}%)`;
-  }
-  function cornerVanish(st, x, y) {
-    const [v, soft] = vanEnv(st);
-    const r = (Math.max(8, Math.min(100, st.reach)) * 0.5).toFixed(2);
-    return `radial-gradient(ellipse ${r}% ${r}% at ${x}% ${y}%,`
-      + ` #000 0%, #000 ${v.toFixed(2)}%, transparent ${soft.toFixed(2)}%)`;
-  }
-
-  // Corner tips, each travelling along the bisector away from its own tip —
-  // i.e. normal to both faces that meet there.
-  const CORNERS = [[0,0,135],[100,0,225],[100,100,315],[0,100,45]];
-
-  // One entry per running emitter.
-  function plan(st) {
-    const p = P[st.preset], radial = p.kind === 'radial' || p.kind === 'ring';
-    const mk = (kind, angle, half, invert, v, anim) => ({
-      ramp:  buildRamp(st, kind, angle, half, invert),
-      mramp: maskRamp(st, kind, angle, half, invert),
-      van:   vanishMask(st, kind, angle, half, invert),
-      v, anim,
-    });
-    if (st.emit === 'edges')
-      // For a half ramp the dense end sits at the start of the gradient line,
-      // which is the edge opposite the angle's direction — so ramp angle and
-      // travel heading are the same number per edge.
-      return [0, 90, 180, 270].map(a => mk('linear', a, true, false, head(st, a), 'flow'));
-    if (st.emit === 'corners')
-      return CORNERS.map(([x, y, a]) => ({
-        ramp:  cornerRamp(st, x, y),
-        mramp: cornerMaskRamp(st, x, y),
-        van:   cornerVanish(st, x, y),
-        v: head(st, a), anim: 'flow',
-      }));
     if (radial) {
-      const l = [mk(p.kind, p.angle, false, false, [0,0], 'burst')];
-      if (st.emit !== 'single') l.push(mk(p.kind, p.angle, false, true, [0,0], 'burst-b'));
-      return l;
+        const plan = [make(pattern.kind, pattern.angle, false, false, [0, 0], 'burst')];
+        if (state.emit !== 'single')
+            plan.push(make(pattern.kind, pattern.angle, false, true, [0, 0], 'burst-b'));
+        return plan;
     }
-    const half = st.emit === 'mirror';
-    const l = [mk(p.kind, p.angle, half, false, head(st, st.dir), 'flow')];
-    if (st.emit !== 'single')
-      l.push(mk(p.kind, p.angle + 180, half, false, head(st, st.dir + 180), 'flow'));
-    return l;
+    const mirrored = state.emit === 'mirror';
+    const plan = [make(pattern.kind, pattern.angle, mirrored, false, heading(state, state.dir), 'flow')];
+    if (state.emit !== 'single') {
+        plan.push(make(pattern.kind, pattern.angle + 180, mirrored, false, heading(state, state.dir + 180), 'flow'));
+    }
+    return plan;
+}
+function hexToRgb(value) {
+    const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : '#7fe3d4';
+    return [
+        parseInt(hex.slice(1, 3), 16) / 255,
+        parseInt(hex.slice(3, 5), 16) / 255,
+        parseInt(hex.slice(5, 7), 16) / 255,
+    ];
+}
+const VERTEX_SHADER = `#version 300 es
+void main() {
+  vec2 pos = vec2(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0);
+  gl_Position = vec4(pos, 0.0, 1.0);
+}`;
+const FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+out vec4 outColor;
+
+uniform vec2 uScene;        // scene size in css px
+uniform float uScale;       // canvas px per scene px
+uniform float uTime;
+uniform sampler2D uNoiseTex;
+
+uniform vec3 uInkTint;
+uniform vec4 uSurface;      // specimen surface rgba
+uniform int uInkBlend;
+uniform int uNormalBlend;
+uniform float uNormalMix;
+uniform vec2 uInkEdge;      // edge fade fractions
+uniform vec2 uNormalEdge;
+uniform int uNormalEncoding; // 0 height, 1 tangent
+uniform int uNormalRemap;    // 0 gl, 1 fx, 2 dx, 3 swap
+
+#define MAXC ${MAX_CHAMBERS}
+uniform int uCount[2];
+uniform int uKind[MAXC * 2];
+uniform int uAnim[MAXC * 2];
+uniform float uAngle[MAXC * 2];
+uniform int uHalf[MAXC * 2];
+uniform int uInvert[MAXC * 2];
+uniform vec2 uOrigin[MAXC * 2];
+uniform float uReach[MAXC * 2];
+uniform vec2 uDS[MAXC * 2];
+uniform vec2 uVanish[MAXC * 2];
+uniform float uCell[MAXC * 2];
+uniform float uTile[MAXC * 2];
+uniform vec2 uFlow[MAXC * 2];
+uniform float uDur[MAXC * 2];
+uniform float uRampOp[MAXC * 2];
+uniform float uNoiseSlope[MAXC * 2];
+
+// ── blend helpers (W3C compositing) ─────────────────────────────
+float softLightC(float b, float s) {
+  if (s <= 0.5) return b - (1.0 - 2.0 * s) * b * (1.0 - b);
+  float d = (b <= 0.25) ? ((16.0 * b - 12.0) * b + 4.0) * b : sqrt(b);
+  return b + (2.0 * s - 1.0) * (d - b);
+}
+vec3 softLight(vec3 b, vec3 s) {
+  return vec3(softLightC(b.r, s.r), softLightC(b.g, s.g), softLightC(b.b, s.b));
+}
+float overlayC(float b, float s) {
+  return b <= 0.5 ? 2.0 * b * s : 1.0 - 2.0 * (1.0 - b) * (1.0 - s);
+}
+vec3 blendMode(int mode, vec3 b, vec3 s) {
+  if (mode == 1) return 1.0 - (1.0 - b) * (1.0 - s);
+  if (mode == 2) return vec3(overlayC(b.r, s.r), overlayC(b.g, s.g), overlayC(b.b, s.b));
+  if (mode == 3) return softLight(b, s);
+  if (mode == 4) return b * s;
+  return s;
+}
+
+// ── ramp: signed density along the pattern axis ────────────────
+// Returns vec2(color, alpha): color 0 = black (dense end), 1 = white (sparse).
+// Stop layouts transcribed from buildRamp() in the DOM port.
+vec2 rampStops(float t, float reach, float dense, float sparse, int kind, bool half_, bool invert) {
+  float R = reach;
+  if (kind == 1) { // radial
+    if (invert) {
+      if (t < 0.44) return vec2(1.0, sparse);
+      if (t < 0.58) return vec2(1.0, sparse * (1.0 - (t - 0.44) / 0.14));
+      if (t < 0.66) return vec2(0.0, 0.0);
+      return vec2(0.0, dense * clamp((t - 0.66) / 0.34, 0.0, 1.0));
+    }
+    if (t < 0.34 * R) return vec2(0.0, dense * (1.0 - t / (0.34 * R)));
+    if (t < 0.44 * R) return vec2(0.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.44 * R) / (0.52 * R), 0.0, 1.0));
+  }
+  if (kind == 2) { // ring
+    if (t < 0.20) return vec2(1.0, sparse * (1.0 - t / 0.20));
+    if (t < 0.28) return vec2(0.0, 0.0);
+    if (t < 0.46 * R) return vec2(0.0, dense * clamp((t - 0.28) / (0.46 * R - 0.28), 0.0, 1.0));
+    if (t < 0.64 * R) return vec2(0.0, dense * (1.0 - (t - 0.46 * R) / (0.18 * R)));
+    if (t < 0.72 * R) return vec2(1.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.72 * R) / (1.0 - 0.72 * R), 0.0, 1.0));
+  }
+  if (kind == 3) { // band
+    if (t < 0.26) return vec2(1.0, sparse * (1.0 - t / 0.26));
+    if (t < 0.36) return vec2(0.0, 0.0);
+    if (half_) return vec2(0.0, dense * clamp((t - 0.36) / 0.14, 0.0, 1.0));
+    if (t < 0.50) return vec2(0.0, dense * (t - 0.36) / 0.14);
+    if (t < 0.64) return vec2(0.0, dense * (1.0 - (t - 0.50) / 0.14));
+    if (t < 0.74) return vec2(1.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.74) / 0.26, 0.0, 1.0));
+  }
+  // linear
+  if (half_) {
+    if (t < 0.46 * R) return vec2(0.0, dense * (1.0 - t / (0.46 * R)));
+    if (t < 0.58 * R) return vec2(0.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.58 * R) / (0.42 * R), 0.0, 1.0));
+  }
+  if (t < 0.48) return vec2(0.0, dense * (1.0 - t / 0.48));
+  if (t < 0.52) return vec2(0.0, 0.0);
+  return vec2(1.0, sparse * clamp((t - 0.52) / 0.48, 0.0, 1.0));
+}
+
+// Gradient-line coordinate for a CSS gradient at 'angle' across the unit box.
+float gradientT(vec2 u, float angle) {
+  vec2 dir = vec2(sin(angle), -cos(angle));
+  float len = abs(dir.x) + abs(dir.y); // projection span of unit box
+  float t = dot(u - 0.5, dir) / max(len, 1e-4) + 0.5;
+  return clamp(t, 0.0, 1.0);
+}
+
+float farthestCorner(vec2 origin, vec2 aspect) {
+  vec2 c = max(origin, 1.0 - origin) * aspect;
+  return length(c);
+}
+float farthestSide(vec2 origin, vec2 aspect) {
+  vec2 c = max(origin, 1.0 - origin) * aspect;
+  return max(c.x, c.y);
+}
+
+float patternT(vec2 u, int kind, float angle, vec2 origin, vec2 aspect) {
+  if (kind == 1) { // radial farthest-corner
+    return length((u - origin) * aspect) / max(farthestCorner(origin, aspect), 1e-4);
+  }
+  if (kind == 2) { // ring farthest-side
+    return length((u - origin) * aspect) / max(farthestSide(origin, aspect), 1e-4);
+  }
+  return gradientT(u, angle);
+}
+
+float vanishMask(vec2 u, int kind, float angle, vec2 origin, vec2 aspect, vec2 van, bool invert) {
+  float t;
+  if (kind == 1 || kind == 2) {
+    t = length((u - origin) * aspect) / max(farthestCorner(origin, aspect), 1e-4);
+    if (invert) return smoothstep(1.0 - van.y, 1.0 - van.x, t);
+  } else {
+    t = gradientT(u, angle);
+  }
+  return 1.0 - smoothstep(van.x, van.y, t);
+}
+
+// ── sprites ─────────────────────────────────────────────────────
+// Ink relief disc, transcribed from the DOM port's SVG sprite.
+vec4 inkSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = distance(c, vec2(0.34, 0.29)) / 0.68;
+  vec3 col;
+  float a = 1.0;
+  vec3 tint = uInkTint;
+  vec3 deep = vec3(0.086, 0.016, 0.149); // #160426
+  vec3 core = vec3(0.008, 0.004, 0.024); // #020106
+  if (t < 0.10) col = vec3(1.0);
+  else if (t < 0.28) col = mix(vec3(1.0), tint, (t - 0.10) / 0.18);
+  else if (t < 0.58) col = tint;
+  else if (t < 0.76) col = mix(tint, deep, (t - 0.58) / 0.18);
+  else if (t < 0.90) col = mix(deep, core, (t - 0.76) / 0.14);
+  else { col = core; a = 1.0 - clamp((t - 0.90) / 0.10, 0.0, 1.0); }
+  // rim stroke
+  float rim = (1.0 - smoothstep(0.010, 0.022, abs(dc - 0.457))) * 0.22;
+  col = mix(col, vec3(1.0), rim);
+  return vec4(col, a * disc);
+}
+
+vec4 heightSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = dc / 0.469;
+  vec3 col;
+  float a = 1.0;
+  if (t < 0.45) col = mix(vec3(1.0), vec3(0.812), t / 0.45);
+  else if (t < 0.72) col = mix(vec3(0.812), vec3(0.412), (t - 0.45) / 0.27);
+  else if (t < 0.90) col = mix(vec3(0.412), vec3(0.067), (t - 0.72) / 0.18);
+  else { col = vec3(0.0); a = 1.0 - clamp((t - 0.90) / 0.10, 0.0, 1.0); }
+  return vec4(col, a * disc);
+}
+
+vec4 tangentSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = dc / 0.469;
+  vec3 base = t < 0.62
+    ? mix(vec3(0.663, 0.663, 1.0), vec3(0.447, 0.447, 1.0), t / 0.62)
+    : mix(vec3(0.447, 0.447, 1.0), vec3(0.125, 0.125, 0.502), (t - 0.62) / 0.38);
+  vec2 g = c; // gradient coords
+  bool swapAxes = uNormalRemap == 3;
+  float gx = swapAxes ? g.y : g.x;
+  float gy = swapAxes ? g.x : g.y;
+  vec3 xs = uNormalRemap == 1 ? vec3(1.0, 0.502, 1.0) : vec3(0.0, 0.502, 1.0);
+  vec3 xe = uNormalRemap == 1 ? vec3(0.0, 0.502, 1.0) : vec3(1.0, 0.502, 1.0);
+  vec3 ys = uNormalRemap == 2 ? vec3(0.502, 1.0, 0.502) : vec3(0.502, 0.0, 1.0);
+  vec3 ye = uNormalRemap == 2 ? vec3(0.502, 0.0, 1.0) : vec3(0.502, 1.0, 0.502);
+  vec3 gxc = mix(xs, xe, gx);
+  vec3 gyc = mix(ys, ye, gy);
+  vec3 col = base;
+  col = 1.0 - (1.0 - col) * (1.0 - gxc * 0.55); // screen @ .55
+  col = 1.0 - (1.0 - col) * (1.0 - gyc * 0.48); // screen @ .48
+  float rim = (1.0 - smoothstep(0.008, 0.020, abs(dc - 0.461))) * 0.38;
+  col = mix(col, vec3(0.722, 0.722, 1.0), rim);
+  return vec4(col, disc);
+}
+
+float fractalNoise(vec2 p, float featurePx) {
+  // uNoiseTex holds tileable fractal noise; sample so features span ~featurePx.
+  return texture(uNoiseTex, p / max(featurePx, 2.0) / 3.0).r;
+}
+
+// One chamber's contribution: opaque lattice colour + alpha from masks.
+vec4 chamber(int i, vec2 scenePx, vec2 u, vec2 aspect, bool isNormal) {
+  // The vanish mask bounds every chamber; where it is ~0 the dot sprites and
+  // noise can never show, so skip their styling work entirely. This confines
+  // per-dot shading to the regions a chamber actually emits into.
+  float vanEarly = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+  if (vanEarly < 0.004) return vec4(0.0);
+
+  float t = uTime;
+  float phase = fract(t / uDur[i]);
+  float alphaEnv = 1.0;
+  vec2 p = scenePx;
+
+  if (uAnim[i] == 0) {
+    p -= uFlow[i] * phase;
+  } else {
+    // burst: two lattices scaling about the origin with opacity envelopes
+    bool reverse = uAnim[i] == 2;
+    vec4 acc = vec4(0.0);
+    for (int L = 0; L < 2; L++) {
+      float ph = fract(phase + (L == 1 ? 0.5 : 0.0));
+      float s = reverse ? mix(2.0, 1.0, ph) : mix(1.0, 2.0, ph);
+      float env = smoothstep(0.0, 0.22, ph) * (1.0 - smoothstep(0.78, 1.0, ph));
+      vec2 originPx = uOrigin[i] * uScene;
+      vec2 lp = (scenePx - originPx) / s + originPx;
+      vec2 cuv = fract(lp / uCell[i]);
+      vec4 sp = isNormal
+        ? (uNormalEncoding == 0 ? heightSprite(cuv) : tangentSprite(cuv))
+        : inkSprite(cuv);
+      float n = fractalNoise(lp, uCell[i] * 3.0);
+      float slope = uNoiseSlope[i];
+      n = clamp(slope * n + (0.5 - 0.5 * slope), 0.0, 1.0);
+      vec3 col = mix(vec3(n), softLight(sp.rgb, vec3(n)), sp.a);
+      acc.rgb = mix(acc.rgb, col, env * (1.0 - acc.a * 0.5));
+      acc.a = max(acc.a, env);
+    }
+    // ramp + vanish applied below on accumulated colour
+    vec2 rs = rampStops(patternT(u, uKind[i], uAngle[i], uOrigin[i], aspect), uReach[i], uDS[i].x, uDS[i].y, uKind[i], uHalf[i] == 1, uInvert[i] == 1);
+    acc.rgb = mix(acc.rgb, softLight(acc.rgb, vec3(rs.x)), rs.y * uRampOp[i]);
+    float van = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+    acc.a *= van;
+    return acc;
   }
 
-  function apply() {
-    const p = P[S.preset];
-    const radial = p.kind === 'radial' || p.kind === 'ring';
-    const g = G[S.glass];
-    // Zoom scales every length the host is built from, so the whole assembly
-    // grows as one piece rather than just fitting more dots into a bigger box.
-    const Z = S.zoom, cell = S.cell * Z;
-    spec.style.setProperty('--w', (S.w * Z).toFixed(1) + 'px');
-    spec.style.setProperty('--h', (S.h * Z).toFixed(1) + 'px');
-    spec.style.setProperty('--gbg', g.bg);
-    spec.style.setProperty('--gblur', g.blur);
-    spec.style.setProperty('--gborder', g.border);
-    spec.style.setProperty('--gshadow', g.shadow);
-    spec.style.setProperty('--gglow', g.glow);
-    spec.style.setProperty('--gr', `calc(${g.r} * ${Z})`);
-    if (g.accent) spec.dataset.accent = g.accent; else delete spec.dataset.accent;
+  vec2 cuv = fract(p / uCell[i]);
+  vec4 sp = isNormal
+    ? (uNormalEncoding == 0 ? heightSprite(cuv) : tangentSprite(cuv))
+    : inkSprite(cuv);
+  float n = fractalNoise(p, uCell[i] * 3.0);
+  float slope = uNoiseSlope[i];
+  n = clamp(slope * n + (0.5 - 0.5 * slope), 0.0, 1.0);
+  vec3 col = mix(vec3(n), softLight(sp.rgb, vec3(n)), sp.a);
 
-    // Relief runs the height map through SVG lighting; normals shows the packed
-    // RGB normal map that lighting is derived from. Flat inverts for light ink.
-    // Glass is a separate mechanism rather than another filter, so its own vars.
-    spec.style.setProperty('--bead-r', (S.bead / 100 * cell).toFixed(2) + 'px');
-    spec.style.setProperty('--gb', (S.gb * Z).toFixed(2) + 'px');
-    spec.style.setProperty('--gsat', S.gsat / 100);
-    spec.style.setProperty('--gbri', S.gbri / 100);
-    spec.style.setProperty('--rim', S.rim / 100);
-    spec.style.setProperty('--spk', S.spk / 100);
-    spec.style.setProperty('--beadmask',
-      'radial-gradient(circle at 50% 50%, #000 0 var(--bead-r), transparent calc(var(--bead-r) + .8px))');
-    spec.style.setProperty('--vx',
-      `linear-gradient(90deg, transparent 0, #000 ${S.ex}%, #000 ${100 - S.ex}%, transparent 100%)`);
-    spec.style.setProperty('--vy',
-      `linear-gradient(180deg, transparent 0, #000 ${S.ey}%, #000 ${100 - S.ey}%, transparent 100%)`);
-    spec.classList.toggle('glassmode', S.disp === 'glass');
-    spec.classList.toggle('showcontent', S.content);
+  vec2 rs = rampStops(patternT(u, uKind[i], uAngle[i], uOrigin[i], aspect), uReach[i], uDS[i].x, uDS[i].y, uKind[i], uHalf[i] == 1, uInvert[i] == 1);
+  col = mix(col, softLight(col, vec3(rs.x)), rs.y * uRampOp[i]);
+  float van = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+  return vec4(col, alphaEnv * van);
+}
 
-    spec.style.setProperty('--chain', `contrast(${S.hard}) url(#${
-        S.disp === 'relief' ? 'relief' : S.disp === 'matte' ? 'matte'
-      : S.disp === 'glass'  ? 'glass'  : 'ink'})`);
-    el('glassFlood').setAttribute('flood-color', GBG[S.inksurf]);
-    spec.style.setProperty('--blend', S.blend);
-    el('inkFlood').setAttribute('flood-color', S.tint);
-    el('rDiff').setAttribute('lighting-color', S.tint);
-    el('mDiff').setAttribute('lighting-color', S.tint);
-    for (const id of ['rBlur','nBlur','mBlur','gBlur']) el(id).setAttribute('stdDeviation', (cell/5).toFixed(2));
-    for (const id of ['rDiff','rSpec','mDiff','gSpec']) el(id).setAttribute('surfaceScale', (S.relh * Z).toFixed(2));
-    for (const id of ['rL1','rL2','mL1','gL1']) { el(id).setAttribute('azimuth', S.azi); el(id).setAttribute('elevation', S.ele); }
+float edgeFade(vec2 u, vec2 edge) {
+  float fx = edge.x <= 0.001 ? 1.0 : smoothstep(0.0, edge.x, u.x) * smoothstep(1.0, 1.0 - edge.x, u.x);
+  float fy = edge.y <= 0.001 ? 1.0 : smoothstep(0.0, edge.y, u.y) * smoothstep(1.0, 1.0 - edge.y, u.y);
+  return fx * fy;
+}
 
-    spec.style.setProperty('--cell', cell.toFixed(2)+'px');
-    spec.style.setProperty('--edge-x', S.ex+'%');
-    spec.style.setProperty('--edge-y', S.ey+'%');
-    spec.style.setProperty('--tone-alpha', S.alpha/100);
-    spec.style.setProperty('--ox', S.ox+'%');
-    spec.style.setProperty('--oy', S.oy+'%');
-    const cs = plan(S);
-
-    // Travel must land on a lattice vector AND on a whole noise tile, or the
-    // loop visibly jumps. One tile of travel satisfies both, since the tile is
-    // an integer number of cells.
-    const tile = S.run * cell;
-    spec.style.setProperty('--tile', tile+'px');
-    spec.style.setProperty('--noise', noise(tile, S.cell, S.jit));
-
-    let mx = 0, my = 0;
-    for (let i = 0; i < 4; i++) {
-      const box = el('ch'+i), c = cs[i];
-      box.classList.toggle('on', !!c);
-      const g = el('gs'+i);
-      g.classList.toggle('on', !!c);
-      if (!c) continue;
-      const [vx, vy] = c.v;
-      box.style.setProperty('--cramp', c.ramp);
-      box.style.setProperty('--cvanish', c.van);
-      box.style.setProperty('--cfx', (vx * tile)+'px');
-      box.style.setProperty('--cfy', (vy * tile)+'px');
-      box.dataset.anim = c.anim;
-      g.style.setProperty('--mramp', c.mramp);
-      g.style.setProperty('--cvanish', c.van);
-      g.style.setProperty('--cfx', (vx * cell).toFixed(2)+'px');   // beads slide exactly one cell
-      g.style.setProperty('--cfy', (vy * cell).toFixed(2)+'px');
-      g.dataset.anim = c.anim;
-      mx = Math.max(mx, Math.abs(vx)); my = Math.max(my, Math.abs(vy));
-    }
-
-    // Normals gets one chamber per ink chamber, so mirror and edges are mapped
-    // on every duplicate rather than only the first. Latched it runs the ink's
-    // own plan; unlatched, each setting follows the filter or the panel
-    // depending on that setting's own checkbox.
-    const NE = {};
-    for (const k of NKEYS) NE[k] = (S.latch || L[k]) ? S[k] : N[k];
-    // The cursor takes over the normal layer's origin while it is active.
-    const ncur = S.ncursor && !S.latch;
-    if (ncur) { NE.ox = N.px; NE.oy = N.py; }
-    spec.style.setProperty('--cursor-alpha', S.curs / 100);
-    spec.style.setProperty('--ncursor-alpha', S.ncurs / 100);
-    spec.style.setProperty('--npx', N.px + '%');
-    spec.style.setProperty('--npy', N.py + '%');
-    el('nhandle').hidden = !ncur;
-    // Shifting the layer itself, so the cursor works on linear presets too and
-    // not only the ones with an origin.
-    const noff = ncur ? `translate(${(N.px - 50).toFixed(2)}%, ${(N.py - 50).toFixed(2)}%)` : 'none';
-    const indep = !S.latch && NKEYS.some(k => !L[k]);
-    const ns = indep ? plan(NE) : cs;
-    const ncell = NE.cell * Z, ntile = NE.run * ncell;
-    const nrad  = ns[0].anim !== 'flow';
-    const ENCF = {tangent:'normals', height:'nheight', slope:'nslope', raw:'nraw'};
-    spec.style.setProperty('--nchain', `contrast(${NE.hard}) url(#${ENCF[N.enc] || 'normals'})`);
-    // Bevel picks a (radius, amplitude) pair; the sliders scale it from there.
-    const bevel = (S.latch || L.bevel) ? BKEYS[Math.max(0, GKEYS.indexOf(S.glass))] : N.bevel;
-    const [bR, bA] = BEVEL[bevel] || BEVEL.dome;
-    for (const b of document.querySelectorAll('.mapBlur'))
-      b.setAttribute('stdDeviation', (cell / 5 * bR * (N.rad / 100)).toFixed(2));
-    for (const cm of document.querySelectorAll('.mapConv'))
-      cm.setAttribute('divisor', (4 / (bA * (N.amp / 100))).toFixed(3));
-    el('nRemap').setAttribute('values', REMAP[N.remap] || REMAP.gl);
-    spec.style.setProperty('--nblend', N.blend);
-    spec.style.setProperty('--nalpha', N.mix / 100);
-
-    for (let i = 0; i < 4; i++) {
-      const nb = el('chn'+i), c = ns[i];
-      nb.classList.toggle('on', !!c && N.view !== 'hide');
-      if (!c) continue;
-      const [vx, vy] = c.v;
-      // Build the class in one go — assigning className after a classList
-      // toggle silently undid the hide.
-      nb.className = 'screen s-n ' + (N.view === 'hide' ? '' : 'on ')
-        + (c.anim === 'flow' ? 'nflow' : 'nburst');
-      nb.style.setProperty('--cell', ncell.toFixed(2)+'px');
-      nb.style.setProperty('--tile', ntile.toFixed(2)+'px');
-      nb.style.setProperty('--noise', noise(Math.max(8, Math.round(ntile)), ncell, NE.jit));
-      nb.style.setProperty('--cramp', c.ramp);
-      nb.style.setProperty('--cvanish', c.van);
-      nb.style.setProperty('--cfx', (vx * ntile).toFixed(2)+'px');
-      nb.style.setProperty('--cfy', (vy * ntile).toFixed(2)+'px');
-      nb.style.setProperty('--over-x', ((Math.abs(vx) * NE.run + 1) * ncell).toFixed(2)+'px');
-      nb.style.setProperty('--over-y', ((Math.abs(vy) * NE.run + 1) * ncell).toFixed(2)+'px');
-      nb.style.setProperty('--dur', Math.max(0.05, Math.hypot(vx, vy) * ntile / NE.speed).toFixed(3)+'s');
-      nb.style.setProperty('--dur-r', (260 / NE.speed).toFixed(3)+'s');
-      nb.style.transform = noff;
-      // Normals carries its own edge fade rather than inheriting the ink's.
-      nb.style.setProperty('--edge-x', ((S.latch || L.ex) ? S.ex : N.ex) + '%');
-      nb.style.setProperty('--edge-y', ((S.latch || L.ey) ? S.ey : N.ey) + '%');
-    }
-
-    const panelOpen = !S.latch && S.nrm;
-    el('npanel').classList.toggle('open', panelOpen);
-    document.documentElement.style.setProperty('--dock-right', (350 + (panelOpen ? 316 : 0)) + 'px');
-
-    // Oversize only as far as anything actually travels.
-    spec.style.setProperty('--over-x', ((mx * S.run + 1) * cell).toFixed(2)+'px');
-    spec.style.setProperty('--over-y', ((my * S.run + 1) * cell).toFixed(2)+'px');
-    spec.style.setProperty('--dur', (Math.hypot(cs[0].v[0], cs[0].v[1]) * tile / S.speed).toFixed(3)+'s');
-    spec.style.setProperty('--dur-r', (260 / S.speed).toFixed(3)+'s');
-    el('vec').textContent = cs.map(c => c.v.join(',')).join('  ');
-
-    tone.classList.toggle('solo', N.view === 'solo' && !S.latch);
-    tone.className = 'tone ' + (N.view === 'solo' && !S.latch ? 'solo ' : '') + (radial ? 'burst' : 'flow')
-      + (S.running ? '' : ' paused') + (S.nrm ? ' nrm' : '');
-    for (const b of document.querySelectorAll('.lattice.b')) b.hidden = !radial;
-    handle.hidden = !radial || !S.showCursor;
-    el('lyr').textContent = cs.length + (S.nrm ? 1 : 0);
-    el('md').textContent = S.disp + (S.nrm ? '+n' : '');
-    cap.textContent = p.name + ' · ' + S.glass;
-    el('covreadout').textContent = p.cov;
+vec4 layerColor(int layer, vec2 scenePx, vec2 u, vec2 aspect) {
+  bool isNormal = layer == 1;
+  // Edge fades bound the whole layer — outside them nothing shows, so skip
+  // every chamber's work there.
+  float fade = edgeFade(u, isNormal ? uNormalEdge : uInkEdge);
+  if (fade < 0.004) return vec4(0.0);
+  vec4 acc = vec4(0.0);
+  int base = layer * MAXC;
+  int count = uCount[layer];
+  for (int i = 0; i < MAXC; i++) {
+    if (i >= count) break;
+    vec4 ch = chamber(base + i, scenePx, u, aspect, isNormal);
+    acc.rgb = mix(acc.rgb, ch.rgb, ch.a);
+    acc.a = ch.a + acc.a * (1.0 - ch.a);
   }
+  acc.a *= fade;
+  return acc;
+}
 
-  function loadPreset(k) {
-    const p = P[k];
-    S.preset = k;
-    S.dense = p.dense; S.sparse = p.sparse; S.ex = p.ex; S.ey = p.ey;
-    S.dir = p.dir;
-    S.emit = p.mir ? 'mirror' : 'single';
-    [...el('emits').querySelectorAll('button')].forEach(x =>
-      x.setAttribute('aria-pressed', x.dataset.e === S.emit));
-    if (p.ox != null) { S.ox = p.ox; S.oy = p.oy; }
-    sync.forEach(f => f());
-    apply();
-  }
+void main() {
+  vec2 scenePx = gl_FragCoord.xy / uScale;
+  scenePx.y = uScene.y - scenePx.y; // css y-down
+  vec2 u = scenePx / uScene;
+  vec2 aspect = uScene / min(uScene.x, uScene.y);
 
-  // ── segmented button groups ──────────────────────────
-  function group(id, fn) {
-    const box = el(id);
-    box.addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return;
-      [...box.querySelectorAll('button')].forEach(x => x.setAttribute('aria-pressed', x === b));
-      fn(b);
+  // tone drift: alternate 7s translate + scale (ease-in-out approximated)
+  float dph = abs(fract(uTime / 14.0) * 2.0 - 1.0);
+  dph = dph * dph * (3.0 - 2.0 * dph);
+  float driftS = mix(1.015, 1.045, dph);
+  vec2 driftT = mix(vec2(-0.007, -0.0045), vec2(0.007, 0.0045), dph) * uScene;
+  vec2 dp = (scenePx - 0.5 * uScene) / driftS + 0.5 * uScene - driftT;
+  vec2 du = dp / uScene;
+
+  // stage background gradient
+  vec3 bg = vec3(0.039, 0.016, 0.094); // #0a0418
+  float g1 = length((u - vec2(0.20, 0.06)) / vec2(1.2, 0.9) * aspect);
+  bg = mix(vec3(0.165, 0.039, 0.369), bg, smoothstep(0.0, 0.58, g1));
+  float g2 = length((u - vec2(0.88, 0.94)) / vec2(0.9, 0.8) * aspect);
+  bg = mix(mix(vec3(0.071, 0.0, 0.2), bg, smoothstep(0.0, 0.55, g2)), bg, 0.35);
+
+  // specimen glass surface
+  vec3 col = mix(bg, uSurface.rgb, uSurface.a);
+
+  // ink layer
+  vec4 ink = layerColor(0, dp, du, aspect);
+  vec3 inkBlended = blendMode(uInkBlend, col, ink.rgb);
+  col = mix(col, inkBlended, ink.a);
+
+  // normal layer
+  vec4 nrm = layerColor(1, dp, du, aspect);
+  vec3 nrmBlended = blendMode(uNormalBlend, col, nrm.rgb);
+  col = mix(col, nrmBlended, nrm.a * uNormalMix);
+
+  // glass sheen (specimen ::before)
+  float sheenT = clamp((u.x + (1.0 - u.y)) * 0.5, 0.0, 1.0);
+  vec3 sheen = mix(vec3(0.776, 0.659, 1.0), vec3(0.0), step(0.5, sheenT));
+  float sheenA = sheenT < 0.5 ? 0.06 * (1.0 - sheenT * 2.0) : 0.02 * ((sheenT - 0.5) * 2.0);
+  col = mix(col, vec3(0.776, 0.659, 1.0), sheenA);
+  col += sheen * 0.0; // keep uniform usage stable
+
+  outColor = vec4(col, 1.0);
+}`;
+function compileShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    if (!shader)
+        throw new Error('shader alloc failed');
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader) ?? 'shader compile failed');
+    }
+    return shader;
+}
+/** Tileable fractal value noise, 256², 3 octaves — stands in for feTurbulence. */
+function makeNoiseTexture(gl) {
+    const size = 256;
+    const data = new Uint8Array(size * size);
+    const rand = (() => {
+        let seed = 11;
+        return () => {
+            seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+            return seed / 0x7fffffff;
+        };
+    })();
+    const octave = (cells) => {
+        const grid = [];
+        for (let i = 0; i < cells * cells; i += 1)
+            grid.push(rand());
+        return grid;
+    };
+    const octaves = [octave(8), octave(16), octave(32)];
+    const sample = (grid, cells, x, y) => {
+        const gx = (x / size) * cells;
+        const gy = (y / size) * cells;
+        const x0 = Math.floor(gx) % cells;
+        const y0 = Math.floor(gy) % cells;
+        const x1 = (x0 + 1) % cells;
+        const y1 = (y0 + 1) % cells;
+        const fx = gx - Math.floor(gx);
+        const fy = gy - Math.floor(gy);
+        const sx = fx * fx * (3 - 2 * fx);
+        const sy = fy * fy * (3 - 2 * fy);
+        const a = grid[y0 * cells + x0];
+        const b = grid[y0 * cells + x1];
+        const c = grid[y1 * cells + x0];
+        const d = grid[y1 * cells + x1];
+        return (a + (b - a) * sx) + ((c + (d - c) * sx) - (a + (b - a) * sx)) * sy;
+    };
+    for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+            const value = sample(octaves[0], 8, x, y) * 0.5
+                + sample(octaves[1], 16, x, y) * 0.3
+                + sample(octaves[2], 32, x, y) * 0.2;
+            data[y * size + x] = Math.round(value * 255);
+        }
+    }
+    const texture = gl.createTexture();
+    if (!texture)
+        throw new Error('noise texture alloc failed');
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, size, size, 0, gl.RED, gl.UNSIGNED_BYTE, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return texture;
+}
+/** Internal render scale: fraction of device pixels the shader actually fills. */
+const DEFAULT_RESOLUTION = 0.5;
+function createModulusGlScene(host, preset, initialFrame) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'visualizer-gl';
+    const gl = canvas.getContext('webgl2', {
+        alpha: false,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: 'low-power',
     });
-  }
-  group('presets', b => loadPreset(b.dataset.p));
-  group('sizes',    b => { S.w = +b.dataset.w; S.h = +b.dataset.h; apply(); });
-  group('surfaces', b => { S.glass = b.dataset.g; apply(); });
-  group('displays', b => {
-    S.disp = b.dataset.d;
-    // A 4px dot cannot read as glass; give the beads room the first time.
-    if (S.disp === 'glass' && S.cell < 11) { S.cell = 14; sync.forEach(f => f()); }
-    apply();
-  });
-  group('tints',    b => { S.tint  = b.dataset.t; apply(); });
-  group('blends',   b => { S.blend = b.dataset.b; apply(); });
-  group('emits',    b => { S.emit  = b.dataset.e; apply(); });
-  group('inksurf',  b => { S.inksurf = b.dataset.s; apply(); });
-  el('cont').addEventListener('click', function () {
-    S.content = !S.content; this.setAttribute('aria-pressed', S.content); apply();
-  });
-
-  // normals is independent of the ink mode, so it gets its own toggle and its
-  // own blend rather than replacing whatever ink is running.
-  el('nrmT').addEventListener('click', function () {
-    S.nrm = !S.nrm;
-    this.setAttribute('aria-pressed', S.nrm);
-    this.textContent = S.nrm ? 'normals on' : 'normals off';
-    apply();
-  });
-  el('nrms').addEventListener('click', e => {
-    const b = e.target.closest('button[data-nb]'); if (!b) return;
-    [...el('nrms').querySelectorAll('button[data-nb]')].forEach(x => x.setAttribute('aria-pressed', x === b));
-    S.nblend = b.dataset.nb; apply();
-  });
-
-  el('play').addEventListener('click', function () {
-    S.running = !S.running;
-    this.setAttribute('aria-pressed', S.running);
-    this.textContent = S.running ? 'running' : 'held';
-    apply();
-  });
-  el('flip').addEventListener('click', function () {
-    S.flip = !S.flip;
-    this.setAttribute('aria-pressed', S.flip);
-    apply();
-  });
-
-  // ── draggable emission origin (radial preset) ────────
-  // Zoom, mirroring the portal viewer: clamp to 0.8-2.4, update the pill, reapply.
-  function setZoom(v) {
-    S.zoom = Math.max(0.8, Math.min(2.4, Math.round(v * 20) / 20));
-    el('zoomRange').value = S.zoom;
-    el('zoomValue').textContent = Math.round(S.zoom * 100) + '%';
-    apply();
-  }
-  el('zoomRange').addEventListener('input', e => setZoom(parseFloat(e.target.value)));
-  el('zoomIn').addEventListener('click',    () => setZoom(S.zoom + 0.1));
-  el('zoomOut').addEventListener('click',   () => setZoom(S.zoom - 0.1));
-  el('zoomReset').addEventListener('click', () => setZoom(1));
-
-  // ── normal-map panel ─────────────────────────────────────────────────────
-  // Each row has a checkbox: ticked, that setting follows the tape filter and
-  // the control greys out; unticked, it uses the panel's own value. Rows with
-  // no filter counterpart carry no checkbox — they are map-only.
-  const nbind = (id, key, fmt, latched) => {
-    const i = el(id), o = el(id + '_o');
-    const paint = () => { i.value = N[key]; o.textContent = fmt(N[key]); if (latched) i.disabled = L[key]; };
-    i.addEventListener('input', () => { N[key] = +i.value; o.textContent = fmt(+i.value); apply(); });
-    return paint;
-  };
-  const npaint = [
-    nbind('ncell','cell',    v => v+'px',  1), nbind('nhard','hard',    v => v+'\u00d7', 1),
-    nbind('ndense','dense',  v => v+'%',   1), nbind('nsparse','sparse',v => v+'%',   1),
-    nbind('nreach','reach',  v => v+'%',   1), nbind('nspeed','speed',  v => v+'/s',  1),
-    nbind('nrun','run',      v => v+' c',  1), nbind('njit','jit',      v => v+'%',   1),
-    nbind('ndir','dir',      v => v+'\u00b0', 1),
-    nbind('nvan','vanish',   v => v.toFixed(1)+'%', 1),
-    nbind('nvw','vwidth',    v => v.toFixed(1)+'%', 1),
-    nbind('nvs','vstrength', v => v.toFixed(1)+'%', 1),
-    nbind('nex','ex',        v => v+'%',   1), nbind('ney','ey',        v => v+'%',   1),
-    nbind('nmix','mix',      v => v+'%'),      nbind('namp','amp',      v => (v/100).toFixed(2)+'\u00d7'),
-    nbind('nrad','rad',      v => (v/100).toFixed(2)+'\u00d7'),
-  ];
-  const press = (box, attr, val) => [...el(box).querySelectorAll('button')]
-    .forEach(b => b.setAttribute('aria-pressed', b.dataset[attr] === val));
-  // Header toggle: checked when every setting follows the filter, indeterminate
-  // when only some do. Clicking from either of those states latches everything;
-  // clicking again releases everything.
-  const LKEYS = Object.keys(L).filter(k => el('L_' + k));
-  function paintAll() {
-    const on = LKEYS.filter(k => L[k]).length, all = el('L_all');
-    all.checked = on === LKEYS.length;
-    all.indeterminate = on > 0 && on < LKEYS.length;
-    el('lcount').textContent = on === LKEYS.length ? 'all following the tape filter'
-      : on === 0 ? 'all independent'
-      : `${on} of ${LKEYS.length} following the tape filter`;
-  }
-  el('L_all').addEventListener('change', () => {
-    const on = el('L_all').checked;
-    LKEYS.forEach(k => { L[k] = on; const c = el('L_' + k); if (c) c.checked = on; });
-    paintPanel(); apply();
-  });
-
-  function paintPanel() {
-    npaint.forEach(f => f());
-    paintAll();
-    press('npresets','np', N.preset); press('nemits','ne', N.emit);
-    press('nbevels','bv', L.bevel ? BKEYS[Math.max(0, GKEYS.indexOf(S.glass))] : N.bevel);   press('nencs','en', N.enc);
-    press('nremaps','rm', N.remap);   press('nblends','nb', N.blend);
-    press('ndetails','dt', N.detail); press('nviews','vw', N.view);
-    [...el('npresets').querySelectorAll('button')].forEach(b => b.disabled = L.preset);
-    [...el('nemits').querySelectorAll('button')].forEach(b => b.disabled = L.emit);
-    [...el('nbevels').querySelectorAll('button')].forEach(b => b.disabled = L.bevel);
-    el('nflip').setAttribute('aria-pressed', N.flip);
-    el('nflip').disabled = L.flip;
-    el('ncov').textContent = (P[N.preset] || {}).cov || '';
-  }
-
-  Object.keys(L).forEach(k => {
-    const c = el('L_' + k); if (!c) return;
-    c.checked = L[k];
-    c.addEventListener('change', () => { L[k] = c.checked; paintPanel(); apply(); });
-  });
-
-  group('npresets', b => { N.preset = b.dataset.np; paintPanel(); apply(); });
-  group('nemits',   b => { N.emit   = b.dataset.ne; apply(); });
-  group('nbevels',  b => { N.bevel  = b.dataset.bv; apply(); });
-  group('nencs',    b => { N.enc    = b.dataset.en; apply(); });
-  group('ndetails', b => { N.detail = b.dataset.dt; N.rad = DETAIL[N.detail]; paintPanel(); apply(); });
-  group('nviews',   b => { N.view   = b.dataset.vw; apply(); });
-  group('nremaps',  b => { N.remap  = b.dataset.rm; apply(); });
-  group('nblends',  b => { N.blend  = b.dataset.nb; apply(); });
-  el('nflip').addEventListener('click', function () {
-    N.flip = !N.flip; this.setAttribute('aria-pressed', N.flip); apply();
-  });
-  el('nlatch').addEventListener('click', function () {
-    S.latch = !S.latch;
-    this.setAttribute('aria-pressed', S.latch);
-    this.textContent = S.latch ? 'latched to filter' : 'independent';
-    if (!S.latch && !S.nrm) el('nrmT').click(); else apply();
-  });
-  el('cursorT').addEventListener('click', function () {
-    S.showCursor = !S.showCursor; this.setAttribute('aria-pressed', S.showCursor); apply();
-  });
-
-  // Keep the two panels on the same rulings while either is scrolled.
-  const rail = document.querySelector('.rail'), ninner = el('ninner');
-
-  // Row-for-row alignment: matching counts is not enough, because segment
-  // wrapping and note lengths differ. Measure both columns and pad each pair
-  // of sections to the taller of the two.
-  function alignPanels() {
-    const a = [...rail.querySelectorAll('section.grp')];
-    const b = [...ninner.querySelectorAll('section.grp')];
-    const ha = rail.querySelector('.railhead'), hb = ninner.querySelector('.railhead');
-    [ha, hb, ...a, ...b].forEach(e => e && (e.style.minHeight = ''));
-    if (ha && hb) {
-      const h = Math.max(ha.offsetHeight, hb.offsetHeight);
-      ha.style.minHeight = hb.style.minHeight = h + 'px';
+    if (!gl)
+        return null;
+    const surface = preset.S;
+    const normal = preset.N;
+    const surfaceState = toDotState(surface);
+    const normalState = toDotState(normal);
+    const viewportWidth = Math.max(1, window.innerWidth);
+    const viewportHeight = Math.max(1, window.innerHeight);
+    const portrait = viewportHeight > viewportWidth && viewportWidth <= 760;
+    const coverW = portrait ? viewportHeight : viewportWidth;
+    const coverH = portrait ? viewportWidth : viewportHeight;
+    const renderScale = Math.max(coverW / initialFrame.width, coverH / initialFrame.height);
+    const ink = {
+        chambers: buildChambers(surfaceState, renderScale),
+        edge: [numeric(surface, 'ex') / 100, numeric(surface, 'ey') / 100],
+        blend: BLEND_ID[textual(surface, 'blend', 'normal')] ?? 0,
+        mix: numeric(surface, 'alpha', 100) / 100,
+    };
+    const nrm = {
+        chambers: buildChambers(normalState, renderScale),
+        edge: [numeric(normal, 'ex') / 100, numeric(normal, 'ey') / 100],
+        blend: BLEND_ID[textual(normal, 'blend', 'overlay')] ?? 2,
+        mix: numeric(normal, 'mix', 100) / 100,
+    };
+    const program = gl.createProgram();
+    if (!program)
+        return null;
+    try {
+        gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER));
+        gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            throw new Error(gl.getProgramInfoLog(program) ?? 'link failed');
+        }
     }
-    for (let i = 0; i < Math.min(a.length, b.length); i++) {
-      const h = Math.max(a[i].offsetHeight, b[i].offsetHeight);
-      a[i].style.minHeight = b[i].style.minHeight = h + 'px';
+    catch {
+        return null;
     }
-  }
-  const reAlign = () => requestAnimationFrame(alignPanels);
-  addEventListener('resize', reAlign);
-  new ResizeObserver(reAlign).observe(ninner);
-  paintPanel();
-  reAlign();
+    gl.useProgram(program);
+    const noiseTexture = makeNoiseTexture(gl);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+    const loc = (name) => gl.getUniformLocation(program, name);
+    gl.uniform1i(loc('uNoiseTex'), 0);
+    gl.uniform3fv(loc('uInkTint'), hexToRgb(textual(surface, 'tint', '#7fe3d4')));
+    const surfaceTokens = SURFACES[textual(surface, 'glass', 'main')] ?? SURFACES.main;
+    gl.uniform4f(loc('uSurface'), surfaceTokens[0] / 255, surfaceTokens[1] / 255, surfaceTokens[2] / 255, surfaceTokens[3]);
+    gl.uniform1i(loc('uInkBlend'), ink.blend);
+    gl.uniform1i(loc('uNormalBlend'), nrm.blend);
+    gl.uniform1f(loc('uNormalMix'), nrm.mix);
+    gl.uniform2fv(loc('uInkEdge'), ink.edge);
+    gl.uniform2fv(loc('uNormalEdge'), nrm.edge);
+    gl.uniform1i(loc('uNormalEncoding'), textual(normal, 'enc', 'tangent') === 'height' ? 0 : 1);
+    const remap = textual(normal, 'remap', 'gl');
+    gl.uniform1i(loc('uNormalRemap'), remap === 'fx' ? 1 : remap === 'dx' ? 2 : remap === 'swap' ? 3 : 0);
+    const layers = [ink, nrm];
+    gl.uniform1iv(loc('uCount'), layers.map((l) => Math.min(MAX_CHAMBERS, l.chambers.length)));
+    const flat = (pick) => {
+        const out = [];
+        for (const layer of layers) {
+            for (let i = 0; i < MAX_CHAMBERS; i += 1) {
+                const c = layer.chambers[Math.min(i, layer.chambers.length - 1)];
+                out.push(...pick(c));
+            }
+        }
+        return out;
+    };
+    gl.uniform1iv(loc('uKind'), flat((c) => [c.kind]));
+    gl.uniform1iv(loc('uAnim'), flat((c) => [c.anim]));
+    gl.uniform1fv(loc('uAngle'), flat((c) => [c.angle]));
+    gl.uniform1iv(loc('uHalf'), flat((c) => [c.half]));
+    gl.uniform1iv(loc('uInvert'), flat((c) => [c.invert]));
+    gl.uniform2fv(loc('uOrigin'), flat((c) => [...c.origin]));
+    gl.uniform1fv(loc('uReach'), flat((c) => [c.reach]));
+    gl.uniform2fv(loc('uDS'), flat((c) => [c.dense, c.sparse]));
+    gl.uniform2fv(loc('uVanish'), flat((c) => [...c.vanish]));
+    gl.uniform1fv(loc('uCell'), flat((c) => [c.cell]));
+    gl.uniform1fv(loc('uTile'), flat((c) => [c.tile]));
+    gl.uniform2fv(loc('uFlow'), flat((c) => [...c.flow]));
+    gl.uniform1fv(loc('uDur'), flat((c) => [c.duration]));
+    gl.uniform1fv(loc('uRampOp'), flat((c) => [c.rampOpacity]));
+    gl.uniform1fv(loc('uNoiseSlope'), flat((c) => [c.noiseSlope]));
+    const sceneLoc = loc('uScene');
+    const scaleLoc = loc('uScale');
+    const timeLoc = loc('uTime');
+    const stage = document.createElement('div');
+    stage.className = 'visualizer-stage visualizer-stage--gl';
+    stage.dataset.running = 'true';
+    stage.dataset.renderer = 'webgl';
+    stage.dataset.modulusPattern = surfaceState.preset;
+    stage.dataset.renderScale = renderScale.toFixed(4);
+    stage.append(canvas);
+    host.replaceChildren(stage);
+    let cssWidth = viewportWidth;
+    let cssHeight = viewportHeight;
+    const applySize = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const resolution = DEFAULT_RESOLUTION * dpr;
+        canvas.width = Math.max(2, Math.round(cssWidth * resolution));
+        canvas.height = Math.max(2, Math.round(cssHeight * resolution));
+        canvas.style.width = `${cssWidth}px`;
+        canvas.style.height = `${cssHeight}px`;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.uniform2f(sceneLoc, cssWidth, cssHeight);
+        gl.uniform1f(scaleLoc, canvas.width / cssWidth);
+    };
+    applySize();
+    let raf = 0;
+    let running = true;
+    let epoch = performance.now();
+    let frozenAt = 0;
+    const draw = (now) => {
+        raf = 0;
+        gl.uniform1f(timeLoc, (now - epoch) / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        if (running)
+            raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return {
+        start() {
+            if (!running) {
+                running = true;
+                epoch = performance.now() - frozenAt;
+                stage.dataset.running = 'true';
+                if (!raf)
+                    raf = requestAnimationFrame(draw);
+            }
+        },
+        pause() {
+            running = false;
+            frozenAt = performance.now() - epoch;
+            stage.dataset.running = 'false';
+            if (raf) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+            }
+        },
+        freeze() {
+            running = false;
+            frozenAt = performance.now() - epoch;
+            stage.dataset.running = 'frozen';
+            if (raf) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+            }
+        },
+        resize(viewportW, viewportH) {
+            cssWidth = Math.max(1, viewportW);
+            cssHeight = Math.max(1, viewportH);
+            applySize();
+        },
+        destroy() {
+            running = false;
+            if (raf)
+                cancelAnimationFrame(raf);
+            gl.getExtension('WEBGL_lose_context')?.loseContext();
+            stage.remove();
+        },
+    };
+}
 
-  // Normal-layer cursor drag, mirroring the origin handle.
-  let ndrag = false;
-  const nplace = e => {
-    const r = spec.getBoundingClientRect();
-    N.px = Math.round(Math.min(100, Math.max(0, (e.clientX - r.left) / r.width  * 100)));
-    N.py = Math.round(Math.min(100, Math.max(0, (e.clientY - r.top)  / r.height * 100)));
-    apply();
-  };
-  el('nhandle').addEventListener('pointerdown', e => { ndrag = true; el('nhandle').setPointerCapture(e.pointerId); });
-  el('nhandle').addEventListener('pointermove', e => { if (ndrag) nplace(e); });
-  el('nhandle').addEventListener('pointerup',   () => { ndrag = false; });
-  el('ncursorT').addEventListener('click', function () {
-    // Start it exactly where the tape filter's cursor is, so the two agree
-    // until you deliberately move one.
-    if (!S.ncursor) { N.px = S.ox; N.py = S.oy; }
-    S.ncursor = !S.ncursor;
-    this.setAttribute('aria-pressed', S.ncursor);
-    apply();
-  });
 
-  let dragging = false;
-  const place = e => {
-    const r = spec.getBoundingClientRect();
-    S.ox = Math.round(Math.min(100, Math.max(0, (e.clientX - r.left) / r.width  * 100)));
-    S.oy = Math.round(Math.min(100, Math.max(0, (e.clientY - r.top)  / r.height * 100)));
-    apply();
-  };
-  handle.addEventListener('pointerdown', e => { dragging = true; handle.setPointerCapture(e.pointerId); });
-  handle.addEventListener('pointermove', e => { if (dragging) place(e); });
-  handle.addEventListener('pointerup',   () => { dragging = false; });
+const PRESETS = {"A": {"v": 1, "S": {"showCursor": true, "preset": "t2", "glass": "input", "zoom": 1, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "normal", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 22, "gb": 19, "gsat": 190, "gbri": 128, "rim": 34, "spk": 100, "content": false, "vanish": 85, "vwidth": 57, "vstrength": 63, "nrm": true, "nblend": "normal", "nmix": 100, "azi": 37, "ele": 46, "relh": 3, "cell": 13, "hard": 48, "dense": 81, "sparse": 69, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": true, "running": true, "mirror": false, "ex": 0, "ey": 0, "alpha": 100, "ox": 50, "oy": 51}, "N": {"preset": "t2", "cell": 6, "hard": 40, "dense": 64, "sparse": 20, "reach": 100, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": false, "emit": "mirror", "vanish": 85, "vwidth": 57, "vstrength": 63, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "flat", "enc": "height", "remap": "swap", "detail": "sharp", "view": "over", "amp": 10, "rad": 55, "ex": 0, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "B": {"v": 1, "S": {"showCursor": true, "preset": "t2", "glass": "input", "zoom": 1.6, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "normal", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 22, "gb": 19, "gsat": 190, "gbri": 128, "rim": 34, "spk": 100, "content": false, "vanish": 85, "vwidth": 55, "vstrength": 95.5, "nrm": true, "nblend": "normal", "nmix": 100, "azi": 37, "ele": 46, "relh": 2, "cell": 3, "hard": 48, "dense": 81, "sparse": 69, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": true, "running": true, "mirror": false, "ex": 0, "ey": 0, "alpha": 100, "ox": 50, "oy": 51}, "N": {"preset": "t2", "cell": 3, "hard": 60, "dense": 100, "sparse": 100, "reach": 100, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": false, "emit": "mirror", "vanish": 62.5, "vwidth": 37, "vstrength": 45, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "flat", "enc": "height", "remap": "gl", "detail": "sharp", "view": "over", "amp": 10, "rad": 55, "ex": 0, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "C": {"v": 1, "S": {"showCursor": true, "preset": "t8", "glass": "input", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "screen", "emit": "single", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 6, "gsat": 295, "gbri": 160, "rim": 54, "spk": 24, "content": false, "vanish": 100, "vwidth": 98, "vstrength": 100, "nrm": true, "nblend": "normal", "nmix": 33, "azi": 0, "ele": 63, "relh": 2, "cell": 3, "hard": 33, "dense": 47, "sparse": 100, "speed": 127, "run": 15, "jit": 100, "dir": 100, "flip": true, "running": true, "mirror": false, "ex": 25, "ey": 11, "alpha": 98, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 5, "hard": 60, "dense": 61, "sparse": 100, "reach": 100, "speed": 144, "run": 22, "jit": 99, "dir": 181, "flip": false, "emit": "edges", "vanish": 93, "vwidth": 50, "vstrength": 92, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "dome", "enc": "tangent", "remap": "swap", "detail": "fine", "view": "over", "amp": 210, "rad": 165, "ex": 45, "ey": 28, "mix": 100, "blend": "soft-light"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "D": {"v": 1, "S": {"showCursor": true, "preset": "t8", "glass": "input", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "screen", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 6, "gsat": 295, "gbri": 160, "rim": 54, "spk": 24, "content": false, "vanish": 100, "vwidth": 98, "vstrength": 100, "nrm": true, "nblend": "normal", "nmix": 61, "azi": 0, "ele": 63, "relh": 2, "cell": 3, "hard": 33, "dense": 47, "sparse": 100, "speed": 127, "run": 15, "jit": 100, "dir": 100, "flip": true, "running": true, "mirror": false, "ex": 25, "ey": 11, "alpha": 98, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 5, "hard": 60, "dense": 61, "sparse": 100, "reach": 89, "speed": 144, "run": 22, "jit": 99, "dir": 181, "flip": false, "emit": "edges", "vanish": 36, "vwidth": 45.5, "vstrength": 100, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "dome", "enc": "tangent", "remap": "dx", "detail": "blur", "view": "over", "amp": 210, "rad": 340, "ex": 45, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "E": {"v": 1, "S": {"showCursor": true, "preset": "t6", "glass": "chrome", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#7fe3d4", "blend": "screen", "emit": "mirror", "reach": 59, "inksurf": "overlay", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 13, "gsat": 400, "gbri": 164, "rim": 100, "spk": 100, "content": false, "vanish": 89.5, "vwidth": 88, "vstrength": 19, "nrm": true, "nblend": "normal", "nmix": 61, "azi": 359, "ele": 43, "relh": 6, "cell": 12, "hard": 60, "dense": 48, "sparse": 86, "speed": 180, "run": 48, "jit": 100, "dir": 169, "flip": false, "running": true, "mirror": false, "ex": 18, "ey": 28, "alpha": 100, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 4, "hard": 60, "dense": 100, "sparse": 81, "reach": 58, "speed": 180, "run": 48, "jit": 99, "dir": 359, "flip": true, "emit": "edges", "vanish": 65.5, "vwidth": 83, "vstrength": 100, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "cone", "enc": "tangent", "remap": "dx", "detail": "sharp", "view": "over", "amp": 400, "rad": 115, "ex": 45, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}};
 
-  // ── frame meter ──────────────────────────────────────
-  let n = 0, t0 = performance.now();
-  (function tick(t) {
-    n++;
-    if (t - t0 >= 500) { el('fps').textContent = Math.round(n * 1000 / (t - t0)) + ' fps'; n = 0; t0 = t; }
-    requestAnimationFrame(tick);
-  })(performance.now());
+const FRAMES = [ { width: 180, height: 180 }, { width: 520, height: 340 }, { width: 760, height: 150 } ];
+function pickFrame() {
+  const ratio = Math.max(1, innerWidth) / Math.max(1, innerHeight);
+  return [...FRAMES].sort((a, b) => (
+    Math.abs(Math.log((a.width / a.height) / ratio)) - Math.abs(Math.log((b.width / b.height) / ratio))
+  ))[0];
+}
 
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    S.running = false;
-    const b = el('play'); b.setAttribute('aria-pressed', 'false'); b.textContent = 'held';
-  }
+const host = document.getElementById('host');
+let scene = null;
+function show(id) {
+  scene?.destroy();
+  scene = createModulusGlScene(host, PRESETS[id], pickFrame());
+  if (!scene) { document.body.textContent = 'WebGL2 unavailable'; return; }
+  scene.resize(innerWidth, innerHeight);
+  for (const b of document.querySelectorAll('.hud button')) b.setAttribute('aria-pressed', b.dataset.p === id);
+}
+for (const b of document.querySelectorAll('.hud button')) b.addEventListener('click', () => show(b.dataset.p));
+addEventListener('resize', () => scene?.resize(innerWidth, innerHeight));
+show('A');
 
-  loadPreset('t3');
-})();
+let n = 0, t0 = performance.now();
+(function tick(t) {
+  n++;
+  if (t - t0 >= 500) { document.getElementById('fps').textContent = Math.round(n * 1000 / (t - t0)) + ' fps'; n = 0; t0 = t; }
+  requestAnimationFrame(tick);
+})(performance.now());
 </script>
 </body>
 </html>

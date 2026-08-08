@@ -268,15 +268,6 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
    genuinely blurs and saturates the glass behind it. The trade is that a CSS
    mask cannot be thresholded, so bead radius is fixed and the ramp fades the
    beads out instead of shrinking them. */
-/* Something structured for the beads to refract. */
-.content{position:absolute; inset:0; z-index:1; padding:16px 18px; display:none;
-  color:var(--ink); font:11px/1.7 var(--mono); letter-spacing:.06em; overflow:hidden}
-.showcontent .content{display:block}
-.content b{color:var(--accent); letter-spacing:.16em}
-.content p{margin:.35rem 0; color:var(--ink-dim)}
-.content .bar{display:block; height:7px; margin:7px 0; border-radius:4px;
-  background:linear-gradient(90deg,var(--accent),#1fb6a6 60%,#e0a12a)}
-.content .bar.b2{width:62%; background:linear-gradient(90deg,#6200ff,var(--accent))}
 
 .gtone{position:absolute; inset:0; z-index:2; pointer-events:none; display:none}
 .glassmode .gtone{display:block}
@@ -538,7 +529,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
      rotated a quarter turn into the long axis and the prompt explains why,
      rather than showing a letterboxed sliver. */
   .fs .stage{padding:0}
-  .fs .specimen{transform:var(--fs-rot, none); transform-origin:center}
+  .fs .specimen{transform:var(--fs-rot, rotate(0deg)); transform-origin:center}
   .fs .fsrotate{
     display:block; position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom));
     z-index:221; transform:translateX(-50%); white-space:nowrap;
@@ -704,12 +695,6 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
         <div class="screen s-n" id="chn1"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
         <div class="screen s-n" id="chn2"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
         <div class="screen s-n" id="chn3"><div class="lattice a"></div><div class="lattice b"></div><div class="ramp"></div></div>
-      </div>
-      <div class="content" id="content">
-        <b>LAB-A / SHELF-C / DRAWER-M</b>
-        <p>0x41 0x53 0x48 0x33 · addr 4·C·12</p>
-        <span class="bar"></span><span class="bar b2"></span>
-        <p>z1q.us/7Q4KDR — canonical address string</p>
       </div>
       <div class="gtone" id="gtone">
         <div class="gs" id="gs0"><div class="rim"></div><div class="spk"></div></div>
@@ -970,8 +955,9 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
 
     <section class="grp">
       <h2>Host</h2>
-      <div class="seg" style="margin-bottom:7px">
-        <button id="cont" aria-pressed="true">sample content</button>
+      <div class="seg" id="zoommode" style="margin-bottom:7px">
+        <button data-zm="fast" aria-pressed="true">fast zoom</button>
+        <button data-zm="crisp">crisp zoom</button>
       </div>
       <div class="seg" id="sizes">
         <button data-w="180" data-h="180">180&#178;</button>
@@ -1085,8 +1071,8 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   };
 
   const S = {
-    showCursor:true,
-    preset:'t3', glass:'main', zoom:1, w:520, h:340, latch:true, disp:'flat', tint:'#c6a8ff', blend:'normal', emit:'mirror', reach:100, inksurf:'main', panel:false, ncursor:false, curs:100, ncurs:100, bead:34, gb:7, gsat:190, gbri:118, rim:34, spk:55, content:true, vanish:100, vwidth:100, vstrength:10, nrm:false, nblend:'normal', nmix:100, azi:135, ele:52, relh:5,
+    showCursor:true, zoomMode:'fast',
+    preset:'t3', glass:'main', zoom:1, w:520, h:340, latch:true, disp:'flat', tint:'#c6a8ff', blend:'normal', emit:'mirror', reach:100, inksurf:'main', panel:false, ncursor:false, curs:100, ncurs:100, bead:34, gb:7, gsat:190, gbri:118, rim:34, spk:55, vanish:100, vwidth:100, vstrength:10, nrm:false, nblend:'normal', nmix:100, azi:135, ele:52, relh:5,
     cell:6, hard:22, dense:40, sparse:88,
     speed:42, run:22, jit:58, dir:0, flip:false, running:true, mirror:false,
     ex:0, ey:0, alpha:100, ox:45, oy:20,
@@ -1333,7 +1319,15 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     const g = G[S.glass];
     // Zoom scales every length the host is built from, so the whole assembly
     // grows as one piece rather than just fitting more dots into a bigger box.
-    const Z = S.zoom, cell = S.cell * Z;
+    // Zoom render mode. 'fast' builds the specimen at zoom 1 and scales it up
+    // with a transform, so the per-frame SVG lighting filters process ~zoom^2
+    // fewer pixels; 'crisp' is the original behaviour (every length re-renders
+    // at scale). The trade in fast mode is bitmap upscaling of the result.
+    const fast = S.zoomMode !== 'crisp';
+    const Z = fast ? 1 : S.zoom, VZ = fast ? S.zoom : 1;
+    const cell = S.cell * Z;
+    spec.style.transform = VZ === 1 ? '' : 'var(--fs-rot, rotate(0deg)) scale(' + VZ + ')';
+    spec.style.margin = VZ === 1 ? '' : ((VZ - 1) * S.h * Z / 2).toFixed(1) + 'px ' + ((VZ - 1) * S.w * Z / 2).toFixed(1) + 'px';
     spec.style.setProperty('--w', (S.w * Z).toFixed(1) + 'px');
     spec.style.setProperty('--h', (S.h * Z).toFixed(1) + 'px');
     spec.style.setProperty('--gbg', g.bg);
@@ -1360,7 +1354,6 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     spec.style.setProperty('--vy',
       `linear-gradient(180deg, transparent 0, #000 ${S.ey}%, #000 ${100 - S.ey}%, transparent 100%)`);
     spec.classList.toggle('glassmode', S.disp === 'glass');
-    spec.classList.toggle('showcontent', S.content);
 
     spec.style.setProperty('--chain', `contrast(${S.hard}) url(#${
         S.disp === 'relief' ? 'relief' : S.disp === 'matte' ? 'matte'
@@ -1517,6 +1510,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     });
   }
   group('presets', b => loadPreset(b.dataset.p));
+  group('zoommode', b => { S.zoomMode = b.dataset.zm; apply(); });
   group('sizes',    b => { S.w = +b.dataset.w; S.h = +b.dataset.h; apply(); });
   group('surfaces', b => { S.glass = b.dataset.g; apply(); });
   group('displays', b => {
@@ -1529,9 +1523,6 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   group('blends',   b => { S.blend = b.dataset.b; apply(); });
   group('emits',    b => { S.emit  = b.dataset.e; apply(); });
   group('inksurf',  b => { S.inksurf = b.dataset.s; apply(); });
-  el('cont').addEventListener('click', function () {
-    S.content = !S.content; this.setAttribute('aria-pressed', S.content); apply();
-  });
 
 
   el('play').addEventListener('click', function () {
@@ -1812,7 +1803,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
   const NUM_N = ['cell','hard','dense','sparse','reach','speed','run','jit','dir',
                  'vanish','vwidth','vstrength','ox','oy','px','py','amp','rad','ex','ey','mix'];
   const DISC_S = ['preset','glass','disp','tint','blend','emit','inksurf','latch','panel',
-                  'nrm','ncursor','showCursor','content','flip','running','nblend'];
+                  'nrm','ncursor','showCursor','flip','running','nblend'];
   const DISC_N = ['preset','emit','flip','bevel','enc','remap','detail','view','blend'];
   const easeIO = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2;
   let animT = null, animEnd = null;
@@ -1994,7 +1985,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     // When rotated, the specimen's width runs down the viewport's height.
     const availW = rot ? vh : vw, availH = rot ? vw : vh;
     const z = Math.min(availW / S.w, availH / S.h);
-    spec.style.setProperty('--fs-rot', rot ? 'rotate(90deg)' : 'none');
+    spec.style.setProperty('--fs-rot', rot ? 'rotate(90deg)' : 'rotate(0deg)');
     // Set S.zoom directly rather than through setZoom: full screen is allowed
     // past the dock's 2.4 ceiling, since the point is to fill the viewport.
     S.zoom = Math.max(0.4, Math.round(z * 100) / 100);
@@ -2008,7 +1999,7 @@ input[type=range]:focus-visible{outline:1px solid var(--accent); outline-offset:
     document.body.classList.toggle('fs', on);
     if (on) { fsPrevZoom = S.zoom; fitFullscreen(); }
     else {
-      spec.style.setProperty('--fs-rot', 'none');
+      spec.style.setProperty('--fs-rot', 'rotate(0deg)');
       setZoom(fsPrevZoom);
       if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     }

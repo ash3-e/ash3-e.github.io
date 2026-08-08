@@ -1,219 +1,780 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>modulus-link</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #07040d;
-        --panel: rgba(14, 8, 32, .88);
-        --line: rgba(198, 168, 255, .22);
-        --line-hi: rgba(198, 168, 255, .5);
-        --text: #efe8ff;
-        --dim: #a294c4;
-        --accent: #c6a8ff;
-        --good: #57e08a;
-        --warn: #ffb37a;
-        --bad: #ff7a7a;
-      }
-      * { box-sizing: border-box; }
-      html, body { height: 100%; margin: 0; }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font: 12px/1.5 'Spline Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-        letter-spacing: .01em;
-        overflow: hidden;
-      }
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modulus visualizer — WebGL fast renderer</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { background: #0a0418; color: rgba(218,227,246,.78); font: 12px/1.5 "Spline Sans Mono", ui-monospace, "Cascadia Mono", monospace; overflow: hidden; }
+  #host, .visualizer-stage { position: fixed; inset: 0; }
+  .visualizer-stage--gl canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hud { position: fixed; right: 14px; bottom: 14px; z-index: 5; display: flex; gap: 6px; align-items: center;
+    padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(198,168,255,.28); background: rgba(14,8,32,.82); }
+  .hud button { min-width: 34px; padding: 6px 8px; font: inherit; color: rgba(218,227,246,.78);
+    background: rgba(255,255,255,.02); border: 1px solid rgba(198,168,255,.14); border-radius: 4px; cursor: pointer; }
+  .hud button[aria-pressed="true"] { color: #120a20; background: #c6a8ff; border-color: #c6a8ff; font-weight: 600; }
+  .hud b { color: #7fe3d4; min-width: 58px; text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="host"></div>
+<div class="hud">
+  <button data-p="A" aria-pressed="true">A</button><button data-p="B">B</button><button data-p="C">C</button><button data-p="D">D</button><button data-p="E">E</button>
+  <b id="fps">—</b>
+</div>
+<script>
+const PATTERNS = {
+    t1: { kind: 'linear', angle: 90 },
+    t2: { kind: 'radial', angle: 0 },
+    t3: { kind: 'linear', angle: 0 },
+    t3a: { kind: 'linear', angle: 0 },
+    t4: { kind: 'linear', angle: 90 },
+    t5: { kind: 'radial', angle: 0 },
+    t6: { kind: 'band', angle: 0 },
+    t7: { kind: 'linear', angle: 135 },
+    t8: { kind: 'ring', angle: 0 },
+};
+const SURFACES = {
+    main: [8, 4, 20, .54],
+    elevated: [14, 8, 32, .82],
+    chrome: [10, 6, 24, .58],
+    code: [4, 2, 12, .8],
+    input: [6, 2, 16, .68],
+    overlay: [7, 3, 18, .8],
+};
+const KIND_ID = { linear: 0, radial: 1, ring: 2, band: 3 };
+const ANIM_ID = { flow: 0, burst: 1, 'burst-b': 2 };
+const BLEND_ID = { normal: 0, screen: 1, overlay: 2, 'soft-light': 3, multiply: 4 };
+const MAX_CHAMBERS = 4;
+const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+const VECTORS = [];
+for (let q = -3; q <= 3; q += 1) {
+    for (let r = -3; r <= 3; r += 1) {
+        if ((q || r) && gcd(Math.abs(q), Math.abs(r)) === 1)
+            VECTORS.push([q, r]);
+    }
+}
+function numeric(source, key, fallback = 0) {
+    const value = source[key];
+    return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+function textual(source, key, fallback = '') {
+    const value = source[key];
+    return typeof value === 'string' ? value : fallback;
+}
+function logical(source, key, fallback = false) {
+    const value = source[key];
+    return typeof value === 'boolean' ? value : fallback;
+}
+function toDotState(source) {
+    return {
+        preset: textual(source, 'preset', 't3'),
+        cell: numeric(source, 'cell', 6),
+        hard: numeric(source, 'hard', 22),
+        dense: numeric(source, 'dense', 40),
+        sparse: numeric(source, 'sparse', 88),
+        reach: numeric(source, 'reach', 100),
+        speed: numeric(source, 'speed', 42),
+        run: numeric(source, 'run', 22),
+        jit: numeric(source, 'jit', 58),
+        dir: numeric(source, 'dir', 0),
+        flip: logical(source, 'flip'),
+        emit: textual(source, 'emit', 'single'),
+        vanish: numeric(source, 'vanish', 100),
+        vwidth: numeric(source, 'vwidth', 100),
+        vstrength: numeric(source, 'vstrength', 10),
+        ox: numeric(source, 'ox', 50),
+        oy: numeric(source, 'oy', 50),
+    };
+}
+function snapVector(x, y) {
+    let best = VECTORS[0];
+    let bestDot = -2;
+    for (const vector of VECTORS) {
+        const dot = (vector[0] * x + vector[1] * y) / Math.hypot(vector[0], vector[1]);
+        if (dot > bestDot) {
+            bestDot = dot;
+            best = vector;
+        }
+    }
+    return best;
+}
+function heading(state, angle) {
+    const radians = (angle + (state.flip ? 180 : 0)) * Math.PI / 180;
+    return snapVector(Math.sin(radians), -Math.cos(radians));
+}
+function vanishRange(state) {
+    const base = Math.max(8, Math.min(100, state.reach));
+    const span = base * Math.max(4, Math.min(100, state.vwidth)) / 100;
+    const opaque = Math.max(0, Math.min(100, state.vanish)) / 100 * span;
+    const soft = Math.min(span, opaque + Math.max(0.5, span * (state.vstrength / 100)));
+    return [opaque / 100, soft / 100];
+}
+function buildChambers(state, renderScale) {
+    const pattern = PATTERNS[state.preset] ?? PATTERNS.t3;
+    const radial = pattern.kind === 'radial' || pattern.kind === 'ring';
+    const [vanOpaque, vanSoft] = vanishRange(state);
+    const make = (kind, angle, half, invert, vector, animation) => {
+        const sourceCell = state.cell;
+        const sourceTile = Math.max(sourceCell, state.run * sourceCell);
+        const cell = sourceCell * renderScale;
+        const tile = sourceTile * renderScale;
+        const duration = animation === 'flow'
+            ? Math.max(0.05, Math.hypot(vector[0], vector[1]) * sourceTile / Math.max(1, state.speed))
+            : 260 / Math.max(1, state.speed);
+        return {
+            kind: KIND_ID[kind],
+            anim: ANIM_ID[animation],
+            angle: (angle + (kind !== 'radial' && kind !== 'ring' && state.flip ? 180 : 0)) * Math.PI / 180,
+            half: half ? 1 : 0,
+            invert: invert ? 1 : 0,
+            origin: [state.ox / 100, state.oy / 100],
+            reach: Math.max(8, Math.min(100, state.reach)) / 100,
+            dense: state.dense / 100,
+            sparse: state.sparse / 100,
+            vanish: [vanOpaque, vanSoft],
+            cell,
+            tile,
+            flow: [vector[0] * tile, vector[1] * tile],
+            duration,
+            rampOpacity: 0.3 + state.hard / 200,
+            noiseSlope: (state.jit / 100) * 1.7,
+        };
+    };
+    if (state.emit === 'edges' || state.emit === 'corners') {
+        return [0, 90, 180, 270].map((angle) => (make('linear', angle, true, false, heading(state, angle), 'flow')));
+    }
+    if (radial) {
+        const plan = [make(pattern.kind, pattern.angle, false, false, [0, 0], 'burst')];
+        if (state.emit !== 'single')
+            plan.push(make(pattern.kind, pattern.angle, false, true, [0, 0], 'burst-b'));
+        return plan;
+    }
+    const mirrored = state.emit === 'mirror';
+    const plan = [make(pattern.kind, pattern.angle, mirrored, false, heading(state, state.dir), 'flow')];
+    if (state.emit !== 'single') {
+        plan.push(make(pattern.kind, pattern.angle + 180, mirrored, false, heading(state, state.dir + 180), 'flow'));
+    }
+    return plan;
+}
+function hexToRgb(value) {
+    const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : '#7fe3d4';
+    return [
+        parseInt(hex.slice(1, 3), 16) / 255,
+        parseInt(hex.slice(3, 5), 16) / 255,
+        parseInt(hex.slice(5, 7), 16) / 255,
+    ];
+}
+const VERTEX_SHADER = `#version 300 es
+void main() {
+  vec2 pos = vec2(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0);
+  gl_Position = vec4(pos, 0.0, 1.0);
+}`;
+const FRAGMENT_SHADER = `#version 300 es
+precision highp float;
+out vec4 outColor;
 
-      /* ── single-preset view ───────────────────────────────────────── */
-      #stage { position: fixed; inset: 0; }
-      #stage > * { position: absolute; inset: 0; }
-      body[data-view='grid'] #stage { display: none; }
+uniform vec2 uScene;        // scene size in css px
+uniform float uScale;       // canvas px per scene px
+uniform float uTime;
+uniform sampler2D uNoiseTex;
 
-      /* ── six-panel grid ───────────────────────────────────────────── */
-      #gridview { position: fixed; inset: 0; display: flex; flex-direction: column; }
-      body[data-view='single'] #gridview { display: none; }
+uniform vec3 uInkTint;
+uniform vec4 uSurface;      // specimen surface rgba
+uniform int uInkBlend;
+uniform int uNormalBlend;
+uniform float uNormalMix;
+uniform vec2 uInkEdge;      // edge fade fractions
+uniform vec2 uNormalEdge;
+uniform int uNormalEncoding; // 0 height, 1 tangent
+uniform int uNormalRemap;    // 0 gl, 1 fx, 2 dx, 3 swap
 
-      .gridhead {
-        display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
-        padding: 11px 16px; flex: none;
-        border-bottom: 1px solid var(--line); background: var(--panel);
-      }
-      .gridhead h1 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .22em;
-        text-transform: uppercase; color: var(--accent); }
-      .gridhead .note { color: var(--dim); font-size: 10.5px; }
-      .gridhead .note b { color: var(--text); }
+#define MAXC ${MAX_CHAMBERS}
+uniform int uCount[2];
+uniform int uKind[MAXC * 2];
+uniform int uAnim[MAXC * 2];
+uniform float uAngle[MAXC * 2];
+uniform int uHalf[MAXC * 2];
+uniform int uInvert[MAXC * 2];
+uniform vec2 uOrigin[MAXC * 2];
+uniform float uReach[MAXC * 2];
+uniform vec2 uDS[MAXC * 2];
+uniform vec2 uVanish[MAXC * 2];
+uniform float uCell[MAXC * 2];
+uniform float uTile[MAXC * 2];
+uniform vec2 uFlow[MAXC * 2];
+uniform float uDur[MAXC * 2];
+uniform float uRampOp[MAXC * 2];
+uniform float uNoiseSlope[MAXC * 2];
 
-      .tiles {
-        flex: 1; min-height: 0; display: grid; gap: 10px; padding: 10px;
-        grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);
-      }
-      .tile {
-        position: relative; overflow: hidden; min-height: 0;
-        border: 1px solid var(--line); border-radius: 6px; background: #07040d;
-        cursor: zoom-in; transition: border-color .14s;
-      }
-      .tile:hover { border-color: var(--accent); }
-      .tile__host { position: absolute; inset: 0; overflow: hidden; }
-      .tile__host > * { position: absolute; inset: 0; }
-      .tile__tag {
-        position: absolute; z-index: 5; top: 8px; left: 8px;
-        display: flex; gap: 8px; align-items: baseline;
-        padding: 3px 9px; border: 1px solid var(--line); border-radius: 4px;
-        background: rgba(7, 3, 15, .74); pointer-events: none;
-      }
-      .tile__tag b { font-size: 13px; letter-spacing: .1em; }
-      .tile__tag span { color: var(--dim); font-size: 10px; }
-      .tile--drop {
-        display: grid; place-content: center; text-align: center;
-        border-style: dashed; cursor: pointer; color: var(--dim);
-        font-size: 10.5px; line-height: 1.8; padding: 16px;
-      }
-      .tile--drop:hover, .tile--drop.over { color: var(--text); border-color: var(--accent); }
-      .tile--drop b { color: var(--accent); }
+// ── blend helpers (W3C compositing) ─────────────────────────────
+float softLightC(float b, float s) {
+  if (s <= 0.5) return b - (1.0 - 2.0 * s) * b * (1.0 - b);
+  float d = (b <= 0.25) ? ((16.0 * b - 12.0) * b + 4.0) * b : sqrt(b);
+  return b + (2.0 * s - 1.0) * (d - b);
+}
+vec3 softLight(vec3 b, vec3 s) {
+  return vec3(softLightC(b.r, s.r), softLightC(b.g, s.g), softLightC(b.b, s.b));
+}
+float overlayC(float b, float s) {
+  return b <= 0.5 ? 2.0 * b * s : 1.0 - 2.0 * (1.0 - b) * (1.0 - s);
+}
+vec3 blendMode(int mode, vec3 b, vec3 s) {
+  if (mode == 1) return 1.0 - (1.0 - b) * (1.0 - s);
+  if (mode == 2) return vec3(overlayC(b.r, s.r), overlayC(b.g, s.g), overlayC(b.b, s.b));
+  if (mode == 3) return softLight(b, s);
+  if (mode == 4) return b * s;
+  return s;
+}
 
-      /* ── controls panel (single view) ─────────────────────────────── */
-      .panel {
-        position: fixed; z-index: 10; top: 14px; left: 14px; width: 268px;
-        max-height: calc(100vh - 28px); overflow-y: auto;
-        padding: 12px 14px 14px;
-        border: 1px solid var(--line); border-radius: 12px;
-        background: var(--panel); backdrop-filter: blur(18px) saturate(1.6);
-        box-shadow: 0 16px 48px rgba(0,0,0,.56);
-        transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s;
-      }
-      body[data-view='grid'] .panel { display: none; }
-      body.hidechrome .panel { transform: translateX(calc(-100% - 20px)); opacity: 0; }
+// ── ramp: signed density along the pattern axis ────────────────
+// Returns vec2(color, alpha): color 0 = black (dense end), 1 = white (sparse).
+// Stop layouts transcribed from buildRamp() in the DOM port.
+vec2 rampStops(float t, float reach, float dense, float sparse, int kind, bool half_, bool invert) {
+  float R = reach;
+  if (kind == 1) { // radial
+    if (invert) {
+      if (t < 0.44) return vec2(1.0, sparse);
+      if (t < 0.58) return vec2(1.0, sparse * (1.0 - (t - 0.44) / 0.14));
+      if (t < 0.66) return vec2(0.0, 0.0);
+      return vec2(0.0, dense * clamp((t - 0.66) / 0.34, 0.0, 1.0));
+    }
+    if (t < 0.34 * R) return vec2(0.0, dense * (1.0 - t / (0.34 * R)));
+    if (t < 0.44 * R) return vec2(0.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.44 * R) / (0.52 * R), 0.0, 1.0));
+  }
+  if (kind == 2) { // ring
+    if (t < 0.20) return vec2(1.0, sparse * (1.0 - t / 0.20));
+    if (t < 0.28) return vec2(0.0, 0.0);
+    if (t < 0.46 * R) return vec2(0.0, dense * clamp((t - 0.28) / (0.46 * R - 0.28), 0.0, 1.0));
+    if (t < 0.64 * R) return vec2(0.0, dense * (1.0 - (t - 0.46 * R) / (0.18 * R)));
+    if (t < 0.72 * R) return vec2(1.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.72 * R) / (1.0 - 0.72 * R), 0.0, 1.0));
+  }
+  if (kind == 3) { // band
+    if (t < 0.26) return vec2(1.0, sparse * (1.0 - t / 0.26));
+    if (t < 0.36) return vec2(0.0, 0.0);
+    if (half_) return vec2(0.0, dense * clamp((t - 0.36) / 0.14, 0.0, 1.0));
+    if (t < 0.50) return vec2(0.0, dense * (t - 0.36) / 0.14);
+    if (t < 0.64) return vec2(0.0, dense * (1.0 - (t - 0.50) / 0.14));
+    if (t < 0.74) return vec2(1.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.74) / 0.26, 0.0, 1.0));
+  }
+  // linear
+  if (half_) {
+    if (t < 0.46 * R) return vec2(0.0, dense * (1.0 - t / (0.46 * R)));
+    if (t < 0.58 * R) return vec2(0.0, 0.0);
+    return vec2(1.0, sparse * clamp((t - 0.58 * R) / (0.42 * R), 0.0, 1.0));
+  }
+  if (t < 0.48) return vec2(0.0, dense * (1.0 - t / 0.48));
+  if (t < 0.52) return vec2(0.0, 0.0);
+  return vec2(1.0, sparse * clamp((t - 0.52) / 0.48, 0.0, 1.0));
+}
 
-      h1 { margin: 0 0 2px; font-size: 12px; font-weight: 700; letter-spacing: .22em;
-        text-transform: uppercase; color: var(--accent); }
-      .sub { margin: 0 0 12px; color: var(--dim); font-size: 10.5px; }
+// Gradient-line coordinate for a CSS gradient at 'angle' across the unit box.
+float gradientT(vec2 u, float angle) {
+  vec2 dir = vec2(sin(angle), -cos(angle));
+  float len = abs(dir.x) + abs(dir.y); // projection span of unit box
+  float t = dot(u - 0.5, dir) / max(len, 1e-4) + 0.5;
+  return clamp(t, 0.0, 1.0);
+}
 
-      section { margin-top: 13px; }
-      h2 { margin: 0 0 7px; font-size: 9.5px; font-weight: 600; letter-spacing: .24em;
-        text-transform: uppercase; color: var(--dim);
-        display: flex; justify-content: space-between; align-items: baseline; }
-      h2 em { font-style: normal; color: var(--accent); letter-spacing: .06em; }
-      h2 em#fidelity { color: var(--good); }
-      h2 em#fidelity.traded { color: var(--warn); }
+float farthestCorner(vec2 origin, vec2 aspect) {
+  vec2 c = max(origin, 1.0 - origin) * aspect;
+  return length(c);
+}
+float farthestSide(vec2 origin, vec2 aspect) {
+  vec2 c = max(origin, 1.0 - origin) * aspect;
+  return max(c.x, c.y);
+}
 
-      .chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-      .chip {
-        position: relative; padding: 5px 9px;
-        border: 1px solid var(--line); border-radius: 5px;
-        background: rgba(255,255,255,.02); color: var(--dim);
-        font: inherit; font-size: 11px; cursor: pointer;
-      }
-      .chip:hover { color: var(--text); border-color: var(--line-hi); }
-      .chip[aria-pressed='true'] { color: #120a20; background: var(--accent);
-        border-color: var(--accent); font-weight: 600; }
-      .chip .x { margin-left: 6px; opacity: .55; font-weight: 700; }
-      .chip .x:hover { opacity: 1; }
-      .chip.wide { width: 100%; margin-top: 5px; text-align: left; }
-      /* Return-to-panels sits ahead of preset A, as its own control. */
-      .chip.back { color: var(--accent); border-color: var(--line-hi);
-        font-weight: 700; padding: 5px 8px; margin-right: 3px; }
-      .chip.back:hover { background: rgba(198,168,255,.16); }
+float patternT(vec2 u, int kind, float angle, vec2 origin, vec2 aspect) {
+  if (kind == 1) { // radial farthest-corner
+    return length((u - origin) * aspect) / max(farthestCorner(origin, aspect), 1e-4);
+  }
+  if (kind == 2) { // ring farthest-side
+    return length((u - origin) * aspect) / max(farthestSide(origin, aspect), 1e-4);
+  }
+  return gradientT(u, angle);
+}
 
-      label.row { display: grid; grid-template-columns: 58px 1fr 40px; gap: 8px;
-        align-items: center; margin-bottom: 6px; color: var(--dim); font-size: 10.5px; }
-      label.row output { color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
-      input[type=range] { -webkit-appearance: none; appearance: none; width: 100%;
-        height: 16px; background: none; cursor: ew-resize; }
-      input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--line-hi); }
-      input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 9px; height: 9px;
-        margin-top: -4px; border-radius: 50%; background: var(--accent);
-        box-shadow: 0 0 0 3px rgba(180,125,255,.18); }
+float vanishMask(vec2 u, int kind, float angle, vec2 origin, vec2 aspect, vec2 van, bool invert) {
+  float t;
+  if (kind == 1 || kind == 2) {
+    t = length((u - origin) * aspect) / max(farthestCorner(origin, aspect), 1e-4);
+    if (invert) return smoothstep(1.0 - van.y, 1.0 - van.x, t);
+  } else {
+    t = gradientT(u, angle);
+  }
+  return 1.0 - smoothstep(van.x, van.y, t);
+}
 
-      .drop { margin-top: 8px; padding: 14px 10px; border: 1px dashed var(--line);
-        border-radius: 8px; text-align: center; color: var(--dim);
-        font-size: 10.5px; line-height: 1.7; cursor: pointer; }
-      .drop:hover, .drop.over { border-color: var(--accent); color: var(--text); }
-      .drop b { color: var(--accent); }
-      #file { display: none; }
+// ── sprites ─────────────────────────────────────────────────────
+// Ink relief disc, transcribed from the DOM port's SVG sprite.
+vec4 inkSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = distance(c, vec2(0.34, 0.29)) / 0.68;
+  vec3 col;
+  float a = 1.0;
+  vec3 tint = uInkTint;
+  vec3 deep = vec3(0.086, 0.016, 0.149); // #160426
+  vec3 core = vec3(0.008, 0.004, 0.024); // #020106
+  if (t < 0.10) col = vec3(1.0);
+  else if (t < 0.28) col = mix(vec3(1.0), tint, (t - 0.10) / 0.18);
+  else if (t < 0.58) col = tint;
+  else if (t < 0.76) col = mix(tint, deep, (t - 0.58) / 0.18);
+  else if (t < 0.90) col = mix(deep, core, (t - 0.76) / 0.14);
+  else { col = core; a = 1.0 - clamp((t - 0.90) / 0.10, 0.0, 1.0); }
+  // rim stroke
+  float rim = (1.0 - smoothstep(0.010, 0.022, abs(dc - 0.457))) * 0.22;
+  col = mix(col, vec3(1.0), rim);
+  return vec4(col, a * disc);
+}
 
-      .readout { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px;
-        font-size: 10.5px; color: var(--dim); }
-      .readout b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-      .fps { font-size: 18px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-      .fps.ok { color: var(--good); }
-      .fps.mid { color: var(--warn); }
-      .fps.low { color: var(--bad); }
-      .bar { height: 3px; border-radius: 2px; background: rgba(255,255,255,.09); overflow: hidden; }
-      .bar i { display: block; height: 100%; background: var(--accent); }
-      .err { margin-top: 6px; color: var(--bad); font-size: 10.5px; }
-      .foot { margin: 8px 0 0; color: var(--dim); font-size: 9.5px; line-height: 1.6; }
-      .hint { position: fixed; z-index: 10; right: 14px; bottom: 12px; color: var(--dim); font-size: 10.5px; }
-    </style>
-    <script type="module" crossorigin src="./assets/index-BJVml7hN.js"></script>
-  </head>
-  <body data-view="grid">
-    <div id="gridview">
-      <div class="gridhead">
-        <h1>modulus-link</h1>
-        <span class="note">Click a panel to open it with the full controls.
-          Panels render at reduced cost — <b>open one</b> for true output.</span>
-      </div>
-      <div class="tiles" id="tiles"></div>
-    </div>
+vec4 heightSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = dc / 0.469;
+  vec3 col;
+  float a = 1.0;
+  if (t < 0.45) col = mix(vec3(1.0), vec3(0.812), t / 0.45);
+  else if (t < 0.72) col = mix(vec3(0.812), vec3(0.412), (t - 0.45) / 0.27);
+  else if (t < 0.90) col = mix(vec3(0.412), vec3(0.067), (t - 0.72) / 0.18);
+  else { col = vec3(0.0); a = 1.0 - clamp((t - 0.90) / 0.10, 0.0, 1.0); }
+  return vec4(col, a * disc);
+}
 
-    <div id="stage"></div>
+vec4 tangentSprite(vec2 c) {
+  float dc = distance(c, vec2(0.5));
+  float disc = 1.0 - smoothstep(0.462, 0.475, dc);
+  if (disc <= 0.0) return vec4(0.0);
+  float t = dc / 0.469;
+  vec3 base = t < 0.62
+    ? mix(vec3(0.663, 0.663, 1.0), vec3(0.447, 0.447, 1.0), t / 0.62)
+    : mix(vec3(0.447, 0.447, 1.0), vec3(0.125, 0.125, 0.502), (t - 0.62) / 0.38);
+  vec2 g = c; // gradient coords
+  bool swapAxes = uNormalRemap == 3;
+  float gx = swapAxes ? g.y : g.x;
+  float gy = swapAxes ? g.x : g.y;
+  vec3 xs = uNormalRemap == 1 ? vec3(1.0, 0.502, 1.0) : vec3(0.0, 0.502, 1.0);
+  vec3 xe = uNormalRemap == 1 ? vec3(0.0, 0.502, 1.0) : vec3(1.0, 0.502, 1.0);
+  vec3 ys = uNormalRemap == 2 ? vec3(0.502, 1.0, 0.502) : vec3(0.502, 0.0, 1.0);
+  vec3 ye = uNormalRemap == 2 ? vec3(0.502, 0.0, 1.0) : vec3(0.502, 1.0, 0.502);
+  vec3 gxc = mix(xs, xe, gx);
+  vec3 gyc = mix(ys, ye, gy);
+  vec3 col = base;
+  col = 1.0 - (1.0 - col) * (1.0 - gxc * 0.55); // screen @ .55
+  col = 1.0 - (1.0 - col) * (1.0 - gyc * 0.48); // screen @ .48
+  float rim = (1.0 - smoothstep(0.008, 0.020, abs(dc - 0.461))) * 0.38;
+  col = mix(col, vec3(0.722, 0.722, 1.0), rim);
+  return vec4(col, disc);
+}
 
-    <div class="panel" id="panel">
-      <h1>modulus-link</h1>
-      <p class="sub">Modulus visualizer preview · WebGL</p>
+float fractalNoise(vec2 p, float featurePx) {
+  // uNoiseTex holds tileable fractal noise; sample so features span ~featurePx.
+  return texture(uNoiseTex, p / max(featurePx, 2.0) / 3.0).r;
+}
 
-      <section>
-        <h2>Preset <em id="presetName">A</em></h2>
-        <div class="chips" id="presets"></div>
-      </section>
+// One chamber's contribution: opaque lattice colour + alpha from masks.
+vec4 chamber(int i, vec2 scenePx, vec2 u, vec2 aspect, bool isNormal) {
+  // The vanish mask bounds every chamber; where it is ~0 the dot sprites and
+  // noise can never show, so skip their styling work entirely. This confines
+  // per-dot shading to the regions a chamber actually emits into.
+  float vanEarly = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+  if (vanEarly < 0.004) return vec4(0.0);
 
-      <section>
-        <h2>Import</h2>
-        <div class="drop" id="drop">
-          Drop <b>Modulus JSON</b> exports here<br />or click to choose files
-        </div>
-        <input type="file" id="file" accept="application/json,.json" multiple />
-        <div class="err" id="err" hidden></div>
-      </section>
+  float t = uTime;
+  float phase = fract(t / uDur[i]);
+  float alphaEnv = 1.0;
+  vec2 p = scenePx;
 
-      <section>
-        <h2>Quality <em id="fidelity">baseline</em></h2>
-        <label class="row">
-          <span>Render</span>
-          <input type="range" id="scale" min="0.5" max="1" step="0.05" value="1" />
-          <output id="scaleOut">100%</output>
-        </label>
-        <label class="row">
-          <span>Target</span>
-          <input type="range" id="target" min="30" max="144" step="5" value="80" />
-          <output id="targetOut">80</output>
-        </label>
-        <button class="chip wide" id="detail" aria-pressed="true">Lighting detail: high</button>
-        <button class="chip wide" id="boxes" aria-pressed="true">Blur: 3 box (SVG)</button>
-        <button class="chip wide" id="auto" aria-pressed="false">Auto-hold target</button>
-        <p class="foot" id="cost">All settings at baseline, nothing traded.</p>
-      </section>
+  if (uAnim[i] == 0) {
+    p -= uFlow[i] * phase;
+  } else {
+    // burst: two lattices scaling about the origin with opacity envelopes
+    bool reverse = uAnim[i] == 2;
+    vec4 acc = vec4(0.0);
+    for (int L = 0; L < 2; L++) {
+      float ph = fract(phase + (L == 1 ? 0.5 : 0.0));
+      float s = reverse ? mix(2.0, 1.0, ph) : mix(1.0, 2.0, ph);
+      float env = smoothstep(0.0, 0.22, ph) * (1.0 - smoothstep(0.78, 1.0, ph));
+      vec2 originPx = uOrigin[i] * uScene;
+      vec2 lp = (scenePx - originPx) / s + originPx;
+      vec2 cuv = fract(lp / uCell[i]);
+      vec4 sp = isNormal
+        ? (uNormalEncoding == 0 ? heightSprite(cuv) : tangentSprite(cuv))
+        : inkSprite(cuv);
+      float n = fractalNoise(lp, uCell[i] * 3.0);
+      float slope = uNoiseSlope[i];
+      n = clamp(slope * n + (0.5 - 0.5 * slope), 0.0, 1.0);
+      vec3 col = mix(vec3(n), softLight(sp.rgb, vec3(n)), sp.a);
+      acc.rgb = mix(acc.rgb, col, env * (1.0 - acc.a * 0.5));
+      acc.a = max(acc.a, env);
+    }
+    // ramp + vanish applied below on accumulated colour
+    vec2 rs = rampStops(patternT(u, uKind[i], uAngle[i], uOrigin[i], aspect), uReach[i], uDS[i].x, uDS[i].y, uKind[i], uHalf[i] == 1, uInvert[i] == 1);
+    acc.rgb = mix(acc.rgb, softLight(acc.rgb, vec3(rs.x)), rs.y * uRampOp[i]);
+    float van = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+    acc.a *= van;
+    return acc;
+  }
 
-      <section>
-        <h2>Performance <em id="verdict"></em></h2>
-        <div class="fps" id="fps">–</div>
-        <div class="bar"><i id="fpsbar" style="width:0%"></i></div>
-        <div class="readout" style="margin-top:7px">
-          <span>GPU</span><b id="gpu">–</b>
-          <span>ceiling</span><b id="ceil">–</b>
-          <span>rAF p50</span><b id="p50">–</b>
-          <span>p95</span><b id="p95">–</b>
-          <span>canvas</span><b id="res">–</b>
-        </div>
-        <p class="foot">GPU time comes from timer queries, so the ceiling does
-          not depend on your display refresh rate.</p>
-      </section>
-    </div>
+  vec2 cuv = fract(p / uCell[i]);
+  vec4 sp = isNormal
+    ? (uNormalEncoding == 0 ? heightSprite(cuv) : tangentSprite(cuv))
+    : inkSprite(cuv);
+  float n = fractalNoise(p, uCell[i] * 3.0);
+  float slope = uNoiseSlope[i];
+  n = clamp(slope * n + (0.5 - 0.5 * slope), 0.0, 1.0);
+  vec3 col = mix(vec3(n), softLight(sp.rgb, vec3(n)), sp.a);
 
-    <div class="hint">G — panels · H — hide panel · F — fullscreen</div>
-  </body>
+  vec2 rs = rampStops(patternT(u, uKind[i], uAngle[i], uOrigin[i], aspect), uReach[i], uDS[i].x, uDS[i].y, uKind[i], uHalf[i] == 1, uInvert[i] == 1);
+  col = mix(col, softLight(col, vec3(rs.x)), rs.y * uRampOp[i]);
+  float van = vanishMask(u, uKind[i], uAngle[i], uOrigin[i], aspect, uVanish[i], uInvert[i] == 1);
+  return vec4(col, alphaEnv * van);
+}
+
+float edgeFade(vec2 u, vec2 edge) {
+  float fx = edge.x <= 0.001 ? 1.0 : smoothstep(0.0, edge.x, u.x) * smoothstep(1.0, 1.0 - edge.x, u.x);
+  float fy = edge.y <= 0.001 ? 1.0 : smoothstep(0.0, edge.y, u.y) * smoothstep(1.0, 1.0 - edge.y, u.y);
+  return fx * fy;
+}
+
+vec4 layerColor(int layer, vec2 scenePx, vec2 u, vec2 aspect) {
+  bool isNormal = layer == 1;
+  // Edge fades bound the whole layer — outside them nothing shows, so skip
+  // every chamber's work there.
+  float fade = edgeFade(u, isNormal ? uNormalEdge : uInkEdge);
+  if (fade < 0.004) return vec4(0.0);
+  vec4 acc = vec4(0.0);
+  int base = layer * MAXC;
+  int count = uCount[layer];
+  for (int i = 0; i < MAXC; i++) {
+    if (i >= count) break;
+    vec4 ch = chamber(base + i, scenePx, u, aspect, isNormal);
+    acc.rgb = mix(acc.rgb, ch.rgb, ch.a);
+    acc.a = ch.a + acc.a * (1.0 - ch.a);
+  }
+  acc.a *= fade;
+  return acc;
+}
+
+void main() {
+  vec2 scenePx = gl_FragCoord.xy / uScale;
+  scenePx.y = uScene.y - scenePx.y; // css y-down
+  vec2 u = scenePx / uScene;
+  vec2 aspect = uScene / min(uScene.x, uScene.y);
+
+  // tone drift: alternate 7s translate + scale (ease-in-out approximated)
+  float dph = abs(fract(uTime / 14.0) * 2.0 - 1.0);
+  dph = dph * dph * (3.0 - 2.0 * dph);
+  float driftS = mix(1.015, 1.045, dph);
+  vec2 driftT = mix(vec2(-0.007, -0.0045), vec2(0.007, 0.0045), dph) * uScene;
+  vec2 dp = (scenePx - 0.5 * uScene) / driftS + 0.5 * uScene - driftT;
+  vec2 du = dp / uScene;
+
+  // stage background gradient
+  vec3 bg = vec3(0.039, 0.016, 0.094); // #0a0418
+  float g1 = length((u - vec2(0.20, 0.06)) / vec2(1.2, 0.9) * aspect);
+  bg = mix(vec3(0.165, 0.039, 0.369), bg, smoothstep(0.0, 0.58, g1));
+  float g2 = length((u - vec2(0.88, 0.94)) / vec2(0.9, 0.8) * aspect);
+  bg = mix(mix(vec3(0.071, 0.0, 0.2), bg, smoothstep(0.0, 0.55, g2)), bg, 0.35);
+
+  // specimen glass surface
+  vec3 col = mix(bg, uSurface.rgb, uSurface.a);
+
+  // ink layer
+  vec4 ink = layerColor(0, dp, du, aspect);
+  vec3 inkBlended = blendMode(uInkBlend, col, ink.rgb);
+  col = mix(col, inkBlended, ink.a);
+
+  // normal layer
+  vec4 nrm = layerColor(1, dp, du, aspect);
+  vec3 nrmBlended = blendMode(uNormalBlend, col, nrm.rgb);
+  col = mix(col, nrmBlended, nrm.a * uNormalMix);
+
+  // glass sheen (specimen ::before)
+  float sheenT = clamp((u.x + (1.0 - u.y)) * 0.5, 0.0, 1.0);
+  vec3 sheen = mix(vec3(0.776, 0.659, 1.0), vec3(0.0), step(0.5, sheenT));
+  float sheenA = sheenT < 0.5 ? 0.06 * (1.0 - sheenT * 2.0) : 0.02 * ((sheenT - 0.5) * 2.0);
+  col = mix(col, vec3(0.776, 0.659, 1.0), sheenA);
+  col += sheen * 0.0; // keep uniform usage stable
+
+  outColor = vec4(col, 1.0);
+}`;
+function compileShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    if (!shader)
+        throw new Error('shader alloc failed');
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader) ?? 'shader compile failed');
+    }
+    return shader;
+}
+/** Tileable fractal value noise, 256², 3 octaves — stands in for feTurbulence. */
+function makeNoiseTexture(gl) {
+    const size = 256;
+    const data = new Uint8Array(size * size);
+    const rand = (() => {
+        let seed = 11;
+        return () => {
+            seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+            return seed / 0x7fffffff;
+        };
+    })();
+    const octave = (cells) => {
+        const grid = [];
+        for (let i = 0; i < cells * cells; i += 1)
+            grid.push(rand());
+        return grid;
+    };
+    const octaves = [octave(8), octave(16), octave(32)];
+    const sample = (grid, cells, x, y) => {
+        const gx = (x / size) * cells;
+        const gy = (y / size) * cells;
+        const x0 = Math.floor(gx) % cells;
+        const y0 = Math.floor(gy) % cells;
+        const x1 = (x0 + 1) % cells;
+        const y1 = (y0 + 1) % cells;
+        const fx = gx - Math.floor(gx);
+        const fy = gy - Math.floor(gy);
+        const sx = fx * fx * (3 - 2 * fx);
+        const sy = fy * fy * (3 - 2 * fy);
+        const a = grid[y0 * cells + x0];
+        const b = grid[y0 * cells + x1];
+        const c = grid[y1 * cells + x0];
+        const d = grid[y1 * cells + x1];
+        return (a + (b - a) * sx) + ((c + (d - c) * sx) - (a + (b - a) * sx)) * sy;
+    };
+    for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+            const value = sample(octaves[0], 8, x, y) * 0.5
+                + sample(octaves[1], 16, x, y) * 0.3
+                + sample(octaves[2], 32, x, y) * 0.2;
+            data[y * size + x] = Math.round(value * 255);
+        }
+    }
+    const texture = gl.createTexture();
+    if (!texture)
+        throw new Error('noise texture alloc failed');
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, size, size, 0, gl.RED, gl.UNSIGNED_BYTE, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return texture;
+}
+/** Internal render scale: fraction of device pixels the shader actually fills. */
+const DEFAULT_RESOLUTION = 0.5;
+function createModulusGlScene(host, preset, initialFrame) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'visualizer-gl';
+    const gl = canvas.getContext('webgl2', {
+        alpha: false,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: 'low-power',
+    });
+    if (!gl)
+        return null;
+    const surface = preset.S;
+    const normal = preset.N;
+    const surfaceState = toDotState(surface);
+    const normalState = toDotState(normal);
+    const viewportWidth = Math.max(1, window.innerWidth);
+    const viewportHeight = Math.max(1, window.innerHeight);
+    const portrait = viewportHeight > viewportWidth && viewportWidth <= 760;
+    const coverW = portrait ? viewportHeight : viewportWidth;
+    const coverH = portrait ? viewportWidth : viewportHeight;
+    const renderScale = Math.max(coverW / initialFrame.width, coverH / initialFrame.height);
+    const ink = {
+        chambers: buildChambers(surfaceState, renderScale),
+        edge: [numeric(surface, 'ex') / 100, numeric(surface, 'ey') / 100],
+        blend: BLEND_ID[textual(surface, 'blend', 'normal')] ?? 0,
+        mix: numeric(surface, 'alpha', 100) / 100,
+    };
+    const nrm = {
+        chambers: buildChambers(normalState, renderScale),
+        edge: [numeric(normal, 'ex') / 100, numeric(normal, 'ey') / 100],
+        blend: BLEND_ID[textual(normal, 'blend', 'overlay')] ?? 2,
+        mix: numeric(normal, 'mix', 100) / 100,
+    };
+    const program = gl.createProgram();
+    if (!program)
+        return null;
+    try {
+        gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER));
+        gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            throw new Error(gl.getProgramInfoLog(program) ?? 'link failed');
+        }
+    }
+    catch {
+        return null;
+    }
+    gl.useProgram(program);
+    const noiseTexture = makeNoiseTexture(gl);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+    const loc = (name) => gl.getUniformLocation(program, name);
+    gl.uniform1i(loc('uNoiseTex'), 0);
+    gl.uniform3fv(loc('uInkTint'), hexToRgb(textual(surface, 'tint', '#7fe3d4')));
+    const surfaceTokens = SURFACES[textual(surface, 'glass', 'main')] ?? SURFACES.main;
+    gl.uniform4f(loc('uSurface'), surfaceTokens[0] / 255, surfaceTokens[1] / 255, surfaceTokens[2] / 255, surfaceTokens[3]);
+    gl.uniform1i(loc('uInkBlend'), ink.blend);
+    gl.uniform1i(loc('uNormalBlend'), nrm.blend);
+    gl.uniform1f(loc('uNormalMix'), nrm.mix);
+    gl.uniform2fv(loc('uInkEdge'), ink.edge);
+    gl.uniform2fv(loc('uNormalEdge'), nrm.edge);
+    gl.uniform1i(loc('uNormalEncoding'), textual(normal, 'enc', 'tangent') === 'height' ? 0 : 1);
+    const remap = textual(normal, 'remap', 'gl');
+    gl.uniform1i(loc('uNormalRemap'), remap === 'fx' ? 1 : remap === 'dx' ? 2 : remap === 'swap' ? 3 : 0);
+    const layers = [ink, nrm];
+    gl.uniform1iv(loc('uCount'), layers.map((l) => Math.min(MAX_CHAMBERS, l.chambers.length)));
+    const flat = (pick) => {
+        const out = [];
+        for (const layer of layers) {
+            for (let i = 0; i < MAX_CHAMBERS; i += 1) {
+                const c = layer.chambers[Math.min(i, layer.chambers.length - 1)];
+                out.push(...pick(c));
+            }
+        }
+        return out;
+    };
+    gl.uniform1iv(loc('uKind'), flat((c) => [c.kind]));
+    gl.uniform1iv(loc('uAnim'), flat((c) => [c.anim]));
+    gl.uniform1fv(loc('uAngle'), flat((c) => [c.angle]));
+    gl.uniform1iv(loc('uHalf'), flat((c) => [c.half]));
+    gl.uniform1iv(loc('uInvert'), flat((c) => [c.invert]));
+    gl.uniform2fv(loc('uOrigin'), flat((c) => [...c.origin]));
+    gl.uniform1fv(loc('uReach'), flat((c) => [c.reach]));
+    gl.uniform2fv(loc('uDS'), flat((c) => [c.dense, c.sparse]));
+    gl.uniform2fv(loc('uVanish'), flat((c) => [...c.vanish]));
+    gl.uniform1fv(loc('uCell'), flat((c) => [c.cell]));
+    gl.uniform1fv(loc('uTile'), flat((c) => [c.tile]));
+    gl.uniform2fv(loc('uFlow'), flat((c) => [...c.flow]));
+    gl.uniform1fv(loc('uDur'), flat((c) => [c.duration]));
+    gl.uniform1fv(loc('uRampOp'), flat((c) => [c.rampOpacity]));
+    gl.uniform1fv(loc('uNoiseSlope'), flat((c) => [c.noiseSlope]));
+    const sceneLoc = loc('uScene');
+    const scaleLoc = loc('uScale');
+    const timeLoc = loc('uTime');
+    const stage = document.createElement('div');
+    stage.className = 'visualizer-stage visualizer-stage--gl';
+    stage.dataset.running = 'true';
+    stage.dataset.renderer = 'webgl';
+    stage.dataset.modulusPattern = surfaceState.preset;
+    stage.dataset.renderScale = renderScale.toFixed(4);
+    stage.append(canvas);
+    host.replaceChildren(stage);
+    let cssWidth = viewportWidth;
+    let cssHeight = viewportHeight;
+    const applySize = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const resolution = DEFAULT_RESOLUTION * dpr;
+        canvas.width = Math.max(2, Math.round(cssWidth * resolution));
+        canvas.height = Math.max(2, Math.round(cssHeight * resolution));
+        canvas.style.width = `${cssWidth}px`;
+        canvas.style.height = `${cssHeight}px`;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.uniform2f(sceneLoc, cssWidth, cssHeight);
+        gl.uniform1f(scaleLoc, canvas.width / cssWidth);
+    };
+    applySize();
+    let raf = 0;
+    let running = true;
+    let epoch = performance.now();
+    let frozenAt = 0;
+    const draw = (now) => {
+        raf = 0;
+        gl.uniform1f(timeLoc, (now - epoch) / 1000);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        if (running)
+            raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return {
+        start() {
+            if (!running) {
+                running = true;
+                epoch = performance.now() - frozenAt;
+                stage.dataset.running = 'true';
+                if (!raf)
+                    raf = requestAnimationFrame(draw);
+            }
+        },
+        pause() {
+            running = false;
+            frozenAt = performance.now() - epoch;
+            stage.dataset.running = 'false';
+            if (raf) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+            }
+        },
+        freeze() {
+            running = false;
+            frozenAt = performance.now() - epoch;
+            stage.dataset.running = 'frozen';
+            if (raf) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+            }
+        },
+        resize(viewportW, viewportH) {
+            cssWidth = Math.max(1, viewportW);
+            cssHeight = Math.max(1, viewportH);
+            applySize();
+        },
+        destroy() {
+            running = false;
+            if (raf)
+                cancelAnimationFrame(raf);
+            gl.getExtension('WEBGL_lose_context')?.loseContext();
+            stage.remove();
+        },
+    };
+}
+
+
+const PRESETS = {"A": {"v": 1, "S": {"showCursor": true, "preset": "t2", "glass": "input", "zoom": 1, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "normal", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 22, "gb": 19, "gsat": 190, "gbri": 128, "rim": 34, "spk": 100, "content": false, "vanish": 85, "vwidth": 57, "vstrength": 63, "nrm": true, "nblend": "normal", "nmix": 100, "azi": 37, "ele": 46, "relh": 3, "cell": 13, "hard": 48, "dense": 81, "sparse": 69, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": true, "running": true, "mirror": false, "ex": 0, "ey": 0, "alpha": 100, "ox": 50, "oy": 51}, "N": {"preset": "t2", "cell": 6, "hard": 40, "dense": 64, "sparse": 20, "reach": 100, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": false, "emit": "mirror", "vanish": 85, "vwidth": 57, "vstrength": 63, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "flat", "enc": "height", "remap": "swap", "detail": "sharp", "view": "over", "amp": 10, "rad": 55, "ex": 0, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "B": {"v": 1, "S": {"showCursor": true, "preset": "t2", "glass": "input", "zoom": 1.6, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "normal", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 22, "gb": 19, "gsat": 190, "gbri": 128, "rim": 34, "spk": 100, "content": false, "vanish": 85, "vwidth": 55, "vstrength": 95.5, "nrm": true, "nblend": "normal", "nmix": 100, "azi": 37, "ele": 46, "relh": 2, "cell": 3, "hard": 48, "dense": 81, "sparse": 69, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": true, "running": true, "mirror": false, "ex": 0, "ey": 0, "alpha": 100, "ox": 50, "oy": 51}, "N": {"preset": "t2", "cell": 3, "hard": 60, "dense": 100, "sparse": 100, "reach": 100, "speed": 180, "run": 48, "jit": 71, "dir": 0, "flip": false, "emit": "mirror", "vanish": 62.5, "vwidth": 37, "vstrength": 45, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "flat", "enc": "height", "remap": "gl", "detail": "sharp", "view": "over", "amp": 10, "rad": 55, "ex": 0, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "C": {"v": 1, "S": {"showCursor": true, "preset": "t8", "glass": "input", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "screen", "emit": "single", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 6, "gsat": 295, "gbri": 160, "rim": 54, "spk": 24, "content": false, "vanish": 100, "vwidth": 98, "vstrength": 100, "nrm": true, "nblend": "normal", "nmix": 33, "azi": 0, "ele": 63, "relh": 2, "cell": 3, "hard": 33, "dense": 47, "sparse": 100, "speed": 127, "run": 15, "jit": 100, "dir": 100, "flip": true, "running": true, "mirror": false, "ex": 25, "ey": 11, "alpha": 98, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 5, "hard": 60, "dense": 61, "sparse": 100, "reach": 100, "speed": 144, "run": 22, "jit": 99, "dir": 181, "flip": false, "emit": "edges", "vanish": 93, "vwidth": 50, "vstrength": 92, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "dome", "enc": "tangent", "remap": "swap", "detail": "fine", "view": "over", "amp": 210, "rad": 165, "ex": 45, "ey": 28, "mix": 100, "blend": "soft-light"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "D": {"v": 1, "S": {"showCursor": true, "preset": "t8", "glass": "input", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#6200ff", "blend": "screen", "emit": "mirror", "reach": 100, "inksurf": "input", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 6, "gsat": 295, "gbri": 160, "rim": 54, "spk": 24, "content": false, "vanish": 100, "vwidth": 98, "vstrength": 100, "nrm": true, "nblend": "normal", "nmix": 61, "azi": 0, "ele": 63, "relh": 2, "cell": 3, "hard": 33, "dense": 47, "sparse": 100, "speed": 127, "run": 15, "jit": 100, "dir": 100, "flip": true, "running": true, "mirror": false, "ex": 25, "ey": 11, "alpha": 98, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 5, "hard": 60, "dense": 61, "sparse": 100, "reach": 89, "speed": 144, "run": 22, "jit": 99, "dir": 181, "flip": false, "emit": "edges", "vanish": 36, "vwidth": 45.5, "vstrength": 100, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "dome", "enc": "tangent", "remap": "dx", "detail": "blur", "view": "over", "amp": 210, "rad": 340, "ex": 45, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}, "E": {"v": 1, "S": {"showCursor": true, "preset": "t6", "glass": "chrome", "zoom": 2.4, "w": 520, "h": 340, "latch": false, "disp": "relief", "tint": "#7fe3d4", "blend": "screen", "emit": "mirror", "reach": 59, "inksurf": "overlay", "panel": true, "ncursor": false, "curs": 100, "ncurs": 100, "bead": 36, "gb": 13, "gsat": 400, "gbri": 164, "rim": 100, "spk": 100, "content": false, "vanish": 89.5, "vwidth": 88, "vstrength": 19, "nrm": true, "nblend": "normal", "nmix": 61, "azi": 359, "ele": 43, "relh": 6, "cell": 12, "hard": 60, "dense": 48, "sparse": 86, "speed": 180, "run": 48, "jit": 100, "dir": 169, "flip": false, "running": true, "mirror": false, "ex": 18, "ey": 28, "alpha": 100, "ox": 50, "oy": 50}, "N": {"preset": "t3", "cell": 4, "hard": 60, "dense": 100, "sparse": 81, "reach": 58, "speed": 180, "run": 48, "jit": 99, "dir": 359, "flip": true, "emit": "edges", "vanish": 65.5, "vwidth": 83, "vstrength": 100, "ox": 50, "oy": 51, "px": 50, "py": 50, "bevel": "cone", "enc": "tangent", "remap": "dx", "detail": "sharp", "view": "over", "amp": 400, "rad": 115, "ex": 45, "ey": 28, "mix": 100, "blend": "overlay"}, "L": {"preset": false, "cell": false, "hard": false, "dense": false, "sparse": false, "reach": false, "speed": false, "run": false, "jit": false, "dir": false, "flip": false, "emit": false, "vanish": false, "vwidth": false, "vstrength": false, "ox": true, "oy": true, "bevel": false, "ex": false, "ey": false}}};
+
+const FRAMES = [ { width: 180, height: 180 }, { width: 520, height: 340 }, { width: 760, height: 150 } ];
+function pickFrame() {
+  const ratio = Math.max(1, innerWidth) / Math.max(1, innerHeight);
+  return [...FRAMES].sort((a, b) => (
+    Math.abs(Math.log((a.width / a.height) / ratio)) - Math.abs(Math.log((b.width / b.height) / ratio))
+  ))[0];
+}
+
+const host = document.getElementById('host');
+let scene = null;
+function show(id) {
+  scene?.destroy();
+  scene = createModulusGlScene(host, PRESETS[id], pickFrame());
+  if (!scene) { document.body.textContent = 'WebGL2 unavailable'; return; }
+  scene.resize(innerWidth, innerHeight);
+  for (const b of document.querySelectorAll('.hud button')) b.setAttribute('aria-pressed', b.dataset.p === id);
+}
+for (const b of document.querySelectorAll('.hud button')) b.addEventListener('click', () => show(b.dataset.p));
+addEventListener('resize', () => scene?.resize(innerWidth, innerHeight));
+show('A');
+
+let n = 0, t0 = performance.now();
+(function tick(t) {
+  n++;
+  if (t - t0 >= 500) { document.getElementById('fps').textContent = Math.round(n * 1000 / (t - t0)) + ' fps'; n = 0; t0 = t; }
+  requestAnimationFrame(tick);
+})(performance.now());
+</script>
+</body>
 </html>
