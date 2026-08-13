@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#030a06" />
     <title>Music — CYBERIA</title>
-    <script type="module" crossorigin src="/cyberia/assets/main-Dr8yif6I.js"></script>
-    <link rel="stylesheet" crossorigin href="/cyberia/assets/main-BA4o_Rj3.css">
+    <style>
+      html, body { margin: 0; min-height: 100%; background: #04020c; }
+      #root[data-cyberia-booting="true"] { opacity: 0; pointer-events: none; }
+      #cyberia-boot-wall { position: fixed; inset: 0; z-index: 2147483647; overflow: hidden; background: #04020c; pointer-events: auto; isolation: isolate; contain: strict; }
+      #cyberia-boot-wall[hidden] { display: none; }
+      #cyberia-boot-wall iframe { width: 100%; height: 100%; border: 0; display: block; background: #04020c; pointer-events: none; }
+    </style>
+    <script type="module" crossorigin src="/cyberia/assets/bootstrap-B6O89xae.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" data-cyberia-booting="true" inert aria-hidden="true"></div>
+    <div id="cyberia-boot-wall" role="status" aria-label="CYBERIA is calibrating visual effects">
+      <iframe id="cyberia-boot-wall-frame" src="../terminal-wall.html?embed=1" title="CYBERIA loading display" tabindex="-1" aria-hidden="true" sandbox="allow-scripts"></iframe>
+    </div>
   </body>
 </html>

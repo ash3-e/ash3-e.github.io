@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Terminal wall — X68000 cgrom12</title>
+<style>
+  :root{
+    /* BCODe tokens, ash3-e/database */
+    --bg-deep:#04020c; --panel:#0e0820; --rule:rgba(198,168,255,.20);
+    --label:rgba(218,227,246,.52); --label-hi:#f0f3ff;
+    --ink:#c6a8ff; --ink-blue:#9182ff; --data:#7fe3d4;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg-deep); color:var(--label-hi);
+    font:12px/1.45 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    overflow:hidden;
+  }
+  #gl{ position:fixed; inset:0; width:100%; height:100%; display:block; z-index:2 }
+  #gl[data-gone="true"]{ display:none }
+  #gl:focus{ outline:none }
+  .reveal{
+    position:fixed; inset:0; z-index:1; display:grid; place-items:center;
+    background:radial-gradient(120% 90% at 50% 45%, #140a2e 0%, #06030f 60%, #000 100%);
+    color:var(--ink); text-align:center; padding:24px;
+  }
+  .reveal h2{ margin:0 0 8px; font-size:15px; letter-spacing:.24em; text-transform:uppercase; color:#f0f3ff }
+  .reveal p{ margin:0; font-size:11px; color:var(--label); max-width:38ch; line-height:1.7 }
+  .fallback{ position:fixed; inset:0; display:none; place-items:center; padding:24px; text-align:center }
+  body[data-nogl="true"] #gl{ display:none }
+  body[data-nogl="true"] .fallback{ display:grid }
+
+  .panel{
+    position:fixed; top:14px; right:14px; z-index:20; width:274px;
+    max-height:calc(100dvh - 28px); overflow:auto; overscroll-behavior:contain;
+    background:rgba(14,8,32,.88); border:1px solid var(--rule); border-radius:2px;
+    padding:0 0 10px; box-shadow:0 18px 40px rgba(0,0,0,.55);
+    transition:transform .22s ease, opacity .22s ease;
+  }
+  .panel[data-collapsed="true"]{ transform:translateX(calc(100% + 24px)); opacity:0; pointer-events:none }
+  .panel h1{ margin:0; padding:10px 12px 8px; font-size:11px; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; border-bottom:1px solid var(--rule) }
+  .panel h1 small{ display:block; margin-top:3px; letter-spacing:.04em;
+    text-transform:none; font-weight:400; color:var(--label); font-size:10px }
+  .grp{ padding:9px 12px 3px; border-bottom:1px solid #0d3d4288 }
+  .grp>h2{ margin:0 0 7px; font-size:9px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--label); font-weight:600 }
+  .row{ display:grid; grid-template-columns:1fr 54px; gap:7px; align-items:center; margin-bottom:7px }
+  .row label{ font-size:10.5px }
+  .row output{ font-size:10px; color:var(--label); text-align:right; font-variant-numeric:tabular-nums }
+  .row input[type=range]{ grid-column:1/-1; width:100%; margin:0; accent-color:var(--ink); height:16px }
+  .row input:focus-visible{ outline:2px solid var(--ink-blue); outline-offset:3px }
+  .btns{ display:flex; gap:6px; padding:9px 12px 4px; flex-wrap:wrap }
+  button{ flex:1 1 auto; min-width:76px; font:inherit; font-size:10.5px; letter-spacing:.05em;
+    padding:6px 8px; cursor:pointer; color:var(--label-hi);
+    background:rgba(6,2,16,.68); border:1px solid var(--rule); border-radius:2px }
+  button:hover{ background:rgba(122,75,216,.30); color:#fff }
+  button:focus-visible{ outline:2px solid var(--ink-blue); outline-offset:2px }
+  button[aria-pressed="true"]{ background:#5b4bff; border-color:#9182ff; color:#f0f3ff }
+  .facts{ padding:8px 12px 0; font-size:9.5px; line-height:1.7; color:var(--label) }
+  .facts b{ color:var(--label-hi); font-weight:600 }
+  /* Layer cursors. Same instrument as the bench's origin handle: 26px, round,
+     grabbed at its centre — but tinted per copy so the three read apart. */
+  .editbadge{
+    position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:22;
+    padding:5px 11px; border-radius:2px; font-size:10px; letter-spacing:.08em;
+    background:rgba(14,8,32,.92); border:1px solid var(--rule); color:var(--ink);
+    pointer-events:none; white-space:nowrap;
+  }
+  .editbadge[hidden]{ display:none }
+  .cursors{ position:fixed; inset:0; z-index:9; pointer-events:none;
+            opacity:var(--cursor-alpha,1) }
+  .cursors[hidden]{ display:none }
+  .lhandle{
+    position:absolute; left:0; top:0; width:26px; height:26px; min-width:0;
+    transform:translate(-50%,-50%); border-radius:50%; padding:0;
+    pointer-events:auto; touch-action:none; cursor:grab;
+    border:1px solid rgba(255,255,255,.6); background:rgba(255,255,255,.08);
+    box-shadow:0 0 0 1px rgba(0,0,0,.4);
+  }
+  .lhandle::after{ content:''; position:absolute; inset:9px; border-radius:50%;
+                   background:var(--ck) }
+  .lhandle:active{ cursor:grabbing }
+  .lhandle:focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
+  .lhandle i{ position:absolute; left:50%; top:-15px; transform:translateX(-50%);
+              font-style:normal; font-size:9px; letter-spacing:.1em;
+              color:var(--ink); text-shadow:0 0 4px #000 }
+  /* angle wheel — drag anywhere on the dial, or arrow-key it */
+  .wheelrow{ display:flex; align-items:center; gap:11px; margin:3px 0 9px }
+  .wheelrow .lab{ font-size:10.5px; flex:1 }
+  .wheelrow output{ font-size:10px; color:var(--label); font-variant-numeric:tabular-nums }
+  .wheel{
+    width:56px; height:56px; flex:0 0 56px; position:relative; border-radius:50%;
+    border:1px solid var(--rule); background:rgba(4,2,12,.6);
+    cursor:grab; touch-action:none;
+  }
+  .wheel:active{ cursor:grabbing }
+  .wheel:focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
+  .wheel::before{
+    content:''; position:absolute; left:50%; top:50%; width:4px; height:4px;
+    transform:translate(-50%,-50%); border-radius:50%; background:var(--label);
+  }
+  .wheel .needle{
+    position:absolute; left:50%; top:50%; width:2px; height:23px; border-radius:1px;
+    background:var(--ink); transform-origin:50% 100%;
+    transform:translate(-50%,-100%) rotate(var(--deg,0deg));
+  }
+  .wheel .needle::after{
+    content:''; position:absolute; left:50%; top:-4px; width:8px; height:8px;
+    transform:translateX(-50%); border-radius:50%; background:var(--ink);
+  }
+  input.hiddenrange{ position:absolute; width:1px; height:1px; opacity:0; pointer-events:none }
+  .sphrow{ display:flex; gap:11px; align-items:flex-start; margin:2px 0 4px }
+  .sphere{
+    flex:0 0 104px; width:104px; height:104px; border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, #170d33, #05020f 72%);
+    border:1px solid var(--rule); cursor:grab; touch-action:none; display:block;
+  }
+  .sphere:active{ cursor:grabbing }
+  .sphere:focus-visible{ outline:2px solid var(--ink); outline-offset:3px }
+  .sphinfo{ flex:1; min-width:0 }
+  .sphinfo output{ display:block; margin-top:5px; font-size:9.5px; color:var(--label);
+                   font-variant-numeric:tabular-nums; white-space:pre-line }
+  .shotlist{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 9px }
+  .shotlist:empty{ display:none }
+  .shotlist button{ flex:0 0 auto; min-width:0; padding:4px 9px; font-size:10px }
+  .seg{ display:flex; gap:5px; margin:0 0 8px }
+  .seg button{ flex:1; min-width:0; font-size:10px; letter-spacing:.06em; padding:5px 4px }
+  .grp textarea{
+    width:100%; height:116px; resize:vertical; display:block;
+    font:inherit; font-size:9.5px; line-height:1.5; white-space:pre;
+    background:rgba(4,2,12,.80); color:var(--label-hi); border:1px solid var(--rule);
+    border-radius:2px; padding:6px; margin-bottom:2px;
+  }
+  .grp textarea:focus-visible{ outline:2px solid var(--ink-blue); outline-offset:2px }
+  .note{ font-size:9.5px; color:var(--label); padding:0 0 6px }
+  .note.bad{ color:#ff9d9d }
+  .toggle{ position:fixed; top:14px; right:14px; z-index:21; width:auto; min-width:0;
+    padding:6px 10px; display:none }
+  .panel[data-collapsed="true"] ~ .toggle{ display:block }
+  @media (max-width:620px){
+    .panel{ left:10px; right:10px; width:auto; top:auto; bottom:10px; max-height:52dvh }
+    .panel[data-collapsed="true"]{ transform:translateY(calc(100% + 24px)) }
+    .toggle{ top:auto; bottom:10px; right:10px }
+  }
+  /* The CYBERIA boot embed is a display surface, never an editor. The parent
+     iframe also has pointer-events disabled; these rules make the document
+     itself non-focusable and ensure no authored controls can flash on load. */
+  body[data-embed="true"]{ cursor:default; user-select:none; touch-action:none }
+  body[data-embed="true"] .panel,
+  body[data-embed="true"] .toggle,
+  body[data-embed="true"] .cursors,
+  body[data-embed="true"] .editbadge,
+  body[data-embed="true"] .reveal{ display:none !important }
+  body[data-embed="true"] #gl{ pointer-events:none }
+  body[data-embed="true"] .fallback{
+    z-index:3; background:#04020c; color:rgba(198,168,255,.72);
+  }
+</style>
+</head>
+<body>
+
+<div class="reveal" id="reveal">
+  <div>
+    <h2>Content beneath</h2>
+    <p>The wall sits above this. Drive it with
+      <code>TerminalWall.setProgress(0…1)</code>, then
+      <code>TerminalWall.burn()</code> — or wire it to whatever you're really
+      waiting on and let it burn away on its own.</p>
+  </div>
+</div>
+<canvas id="gl" tabindex="0"></canvas>
+<div class="fallback"><p>This element needs WebGL2, which this browser didn't provide.</p></div>
+
+<div class="editbadge" id="editbadge" hidden></div>
+
+<div class="cursors" id="cursors">
+  <button class="lhandle" id="lh0" style="--ck:#5b4bff" aria-label="Move copy 1 (back)"><i>1</i></button>
+  <button class="lhandle" id="lh1" style="--ck:#7fe3d4" aria-label="Move copy 2 (mid)"><i>2</i></button>
+  <button class="lhandle" id="lh2" style="--ck:#f0f3ff" aria-label="Move copy 3 (front)"><i>3</i></button>
+</div>
+
+<aside class="panel" id="panel" data-collapsed="false">
+  <h1>Terminal wall<small>Sharp X68000 cgrom12 · 12×12 dot cell</small></h1>
+
+  <div class="grp"><h2>Content</h2>
+    <div class="btns" style="padding:0">
+      <button id="idlebtn" aria-pressed="false">Content: Loading</button>
+      <button id="editbtn" aria-pressed="false">Edit text</button>
+      <button id="editclear">Clear edits</button>
+    </div>
+    <div class="note">Idle drops the loading vocabulary and the [####----]
+      progress notation for steady ambient telemetry — CYBERIA included.<br>
+      Press Enter on the wall to edit: arrows move the caret, Tab switches field,
+      Esc stops. Edits save with the preset.</div>
+  </div>
+
+  <div class="grp"><h2>Motion</h2>
+    <div class="row"><label for="speed">Scroll speed</label><output id="speed_o"></output>
+      <input type="range" id="speed" min="0" max="30" step="0.5" value="10"></div>
+    <div class="row"><label for="scale">Dot scale</label><output id="scale_o"></output>
+      <input type="range" id="scale" min="1" max="8" step="0.25" value="8"></div>
+  </div>
+
+  <div class="grp"><h2>Three copies</h2>
+    <div class="row"><label for="spread">Displacement</label><output id="spread_o"></output>
+      <input type="range" id="spread" min="0" max="4" step="0.05" value="0.85"></div>
+    <div class="row"><label for="tintmix">Tint separation</label><output id="tintmix_o"></output>
+      <input type="range" id="tintmix" min="0" max="1.5" step="0.02" value="1"></div>
+    <div class="row"><label for="jitter">Per-cell jitter</label><output id="jitter_o"></output>
+      <input type="range" id="jitter" min="0" max="6" step="0.1" value="0.2"></div>
+    <div class="row"><label for="depth">Modulation map</label><output id="depth_o"></output>
+      <input type="range" id="depth" min="0" max="1" step="0.02" value="0.7"></div>
+  </div>
+
+  <div class="grp"><h2>Dot relief</h2>
+    <div class="row"><label for="emboss">Inner shadow</label><output id="emboss_o"></output>
+      <input type="range" id="emboss" min="0" max="1" step="0.02" value="0.46"></div>
+    <div class="row"><label for="bevel">Bevel reach</label><output id="bevel_o"></output>
+      <input type="range" id="bevel" min="0.02" max="0.5" step="0.01" value="0.24"></div>
+    <div class="wheelrow">
+      <div class="wheel" id="lightang_w" role="slider" tabindex="0"
+           aria-label="Light angle" aria-valuemin="0" aria-valuemax="359" aria-valuenow="306">
+        <span class="needle"></span></div>
+      <span class="lab">Light angle</span><output id="lightang_o"></output>
+      <input type="range" class="hiddenrange" id="lightang" min="0" max="359" step="1" value="306">
+    </div>
+    <div class="row"><label for="erode">Dot dropout</label><output id="erode_o"></output>
+      <input type="range" id="erode" min="0" max="0.4" step="0.005" value="0.12"></div>
+    <div class="row"><label for="fray">Edge fray</label><output id="fray_o"></output>
+      <input type="range" id="fray" min="0" max="0.4" step="0.005" value="0.135"></div>
+    <div class="row"><label for="bold">Boldness</label><output id="bold_o"></output>
+      <input type="range" id="bold" min="0" max="0.9" step="0.02" value="0.1"></div>
+    <div class="row"><label for="gap">Block gap</label><output id="gap_o"></output>
+      <input type="range" id="gap" min="0" max="1.2" step="0.01" value="0.18"></div>
+  </div>
+
+  <div class="grp"><h2>Loading</h2>
+    <div class="btns" style="padding:0 0 7px">
+      <button id="loadmode" aria-pressed="true">Loading mode: on</button>
+      <button id="closebtn">Close commands</button>
+      <button id="burnbtn">Burn away</button>
+      <button id="burnreset">Restore</button>
+    </div>
+    <div class="row"><label for="closehold">Close hold</label><output id="closehold_o"></output>
+      <input type="range" id="closehold" min="0" max="6" step="0.1" value="1.6"></div>
+    <div class="row"><label for="progress">Progress</label><output id="progress_o"></output>
+      <input type="range" id="progress" min="0" max="1" step="0.01" value="0"></div>
+    <div class="seg" role="group" aria-label="Dissolve style">
+      <button id="m0" aria-pressed="true">crumble</button>
+      <button id="m1" aria-pressed="false">burn</button>
+      <button id="m2" aria-pressed="false">collapse</button>
+    </div>
+    <div class="btns" style="padding:0 0 8px">
+      <button id="testbtn" style="flex:1">Test full sequence</button>
+    </div>
+    <div class="row"><label for="swapdur">Replace time</label><output id="swapdur_o"></output>
+      <input type="range" id="swapdur" min="0.2" max="6" step="0.1" value="1.8"></div>
+    <div class="row"><label for="swapw">Replace crumble</label><output id="swapw_o"></output>
+      <input type="range" id="swapw" min="0.02" max="0.6" step="0.01" value="0.2"></div>
+    <div class="row"><label for="disdur">Dissolve time</label><output id="disdur_o"></output>
+      <input type="range" id="disdur" min="0.3" max="6" step="0.1" value="3.2"></div>
+    <div class="row"><label for="wave">Sweep</label><output id="wave_o"></output>
+      <input type="range" id="wave" min="0" max="3" step="0.05" value="1.1"></div>
+    <div class="row"><label for="flash">Death flash</label><output id="flash_o"></output>
+      <input type="range" id="flash" min="0" max="3" step="0.05" value="0"></div>
+    <div class="row"><label for="bedge">Edge softness</label><output id="bedge_o"></output>
+      <input type="range" id="bedge" min="0.002" max="0.12" step="0.002" value="0.12"></div>
+    <div class="row"><label for="bnoise">Edge chew</label><output id="bnoise_o"></output>
+      <input type="range" id="bnoise" min="0" max="0.35" step="0.005" value="0.1"></div>
+    <div class="row"><label for="ember">Ember warmth</label><output id="ember_o"></output>
+      <input type="range" id="ember" min="0" max="1" step="0.02" value="0.6"></div>
+    <div class="row"><label for="seeds">Burn points</label><output id="seeds_o"></output>
+      <input type="range" id="seeds" min="1" max="32" step="1" value="18"></div>
+  </div>
+
+  <div class="grp"><h2>Layer cursors</h2>
+    <div class="btns" style="padding:0 0 7px">
+      <button id="lcT" aria-pressed="true">Layer cursors: on</button>
+      <button id="lcZero">Reset offsets</button>
+    </div>
+    <div class="row"><label for="lcop">Opacity</label><output id="lcop_o"></output>
+      <input type="range" id="lcop" min="0" max="1" step="0.02" value="1"></div>
+  </div>
+
+  <div class="grp"><h2>Caret</h2>
+    <div class="row"><label for="blink">Blink rate</label><output id="blink_o"></output>
+      <input type="range" id="blink" min="0" max="6" step="0.1" value="1.4"></div>
+    <div class="row"><label for="curop">Opacity</label><output id="curop_o"></output>
+      <input type="range" id="curop" min="0" max="1.6" step="0.02" value="1"></div>
+  </div>
+
+  <div class="grp"><h2>Optics</h2>
+    <div class="row"><label for="glow">Bloom</label><output id="glow_o"></output>
+      <input type="range" id="glow" min="0" max="2.5" step="0.05" value="1.95"></div>
+    <div class="row"><label for="grad">Bloom spread</label><output id="grad_o"></output>
+      <input type="range" id="grad" min="0.4" max="5" step="0.1" value="0.4"></div>
+    <div class="row"><label for="defocus">Defocus</label><output id="defocus_o"></output>
+      <input type="range" id="defocus" min="0" max="4" step="0.1" value="1.1"></div>
+    <div class="row"><label for="scan">Scanline depth</label><output id="scan_o"></output>
+      <input type="range" id="scan" min="0" max="0.8" step="0.01" value="0.8"></div>
+    <div class="row"><label for="pitch">Scanline pitch</label><output id="pitch_o"></output>
+      <input type="range" id="pitch" min="2" max="14" step="1" value="4"></div>
+    <div class="row"><label for="grain">Grain</label><output id="grain_o"></output>
+      <input type="range" id="grain" min="0" max="0.3" step="0.005" value="0.045"></div>
+  </div>
+
+  <div class="grp"><h2>Opacity drop</h2>
+    <div class="row"><label for="dropamt">Drop to black</label><output id="dropamt_o"></output>
+      <input type="range" id="dropamt" min="0" max="1" step="0.02" value="0"></div>
+    <div class="wheelrow">
+      <div class="wheel" id="dropang_w" role="slider" tabindex="0"
+           aria-label="Drop direction" aria-valuemin="0" aria-valuemax="359" aria-valuenow="270">
+        <span class="needle"></span></div>
+      <span class="lab">Direction</span><output id="dropang_o"></output>
+      <input type="range" class="hiddenrange" id="dropang" min="0" max="359" step="1" value="270">
+    </div>
+    <div class="row"><label for="droppos">Midpoint</label><output id="droppos_o"></output>
+      <input type="range" id="droppos" min="0" max="1" step="0.01" value="0.5"></div>
+    <div class="row"><label for="dropsoft">Softness</label><output id="dropsoft_o"></output>
+      <input type="range" id="dropsoft" min="0.01" max="0.7" step="0.01" value="0.04"></div>
+  </div>
+
+  <div class="grp"><h2>Shots</h2>
+    <div class="btns" style="padding:0 0 7px">
+      <button id="shotsave">Save shot</button>
+      <button id="shotrun">Run shot</button>
+      <button id="shotclear">Clear</button>
+    </div>
+    <div class="shotlist" id="shotlist"></div>
+    <div class="row"><label for="shotdist">Travel right</label><output id="shotdist_o"></output>
+      <input type="range" id="shotdist" min="-12" max="12" step="0.1" value="3.2"></div>
+    <div class="row"><label for="shotdur">Travel time</label><output id="shotdur_o"></output>
+      <input type="range" id="shotdur" min="0.5" max="20" step="0.5" value="4"></div>
+    <div class="row"><label for="shotlead">Dissolve after</label><output id="shotlead_o"></output>
+      <input type="range" id="shotlead" min="0" max="8" step="0.1" value="0.6"></div>
+    <div class="row"><label for="accel">Acceleration</label><output id="accel_o"></output>
+      <input type="range" id="accel" min="0" max="0.99" step="0.01" value="0.45"></div>
+    <div class="note">Save framings, then Run to fly right from the selected one
+      and dissolve on the way.</div>
+  </div>
+
+  <div class="grp"><h2>Travel vector</h2>
+    <div class="sphrow">
+      <canvas class="sphere" id="sphT" width="104" height="104" tabindex="0"
+              role="img" aria-label="Travel direction sphere"></canvas>
+      <div class="sphinfo">
+        <div class="note">Left-drag spins the globe. Right-click to aim the
+          travel direction. The teal disc is the wall plane, halving the
+          globe.</div>
+        <output id="sphT_o"></output>
+      </div>
+    </div>
+  </div>
+
+  <div class="grp"><h2>Rotation arc</h2>
+    <div class="sphrow">
+      <canvas class="sphere" id="sphR" width="104" height="104" tabindex="0"
+              role="img" aria-label="Camera rotation arc sphere"></canvas>
+      <div class="sphinfo">
+        <div class="note">B tracks the live camera, so it is always the run's
+          start. Right-click to latch A, the direction to sweep to.</div>
+        <output id="sphR_o"></output>
+      </div>
+    </div>
+    <div class="btns" style="padding:6px 0 2px">
+      <button id="arcT" aria-pressed="false">Rotate during run: off</button>
+      <button id="shotrevert">Reset to pre-animation</button>
+    </div>
+  </div>
+
+  <div class="grp"><h2>Camera</h2>
+    <div class="row"><label for="ry">Yaw</label><output id="ry_o"></output>
+      <input type="range" id="ry" min="-180" max="180" step="0.1" value="16"></div>
+    <div class="row"><label for="rx">Pitch</label><output id="rx_o"></output>
+      <input type="range" id="rx" min="-89" max="89" step="0.1" value="0"></div>
+    <div class="row"><label for="fov">Field of view</label><output id="fov_o"></output>
+      <input type="range" id="fov" min="15" max="70" step="1" value="70"></div>
+    <div class="row"><label for="zoom">Zoom</label><output id="zoom_o"></output>
+      <input type="range" id="zoom" min="0.2" max="6" step="0.01" value="1"></div>
+    <div class="row"><label for="roll">Roll</label><output id="roll_o"></output>
+      <input type="range" id="roll" min="-180" max="180" step="0.1" value="0"></div>
+    <div class="row"><label for="flyspeed">Fly speed</label><output id="flyspeed_o"></output>
+      <input type="range" id="flyspeed" min="0.05" max="4" step="0.05" value="4"></div>
+    <div class="row"><label for="looksens">Look sensitivity</label><output id="looksens_o"></output>
+      <input type="range" id="looksens" min="0.02" max="1" step="0.01" value="1"></div>
+    <div class="btns" style="padding:7px 0 2px">
+      <button id="invy" aria-pressed="false">Invert Y: off</button>
+      <button id="recentre">Recentre camera</button>
+    </div>
+    <div class="note">Drag to look, ctrl-drag left/right to roll, right-drag to
+      pan, wheel to dolly.
+      WASD to move, Space/Ctrl for up and down, Shift to sprint.</div>
+  </div>
+
+  <div class="grp"><h2>Preset</h2>
+    <label class="note" for="cfg">Every setting, the three copies, and the block layout.
+      Edit and Apply, or paste one back in.</label>
+    <textarea id="cfg" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+    <div class="note" id="cfgnote">&nbsp;</div>
+    <div class="btns" style="padding:0">
+      <button id="cfgapply">Apply</button>
+      <button id="cfgcopy">Copy</button>
+      <button id="cfgsave">Download</button>
+      <button id="cfglink">Copy link</button>
+    </div>
+  </div>
+
+  <div class="btns">
+    <button id="play" aria-pressed="true">Pause</button>
+    <button id="reseed">New text</button>
+    <button id="reset">Defaults</button>
+    <button id="hide">Hide panel</button>
+  </div>
+  <div class="facts" id="facts"></div>
+</aside>
+<button class="toggle" id="show">Controls</button>
+
+<script>
+const EMBED_MODE = new URLSearchParams(location.search).has('embed');
+if (EMBED_MODE) document.body.dataset.embed = 'true';
+
+/* ------------------------------------------------------------------
+   cgrom12 — Sharp X68000 CGROM 12-dot ANK set.
+   156 glyphs (ASCII 0x20-0x7E + halfwidth katakana 0xFF61-0xFF9F),
+   12x12 cell, 12px advance. Each glyph is 12 rows; each row is a
+   12-bit mask packed as two base64 digits (high 6 bits, low 6 bits).
+   Extracted from CGROM.DAT via github.com/vampirefrog/x68kfonts.
+------------------------------------------------------------------ */
+const FONT = {"cell": [12, 12], "advance": 12, "chars": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}｡｢｣､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ", "glyphs": ["AAAAAAAAAAAAAAAAAAAAAAAA", "AABgBgBgBgBgBgAAAAAABgBg", "CIHcDMCIEQAAAAAAAAAAAAAA", "AACICICIP+CICICIP+CICICI", "AABAP8RMRAP4BABEBEZEf4BA", "MCAESISASQMgBMCSESISQMAA", "HgAAIQIQEgHAK4RQQ0YkPYAA", "BADgBgBAGAAAAAAAAAAAAAAA", "AIAAAQAQAgAgAgAgAQAQAIAA", "EAAACACABABABABACACAEAAA", "AABAJIFQBADgDgFQJIBAAAAA", "AAAAAgAgAgAgH8AgAgAgAAAA", "AAAAAAAAAAAAAAGAGACAEAIA", "AAAAAAAAAAAAP8AAAAAAAAAA", "AAAAAAAAAAAAAAAAMAMAAAAA", "AAAIAIAQAQAAAgAgBABACACA", "DwEAAIIMIUIkJEKEMEEIDwAA", "AgDgAgAgAgAgAgAgAgAgD4AA", "D4AIMMIEAMAIAwDAEAIEP8AA", "HwMAAEAMAMDwAIAMAEMMH4AA", "AQAwBQAQCQEQIQP8AQAQA4AA", "H8EAEAEAFwGIAEAEGECIBwAA", "D4GMGAEAEAF4GEEEEEGED4AA", "AAP8IMAIAQAgAABABABABABA", "DwAAMMIEMMH4EIIEIEMMDwAA", "DwMMIEIEIEMMD0AEAEMIHwAA", "AABgBgAAAAAAAAAABgBgAAAA", "AABgBgAAAAAAAABgBgAgBACA", "AAAAAMA4DgOAOADgA4AMAAAA", "AAAAAAAAP8AAAAP8AAAAAAAA", "AAMAHABwAQAcAcBwHAMAAAAA", "AAD4EEEEEEAYAAAgAgAAAwAw", "D4AEJyJyaSSSSSaaJuMIDwAA", "AABACgCgAAEQEQIIf8YMQE4O", "fwIQIYIIIYPwIIIMIEIMf4AA", "B4AEGGEAIAIAIAIAECGEB4AA", "fAIwIQIAIIIIIIIIIQIwfAAA", "f8IEIAIAIQPwIQIAIAIEf8AA", "f8IEIAIAIQPwIQIAIAIAcAAA", "D4CGICIAYAQAQeYCICOGD6AA", "cOIEIEIEIEP8IEIEIEIEcOAA", "HwBABABABABABABABABAHwAA", "AcAIAIAIAIAIAIMIMIEQDgAA", "ccIQIgJAJAKANAIgIQIIcOAA", "cAIAIAIAIAIAIAIAIAIEf8AA", "YGIEIEMMMMKUKUJkJkIEcOAA", "YOMEIEKEKEJEIkIUIUIMcEAA", "DwEIAAIEIEIEIEIEIEEIDwAA", "f4IIIMIEIEIMP4IAIAIAcAAA", "HgIQAAQIQIQIQITIUoIQH0AI", "f4IIIMIEIEIMP4IgIQIIcOAA", "H4EIMMIEMAHgA4AMIEMMH4AA", "f8REBABABABABABABABADgAA", "cOIEIEIEIEIEIEIEIEEIDwAA", "AAccIIIIIAEQEQEQCgCgBABA", "AA7uREREREREbsKoKoO4EQEQ", "eeEIEIEICQBgBgCQEIEIeeAA", "8eIIEQAACgBABABABABADgAA", "P8IEIIAAAQAgBACAEAIEP8AA", "H8EAEAEAEAEAEAEAEAEAEAH8", "P4AIAIAIAIAIAIAIAIAIAIP4", "BgCQEIIEAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAf+", "AADABgAgAQAAAAAAAAAAAAAA", "AAAAAAAAPwQIAIP4QIQaPsAA", "YAIAIAIAIAL4MEIEIEMEL4AA", "AAAAAAAAAAH4IMIAIAIEH4AA", "AYAIAIAIAIPoQYQIQIQYPsAA", "AAAAAAAADwEIIEP8IAEED4AA", "A4BIBIBAH4BABABABABADgAA", "AAAAAAAAHkAEIQIQHgIAP4f8", "YAIAIAIAIALgMYIIIIIIccAA", "AABAAAAAAADABABABABADgAA", "AAAQAAAAAAAwAQAQAQGQEQDg", "YAIAIAIAI8IQJgOAJgIQccAA", "DABABABABABABABABABADgAA", "AAAAAAAA2YZkRERERERE7uAA", "AAAAAAAAbwMYIIIIIIIIccAA", "AAAAAAAADwEIIEIEIEEIDwAA", "AAAAAAb4IIMMIEIEMML4IAcA", "AAAAAAH8EMMMIEIEMMH0AEAO", "AAAAAAAAM4FIGAEAEAEAOAAA", "AAAAAAAAH8IEIAH4AEIEP4AA", "BABABABAP4BABABABABEA4AA", "AAAAAAAAMMEEEEEEEECMB0AA", "AAAAAAAAccIIEQEQCgCgBAAA", "AAAAAAAA4AREREQAKoKoEQEQ", "AAAAAAAAccEQCgBACgEQccAA", "AAAAAA8eIIAAEQCgBACA0AYA", "AAAAAAAAP8IIAQBgDAEEP8AA", "AMAAAQAQAQAQBgAQAQAQAQAM", "AgAgAgAgAgAgAgAgAgAgAgAg", "AACACACACABgCACACACAMAAA", "AAAAAAAAAAAAAAAAGAPAJAPA", "D+CACACACACACAAAAAAAAAAA", "AAAAAAAAAAAQAQAQAQAQAQfw", "AAAAAAAAAAAAAAAAYAOAGAAA", "AAAAAAAAAAAADwDwAAAAAAAA", "AAAAJ+P+GEEcH8DMAYAwDgDA", "AAAAAAAAP4AIBIBYBwDgGAEA", "AAAAAAAAAIA4DwHgEgAgAgAg", "AAAAAABABAP4IIIIAYAwDgDA", "AAAAAAAAP4BABABABAf8AAAA", "AAAAAAAgAgP4BgDgGgJgIgAA", "AAAAAAAACAC8P8BMBIBgAgAg", "AAAAAAAAHwAQAQAQAQP8AAAA", "AAAAAAAAP4AIAIH4AIAIP4AA", "AAAAAAAABIJIJIJIAYAwDgDA", "AAAAAAAAQIf8P8EAAAAAAAAA", "AAAAR8f8MEBMBYBQBADAGAEA", "AAAIAMAYAwBwDwGQEQAQAQAA", "AABgAgI8P8HEEEEMAIAYBwBg", "AAAAA4P4PABABABABAB4f8eE", "AAAwAQI+P+CwBwDQGQIwIQAA", "AADABAB8PECECECEGMEoM4IY", "AAGACAD4PABAR8f8PgAgAgAg", "AACED+CEGEMMIIAYAwDgPAMA", "AAIAMEH+EQMQYQQQAwBgHAGA", "AAAEJ+P+CEAEAEAEAEI8P8HE", "AAEQEUn+/+cQEQEwAgBgDACA", "AAAAOADAACcCeGGMAYTwfgOA", "AAAAAcH8HMAIAYAwB4DEMGMA", "AAGACACAT+f+OMCICACAD+B+", "AAAEIGMCGCGGCEAMAYAwDgDA", "AACED+CECEHEP8I4AYAwDgDA", "AAAQAwHgAgI8P8GgAgBgDACA", "AAAAJEEmEiEmEEAMAYAwDgDA", "AAEYH4DgJ8P8GgAgAgBgDACA", "AAEAGACACADgDwCYCICACACA", "AABABgI8P8HgAgBgBADAGAEA", "AAAAAIH4HwAAAAAAB+f+eAAA", "AAAAAMH8HkAMBoB4A4DsPEME", "AABABgA8H8HMA4D8OuMiAgAg", "AAAIAMAEAEAMAIAYAwBgHAGA", "AAAAAICIDEBEDCCCGCMCICAA", "AAIAMAEAEcH8HgEAEAEAH8D8", "AAAAI8P8HEAEAMAIAYAwDgDA", "AAAAAACAHAtgYwQYAMAGACAA", "AACADAR8f8HAJIJMJETEREAA", "AAAAI+P+HGAMAYGwHgBgAwAQ", "AAAAHgH4AIHAHwAwOAPgB4AY", "AAAABABgBgBADAGIEMM+f+fC", "AAAEAEAEBMBoAYAYA8BkHEGA", "AAA4H4HABAJ+P+HABABAB8A8", "AAMAEIF8f8CYCQCADABABABA", "AAAABwPwOQAQAwAgAgT8f8MA", "AAAAAcPGPEAcH8HEAEI8P8HE", "AAAYH4HAI8P8HEAMAIAYBwBg", "AAAAAYCICICICIAYAQAwBgBA", "AABgIgMgEgEgEgEkMkIsY4Qw", "AAYAIAIAIAIAIAIIIYJwPgOA", "AAAAA+P+PCECEGEEEEH+EAAA", "AAAAR8f8OEIEIEAMAIAYBwBg", "AAAAAAcAGEAEAMAIAYRwfgOA", "CATgdgMgEAAAAAAAAAAAAAAA", "MAeASAeAMAAAAAAAAAAAAAAA"]};
+
+var wallReady = false;   /* guards the startup slider sync */
+var editing = false;     /* text edit mode; read by the fly-camera handler */
+const A64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const CW = FONT.cell[0], CH = FONT.cell[1], ADV = FONT.advance;
+const ATLAS_COLS = 16;
+const BLOCK = FONT.glyphs.length;                 /* synthetic cursor glyph */
+const ATLAS_ROWS = Math.ceil((FONT.glyphs.length + 1) / ATLAS_COLS);
+const AW = ATLAS_COLS * CW, AH = ATLAS_ROWS * CH;
+
+const glyphIndex = new Map();
+[...FONT.chars].forEach((ch, i) => glyphIndex.set(ch, i));
+
+function atlasPixels(){
+  const px = new Uint8Array(AW * AH);
+  FONT.glyphs.forEach((enc, gi) => {
+    const gx = (gi % ATLAS_COLS) * CW, gy = Math.floor(gi / ATLAS_COLS) * CH;
+    for (let r = 0; r < CH; r++){
+      const v = (A64.indexOf(enc[r*2]) << 6) | A64.indexOf(enc[r*2+1]);
+      for (let x = 0; x < CW; x++)
+        if ((v >> (CW - 1 - x)) & 1) px[(gy + r) * AW + gx + x] = 255;
+    }
+  });
+  /* cursor block: the glyph body width of the cell, full height */
+  const bx = (BLOCK % ATLAS_COLS) * CW, by = Math.floor(BLOCK / ATLAS_COLS) * CH;
+  for (let r = 0; r < CH; r++)
+    for (let x = 1; x < CW - 1; x++) px[(by + r) * AW + bx + x] = 255;
+  return px;
+}
+
+/* ---------------- content ---------------- */
+function rng(seed){ let s = seed >>> 0;
+  return () => (s = (s*1664525 + 1013904223) >>> 0) / 4294967296; }
+
+const HEX = "0123456789ABCDEF";
+const KANA = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝｦﾞﾟ";
+
+/* status lines transcribed from the slit-scan reconstruction */
+const LINES = [
+  ["LOADING KERNEL","  87%"],      ["MOUNTING FDD0","OK"],
+  ["VERIFY CHECKSUM","PASS"],      ["DECOMPRESS","  ..."],
+  ["INIT CO-CPU","MC68000 10.0MHz"],["I/O VECTORS","$000400"],
+  ["CONSOLE (DRIVE)","$ED0030"],   ["BOOTLINE PARAM","$00FF0000"],
+  ["LINK STATUS","ESTABLISHED"],   ["VIRUS RECORD","NONE"],
+  ["CPU MODE","SUPERVISOR"],       ["MEMORY TEST","$000000-$BFFFFF"],
+  ["TEXT VRAM","$E00000"],         ["GRAPHIC VRAM","$C00000"],
+  ["CRTC MODE","768x512 31.5kHz"], ["PALETTE BANK","$E82000"],
+  ["OPM  YM2151","READY"],         ["ADPCM MSM6258","READY"],
+  ["DMAC HD63450","ARMED"],        ["MFP MC68901","ARMED"],
+  ["SRAM","$ED0000-$ED3FFF"],      ["IPL ROM","$FE0000"],
+  ["BOOT DEVICE","FDD0"],          ["ENTANGLED NODE","OPEN"],
+  ["LAYER 07","PROTOCOL SYNC"],    ["HANDSHAKE","WAIT"],
+  ["CYBERIA LINK","OPEN"],         ["CYBERIA NODE","$E9C000"],
+  ["CYBERIA MESH","JOINING"],      ["CYBERIA DEPTH","07"],
+  ["CYBERIA RELAY","HANDSHAKE"],   ["CYBERIA CACHE","WARMING"],
+  ["CACHE WARM","  42%"],          ["SHADER CACHE","REBUILD"],
+  ["ASSET STREAM","  ..."],        ["SESSION","STANDBY"],
+];
+
+/* halfwidth katakana is all cgrom12 carries, and it is what the source uses */
+const LINES_CLOSE = [
+  ["UNMOUNT FDD0","OK"],           ["CLOSE CHANNEL","$ED0030"],
+  ["KILL SESSION","SIGTERM"],      ["HALT CO-CPU","MC68000"],
+  ["LINK STATUS","DROPPED"],       ["FLUSH CACHE","DONE"],
+  ["RELEASE VRAM","$C00000"],      ["DETACH SASI","$E96020"],
+  ["CYBERIA LINK","CLOSED"],       ["CYBERIA NODE","OFFLINE"],
+  ["CYBERIA MESH","LEFT"],         ["CYBERIA RELAY","SILENT"],
+  ["CYBERIA DEPTH","COLLAPSED"],
+  ["ENTANGLED NODE","SEVERED"],    ["LAYER 07","TEARDOWN"],
+  ["OPM  YM2151","SILENCED"],      ["ADPCM MSM6258","STOPPED"],
+  ["DMAC HD63450","DISARMED"],     ["MFP MC68901","MASKED"],
+  ["SRAM","COMMITTED"],            ["BOOT DEVICE","EJECTED"],
+  ["STREAM","EOF"],                ["SESSION","CLOSED"],
+  ["HANDSHAKE","RELEASED"],        ["PROTOCOL","SHUTDOWN"],
+];
+
+const KANA_CLOSE = [
+  "ｼｭｳﾘｮｳ ｼﾏｽ",          "ｾﾂﾀﾞﾝ ｼﾏｼﾀ",         "ｼｬｯﾄﾀﾞｳﾝ ﾁｭｳ",
+  "ｾﾂｿﾞｸ ｦ ｷﾘﾏｽ",        "ｻｲﾍﾞﾘｱ ｵﾌﾗｲﾝ",       "ﾃﾞｰﾀ ｦ ﾎｿﾞﾝ ｼﾏｼﾀ",
+  "ﾚｲﾔｰ ｦ ﾄｼﾞﾙ",         "ｻﾖｳﾅﾗ",              "ﾂｳｼﾝ ｼｭｳﾘｮｳ",
+  "ｻｲﾍﾞﾘｱ ｦ ﾃﾞﾙ",        "ｻｲﾍﾞﾘｱ ﾄ ｷﾚﾀ",
+];
+
+const KANA_LINES = [
+  "ﾛｰﾄﾞ ﾁｭｳ",            "ｼﾊﾞﾗｸ ｵﾏﾁ ｸﾀﾞｻｲ",   "ｼｮｷｶ ｼﾃｲﾏｽ",
+  "ｼｽﾃﾑ ｷﾄﾞｳ ﾁｭｳ",       "ﾒﾓﾘ ｹﾝｻ ｶﾝﾘｮｳ",      "ｾﾂｿﾞｸ ｶｸﾆﾝ ﾁｭｳ",
+  "ﾈｯﾄﾜｰｸ ｵﾝﾗｲﾝ",        "ﾃﾞｰﾀ ﾃﾝｿｳ ﾁｭｳ",      "ﾌｧｲﾙ ﾃﾝｶｲ ﾁｭｳ",
+  "ｶｲｾｷ ｼﾃｲﾏｽ",          "ｼﾞｭﾝﾋﾞ ｶﾝﾘｮｳ",       "ｷｵｸ ｿｳﾁ ｹﾝｻｸ",
+  "ﾆﾝｼｮｳ ｾｲｺｳ",          "ｱﾅﾀﾊ ﾀﾞﾚ",           "ﾜｲﾔｰﾄﾞ ｾｶｲ",
+  "ﾚｲﾔｰ ｼﾞｭｳｲﾁ",         "ｾﾂﾞｸ ｦ ｶｲｼ ｼﾏｽ",     "ｷﾞｮｳﾚﾂ ｦ ｼｮﾘ ﾁｭｳ",
+  "ｶﾝｷｮｳ ｦ ｺｳﾁｸ ﾁｭｳ",    "ﾓｳｼﾞｮｳ ﾉ ｷｵｸ",       "ﾂｳｼﾝ ｦ ﾏｯﾃ ｲﾏｽ",
+  "ｻｲﾍﾞﾘｱ ﾆ ｲﾙ",         "ｻｲﾍﾞﾘｱ ｱｸｾｽ ﾁｭｳ",    "ｻｲﾍﾞﾘｱ ｦ ｻｶﾞｽ",
+  "ｻｲﾍﾞﾘｱ ﾆ ﾂﾅｸﾞ",       "ｻｲﾍﾞﾘｱ ﾉ ｵﾄ",
+];
+
+/* non-loading / ambient skin: steady-state, no progress semantics at all */
+const LINES_IDLE = [
+  ["CYBERIA LINK","STABLE"],       ["CYBERIA NODE","PRESENT"],
+  ["CYBERIA FIELD","AMBIENT"],     ["CO-CPU","IDLE"],
+  ["I/O VECTORS","QUIESCENT"],     ["CONSOLE (DRIVE)","STANDBY"],
+  ["MEMORY","$000000-$BFFFFF"],    ["TEXT VRAM","$E00000"],
+  ["GRAPHIC VRAM","$C00000"],      ["CRTC MODE","768x512 31.5kHz"],
+  ["ENTANGLED NODE","HOLDING"],    ["LAYER 07","AMBIENT SYNC"],
+  ["DRIFT MONITOR","NOMINAL"],     ["FIELD STRENGTH","NOMINAL"],
+  ["PRESENCE","DETECTED"],         ["SESSION","IDLE"],
+  ["WIRED WORLD","LISTENING"],     ["HANDSHAKE","DORMANT"],
+  ["CYBERIA RELAY","NOMINAL"],     ["CYBERIA DEPTH","UNKNOWN"],
+  ["CYBERIA MESH","RESIDENT"],     ["CYBERIA CACHE","WARM"],
+  ["CYBERIA ECHO","RETURNING"],    ["CYBERIA","IS HERE"],
+];
+const KANA_IDLE = [
+  "ｻｲﾍﾞﾘｱ ﾆ ｲﾏｽ",         "ｻｲﾍﾞﾘｱ ﾃﾞ ﾏｯﾃ ｲﾏｽ",   "ｻｲﾍﾞﾘｱ ｦ ｶﾝｼﾞﾙ",
+  "ｼｽﾞｶ ﾆ ﾏｯﾃ ｲﾏｽ",       "ﾀﾞﾚ ﾓ ｲﾅｲ",           "ﾜｲﾔｰﾄﾞ ｾｶｲ",
+  "ﾚｲﾔｰ ﾉ ｵｸ",           "ﾂｳｼﾝ ﾊ ｲｷﾃ ｲﾙ",       "ｱﾅﾀﾊ ﾀﾞﾚ",
+  "ｻｲﾍﾞﾘｱ ﾊ ｼﾂﾞｶ",       "ｻｲﾍﾞﾘｱ ﾉ ﾅｶ ﾃﾞ",     "ｻｲﾍﾞﾘｱ ｦ ｷｸ",
+];
+const BC_NOTE_IDLE = ["ambient","presence","field","drift","hold","listen","cyberia"];
+const BC_TEXT_IDLE = ["FIELD AMBIENT","LINK IDLE","NODE PRESENT","CYBERIA STANDBY",
+                      "CYBERIA PRESENT","ｻｲﾍﾞﾘｱ ﾀｲｷ","ﾀﾞﾚ ﾓ ｲﾅｲ",
+                      "CYBERIA RESIDENT","CYBERIA ECHO","ｻｲﾍﾞﾘｱ ﾉ ﾅｶ"];
+const BC_T_IDLE = "ACDFGIJN";
+
+/* replaces the [####----] progress bar when idle — a steady signal readout,
+   no percentage, nothing implying anything is in progress */
+const SIG_LABEL = ["LINK","FIELD","DRIFT","CARRIER","PRESENCE","CYBERIA","RELAY","ﾊﾟﾙｽ","ｻｲﾍﾞﾘｱ"];
+const SIG_STATE = ["STABLE","LOCKED","NOMINAL","STEADY","HOLDING","QUIET","AMBIENT"];
+const SIG_GLYPH = ["-","=",".","'","^"];
+function signalLine(r){
+  const pick = a => a[Math.floor(r() * a.length)];
+  const label = (pick(SIG_LABEL) + '        ').slice(0, 8);
+  let wave = '';
+  for (let i = 0; i < 12; i++) wave += pick(SIG_GLYPH);
+  return label + '[' + wave + '] ' + pick(SIG_STATE);
+}
+
+const BARS = ["[####------]","[#######---]","[##--------]","[#########-]",
+              "[######----]","[##########]","[#---------]","[########--]"];
+
+/* ── BCODe: streaming-first ASCII for telemetry and control ──────────────
+   Grammar per bcode-syntax-v13:
+     Q* T | Q* N [EXP] T | Q* N S M [EXP] T
+   Q  qualifiers      - < > ? !
+   S  pair separators . ,
+   EXP exponent marker * /
+   T  terminator: PARAM 0x40-0x5F (@ A-Z [ \ ] ^ _), CMD 0x60-0x7E (` a-z { | } ~), DEL
+   payloads: $ opaque to end of line, %UPPERHEX%, #UPPERHEX#, & raw marker
+   comments: ; to end of line, ( parenthesised )                                */
+const BC_PARAM = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
+const BC_CMD   = "`abcdefghijklmnopqrstuvwxyz{|}";  /* ~ excluded: cgrom12 has no glyph for it */
+const BC_QUAL  = ["", "", "-", "<", ">", "?", "!", "-<", "<>", "-!", "?!"];
+const BC_NOTE  = ["sync","epoch","drift","retry","link","armed","probe","warm","seq","cyberia"];
+const BC_NOTE_CLOSE = ["halt","kill","close","drop","eof","teardown","flush","sever","last","cyberia"];
+/* terminators carry the flavour: open/read letters while loading,
+   terminate/quit letters on the way out, plus the literal DEL spelling */
+const BC_T_LOAD  = "OPQRSTUVLMN";
+const BC_T_CLOSE = "XZKHQWY";
+const BC_TEXT  = ["STREAM OPEN","NODE READY","BOOT VECTOR","CHANNEL BOUND",
+                  "CYBERIA ONLINE","ｻｲﾍﾞﾘｱ ｾﾂｿﾞｸ","CYBERIA MESH JOIN",
+                  "CYBERIA DEPTH 07","ｻｲﾍﾞﾘｱ ﾆ ﾂﾅｸﾞ",
+                  "ﾛｰﾄﾞ ﾁｭｳ","ｾﾂｿﾞｸ ｶｸﾆﾝ","ﾃﾞｰﾀ ﾃﾝｿｳ"];
+const BC_TEXT_CLOSE = ["STREAM CLOSE","NODE HALT","LINK DROP","CHANNEL RELEASED",
+                       "CYBERIA OFFLINE","ｻｲﾍﾞﾘｱ ｾﾂﾀﾞﾝ","CYBERIA MESH LEFT",
+                       "ｻｲﾍﾞﾘｱ ｦ ﾃﾞﾙ",
+                       "ｼｭｳﾘｮｳ ｼﾏｽ","ｾﾂｿﾞｸ ｦ ｷﾘﾏｽ","ｻﾖｳﾅﾗ"];
+
+function bcodeLine(r, closing, idle){
+  const pick = a => a[Math.floor(r() * a.length)];
+  const NOTES = closing ? BC_NOTE_CLOSE : idle ? BC_NOTE_IDLE : BC_NOTE;
+  const TEXTS = closing ? BC_TEXT_CLOSE : idle ? BC_TEXT_IDLE : BC_TEXT;
+  const FLAV  = closing ? BC_T_CLOSE   : idle ? BC_T_IDLE    : BC_T_LOAD;
+  const hx = n => Array.from({length:n}, () => HEX[Math.floor(r()*16)]).join('');
+  const int = n => String(Math.floor(r() * n));
+
+  /* one frame: qualifiers, value, optional exponent, terminator */
+  const frame = () => {
+    const q = pick(BC_QUAL);
+    /* bias toward the phase's flavour letters, else anywhere in the class */
+    const t = r() < 0.5 ? pick(FLAV)
+            : (closing && r() < 0.18) ? 'DEL'
+            : r() < 0.55 ? pick(BC_PARAM) : pick(BC_CMD);
+    const k = r();
+    if (k < 0.14) return q + t;                                  /* Q* T        */
+    if (k < 0.30) return q + int(4096) + pick(['.', ',']) + int(100) + t;
+    if (k < 0.42) return q + int(1000) + pick(['*', '/']) + int(9) + t;
+    if (k < 0.50) return q + '#' + hx(4) + '#' + t;
+    if (k < 0.56) return q + '%' + hx(2 + 2*Math.floor(r()*3)) + '%' + t;
+    if (k < 0.60) return q + '&' + int(64) + t;
+    return q + int(65536) + t;                                   /* Q* N T      */
+  };
+
+  const roll = r();
+  if (roll < 0.09) return '; ' + pick(NOTES) + ' ' + hx(4);
+  if (roll < 0.15) return '(' + pick(NOTES) + ')';
+  if (roll < 0.23) return '$' + pick(TEXTS);
+  if (roll < 0.28) return int(100) + '<>' + pick(BC_PARAM) + ' ; diag';
+
+  let out = frame();
+  const n = 1 + Math.floor(r() * 3);
+  for (let i = 0; i < n; i++) out += ' ' + frame();
+  if (r() < 0.16) out += ' ;' + pick(NOTES);
+  return out;
+}
+
+/* the source reads as discrete blocks in dark space, one colour each,
+   separated by 2-7 blank rows — generate that rhythm, not a wash */
+function makeRows(rows, cols, seed, headerBias, closing, idle){
+  const r = rng(seed), out = [];
+  const pick = a => a[Math.floor(r()*a.length)];
+  const hex = n => Array.from({length:n},()=>HEX[Math.floor(r()*16)]).join('');
+  const pad = (s,n) => (s + ' '.repeat(n)).slice(0,n);
+
+  while (out.length < rows){
+    const hue = r() < 0.5 ? r()*0.3 : 0.62 + r()*0.38;
+    const dim = 0.74 + r()*0.26;
+    const roll = r();
+    const kind = roll < headerBias * 0.46 ? 'status'
+               : roll < headerBias * 0.46 + 0.30 ? 'bcode'
+               : roll < headerBias * 0.46 + 0.40 ? 'dump'
+               : roll < headerBias * 0.46 + 0.50 ? 'bar'
+               : 'kana';
+    const n = 4 + Math.floor(r()*7);
+
+    if (kind === 'status'){
+      const L = closing ? LINES_CLOSE : idle ? LINES_IDLE : LINES;
+      const used = new Set();
+      for (let i=0;i<n;i++){
+        let e = pick(L), g = 0;
+        while (used.has(e[0]) && g++ < 8) e = pick(L);
+        used.add(e[0]);
+        out.push({ t: pad(e[0],17) + e[1], hue, dim });
+      }
+    } else if (kind === 'bcode'){
+      for (let i = 0; i < n; i++) out.push({ t: bcodeLine(r, closing, idle), hue, dim });
+    } else if (kind === 'dump'){
+      const base = Math.floor(r()*0xF000);
+      for (let i=0;i<n;i++){
+        let b = '', a = '';
+        for (let j=0;j<8;j++){
+          b += hex(2) + ' ';
+          a += r() < 0.45 ? '.' : String.fromCharCode(33 + Math.floor(r()*60));
+        }
+        out.push({ t:(base+i*8).toString(16).toUpperCase().padStart(4,'0')+'  '+b+' '+a, hue, dim });
+      }
+    } else if (kind === 'bar'){
+      for (let i=0;i<n;i++){
+        /* idle drops the loading-bar notation entirely — a steady signal
+           readout instead, with no percentage and nothing "in progress" */
+        if (idle && !closing){ out.push({ t: signalLine(r), hue, dim }); continue; }
+        const label = pad(pick(['LOAD','INIT','SYNC','SCAN','LINK','MOUNT','ﾛｰﾄﾞ','ﾃﾝｿｳ','ｼｮｷｶ']), 8);
+        const inner = 12;
+        out.push({ t: label + '[' + '-'.repeat(inner) + ']', hue, dim,
+                   bar: { start: label.length + 1, end: label.length + 1 + inner } });
+      }
+    } else {
+      for (let i=0;i<n;i++){
+        const K = closing ? KANA_CLOSE : idle ? KANA_IDLE : KANA_LINES;
+        if (r() < 0.7) out.push({ t: pick(K), hue, dim });
+        else {
+          let s = '';
+          for (let j=0;j<Math.floor(4+r()*11);j++) s += KANA[Math.floor(r()*KANA.length)];
+          out.push({ t:s, hue, dim });
+        }
+      }
+    }
+    if (r() < 0.3) out.push({ t:'-'.repeat(Math.floor(cols*(0.35+r()*0.55))), hue, dim:dim*0.8 });
+    const gap = 1 + Math.floor(r()*3);
+    for (let i=0;i<gap;i++) out.push({ t:'', hue:0, dim:1 });
+  }
+  return out.slice(0, rows);
+}
+
+/* plane placement, in world units where the viewport is 2.0 tall at z = 0 */
+/* All blocks sit on ONE plane (z = 0, no per-block rotation). Type size still
+   varies per block — the source measures ~36, ~47 and ~64 px char pitch in
+   different blocks, which is font size, not depth. */
+const PLANES = [
+  { cols:24, rows:60, x:-1.28, y:0, s:1.3, hb:0.62, b:1 },
+  { cols:30, rows:70, x:-0.52, y:-0.08, s:0.78, hb:0.34, b:0.8 },
+  { cols:22, rows:58, x:0.22, y:0.05, s:1.72, hb:0.62, b:0.96 },
+  { cols:26, rows:64, x:0.98, y:-0.03, s:0.95, hb:0.34, b:0.86 },
+  { cols:34, rows:72, x:1.66, y:0.02, s:1.2, hb:0.3, b:0.72 },
+];
+
+/* three displaced copies, each with its own tint, jitter and displacement */
+const COPIES = [
+  { dx:32, dy:-19, tint:[0.57,0.51,1], a:0.46, jit:1.1, depth:0 },
+  { dx:-11, dy:6, tint:[0.55,1,0.9], a:0.58, jit:0.55, depth:0 },
+  { dx:-7, dy:-1, tint:[1,1,1], a:1, jit:0.15, depth:1 },
+];
+const MAXP = 8;
+
+/* ---------------- column-major mat4 ---------------- */
+const M4 = {
+  ident: () => new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+  mul(a,b){ const o = new Float32Array(16);
+    for (let i=0;i<4;i++) for (let j=0;j<4;j++){ let s=0;
+      for (let k=0;k<4;k++) s += a[k*4+j]*b[i*4+k];
+      o[i*4+j] = s; }
+    return o; },
+  translate(x,y,z){ const m=M4.ident(); m[12]=x; m[13]=y; m[14]=z; return m; },
+  scale(s){ const m=M4.ident(); m[0]=m[5]=m[10]=s; return m; },
+  rotY(a){ const m=M4.ident(), c=Math.cos(a), s=Math.sin(a);
+    m[0]=c; m[2]=-s; m[8]=s; m[10]=c; return m; },
+  rotX(a){ const m=M4.ident(), c=Math.cos(a), s=Math.sin(a);
+    m[5]=c; m[6]=s; m[9]=-s; m[10]=c; return m; },
+  rotZ(a){ const m=M4.ident(), c=Math.cos(a), s=Math.sin(a);
+    m[0]=c; m[1]=s; m[4]=-s; m[5]=c; return m; },
+  persp(fovy, aspect, near, far){
+    const f = 1/Math.tan(fovy/2), nf = 1/(near-far), m = new Float32Array(16);
+    m[0]=f/aspect; m[5]=f; m[10]=(far+near)*nf; m[11]=-1; m[14]=2*far*near*nf;
+    return m; },
+};
+
+/* ---------------- GL ---------------- */
+const canvas = document.getElementById('gl');
+const gl = canvas.getContext('webgl2', { antialias:false, alpha:true,
+                                         premultipliedAlpha:true,
+                                         powerPreference:'high-performance' });
+if (!gl) document.body.dataset.nogl = 'true';
+
+function compile(type, src){
+  const sh = gl.createShader(type);
+  gl.shaderSource(sh, src); gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(sh));
+  return sh;
+}
+function program(vs, fs){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS))
+    throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+const TEXT_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec2 a_corner;
+in vec2  a_cell;
+in float a_glyph;
+in vec3  a_color;
+in float a_plane;
+in float a_flag;
+in float a_bar;
+in float a_ver;
+in float a_swapT;
+
+uniform mat4  u_vp;
+uniform mat4  u_model[${MAXP}];
+uniform vec2  u_grid[${MAXP}];
+uniform float u_speedComp[${MAXP}];
+uniform float u_scrollRows;
+uniform vec3  u_ghost;
+uniform float u_alpha;
+uniform float u_seed;
+uniform float u_jitter;
+uniform float u_blinkOn;
+uniform float u_progress;
+uniform float u_swap;
+
+out vec2 v_dotPos;
+out vec2 v_atlasOrg;
+out vec4 v_color;
+out vec2 v_mod;
+out float v_seedH;
+out float v_flag;
+out float v_wave;
+out float v_swapD;
+out float v_ver;
+
+const float CWF = float(${CW});
+const float CHF = float(${CH});
+const float ADVF = float(${ADV});
+
+void main(){
+  v_flag = a_flag;
+  v_ver = a_ver;
+  v_swapD = u_swap - a_swapT;
+  /* only the wording this row is currently showing survives */
+  if ((a_ver > 0.5) != (a_swapT < u_swap)){
+    v_dotPos = vec2(0.0); v_atlasOrg = vec2(0.0); v_wave = 0.0;
+    v_swapD = 0.0; v_color = vec4(0.0); v_mod = vec2(0.0); v_seedH = 0.0;
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    return;
+  }
+  if (a_flag > 0.5 && u_blinkOn < 0.5){      /* cursor in its off phase */
+    v_dotPos = vec2(0.0); v_atlasOrg = vec2(0.0); v_wave = 0.0;
+    v_swapD = 0.0; v_ver = 0.0;
+    v_color = vec4(0.0); v_mod = vec2(0.0); v_seedH = 0.0;
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    return;
+  }
+  if (a_flag > 1.5){                       /* progress bar cell */
+    float j = fract(sin(a_cell.y * 91.7 + a_plane * 13.1) * 43758.5453);
+    float eff = clamp(u_progress * (1.0 + j * 0.55) - j * 0.28, 0.0, 1.0);
+    bool filled = a_bar <= eff;
+    if ((a_flag < 2.5) != filled){
+      v_dotPos = vec2(0.0); v_atlasOrg = vec2(0.0); v_wave = 0.0;
+    v_swapD = 0.0; v_ver = 0.0;
+      v_color = vec4(0.0); v_mod = vec2(0.0); v_seedH = 0.0;
+      gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+      return;
+    }
+  }
+  int pi = int(a_plane);
+  vec2 grid = u_grid[pi];
+
+  float row = mod(a_cell.y - u_scrollRows * u_speedComp[pi], grid.y);
+  /* one dot of padding so frayed pixels can sit outside the glyph body */
+  const float PAD = 1.0;
+  vec2 corner = a_corner * (CWF + 2.0*PAD) - PAD;
+  vec2 local = vec2(
+    a_cell.x * ADVF + corner.x - grid.x * ADVF * 0.5,
+    grid.y * CHF * 0.5 - (row * CHF + corner.y)
+  );
+  v_dotPos = corner;
+
+  /* each copy gets its own per-cell displacement, so the copies don't just
+     look like one rigid stamp offset three times */
+  float h  = fract(sin(dot(vec2(a_cell.x + u_seed, a_cell.y*1.7 + u_seed),
+                          vec2(12.9898, 78.233))) * 43758.5453);
+  float h2 = fract(h * 7.31 + u_seed * 0.137);
+  vec2 jit = (vec2(h, h2) - 0.5) * u_jitter * (a_flag > 0.5 ? 0.0 : 1.0);
+  /* a few cells fly off as stray dots */
+  if (h2 > 0.985) jit += (vec2(h2, h) - 0.5) * u_jitter * 14.0;
+
+  vec2 pos = local + u_ghost.xy + jit;
+  v_mod = pos * 0.021;
+  gl_Position = u_vp * u_model[pi] * vec4(pos, u_ghost.z, 1.0);
+  v_wave = gl_Position.y / max(gl_Position.w, 0.0001) * 0.5 + 0.5;
+
+  float gx = mod(a_glyph, float(${ATLAS_COLS}));
+  float gy = floor(a_glyph / float(${ATLAS_COLS}));
+  v_atlasOrg = vec2(gx * CWF, gy * CHF);
+  v_seedH = fract(h * 3.77 + u_seed * 0.61) * 64.0;
+  v_color = vec4(a_color, u_alpha);
+}`;
+
+const TEXT_FS = `#version 300 es
+precision highp float;
+in vec2 v_dotPos;
+in vec2 v_atlasOrg;
+in vec4 v_color;
+in vec2 v_mod;
+in float v_seedH;
+in float v_flag;
+in float v_wave;
+in float v_swapD;
+in float v_ver;
+
+uniform sampler2D u_atlas;
+uniform vec3  u_tint;
+uniform float u_depthMod;
+uniform float u_emboss;    // how dark the inside of a dot goes
+uniform float u_bevel;     // how far the bevel reaches in
+uniform vec2  u_light;     // light direction
+uniform float u_erode;     // chance a lit dot drops out
+uniform float u_fray;      // chance an empty dot beside ink lights up
+uniform float u_bold;      // sub-dot dilation, 0..1 of a dot
+uniform float u_curOp;     // cursor opacity
+uniform float u_decay;     // crumble progress 0..1
+uniform float u_wave;      // how much the crumble sweeps rather than fires at once
+uniform float u_flash;     // heat on a dot the instant before it dies
+uniform float u_ember;     // 0 violet .. 1 orange
+uniform float u_swapW;     // width of the replacement crumble band
+
+out vec4 frag;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1,0)), u.x),
+             mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
+}
+
+/* is this dot of the 12x12 cell inked? */
+float inkAt(vec2 d){
+  if (d.x < 0.0 || d.y < 0.0 || d.x > 11.0 || d.y > 11.0) return 0.0;
+  return texture(u_atlas, (v_atlasOrg + d + 0.5) / vec2(float(${AW}), float(${AH}))).r;
+}
+
+void main(){
+  vec2 dotc = floor(v_dotPos);
+  vec2 f    = fract(v_dotPos);
+  float ink = inkAt(dotc);
+  float h   = hash(dotc + vec2(v_seedH, v_seedH*1.7));
+
+  /* boldness grows ink into the neighbouring dot by a fraction of a dot */
+  if (ink < 0.5 && u_bold > 0.001){
+    if ((inkAt(dotc+vec2(-1,0)) > 0.5 && f.x       < u_bold) ||
+        (inkAt(dotc+vec2( 1,0)) > 0.5 && 1.0 - f.x < u_bold) ||
+        (inkAt(dotc+vec2(0,-1)) > 0.5 && f.y       < u_bold) ||
+        (inkAt(dotc+vec2(0, 1)) > 0.5 && 1.0 - f.y < u_bold)) ink = 1.0;
+  }
+
+  if (v_flag < 0.5){
+    if (ink > 0.5){
+      if (h < u_erode) discard;                     // pixel aberration: dropouts
+    } else {
+      float n = max(max(inkAt(dotc+vec2(1,0)), inkAt(dotc+vec2(-1,0))),
+                    max(inkAt(dotc+vec2(0,1)), inkAt(dotc+vec2(0,-1))));
+      if (n < 0.5 || h > u_fray) discard;           // pixel aberration: frays
+    }
+  } else if (ink < 0.5) discard;                    // cursors stay solid
+
+  /* Each dot is shaded like a little extruded tile. A face is only bevelled
+     where the neighbouring dot is empty, so strokes stay continuous. */
+  float dL = inkAt(dotc+vec2(-1,0)) > 0.5 ? 1.0 : f.x;
+  float dR = inkAt(dotc+vec2( 1,0)) > 0.5 ? 1.0 : 1.0 - f.x;
+  float dU = inkAt(dotc+vec2(0,-1)) > 0.5 ? 1.0 : f.y;
+  float dD = inkAt(dotc+vec2(0, 1)) > 0.5 ? 1.0 : 1.0 - f.y;
+
+  float edge = min(min(dL, dR), min(dU, dD));
+  float bev  = smoothstep(0.0, max(0.02, u_bevel), edge);
+  float lit  = (dR - dL) * u_light.x + (dD - dU) * u_light.y;
+
+  float shade = mix(1.0 - u_emboss, 1.0, bev) + u_emboss * lit * 0.85;
+  shade = clamp(shade, 0.0, 1.9);
+
+  float m = vnoise(v_mod) * 0.62 + vnoise(v_mod * 2.7) * 0.38;
+  m = mix(1.0, 0.60 + 0.62 * m, u_depthMod);
+
+  float op = v_flag > 0.5 ? u_curOp : 1.0;
+  vec3 outc = v_color.rgb * u_tint * v_color.a * m * shade * op;
+
+  /* crumble: every dot has its own death threshold, swept by a wavefront.
+     Native to a bitmap terminal in a way screen-space circles are not. */
+  float front = 0.0;
+  if (u_decay > 0.0)
+    front = clamp(u_decay * (1.0 + u_wave) - v_wave * u_wave, 0.0, 1.0);
+
+  /* the replacement wave: the old wording crumbles into the swap point,
+     the new wording assembles back out of it */
+  if (u_swapW > 0.0){
+    float sf = (v_ver < 0.5)
+      ? smoothstep(-u_swapW, 0.0, v_swapD)
+      : 1.0 - smoothstep(0.0, u_swapW, v_swapD);
+    front = max(front, clamp(sf, 0.0, 1.0));
+  }
+
+  if (front > 0.0){
+    float dh = hash(dotc * 1.37 + vec2(v_seedH * 0.7 + 3.1, v_seedH * 1.9));
+    if (dh < front) discard;
+    float flash = smoothstep(front + 0.13, front, dh);
+    vec3 ember = mix(vec3(0.80,0.66,1.00), vec3(1.00,0.60,0.24), u_ember);
+    outc += ember * flash * max(u_flash, 0.55);
+  }
+
+  frag = vec4(outc, 1.0);
+}`;
+
+const QUAD_VS = `#version 300 es
+precision highp float;
+layout(location=0) in vec2 a_corner;
+out vec2 v_uv;
+void main(){ v_uv = a_corner; gl_Position = vec4(a_corner*2.0-1.0, 0.0, 1.0); }`;
+
+const DOWN_FS = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+uniform sampler2D u_src;
+uniform vec2 u_texel;
+out vec4 frag;
+void main(){
+  vec3 a = texture(u_src, v_uv + u_texel*vec2(-1.0,-1.0)).rgb;
+  vec3 b = texture(u_src, v_uv + u_texel*vec2( 1.0,-1.0)).rgb;
+  vec3 c = texture(u_src, v_uv + u_texel*vec2(-1.0, 1.0)).rgb;
+  vec3 d = texture(u_src, v_uv + u_texel*vec2( 1.0, 1.0)).rgb;
+  frag = vec4((a+b+c+d)*0.25, 1.0);
+}`;
+
+const BLUR_FS = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+uniform sampler2D u_src;
+uniform vec2 u_dir;
+out vec4 frag;
+void main(){
+  float w0=0.2270270270, w1=0.1945945946, w2=0.1216216216,
+        w3=0.0540540541, w4=0.0162162162;
+  vec3 acc = texture(u_src, v_uv).rgb * w0;
+  acc += (texture(u_src, v_uv + u_dir*1.6).rgb + texture(u_src, v_uv - u_dir*1.6).rgb) * w1;
+  acc += (texture(u_src, v_uv + u_dir*3.2).rgb + texture(u_src, v_uv - u_dir*3.2).rgb) * w2;
+  acc += (texture(u_src, v_uv + u_dir*4.8).rgb + texture(u_src, v_uv - u_dir*4.8).rgb) * w3;
+  acc += (texture(u_src, v_uv + u_dir*6.4).rgb + texture(u_src, v_uv - u_dir*6.4).rgb) * w4;
+  frag = vec4(acc, 1.0);
+}`;
+
+const COMP_FS = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+uniform sampler2D u_scene;
+uniform sampler2D u_bloom;
+uniform vec2  u_res;
+uniform float u_bloomAmt, u_defocus, u_scan, u_pitch, u_grain, u_time;
+uniform vec3  u_seeds[32];
+uniform int   u_nSeeds;
+uniform float u_burn, u_burnSpeed, u_burnEdge, u_burnNoise, u_ember;
+uniform int   u_mode;      // 0 crumble, 1 burn, 2 collapse
+uniform float u_dis;       // overall dissolve 0..1
+uniform float u_dropAmt, u_dropAng, u_dropPos, u_dropSoft;
+out vec4 frag;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+float vn(vec2 p){
+  vec2 i = floor(p), f = fract(p); vec2 u = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1,0)), u.x),
+             mix(hash(i+vec2(0,1)), hash(i+vec2(1,1)), u.x), u.y);
+}
+
+void main(){
+  /* CRT power-off: squash toward the centre line before the last flash */
+  vec2 suv = v_uv;
+  float collapseA = 1.0, lineGlow = 0.0;
+  if (u_mode == 2 && u_dis > 0.0){
+    float k = max(1.0 - u_dis * 1.06, 0.0009);
+    suv.y = (v_uv.y - 0.5) / k + 0.5;
+    if (suv.y < 0.0 || suv.y > 1.0) collapseA = 0.0;
+    lineGlow = exp(-abs(v_uv.y - 0.5) / (0.0022 + k * 0.05)) * smoothstep(0.25, 0.95, u_dis);
+  }
+
+  vec3 sc;
+  if (u_defocus > 0.01){
+    vec2 t = vec2(u_defocus) / u_res;
+    sc  = texture(u_scene, suv).rgb * 0.36;
+    sc += texture(u_scene, suv + vec2( t.x, 0.0)).rgb * 0.16;
+    sc += texture(u_scene, suv + vec2(-t.x, 0.0)).rgb * 0.16;
+    sc += texture(u_scene, suv + vec2( 0.0, t.y)).rgb * 0.16;
+    sc += texture(u_scene, suv + vec2( 0.0,-t.y)).rgb * 0.16;
+  } else {
+    sc = texture(u_scene, suv).rgb;
+  }
+
+  vec3 col = sc + texture(u_bloom, suv).rgb * u_bloomAmt;
+
+  /* the wallpaper's dark teal ground with a soft central lift */
+  vec2 d = (v_uv - vec2(0.44, 0.54)) * vec2(u_res.x/u_res.y, 1.0);
+  col += vec3(0.075,0.045,0.165) * exp(-dot(d,d)*1.6) * 0.55 + vec3(0.016,0.008,0.047);
+
+  col *= mix(1.0 - u_scan, 1.0, step(1.0, mod(gl_FragCoord.y, max(2.0, u_pitch))));
+  col *= mix(0.18, 1.0,
+    smoothstep(1.25, 0.35, length((v_uv-0.5)*vec2(u_res.x/u_res.y,1.0))*1.35));
+  /* directional opacity drop: darkens toward black along any heading */
+  if (u_dropAmt > 0.0){
+    float aspd = u_res.x / u_res.y;
+    vec2 dir = vec2(cos(u_dropAng), sin(u_dropAng));
+    vec2 q = (v_uv - 0.5) * vec2(aspd, 1.0);
+    float reach = 0.5 * length(vec2(aspd, 1.0));
+    float t = dot(q, dir) / reach * 0.5 + 0.5;
+    float sft = max(0.001, u_dropSoft);
+    col *= 1.0 - u_dropAmt * smoothstep(u_dropPos - sft, u_dropPos + sft, t);
+  }
+
+  col += (hash(gl_FragCoord.xy + u_time) - 0.5) * u_grain;
+
+  /* burn-through: circles opening at random seeds, edges chewed by noise */
+  float alpha = collapseA;
+  col += vec3(0.85, 0.90, 1.0) * lineGlow * 2.4;
+  if (u_mode == 2 && u_dis > 0.0) alpha *= 1.0 - smoothstep(0.93, 1.0, u_dis);
+  /* crumble: once the glyphs are gone, take the ground with them */
+  if (u_mode == 0 && u_dis > 0.0) alpha *= 1.0 - smoothstep(0.70, 1.0, u_dis);
+  if (u_mode == 1 && u_burn > 0.0){
+    float asp = u_res.x / u_res.y;
+    vec2 pp = vec2(v_uv.x * asp, v_uv.y);
+    float dist = 1e9;
+    for (int i = 0; i < 32; i++){
+      if (i >= u_nSeeds) break;
+      vec3 sd = u_seeds[i];
+      float rad = max(0.0, u_burn * (1.0 + sd.z) - sd.z) * u_burnSpeed;
+      dist = min(dist, distance(pp, vec2(sd.x * asp, sd.y)) - rad);
+    }
+    float n = vn(v_uv * 7.0) * 0.62 + vn(v_uv * 21.0) * 0.38;
+    dist += (n - 0.5) * u_burnNoise;
+
+    alpha = smoothstep(0.0, max(0.002, u_burnEdge), dist);
+    /* ember ring hugging the advancing edge */
+    float rim = exp(-max(dist, 0.0) / max(0.003, u_burnEdge * 0.85));
+    vec3 ember = mix(vec3(0.80,0.66,1.00), vec3(1.00,0.60,0.24), u_ember);
+    col += ember * rim * 2.4;
+    /* char it just before it goes */
+    col *= mix(0.35, 1.0, smoothstep(0.0, u_burnEdge * 2.6, dist));
+  }
+
+  frag = vec4(col * alpha, alpha);
+}`;
+
+let progText, progBlur, progDown, progComp;
+let vaoText, quadVao, atlasTex, instBuf = null, instanceCount = 0;
+let fboScene, fboA, fboB, W = 1, H = 1, BW = 1, BH = 1;
+const DPR = () => Math.min(2, devicePixelRatio || 1);
+
+function makeTarget(w, h){
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  return { tex, fbo };
+}
+
+function initGL(){
+  progText = program(TEXT_VS, TEXT_FS);
+  progBlur = program(QUAD_VS, BLUR_FS);
+  progDown = program(QUAD_VS, DOWN_FS);
+  progComp = program(QUAD_VS, COMP_FS);
+
+  atlasTex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, atlasTex);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, AW, AH, 0, gl.RED, gl.UNSIGNED_BYTE, atlasPixels());
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const corners = new Float32Array([0,0, 1,0, 0,1, 0,1, 1,0, 1,1]);
+
+  quadVao = gl.createVertexArray();
+  gl.bindVertexArray(quadVao);
+  const qb = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, qb);
+  gl.bufferData(gl.ARRAY_BUFFER, corners, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  vaoText = gl.createVertexArray();
+  gl.bindVertexArray(vaoText);
+  const cb = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, cb);
+  gl.bufferData(gl.ARRAY_BUFFER, corners, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.bindVertexArray(null);
+}
+
+/* The generated text is now a real model, not something baked straight into the
+   GPU buffer — CONTENT[plane][version] holds the rows so they can be edited.
+   EDITS is sparse and keyed "plane:version:row", so it survives regeneration
+   and is small enough to travel in a preset. */
+let CONTENT = [];
+const EDITS = new Map();
+
+function applyEdits(){
+  EDITS.forEach((t, key) => {
+    const [pi, ver, r] = key.split(':').map(Number);
+    const rows = CONTENT[pi] && CONTENT[pi][ver];
+    if (rows && rows[r]){ rows[r].t = t; rows[r].bar = null; }
+  });
+}
+
+function regenContent(){
+  CONTENT = PLANES.map((p, pi) => [
+    makeRows(p.rows, p.cols, seed + pi*7919, p.hb, false, contentIdle),
+    makeRows(p.rows, p.cols, seed + pi*7919, p.hb, true,  false),
+  ]);
+  applyEdits();
+}
+
+function buildInstances(sd){
+  if (sd !== undefined) seed = sd;
+  regenContent();
+  uploadInstances();
+}
+
+function uploadInstances(){
+  /* Both wordings live in the buffer at once. a_ver marks which, a_swapT is the
+     row's place in the replacement wave, so the swap is a uniform, not a rebuild. */
+  const arr = [];
+  PLANES.forEach((p, pi) => {
+    (CONTENT[pi] || []).forEach((rows, ver) => {
+      const span = Math.max(1, rows.length - 1);
+      rows.forEach((line, r) => {
+        const t = line.hue, k = line.dim, kb = k * p.b;
+        /* --accent #c6a8ff -> lighter lavender #ddc8ff, purple throughout */
+        const R = (198 + t*(221-198)) * kb / 255;
+        const G = (168 + t*(200-168)) * kb / 255;
+        const B = (255 + t*(255-255)) * kb / 255;
+        const sw = 1 - r / span;              /* bottom rows go first: reversed */
+        for (let c = 0; c < line.t.length && c < p.cols; c++){
+          if (line.bar && c >= line.bar.start && c < line.bar.end){
+            const frac = (c - line.bar.start + 1) / (line.bar.end - line.bar.start);
+            arr.push(c, r, glyphIndex.get('#'), R, G, B, pi, 2, frac, ver, sw);
+            arr.push(c, r, glyphIndex.get('-'), R, G, B, pi, 3, frac, ver, sw);
+            continue;
+          }
+          const gi = glyphIndex.get(line.t[c]);
+          if (gi === undefined || line.t[c] === ' ') continue;
+          arr.push(c, r, gi, R, G, B, pi, 0, 0, ver, sw);
+        }
+      });
+      if (editing && pi === editPlane && ver === editVer){
+        /* the caret owns this plane's cursor while editing */
+        arr.push(editCol, editRow, BLOCK, 1.0, 0.92, 1.0, pi, 1, 0, ver,
+                 1 - editRow / span);
+      } else {
+        let last = -1;
+        for (let r = rows.length - 1; r >= 0; r--)
+          if (rows[r].t.trim()){ last = r; break; }
+        if (last >= 0){
+          const col = Math.min(p.cols - 1, rows[last].t.replace(/\s+$/,'').length + 1);
+          arr.push(col, last, BLOCK, 0.94, 0.95, 1.0, pi, 1, 0, ver, 1 - last / span);
+        }
+      }
+    });
+  });
+  instanceCount = arr.length / 11;
+
+  gl.bindVertexArray(vaoText);
+  if (!instBuf) instBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, instBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr), gl.STATIC_DRAW);
+  const STRIDE = 11 * 4;
+  const bind = (name, size, off) => {
+    const loc = gl.getAttribLocation(progText, name);
+    if (loc < 0) return;
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, size, gl.FLOAT, false, STRIDE, off);
+    gl.vertexAttribDivisor(loc, 1);
+  };
+  bind('a_cell', 2, 0);  bind('a_glyph', 1, 8);  bind('a_color', 3, 12);
+  bind('a_plane', 1, 24); bind('a_flag', 1, 28); bind('a_bar', 1, 32);
+  bind('a_ver', 1, 36);   bind('a_swapT', 1, 40);
+  gl.bindVertexArray(null);
+}
+
+function resize(){
+  const d = DPR();
+  W = Math.max(1, Math.round(innerWidth * d));
+  H = Math.max(1, Math.round(innerHeight * d));
+  canvas.width = W; canvas.height = H;
+  BW = Math.max(1, W >> 2); BH = Math.max(1, H >> 2);
+  [fboScene, fboA, fboB].forEach(t => {
+    if (t){ gl.deleteTexture(t.tex); gl.deleteFramebuffer(t.fbo); }
+  });
+  fboScene = makeTarget(W, H); fboA = makeTarget(BW, BH); fboB = makeTarget(BW, BH);
+}
+
+/* ---------------- state + controls ---------------- */
+const S = { speed:10, scale:8, spread:0.85, tintmix:1, jitter:0.2, depth:0.7,
+            emboss:0.46, bevel:0.24, lightang:306, erode:0.12, fray:0.135, bold:0.1,
+            gap:0.18, blink:1.4, curop:1, progress:0, swapdur:1.8, swapw:0.2, closehold:1.6, disdur:3.2, wave:1.1, flash:0,
+            bedge:0.12, bnoise:0.1, ember:0.6, seeds:18, glow:1.95, grad:0.4,
+            defocus:1.1, scan:0.8, pitch:4, grain:0.045, dropamt:0, dropang:270,
+            droppos:0.5, dropsoft:0.04, ry:16, rx:0, fov:70, flyspeed:4, looksens:1,
+            mode:0 };
+let seed = 20230220, running = true, travelledRows = 0, last = performance.now();
+
+/* 3840 px wide at a 36 px char pitch is 106.7 columns; 72 reads right in a window */
+const sourceScale = () =>
+  Math.min(8, Math.max(1, Math.round((innerWidth / (72 * ADV)) * 4) / 4));
+
+const WHEELS = {};      /* id -> needle painter, filled in by makeWheel */
+
+[['speed', v=>`${v} r/s`], ['scale', v=>`${v}×`],
+ ['spread', v=>(+v).toFixed(2)], ['tintmix', v=>(+v).toFixed(2)],
+ ['jitter', v=>(+v).toFixed(1)], ['depth', v=>(+v).toFixed(2)],
+ ['emboss', v=>(+v).toFixed(2)], ['bevel', v=>(+v).toFixed(2)],
+ ['lightang', v=>`${v}°`], ['erode', v=>(+v).toFixed(3)],
+ ['fray', v=>(+v).toFixed(3)], ['bold', v=>(+v).toFixed(2)],
+ ['gap', v=>(+v).toFixed(2)],
+ ['blink', v=>(+v ? `${v} Hz` : 'steady')], ['curop', v=>(+v).toFixed(2)],
+ ['progress', v=>`${Math.round(v*100)}%`],
+ ['swapdur', v=>`${(+v).toFixed(1)}s`], ['swapw', v=>(+v).toFixed(2)],
+ ['closehold', v=>`${(+v).toFixed(1)}s`],
+ ['disdur', v=>`${(+v).toFixed(1)}s`],
+ ['wave', v=>(+v).toFixed(2)], ['flash', v=>(+v).toFixed(2)],
+ ['bedge', v=>(+v).toFixed(3)], ['bnoise', v=>(+v).toFixed(3)],
+ ['ember', v=>(+v).toFixed(2)], ['seeds', v=>`${v}`],
+ ['glow', v=>(+v).toFixed(2)], ['grad', v=>(+v).toFixed(1)],
+ ['defocus', v=>(+v ? `${v}px` : 'off')], ['scan', v=>(+v).toFixed(2)],
+ ['pitch', v=>`${v}px`], ['grain', v=>(+v).toFixed(3)],
+ ['dropamt', v=>(+v).toFixed(2)], ['dropang', v=>`${v}°`],
+ ['droppos', v=>(+v).toFixed(2)], ['dropsoft', v=>(+v).toFixed(2)],
+ ['ry', v=>`${(+v).toFixed(1)}°`], ['rx', v=>`${(+v).toFixed(1)}°`], ['fov', v=>`${v}°`], ['zoom', v=>`${(+v).toFixed(2)}×`],
+ ['roll', v=>`${(+v).toFixed(1)}°`],
+ ['flyspeed', v=>(+v).toFixed(2)], ['looksens', v=>(+v).toFixed(2)],
+ ['lcop', v=>(+v).toFixed(2)], ['shotdist', v=>(+v).toFixed(2)],
+ ['shotdur', v=>`${(+v).toFixed(1)}s`], ['shotlead', v=>`${(+v).toFixed(1)}s`],
+ ['accel', v=>+v < 0.005 ? 'constant' : `ramp ${Math.round(v*100)}%`], ['looksens', v=>(+v).toFixed(2)]
+].forEach(([id, fmt]) => {
+  const el = document.getElementById(id), out = document.getElementById(id + '_o');
+  const apply = () => { S[id] = parseFloat(el.value); out.textContent = fmt(el.value);
+                        if (wallReady && id === 'seeds' && !burning) makeSeeds();
+                        if (id === 'lcop') document.documentElement.style.setProperty('--cursor-alpha', el.value);
+                        if (WHEELS[id]) WHEELS[id](el.value);
+                        scheduleCfg(); };
+  el.addEventListener('input', apply);
+  el._apply = apply; apply();
+});
+
+/* Angle wheel driving a hidden range input, so export/import/setAll all keep
+   working unchanged. Math convention: 0deg points right, angles rise CCW. */
+function makeWheel(id){
+  const dial = document.getElementById(id + '_w');
+  const input = document.getElementById(id);
+  if (!dial || !input) return;
+  const needle = dial.querySelector('.needle');
+
+  const paint = v => {
+    const a = ((+v % 360) + 360) % 360;
+    needle.style.setProperty('--deg', (90 - a) + 'deg');
+    dial.setAttribute('aria-valuenow', Math.round(a));
+  };
+  WHEELS[id] = paint;
+
+  const set = a => {
+    a = ((Math.round(a) % 360) + 360) % 360;
+    input.value = a; input._apply();
+  };
+  const fromEvent = e => {
+    const r = dial.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    set(Math.atan2(-dy, dx) * 180 / Math.PI);
+  };
+
+  dial.addEventListener('pointerdown', e => {
+    dial.setPointerCapture(e.pointerId); dial.dataset.drag = '1';
+    e.preventDefault(); fromEvent(e);
+  });
+  dial.addEventListener('pointermove', e => { if (dial.dataset.drag) fromEvent(e); });
+  const stop = () => { delete dial.dataset.drag; };
+  dial.addEventListener('pointerup', stop);
+  dial.addEventListener('pointercancel', stop);
+  dial.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 15 : 1;
+    const d = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step }[e.key];
+    if (d === undefined) return;
+    e.preventDefault();
+    set(+input.value + d);
+  });
+  paint(input.value);
+}
+
+const setAll = vals => Object.entries(vals).forEach(([k,v]) => {
+  const el = document.getElementById(k);
+  if (el){ el.value = v; el._apply(); }
+});
+
+const playBtn = document.getElementById('play');
+playBtn.addEventListener('click', () => {
+  running = !running;
+  playBtn.textContent = running ? 'Pause' : 'Play';
+  playBtn.setAttribute('aria-pressed', String(running));
+});
+document.getElementById('reseed').addEventListener('click', () => {
+  seed = (Math.random()*1e9)|0; buildInstances(seed); refreshCfg();
+});
+document.getElementById('reset').addEventListener('click', () => {
+  setAll({ speed:10, scale:8, spread:0.85, tintmix:1,
+           jitter:0.2, depth:0.7, emboss:0.46, bevel:0.24,
+           lightang:306, erode:0.12, fray:0.135, bold:0.1,
+           gap:0.18, blink:1.4, curop:1, progress:0,
+           disdur:3.2, wave:1.1, flash:0, bedge:0.12,
+           bnoise:0.1, ember:0.6, seeds:18, glow:1.95,
+           grad:0.4, defocus:1.1, scan:0.8, pitch:4,
+           grain:0.045, dropamt:0, dropang:270, droppos:0.5,
+           dropsoft:0.04, ry:16, rx:0, fov:70,
+           flyspeed:4, looksens:1, mode:0 });
+  eye.x = 5.8126; eye.y = -0.3435; eye.z = 2.7983;
+  if (invertY) document.getElementById('invy').click();
+  if (!loadingMode) setLoadingMode(true);
+  autoBurn = true; resetBurn();
+  seed = 20230220; buildInstances(seed); refreshCfg();
+});
+/* ---------------- loading mode + public API ---------------- */
+let loadingMode = true, autoBurn = true;
+const lmBtn = document.getElementById('loadmode');
+
+function setLoadingMode(on){
+  loadingMode = on;
+  lmBtn.setAttribute('aria-pressed', String(on));
+  lmBtn.textContent = 'Loading mode: ' + (on ? 'on' : 'off');
+  if (!on){                       /* frozen full, so static FX stay editable */
+    resetBurn();
+    const el = document.getElementById('progress');
+    el.value = 1; el._apply();
+  }
+}
+lmBtn.addEventListener('click', () => setLoadingMode(!loadingMode));
+[0,1,2].forEach(i => document.getElementById('m'+i).addEventListener('click', () => {
+  S.mode = i;
+  [0,1,2].forEach(j => document.getElementById('m'+j)
+    .setAttribute('aria-pressed', String(j === i)));
+  scheduleCfg();
+}));
+/* ---------------- text editor ----------------
+   Enter opens it, arrows move the caret, typing rewrites the row. Edits are
+   stored sparsely and travel in the preset, so they outlive a reload. */
+let editPlane = 0, editRow = 0, editCol = 0, editVer = 0, editWasRunning = true;
+const editBadge = document.getElementById('editbadge');
+
+const editRows = () => (CONTENT[editPlane] || [])[editVer] || [];
+
+function editRefresh(){
+  const rows = editRows();
+  editBadge.hidden = !editing;
+  if (!editing) return;
+  const t = rows[editRow] ? rows[editRow].t : '';
+  editBadge.textContent =
+    `EDIT  field ${editPlane + 1}/${PLANES.length}  row ${editRow + 1}/${rows.length}` +
+    `  col ${editCol + 1}  ${editVer ? '(close wording)' : ''}`;
+  uploadInstances();
+}
+
+function setEditing(on){
+  if (on === editing) return;
+  editing = on;
+  if (on){
+    held.clear();
+    editWasRunning = running;
+    running = false;                       /* hold the scroll still to edit */
+    editVer = swapTarget >= 0.5 ? 1 : 0;
+    const rows = editRows();
+    editRow = Math.min(editRow, Math.max(0, rows.length - 1));
+    let first = rows.findIndex(l => l.t.trim());
+    if (first >= 0 && !(rows[editRow] && rows[editRow].t.trim())) editRow = first;
+    editCol = 0;
+    canvas.focus();
+  } else {
+    running = editWasRunning;
+  }
+  document.getElementById('editbtn').setAttribute('aria-pressed', String(editing));
+  document.getElementById('editbtn').textContent = editing ? 'Editing — Esc to stop' : 'Edit text';
+  editRefresh();
+  scheduleCfg();
+}
+
+function writeRow(text){
+  const rows = editRows();
+  if (!rows[editRow]) return;
+  rows[editRow].t = text;
+  rows[editRow].bar = null;                /* a rewritten row is no longer a bar */
+  EDITS.set(`${editPlane}:${editVer}:${editRow}`, text);
+}
+
+function editKey(e){
+  const rows = editRows();
+  const cols = PLANES[editPlane].cols;
+  const cur = rows[editRow] ? rows[editRow].t : '';
+  const pad = n => cur.length < n ? cur + ' '.repeat(n - cur.length) : cur;
+
+  switch (e.key){
+    case 'Escape':    setEditing(false); return true;
+    case 'Enter':     setEditing(false); return true;
+    case 'ArrowLeft':  editCol = Math.max(0, editCol - 1); return true;
+    case 'ArrowRight': editCol = Math.min(cols - 1, editCol + 1); return true;
+    case 'ArrowUp':    editRow = Math.max(0, editRow - 1); return true;
+    case 'ArrowDown':  editRow = Math.min(rows.length - 1, editRow + 1); return true;
+    case 'Home':       editCol = 0; return true;
+    case 'End':        editCol = Math.min(cols - 1, cur.replace(/\s+$/,'').length); return true;
+    case 'Tab':
+      editPlane = (editPlane + (e.shiftKey ? PLANES.length - 1 : 1)) % PLANES.length;
+      editRow = Math.min(editRow, Math.max(0, editRows().length - 1));
+      editCol = 0;
+      editVer = Math.min(editVer, Math.max(0, (CONTENT[editPlane] || []).length - 1));
+      return true;
+    case 'Backspace':
+      if (editCol > 0){
+        const t = pad(editCol);
+        writeRow(t.slice(0, editCol - 1) + t.slice(editCol));
+        editCol--;
+      }
+      return true;
+    case 'Delete':
+      writeRow(pad(editCol + 1).slice(0, editCol) + pad(editCol + 1).slice(editCol + 1));
+      return true;
+  }
+
+  if (e.key.length === 1 && !e.ctrlKey && !e.metaKey){
+    const ch = e.key;
+    /* cgrom12 has no glyph for a couple of ASCII codes; refuse those quietly */
+    if (ch !== ' ' && !glyphIndex.has(ch)) return true;
+    const t = pad(editCol);
+    writeRow((t.slice(0, editCol) + ch + t.slice(editCol)).slice(0, cols));
+    editCol = Math.min(cols - 1, editCol + 1);
+    return true;
+  }
+  return false;
+}
+
+addEventListener('keydown', e => {
+  if (inField()) return;
+  if (!editing){
+    if (e.key === 'Enter' && !onButton()){ e.preventDefault(); setEditing(true); }
+    return;
+  }
+  if (editKey(e)){ e.preventDefault(); editRefresh(); }
+});
+
+document.getElementById('editbtn').addEventListener('click', () => setEditing(!editing));
+document.getElementById('editclear').addEventListener('click', () => {
+  EDITS.clear(); buildInstances(seed); editRefresh(); scheduleCfg();
+});
+
+let testRAF = 0;
+function runTest(){
+  cancelAnimationFrame(testRAF);
+  snapPre();
+  resetBurn();
+  if (!loadingMode) setLoadingMode(true);
+  const el = document.getElementById('progress');
+  el.value = 0; el._apply();
+  const t0 = performance.now(), fill = 3000;
+  (function tick(){
+    const k = Math.min(1, (performance.now() - t0) / fill);
+    el.value = k.toFixed(3); el._apply();
+    if (k < 1) testRAF = requestAnimationFrame(tick);
+    else beginTeardown();          /* replace in reverse, hold, then dissolve */
+  })();
+}
+document.getElementById('testbtn').addEventListener('click', runTest);
+
+document.getElementById('idlebtn').addEventListener('click', function(){
+  contentIdle = !contentIdle;
+  this.setAttribute('aria-pressed', String(contentIdle));
+  this.textContent = 'Content: ' + (contentIdle ? 'Idle' : 'Loading');
+  buildInstances(seed);
+  scheduleCfg();
+});
+document.getElementById('closebtn').addEventListener('click',
+  () => { snapPre(); setPhase(swapTarget >= 0.5 ? 'load' : 'close'); });
+document.getElementById('burnbtn').addEventListener('click', () => { snapPre(); startBurn(); });
+document.getElementById('burnreset').addEventListener('click', resetBurn);
+
+window.TerminalWall = {
+  /* drive this from whatever you're really waiting on */
+  setProgress(p){
+    p = Math.max(0, Math.min(1, +p || 0));
+    const el = document.getElementById('progress');
+    el.value = p; el._apply();
+    if (loadingMode && autoBurn && p >= 1) beginTeardown();
+    return p;
+  },
+  get progress(){ return S.progress; },
+  burn: startBurn,
+  teardown: beginTeardown,
+  test: runTest,
+  get phase(){ return swapTarget >= 0.5 ? 'close' : 'load'; },
+  setPhase,
+  restore: resetBurn,
+  get burning(){ return burning; },
+  get done(){ return burnedOut; },
+  onDone(fn){ if (typeof fn === 'function') doneCbs.push(fn); },
+  set autoBurn(v){ autoBurn = !!v; },
+  get autoBurn(){ return autoBurn; },
+  setLoadingMode,
+  saveShot(){ SHOTS.push(captureShot()); shotSel = SHOTS.length - 1; renderShots(); },
+  recallShot, runShot,
+  revertShot: revertPre,
+  get travelVec(){ return sphTravel ? sphTravel.vecs[0] : null; },
+  get arcVecs(){ return sphArc ? sphArc.vecs : null; },
+  get shots(){ return SHOTS.map(sh => ({ ...sh, eye: sh.eye.slice() })); },
+  get contentIdle(){ return contentIdle; },
+  get editing(){ return editing; },
+  setEditing(v){ setEditing(!!v); },
+  get edits(){ return Object.fromEntries(EDITS); },
+  clearEdits(){ EDITS.clear(); buildInstances(seed); },
+  setContentIdle(v){ if (!!v !== contentIdle) document.getElementById('idlebtn').click(); },
+  get element(){ return canvas; },
+  applyState,
+  getState,
+  destroy(){
+    wallDestroyed = true;
+    if (terminalFrameRaf) cancelAnimationFrame(terminalFrameRaf);
+    try { gl && gl.getExtension('WEBGL_lose_context')?.loseContext(); } catch {}
+  },
+};
+
+const postHost = (type, detail = {}) => {
+  if (!EMBED_MODE || parent === window) return;
+  // The parent deliberately sandboxes this document without same-origin
+  // privileges, giving it an opaque origin. The parent authenticates by the
+  // iframe's WindowProxy, so '*' is required here and does not widen control.
+  parent.postMessage({ source:'cyberia-terminal-wall', type, ...detail }, '*');
+};
+
+if (EMBED_MODE){
+  canvas.removeAttribute('tabindex');
+  document.querySelectorAll('button,input,textarea,[tabindex]').forEach(el => {
+    el.setAttribute('tabindex', '-1');
+    if ('disabled' in el) el.disabled = true;
+  });
+  // Capture and consume input before the editor/camera listeners below see it.
+  ['keydown','keyup','pointerdown','pointermove','pointerup','pointercancel','wheel','contextmenu']
+    .forEach(type => addEventListener(type, event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, { capture:true, passive:false }));
+
+  addEventListener('message', event => {
+    if (event.source !== parent || !event.data || event.data.source !== 'cyberia-boot') return;
+    switch (event.data.type){
+      case 'set-progress': TerminalWall.setProgress(event.data.progress); break;
+      case 'run-shot': TerminalWall.runShot(); break;
+      case 'teardown': TerminalWall.teardown(); break;
+      case 'restore': TerminalWall.restore(); break;
+      case 'apply-state': TerminalWall.applyState(event.data.state); break;
+      case 'destroy': TerminalWall.destroy(); break;
+    }
+  });
+  queueMicrotask(() => TerminalWall.onDone(() => postHost('done')));
+}
+
+/* ---------------- layer cursors ---------------- */
+const cursorsEl = document.getElementById('cursors');
+const handles = [0,1,2].map(i => document.getElementById('lh' + i));
+let showCursors = true;
+let contentIdle = false;   /* ambient skin: drops loading vocab + bars */
+
+const spreadSafe = () => Math.max(0.05, S.spread);
+
+function placeHandles(){
+  if (!showCursors) return;
+  const cx = innerWidth / 2, cy = innerHeight / 2, k = S.spread;
+  handles.forEach((h, i) => {
+    const c = COPIES[i];
+    if (!c){ h.hidden = true; return; }
+    h.hidden = false;
+    h.style.left = (cx + c.dx * k) + 'px';
+    h.style.top  = (cy + c.dy * k) + 'px';
+  });
+}
+
+handles.forEach((h, i) => {
+  const move = e => {
+    const c = COPIES[i]; if (!c) return;
+    c.dx = Math.round((e.clientX - innerWidth / 2) / spreadSafe());
+    c.dy = Math.round((e.clientY - innerHeight / 2) / spreadSafe());
+    placeHandles(); scheduleCfg();
+  };
+  h.addEventListener('pointerdown', e => {
+    h.setPointerCapture(e.pointerId); h.dataset.drag = '1'; e.preventDefault();
+  });
+  h.addEventListener('pointermove', e => { if (h.dataset.drag) move(e); });
+  const stop = () => { delete h.dataset.drag; };
+  h.addEventListener('pointerup', stop);
+  h.addEventListener('pointercancel', stop);
+  /* keyboard nudge, so the offsets are reachable without a pointer */
+  h.addEventListener('keydown', e => {
+    const c = COPIES[i]; if (!c) return;
+    const step = e.shiftKey ? 10 : 1;
+    const d = { ArrowLeft:[-step,0], ArrowRight:[step,0],
+                ArrowUp:[0,-step], ArrowDown:[0,step] }[e.key];
+    if (!d) return;
+    e.preventDefault();
+    c.dx += d[0]; c.dy += d[1];
+    placeHandles(); scheduleCfg();
+  });
+});
+
+document.getElementById('lcT').addEventListener('click', function(){
+  showCursors = !showCursors;
+  this.setAttribute('aria-pressed', String(showCursors));
+  this.textContent = 'Layer cursors: ' + (showCursors ? 'on' : 'off');
+  cursorsEl.hidden = !showCursors;
+  placeHandles();
+});
+document.getElementById('lcZero').addEventListener('click', () => {
+  COPIES.forEach(c => { c.dx = 0; c.dy = 0; });
+  placeHandles(); scheduleCfg();
+});
+addEventListener('resize', placeHandles, { passive:true });
+
+/* ---------------- sphere direction widget ----------------
+   Left-drag spins the globe (trackball view only — it never moves the vectors).
+   Right-click latches a vector at the surface point under the cursor; with two
+   slots it alternates, so the pair defines an arc. */
+const V3 = {
+  norm(v){ const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0]/l, v[1]/l, v[2]/l]; },
+  dot(a, b){ return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; },
+  slerp(a, b, t){
+    let d = Math.max(-1, Math.min(1, V3.dot(a, b)));
+    const th = Math.acos(d);
+    if (th < 1e-4) return a.slice();
+    const s = Math.sin(th);
+    const w1 = Math.sin((1 - t) * th) / s, w2 = Math.sin(t * th) / s;
+    return V3.norm([a[0]*w1 + b[0]*w2, a[1]*w1 + b[1]*w2, a[2]*w1 + b[2]*w2]);
+  },
+};
+
+function makeSphere(id, slots, initial, onChange, userSlots, wallFn){
+  const cv = document.getElementById(id);
+  const out = document.getElementById(id + '_o');
+  const ctx = cv.getContext('2d');
+  const st = { yaw: 0.6, pitch: 0.45, vecs: initial.map(V3.norm), next: 0 };
+  const nUser = userSlots === undefined ? slots : userSlots;
+
+  /* rotate world -> view, and back */
+  const fwd = v => {
+    const cy = Math.cos(st.yaw), sy = Math.sin(st.yaw);
+    const cp = Math.cos(st.pitch), sp = Math.sin(st.pitch);
+    const x =  v[0]*cy + v[2]*sy;
+    const z = -v[0]*sy + v[2]*cy;
+    return [x, v[1]*cp - z*sp, v[1]*sp + z*cp];
+  };
+  const inv = v => {
+    const cp = Math.cos(-st.pitch), sp = Math.sin(-st.pitch);
+    const y = v[1]*cp - v[2]*sp, z1 = v[1]*sp + v[2]*cp;
+    const cy = Math.cos(-st.yaw), sy = Math.sin(-st.yaw);
+    return [v[0]*cy + z1*sy, y, -v[0]*sy + z1*cy];
+  };
+
+  const COL = ['#c6a8ff', '#7fe3d4'];
+
+  function draw(){
+    const w = cv.width, h = cv.height, cx = w/2, cy = h/2, R = w/2 - 7;
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineWidth = 1;
+
+    ctx.strokeStyle = 'rgba(198,168,255,.30)';
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.stroke();
+
+    /* latitude / longitude rings, drawn as projected point strings */
+    ctx.strokeStyle = 'rgba(198,168,255,.15)';
+    for (let i = -2; i <= 2; i++){
+      const lat = i * Math.PI/6;
+      ctx.beginPath();
+      for (let a = 0; a <= 64; a++){
+        const t = a/64 * Math.PI*2;
+        const p = fwd([Math.cos(lat)*Math.cos(t), Math.sin(lat), Math.cos(lat)*Math.sin(t)]);
+        const X = cx + p[0]*R, Y = cy - p[1]*R;
+        if (p[2] < 0 && i !== 0){ ctx.moveTo(X, Y); continue; }
+        a ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.stroke();
+    }
+    for (let j = 0; j < 4; j++){
+      const lon = j * Math.PI/4;
+      ctx.beginPath();
+      for (let a = 0; a <= 64; a++){
+        const t = a/64 * Math.PI*2;
+        const p = fwd([Math.cos(lon)*Math.cos(t), Math.sin(t), Math.sin(lon)*Math.cos(t)]);
+        const X = cx + p[0]*R, Y = cy - p[1]*R;
+        if (p[2] < 0){ ctx.moveTo(X, Y); continue; }
+        a ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.stroke();
+    }
+
+    /* the wall plane, as a disc slicing the globe in half */
+    const n = wallFn && wallFn();
+    if (n){
+      /* any two unit vectors spanning the plane perpendicular to n */
+      const seed = Math.abs(n[1]) < 0.9 ? [0,1,0] : [1,0,0];
+      const t1 = V3.norm([
+        seed[1]*n[2] - seed[2]*n[1],
+        seed[2]*n[0] - seed[0]*n[2],
+        seed[0]*n[1] - seed[1]*n[0],
+      ]);
+      const t2 = [
+        n[1]*t1[2] - n[2]*t1[1],
+        n[2]*t1[0] - n[0]*t1[2],
+        n[0]*t1[1] - n[1]*t1[0],
+      ];
+      const ring = [];
+      for (let a = 0; a <= 72; a++){
+        const th = a/72 * Math.PI*2, c = Math.cos(th), sn = Math.sin(th);
+        ring.push(fwd([t1[0]*c + t2[0]*sn, t1[1]*c + t2[1]*sn, t1[2]*c + t2[2]*sn]));
+      }
+      ctx.beginPath();
+      ring.forEach((pt, i) => {
+        const X = cx + pt[0]*R, Y = cy - pt[1]*R;
+        i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(127,227,212,.13)';
+      ctx.fill();
+      /* the near half of the rim reads solid, the far half faint */
+      ctx.lineWidth = 1.4;
+      for (const near of [false, true]){
+        ctx.beginPath();
+        let open = false;
+        ring.forEach(pt => {
+          const X = cx + pt[0]*R, Y = cy - pt[1]*R;
+          if ((pt[2] >= 0) !== near){ open = false; return; }
+          open ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+          open = true;
+        });
+        ctx.strokeStyle = near ? 'rgba(127,227,212,.85)' : 'rgba(127,227,212,.22)';
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+    }
+
+    /* the arc between two latched vectors */
+    if (st.vecs.length === 2){
+      ctx.strokeStyle = 'rgba(255,255,255,.55)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let a = 0; a <= 48; a++){
+        const p = fwd(V3.slerp(st.vecs[0], st.vecs[1], a/48));
+        const X = cx + p[0]*R, Y = cy - p[1]*R;
+        if (p[2] < 0){ ctx.moveTo(X, Y); continue; }
+        a ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
+
+    st.vecs.forEach((v, i) => {
+      const p = fwd(v);
+      const X = cx + p[0]*R, Y = cy - p[1]*R;
+      const front = p[2] >= 0;
+      ctx.strokeStyle = COL[i]; ctx.globalAlpha = front ? 1 : 0.32;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(X, Y); ctx.stroke();
+      ctx.fillStyle = COL[i];
+      ctx.beginPath(); ctx.arc(X, Y, front ? 4.5 : 3, 0, Math.PI*2); ctx.fill();
+      if (st.vecs.length === 2){
+        ctx.fillStyle = '#04020c'; ctx.font = '8px ui-monospace, monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(i ? 'B' : 'A', X, Y + 0.5);
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    if (out){
+      out.textContent = st.vecs
+        .map((v, i) => (st.vecs.length === 2 ? 'AB'[i] + ' ' : '') +
+                        v.map(n => n.toFixed(2)).join(', '))
+        .join('\n') + (st.vecs.length === 2 ? `\nnext: ${'AB'[st.next]}` : '');
+    }
+  }
+
+  let drag = null;
+  cv.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    cv.setPointerCapture(e.pointerId);
+    drag = { x:e.clientX, y:e.clientY };
+    e.preventDefault();
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    st.yaw   += (e.clientX - drag.x) * 0.012;
+    st.pitch += (e.clientY - drag.y) * 0.012;
+    st.pitch = Math.max(-1.45, Math.min(1.45, st.pitch));
+    drag.x = e.clientX; drag.y = e.clientY;
+    draw();
+  });
+  const stop = () => { drag = null; };
+  cv.addEventListener('pointerup', stop);
+  cv.addEventListener('pointercancel', stop);
+
+  cv.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const r = cv.getBoundingClientRect(), R = cv.width/2 - 7;
+    let nx = (e.clientX - r.left - r.width/2) / (r.width/2) * (r.width/2) / R;
+    let ny = -(e.clientY - r.top - r.height/2) / (r.height/2) * (r.height/2) / R;
+    const m = Math.hypot(nx, ny);
+    if (m > 1){ nx /= m; ny /= m; }
+    const nz = Math.sqrt(Math.max(0, 1 - nx*nx - ny*ny));
+    st.vecs[st.next] = V3.norm(inv([nx, ny, nz]));
+    if (nUser > 1) st.next = (st.next + 1) % nUser;
+    draw(); onChange && onChange(st.vecs);
+    scheduleCfg();
+  });
+
+  draw();                                  /* paint once at creation */
+
+  return {
+    /* app-driven update: redraws but doesn't touch the preset */
+    setVec(i, v){
+      const n = V3.norm(v);
+      const o = st.vecs[i];
+      if (o && Math.abs(o[0]-n[0]) + Math.abs(o[1]-n[1]) + Math.abs(o[2]-n[2]) < 1e-4) return;
+      st.vecs[i] = n; draw();
+    },
+    get vecs(){ return st.vecs.map(v => v.slice()); },
+    set vecs(v){
+      if (!Array.isArray(v)) return;
+      v.slice(0, slots).forEach((x, i) => {
+        if (Array.isArray(x) && x.length === 3) st.vecs[i] = V3.norm(x.map(Number));
+      });
+      draw();
+    },
+    draw,
+  };
+}
+
+let sphTravel = null, sphArc = null, arcOn = false, wallBox = null;
+
+/* The wall lies in a plane. Rather than projecting its outline, put the plane
+   itself through the middle of the globe: a disc that cuts the sphere in half,
+   oriented by the wall's normal. */
+function planeNormal(space){
+  const n = [0, 0, 1];                       /* the wall's world normal */
+  if (space === 'world') return n;
+  const b = camBasis();
+  return V3.norm([
+    V3.dot(n, b.right), V3.dot(n, b.up),
+    -(n[0]*b.back[0] + n[1]*b.back[1] + n[2]*b.back[2]),
+  ]);
+}
+
+/* the camera's current forward direction, derived from the same rotation the
+   renderer uses: forward = -back of Rx(rx)*Ry(ry) */
+function lookVec(){
+  const rx = S.rx * Math.PI/180, ry = S.ry * Math.PI/180;
+  const cx = Math.cos(rx), sx = Math.sin(rx);
+  const cy = Math.cos(ry), sy = Math.sin(ry);
+  return [cx*sy, -sx, -cx*cy];
+}
+
+/* Written straight into S as floats. Routing this through the range inputs
+   snapped every frame to their step, which is what made the sweep judder. */
+function applyLookFree(f){
+  S.rx = Math.asin(Math.max(-1, Math.min(1, -f[1]))) * 180/Math.PI;
+  let ry = Math.atan2(f[0], -f[2]) * 180/Math.PI;
+  while (ry > 180) ry -= 360;
+  while (ry < -180) ry += 360;
+  S.ry = ry;
+}
+
+/* put the free-running floats back on the sliders once the motion stops */
+function syncAngleSliders(){
+  [['ry', S.ry], ['rx', S.rx]].forEach(([id, v]) => {
+    const el = document.getElementById(id);
+    el.value = Math.max(+el.min, Math.min(+el.max, Math.round(v * 10) / 10));
+    el._apply();
+  });
+}
+
+/* Velocity profile: ramp linearly to a top speed over the first `accel` of the
+   run, then hold it. Normalised so the whole distance is still covered. */
+function shotEase(k){
+  const a = Math.max(0, Math.min(0.999, S.accel));
+  if (a < 0.001) return k;
+  const vmax = 1 / (1 - a/2);
+  return k < a ? vmax * k * k / (2 * a) : vmax * (a/2 + (k - a));
+}
+
+/* ---------------- saved shots ----------------
+   A shot is a whole framing: eye position, yaw, pitch and field of view.
+   Run flies right along the camera's own right axis and dissolves en route. */
+const SHOTS = [];
+let shotSel = 0, shotRun = null, preShot = null;
+
+function captureShot(){
+  return { eye:[eye.x, eye.y, eye.z], ry:S.ry, rx:S.rx, fov:S.fov };
+}
+function recallShot(i){
+  const sh = SHOTS[i];
+  if (!sh) return;
+  shotSel = i;
+  eye.x = sh.eye[0]; eye.y = sh.eye[1]; eye.z = sh.eye[2];
+  setAll({ ry: sh.ry, rx: sh.rx, fov: sh.fov });
+  renderShots(); scheduleCfg();
+}
+function renderShots(){
+  const box = document.getElementById('shotlist');
+  box.innerHTML = '';
+  SHOTS.forEach((sh, i) => {
+    const b = document.createElement('button');
+    if (EMBED_MODE){ b.disabled = true; b.tabIndex = -1; }
+    b.textContent = String(i + 1);
+    b.setAttribute('aria-pressed', String(i === shotSel));
+    b.title = `eye ${sh.eye.map(v => v.toFixed(1)).join(', ')} · ${sh.ry}° / ${sh.rx}° · ${sh.fov}°`;
+    b.addEventListener('click', () => recallShot(i));
+    box.appendChild(b);
+  });
+}
+
+/* Capture only when nothing is already playing, so re-triggering mid-run keeps
+   the true pre-animation state instead of snapshotting a moving camera. */
+function snapPre(force){
+  if (!force && (shotRun || burning || burnedOut || teardownPending)) return;
+  preShot = { eye:[eye.x, eye.y, eye.z], ry:S.ry, rx:S.rx, fov:S.fov,
+              progress:S.progress, closing:swapTarget >= 0.5 };
+}
+
+function revertPre(){
+  shotRun = null;
+  resetBurn();                       /* clears burn, swap, and the hold timer */
+  if (!preShot) return;
+  eye.x = preShot.eye[0]; eye.y = preShot.eye[1]; eye.z = preShot.eye[2];
+  setAll({ ry:preShot.ry, rx:preShot.rx, fov:preShot.fov,
+           progress:preShot.progress });
+  if (preShot.closing) setPhase('close');
+  if (sphTravel){ sphTravel.draw(); sphArc.draw(); }
+  scheduleCfg();
+}
+
+function runShot(){
+  if (!SHOTS.length) SHOTS.push(captureShot());
+  snapPre();                              /* so Reset can undo the whole run */
+  recallShot(Math.min(shotSel, SHOTS.length - 1));
+  resetBurn();
+
+  /* the sphere vector is read in camera axes: +x right, +y up, +z forward,
+     so the default [1,0,0] is the old "travel right" behaviour exactly */
+  const b = camBasis();
+  const v = sphTravel ? sphTravel.vecs[0] : [1, 0, 0];
+  const dir = [
+    b.right[0]*v[0] + b.up[0]*v[1] - b.back[0]*v[2],
+    b.right[1]*v[0] + b.up[1]*v[1] - b.back[1]*v[2],
+    b.right[2]*v[0] + b.up[2]*v[1] - b.back[2]*v[2],
+  ];
+  shotRun = { t0: performance.now(), from:[eye.x, eye.y, eye.z], dir,
+              fromLook: lookVec(), fired:false };
+  renderShots();
+}
+
+function advanceShot(now){
+  if (!shotRun) return;
+  const el = (now - shotRun.t0) / 1000;
+
+  /* Travel runs for its own duration. Rotation is stretched over the whole
+     shot — travel plus the lead plus the dissolve — so the camera is still
+     turning as the last of the wall burns away. */
+  const travelDur = Math.max(0.1, S.shotdur);
+  const totalDur  = Math.max(travelDur, S.shotlead + Math.max(0.2, S.disdur));
+
+  const d = S.shotdist * shotEase(Math.min(1, el / travelDur));
+  eye.x = shotRun.from[0] + shotRun.dir[0] * d;
+  eye.y = shotRun.from[1] + shotRun.dir[1] * d;
+  eye.z = shotRun.from[2] + shotRun.dir[2] * d;
+
+  if (arcOn && sphArc){
+    /* sweep from where the camera started to the latched target A */
+    const kr = Math.min(1, el / totalDur);
+    applyLookFree(V3.slerp(shotRun.fromLook, sphArc.vecs[0], Math.min(1, shotEase(kr))));
+  }
+
+  if (!shotRun.fired && el >= S.shotlead){ shotRun.fired = true; startBurn(); }
+  if (el >= totalDur && shotRun.fired){
+    shotRun = null; syncAngleSliders(); scheduleCfg();
+  }
+}
+
+document.getElementById('shotsave').addEventListener('click', () => {
+  if (SHOTS.length >= 8) SHOTS.shift();
+  SHOTS.push(captureShot());
+  shotSel = SHOTS.length - 1;
+  renderShots(); scheduleCfg();
+});
+document.getElementById('shotrun').addEventListener('click', runShot);
+document.getElementById('shotrevert').addEventListener('click', revertPre);
+document.getElementById('arcT').addEventListener('click', function(){
+  arcOn = !arcOn;
+  this.setAttribute('aria-pressed', String(arcOn));
+  this.textContent = 'Rotate during run: ' + (arcOn ? 'on' : 'off');
+  scheduleCfg();
+});
+document.getElementById('shotclear').addEventListener('click', () => {
+  SHOTS.length = 0; shotSel = 0; renderShots(); scheduleCfg();
+});
+
+/* ---------------- mouse camera ---------------- */
+let invertY = false;
+
+/* one definition of the camera rotation, shared by the renderer and the
+   movement basis so they can never drift apart */
+function camRot(){
+  return M4.mul(M4.rotZ(S.roll*Math.PI/180),
+         M4.mul(M4.rotX(S.rx*Math.PI/180), M4.rotY(S.ry*Math.PI/180)));
+}
+function camBasis(){
+  const r = camRot();
+  return { right:[r[0], r[4], r[8]], up:[r[1], r[5], r[9]], back:[r[2], r[6], r[10]] };
+}
+/* write through the sliders so S, the UI and the preset never disagree */
+function putAngle(id, v, wrap){
+  const el = document.getElementById(id);
+  const mn = +el.min, mx = +el.max;
+  if (wrap){ while (v > mx) v -= 360; while (v < mn) v += 360; }
+  el.value = Math.max(mn, Math.min(mx, Math.round(v)));
+  el._apply();
+}
+
+let look = null;
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('pointerdown', e => {
+  canvas.focus();
+  canvas.setPointerCapture(e.pointerId);
+  look = { id:e.pointerId, btn:e.button, x:e.clientX, y:e.clientY, ctrl:e.ctrlKey };
+  e.preventDefault();
+});
+canvas.addEventListener('pointermove', e => {
+  if (!look || e.pointerId !== look.id) return;
+  const dx = e.clientX - look.x, dy = e.clientY - look.y;
+  look.x = e.clientX; look.y = e.clientY;
+
+  if (look.btn === 0 && (e.ctrlKey || look.ctrl)){
+    putAngle('roll', S.roll + dx * S.looksens, true);   /* wraps a full 360 */
+  } else if (look.btn === 0){
+    putAngle('ry', S.ry + dx * S.looksens, true);
+    putAngle('rx', S.rx + (invertY ? -dy : dy) * S.looksens, false);
+  } else {
+    const b = camBasis(), k = S.flyspeed * 0.006;
+    eye.x -= (b.right[0] * dx - b.up[0] * dy) * k;
+    eye.y -= (b.right[1] * dx - b.up[1] * dy) * k;
+    eye.z -= (b.right[2] * dx - b.up[2] * dy) * k;
+  }
+});
+const endLook = e => { if (look && e.pointerId === look.id){ look = null; scheduleCfg(); } };
+canvas.addEventListener('pointerup', endLook);
+canvas.addEventListener('pointercancel', endLook);
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const b = camBasis(), k = -e.deltaY * S.flyspeed * 0.0016;
+  eye.x -= b.back[0] * k; eye.y -= b.back[1] * k; eye.z -= b.back[2] * k;
+  scheduleCfg();
+}, { passive:false });
+
+document.getElementById('invy').addEventListener('click', function(){
+  invertY = !invertY;
+  this.setAttribute('aria-pressed', String(invertY));
+  this.textContent = 'Invert Y: ' + (invertY ? 'on' : 'off');
+  scheduleCfg();
+});
+
+document.getElementById('recentre').addEventListener('click', () => {
+  eye.x = eye.y = eye.z = 0; held.clear(); scheduleCfg();
+});
+
+const panel = document.getElementById('panel');
+document.getElementById('hide').addEventListener('click', () => {
+  panel.dataset.collapsed = 'true'; document.getElementById('show').focus();
+});
+document.getElementById('show').addEventListener('click', () => {
+  panel.dataset.collapsed = 'false'; document.getElementById('hide').focus();
+});
+
+/* ---------------- presets ---------------- */
+const SLIDERS = ['speed','scale','spread','tintmix','jitter','depth',
+                 'emboss','bevel','lightang','erode','fray','bold','gap','blink','curop',
+                 'progress','swapdur','swapw','closehold','disdur','wave','flash','bedge','bnoise','ember','seeds',
+                 'glow','grad','defocus','scan','pitch','grain',
+                 'dropamt','dropang','droppos','dropsoft','ry','rx','fov','zoom','roll','flyspeed','looksens','lcop',
+                 'shotdist','shotdur','shotlead','accel'];
+const cfgEl = document.getElementById('cfg');
+const noteEl = document.getElementById('cfgnote');
+const num = (v, d) => Number.isFinite(+v) ? +v : d;
+
+function getState(){
+  const o = { version:1, seed };
+  SLIDERS.forEach(k => o[k] = S[k]);
+  o.loadingMode = loadingMode; o.autoBurn = autoBurn; o.mode = S.mode;
+  o.contentIdle = contentIdle;
+  o.edits = Object.fromEntries(EDITS);
+  o.showCursors = showCursors;
+  /* everything in flight, so a preset reopens on the exact frame it was taken */
+  o.anim = {
+    rows: +travelledRows.toFixed(3),
+    running,
+    swap: +swapNow.toFixed(5), swapTarget, teardown: teardownPending,
+    dis: +dis.toFixed(5), burning, burnedOut,
+    seeds: Array.from(seedArr.slice(0, nSeeds * 3)).map(v => +v.toFixed(5)),
+    shot: shotRun ? {
+      el: +((performance.now() - shotRun.t0) / 1000).toFixed(3),
+      from: shotRun.from.map(v => +v.toFixed(5)),
+      dir: shotRun.dir.map(v => +v.toFixed(5)),
+      fromLook: shotRun.fromLook.map(v => +v.toFixed(5)),
+      fired: shotRun.fired,
+    } : null,
+  };
+  o.shots = SHOTS.map(sh => ({ ...sh, eye: sh.eye.slice() }));
+  /* round, so re-normalising on import can't drift the last bits and make
+     the preset non-idempotent */
+  const r5 = v => v.map(n => +n.toFixed(5));
+  o.travelVec = r5(sphTravel ? sphTravel.vecs[0] : [1, 0, 0]);
+  o.arcVecs = sphArc ? sphArc.vecs.map(r5) : null;
+  o.arcOn = arcOn;
+  o.preShot = preShot ? { eye:preShot.eye.map(v => +v.toFixed(4)),
+                          ry:preShot.ry, rx:preShot.rx, fov:preShot.fov,
+                          progress:preShot.progress, closing:!!preShot.closing } : null;
+  o.eye = [ +eye.x.toFixed(4), +eye.y.toFixed(4), +eye.z.toFixed(4) ];
+  o.invertY = invertY;
+  o.invertY = invertY;
+  o.copies = COPIES.map(c => ({ dx:c.dx, dy:c.dy, tint:c.tint, a:c.a, jit:c.jit, depth:c.depth }));
+  o.planes = PLANES.map(p => ({ cols:p.cols, rows:p.rows, x:p.x, y:p.y, s:p.s, hb:p.hb, b:p.b }));
+  return o;
+}
+
+function applyState(o){
+  if (!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('expected a JSON object');
+  let rebuild = false;          /* declared first: several branches below set it */
+  const vals = {};
+  SLIDERS.forEach(k => { if (Number.isFinite(+o[k])) vals[k] = +o[k]; });
+  setAll(vals);
+  /* the angle sliders quantise to their step; put the exact floats back into
+     the state the renderer actually reads, so a restore is bit-faithful */
+  ['ry','rx','roll'].forEach(k => { if (Number.isFinite(+o[k])) S[k] = +o[k]; });
+
+  if (Array.isArray(o.eye) && o.eye.length === 3){
+    eye.x = num(o.eye[0],0); eye.y = num(o.eye[1],0); eye.z = num(o.eye[2],0);
+  }
+  if (Number.isFinite(+o.mode)) document.getElementById('m' + (Math.max(0,Math.min(2,+o.mode)))).click();
+  if (typeof o.invertY === 'boolean' && o.invertY !== invertY)
+    document.getElementById('invy').click();
+  if (typeof o.showCursors === 'boolean' && o.showCursors !== showCursors)
+    document.getElementById('lcT').click();
+  if (sphTravel && Array.isArray(o.travelVec)) sphTravel.vecs = [o.travelVec];
+  if (sphArc && Array.isArray(o.arcVecs)) sphArc.vecs = o.arcVecs;
+  if (typeof o.arcOn === 'boolean' && o.arcOn !== arcOn)
+    document.getElementById('arcT').click();
+  if (o.preShot && Array.isArray(o.preShot.eye)){
+    preShot = { eye:o.preShot.eye.map(v => num(v, 0)), ry:num(o.preShot.ry, 0),
+                rx:num(o.preShot.rx, 0), fov:num(o.preShot.fov, 34),
+                progress:num(o.preShot.progress, 0), closing:!!o.preShot.closing };
+  }
+  if (Array.isArray(o.shots)){
+    SHOTS.length = 0;
+    o.shots.slice(0, 8).forEach(sh => {
+      if (!sh || !Array.isArray(sh.eye) || sh.eye.length !== 3) return;
+      SHOTS.push({ eye: sh.eye.map(v => num(v, 0)), ry: num(sh.ry, 0),
+                   rx: num(sh.rx, 0), fov: num(sh.fov, 34) });
+    });
+    renderShots();
+  }
+  if (o.edits && typeof o.edits === 'object' && !Array.isArray(o.edits)){
+    EDITS.clear();
+    Object.entries(o.edits).forEach(([k, v]) => {
+      if (typeof v === 'string' && /^\d+:\d+:\d+$/.test(k)) EDITS.set(k, v);
+    });
+    rebuild = true;
+  }
+  if (typeof o.contentIdle === 'boolean' && o.contentIdle !== contentIdle)
+    document.getElementById('idlebtn').click();
+  if (typeof o.autoBurn === 'boolean') autoBurn = o.autoBurn;
+  if (typeof o.loadingMode === 'boolean') setLoadingMode(o.loadingMode);
+
+  if (Array.isArray(o.copies) && o.copies.length){
+    COPIES.length = 0;
+    o.copies.slice(0, 6).forEach(c => COPIES.push({
+      dx: num(c.dx,0), dy: num(c.dy,0),
+      tint: Array.isArray(c.tint) && c.tint.length === 3 ? c.tint.map(v => num(v,1)) : [1,1,1],
+      a: num(c.a,1), jit: num(c.jit,0), depth: num(c.depth,0),
+    }));
+  }
+  if (Array.isArray(o.planes) && o.planes.length){
+    PLANES.length = 0;
+    o.planes.slice(0, MAXP).forEach(pl => PLANES.push({
+      cols: Math.max(1, Math.round(num(pl.cols,24))),
+      rows: Math.max(2, Math.round(num(pl.rows,60))),
+      x: num(pl.x,0), y: num(pl.y,0), s: Math.max(0.05, num(pl.s,1)),
+      hb: num(pl.hb,0.5), b: num(pl.b,1),
+    }));
+    rebuild = true;
+  }
+  if (Number.isFinite(+o.seed) && +o.seed !== seed){ seed = +o.seed; rebuild = true; }
+  if (rebuild) buildInstances(seed);
+
+  /* restore live animation last, so it isn't clobbered by the rebuilds above.
+     Wall-clock anchors are back-dated so playback carries on from that point. */
+  if (o.anim && typeof o.anim === 'object'){
+    const a = o.anim, now = performance.now();
+
+    travelledRows = num(a.rows, travelledRows);
+
+    running = a.running !== false;
+    playBtn.textContent = running ? 'Pause' : 'Play';
+    playBtn.setAttribute('aria-pressed', String(running));
+
+    swapNow    = num(a.swap, 0);
+    swapTarget = num(a.swapTarget, 0) >= 0.5 ? 1 : 0;
+    teardownPending = !!a.teardown;
+    swapFrom = swapTarget >= 0.5 ? 0 : 1;
+    swapStart = now - Math.abs(swapNow - swapFrom) * Math.max(0.05, S.swapdur) * 1000;
+
+    dis = num(a.dis, 0);
+    burning = !!a.burning; burnedOut = !!a.burnedOut;
+    burnStart = now - dis * Math.max(0.2, S.disdur) * 1000;
+    canvas.dataset.gone = burnedOut ? 'true' : 'false';
+    clearTimeout(closeTimer); closeTimer = null;
+
+    if (Array.isArray(a.seeds) && a.seeds.length >= 3){
+      nSeeds = Math.min(32, Math.floor(a.seeds.length / 3));
+      for (let i = 0; i < nSeeds * 3; i++) seedArr[i] = num(a.seeds[i], 0);
+    }
+
+    shotRun = (a.shot && Array.isArray(a.shot.from)) ? {
+      t0: now - num(a.shot.el, 0) * 1000,
+      from: a.shot.from.map(v => num(v, 0)),
+      dir: a.shot.dir.map(v => num(v, 0)),
+      fromLook: a.shot.fromLook.map(v => num(v, 0)),
+      fired: !!a.shot.fired,
+    } : null;
+  }
+
+  if (sphTravel){ sphTravel.draw(); sphArc.draw(); }
+  refreshCfg();
+}
+
+var cfgTimer = null;
+function refreshCfg(){
+  if (document.activeElement === cfgEl) return;   /* don't fight the user typing */
+  cfgEl.value = JSON.stringify(getState(), null, 1);
+}
+function scheduleCfg(){ clearTimeout(cfgTimer); cfgTimer = setTimeout(refreshCfg, 140); }
+function say(msg, bad){ noteEl.textContent = msg; noteEl.className = 'note' + (bad ? ' bad' : ''); }
+
+document.getElementById('cfgapply').addEventListener('click', () => {
+  try { applyState(JSON.parse(cfgEl.value)); say('Applied.'); }
+  catch (e){ say('Could not apply: ' + e.message, true); }
+});
+document.getElementById('cfgcopy').addEventListener('click', async () => {
+  refreshCfg();
+  try { await navigator.clipboard.writeText(cfgEl.value); say('Copied to clipboard.'); }
+  catch { cfgEl.select(); say('Press Ctrl/Cmd-C to copy the selection.'); }
+});
+document.getElementById('cfgsave').addEventListener('click', () => {
+  refreshCfg();
+  const url = URL.createObjectURL(new Blob([cfgEl.value], { type:'application/json' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = 'terminal-wall-preset.json'; a.click();
+  URL.revokeObjectURL(url);
+  say('Saved terminal-wall-preset.json');
+});
+document.getElementById('cfglink').addEventListener('click', async () => {
+  const packed = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(getState())))));
+  const link = location.origin + location.pathname + '#p=' + packed;
+  history.replaceState(null, '', '#p=' + packed);
+  try { await navigator.clipboard.writeText(link); say('Link copied — it reopens with these settings.'); }
+  catch { say('Settings are in the address bar.'); }
+});
+
+function loadFromHash(){
+  const m = /[#&]p=([^&]+)/.exec(location.hash);
+  if (!m) return false;
+  try { applyState(JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))))); return true; }
+  catch { say('That link\u2019s settings could not be read.', true); return false; }
+}
+
+document.getElementById('facts').innerHTML =
+  `Source loop <b>250 f @ 30 fps = 8.333 s</b><br>` +
+  `Scroll <b>12 px/frame at 3840×2160</b> (360 px/s)<br>` +
+  `Strip period <b>3000 px</b> · char pitch <b>36 px</b><br>` +
+  `= cgrom12's 12 px cell at <b>3×</b>, 10 rows/s`;
+
+/* ---------------- frame ---------------- */
+const uModel = new Float32Array(16 * MAXP);
+const uGrid  = new Float32Array(2 * MAXP);
+const uSpeed = new Float32Array(MAXP);
+const U = {};
+const loc = (p, n) => (U[n + p.__id] ??= gl.getUniformLocation(p, n));
+let pid = 0;
+
+function drawGlyphs(vp, c){
+  gl.useProgram(progText);
+  gl.uniformMatrix4fv(gl.getUniformLocation(progText,'u_vp'), false, vp);
+  gl.uniformMatrix4fv(gl.getUniformLocation(progText,'u_model'), false, uModel);
+  gl.uniform2fv(gl.getUniformLocation(progText,'u_grid'), uGrid);
+  gl.uniform1fv(gl.getUniformLocation(progText,'u_speedComp'), uSpeed);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_scrollRows'), travelledRows);
+  gl.uniform3f(gl.getUniformLocation(progText,'u_ghost'),
+               c.dx * S.spread / S.scale, -c.dy * S.spread / S.scale, 0);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_alpha'), c.a);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_seed'), c.seed);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_jitter'), c.jit * S.jitter);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_depthMod'), c.depth * S.depth);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_emboss'), S.emboss);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_bevel'), S.bevel);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_erode'), S.erode);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_fray'), S.fray);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_bold'), S.bold);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_curOp'), S.curop);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_progress'), S.progress);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_swap'), swapNow);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_swapW'),
+               (swapNow > 0.0 && swapNow < 1.0) ? S.swapw : 0.0);
+  const act = (burning || burnedOut) ? dis : 0;
+  gl.uniform1f(gl.getUniformLocation(progText,'u_decay'), S.mode === 0 ? act : 0);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_wave'), S.wave);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_flash'), S.flash);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_ember'), S.ember);
+  gl.uniform1f(gl.getUniformLocation(progText,'u_blinkOn'),
+               S.blink <= 0 ? 1 : ((blinkClock * S.blink) % 1 < 0.5 ? 1 : 0));
+  const la = S.lightang * Math.PI/180;
+  gl.uniform2f(gl.getUniformLocation(progText,'u_light'), Math.cos(la), Math.sin(la));
+  const t = c.tint, m = S.tintmix;
+  gl.uniform3f(gl.getUniformLocation(progText,'u_tint'),
+               1 + (t[0]-1)*m, 1 + (t[1]-1)*m, 1 + (t[2]-1)*m);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, atlasTex);
+  gl.uniform1i(gl.getUniformLocation(progText,'u_atlas'), 0);
+  gl.bindVertexArray(vaoText);
+  gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, instanceCount);
+}
+const blit = p => { gl.useProgram(p); gl.bindVertexArray(quadVao); gl.drawArrays(gl.TRIANGLES, 0, 6); };
+
+let blinkClock = 0, dis = 0, burnStart = 0, burning = false, burnedOut = false;
+const eye = { x:5.8126, y:-0.3435, z:2.7983 };
+const held = new Set();
+
+/* Fields swallow every fly key. A focused button only swallows Space, so that
+   Space still activates it — WASD keeps working with the panel toggle focused. */
+const inField = () => {
+  const a = document.activeElement;
+  return !!a && (a.tagName === 'TEXTAREA' || a.tagName === 'INPUT' || a.isContentEditable);
+};
+const onButton = () => {
+  const a = document.activeElement;
+  return !!a && a.tagName === 'BUTTON';
+};
+const FLYKEYS = new Set(['KeyW','KeyA','KeyS','KeyD','Space',
+                         'ControlLeft','ControlRight','ShiftLeft','ShiftRight']);
+
+addEventListener('keydown', e => {
+  if (!FLYKEYS.has(e.code) || inField() || editing) return;
+  if (e.code === 'Space' && onButton()) return;      /* let the button have it */
+  held.add(e.code);
+  /* Space would scroll; Ctrl and Shift must stay usable for browser shortcuts */
+  if (e.code === 'Space') e.preventDefault();
+});
+addEventListener('keyup', e => {
+  if (!held.delete(e.code)) return;
+  if (!held.size) scheduleCfg();      /* park the new eye in the preset */
+});
+addEventListener('blur', () => held.clear());
+
+function flyStep(dt, rot){
+  if (!held.size) return;
+  shotRun = null;                     /* manual input cancels a running shot */
+  const fwd  = (held.has('KeyW') ? 1 : 0) - (held.has('KeyS') ? 1 : 0);
+  const strafe = (held.has('KeyD') ? 1 : 0) - (held.has('KeyA') ? 1 : 0);
+  const rise = (held.has('Space') ? 1 : 0)
+             - (held.has('ControlLeft') || held.has('ControlRight') ? 1 : 0);
+  if (!fwd && !strafe && !rise) return;
+
+  /* rows of the rotation give the camera basis in world space */
+  const right = [ rot[0],  rot[4],  rot[8]];
+  const back  = [ rot[2],  rot[6],  rot[10]];
+  const boost = (held.has('ShiftLeft') || held.has('ShiftRight')) ? 3 : 1;
+  const v = S.flyspeed * boost * dt;
+
+  eye.x += (-back[0] * fwd + right[0] * strafe) * v;
+  eye.y += (-back[1] * fwd + right[1] * strafe) * v + rise * v;   /* rise is world-up */
+  eye.z += (-back[2] * fwd + right[2] * strafe) * v;
+}
+let seedArr = new Float32Array(32 * 3), nSeeds = 0;
+const doneCbs = [];
+
+function makeSeeds(){
+  nSeeds = Math.max(1, Math.min(32, Math.round(S.seeds)));
+  for (let i = 0; i < nSeeds; i++){
+    seedArr[i*3]   = Math.random();
+    seedArr[i*3+1] = Math.random();
+    seedArr[i*3+2] = Math.random() * 0.75;      /* stagger when each opens */
+  }
+}
+let closeTimer = null, swapNow = 0, swapTarget = 0, teardownPending = false;
+let swapFrom = 0, swapStart = 0;
+
+function setPhase(next){
+  const t = next === 'close' ? 1 : 0;
+  if (t !== swapTarget){ swapFrom = swapNow; swapStart = performance.now(); }
+  swapTarget = t;
+  if (next === 'load'){
+    teardownPending = false;
+    clearTimeout(closeTimer); closeTimer = null;
+  }
+  scheduleCfg();
+}
+
+/* loading finishes -> commands are replaced in reverse -> hold -> dissolve */
+function beginTeardown(){
+  if (burning || teardownPending) return;
+  teardownPending = true;
+  setPhase('close');
+}
+
+function advanceSwap(now){
+  /* wall clock, so a slow frame doesn't stretch the replacement */
+  if (swapNow !== swapTarget){
+    const k = Math.max(0, Math.min(1, (now - swapStart) / (Math.max(0.05, S.swapdur) * 1000)));
+    swapNow = k >= 1 ? swapTarget : swapFrom + (swapTarget - swapFrom) * k;
+  }
+  if (teardownPending && swapNow >= 1 && !closeTimer && !burning){
+    closeTimer = setTimeout(() => {
+      closeTimer = null; teardownPending = false; startBurn();
+    }, Math.max(0, S.closehold) * 1000);
+  }
+}
+
+function startBurn(){
+  if (burning) return;
+  makeSeeds(); dis = 0; burnStart = performance.now(); burning = true; burnedOut = false;
+  canvas.dataset.gone = 'false';
+}
+function resetBurn(){
+  clearTimeout(closeTimer); closeTimer = null;
+  teardownPending = false; swapTarget = 0; swapNow = 0; swapFrom = 0;
+  burning = false; burnedOut = false; dis = 0;
+  canvas.dataset.gone = 'false';
+}
+
+let terminalFrameRaf = 0, wallDestroyed = false;
+function frame(now){
+  if (wallDestroyed) return;
+  const dt = Math.min(0.1, (now - last)/1000); last = now;
+  blinkClock += dt;
+  advanceSwap(now);
+  advanceShot(now);
+  if (sphArc) sphArc.setVec(1, lookVec());
+  /* the wall outline moves with the eye, so repaint the globes as we fly */
+  if (sphTravel && (shotRun || held.size || look)) sphTravel.draw();
+  if (burning){
+    /* wall clock, not accumulated dt — a hitching page must not slow this down */
+    dis = Math.max(0, Math.min(1.25, ((now - burnStart) / 1000) / Math.max(0.2, S.disdur)));
+    if (dis >= 1.05){
+      burning = false; burnedOut = true;
+      canvas.dataset.gone = 'true';
+      doneCbs.splice(0).forEach(f => { try { f(); } catch(e){ console.error(e); } });
+    }
+  }
+  if (running) travelledRows += S.speed * dt;
+
+  const fov = S.fov * Math.PI/180;
+  const dist = (1 / Math.tan(fov/2)) / Math.max(0.05, S.zoom);
+  const rot = camRot();
+  flyStep(dt, rot);
+  const vp = M4.mul(
+    M4.persp(fov, W/H, 0.05, 60),
+    M4.mul(M4.translate(0, 0, -dist),
+      M4.mul(rot, M4.translate(-eye.x, -eye.y, -eye.z))));
+
+  /* one dot cell measures exactly S.scale CSS px at z = 0 */
+  const cell = 2 * S.scale * DPR() / H;
+  /* lay the blocks out left-to-right with a real gap, in their preset x order,
+     so no block can ever overlap another */
+  const order = PLANES.map((p, i) => i).sort((a, b) => PLANES[a].x - PLANES[b].x);
+  const widthOf = p => p.cols * ADV * cell * p.s;
+  let total = order.reduce((t, i) => t + widthOf(PLANES[i]), 0)
+            + S.gap * Math.max(0, order.length - 1);
+  let cx = -total / 2;
+  const xAt = new Float32Array(PLANES.length);
+  for (const i of order){
+    const w = widthOf(PLANES[i]);
+    xAt[i] = cx + w / 2;
+    cx += w + S.gap;
+  }
+
+  placeHandles();
+
+  /* world bounds of the whole wall, for the sphere overlays */
+  {
+    let X0 = Infinity, X1 = -Infinity, Y0 = Infinity, Y1 = -Infinity;
+    PLANES.forEach((p, i) => {
+      const hw = p.cols * ADV * cell * p.s / 2;
+      const hh = p.rows * CH  * cell * p.s / 2;
+      X0 = Math.min(X0, xAt[i] - hw); X1 = Math.max(X1, xAt[i] + hw);
+      Y0 = Math.min(Y0, p.y - hh);    Y1 = Math.max(Y1, p.y + hh);
+    });
+    wallBox = { x0:X0, x1:X1, y0:Y0, y1:Y1 };
+  }
+
+  PLANES.forEach((p, i) => {
+    uModel.set(M4.mul(M4.translate(xAt[i], p.y, 0),
+                      M4.scale(cell * p.s)), i*16);
+    uGrid[i*2] = p.cols; uGrid[i*2+1] = p.rows;
+    /* equalise on-screen scroll rate across depths, as measured in the source */
+    uSpeed[i] = 1 / p.s;   /* equal on-screen scroll rate, as measured */
+  });
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fboScene.fbo);
+  gl.viewport(0,0,W,H);
+  gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);   /* additive, like a CRT */
+  COPIES.forEach((c, i) => drawGlyphs(vp, { ...c, seed: i * 41.7 }));
+  gl.disable(gl.BLEND);
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fboA.fbo);
+  gl.viewport(0,0,BW,BH);
+  gl.useProgram(progDown);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboScene.tex);
+  gl.uniform1i(gl.getUniformLocation(progDown,'u_src'), 0);
+  gl.uniform2f(gl.getUniformLocation(progDown,'u_texel'), 1/W, 1/H);
+  blit(progDown);
+
+  gl.useProgram(progBlur);
+  const uSrc = gl.getUniformLocation(progBlur,'u_src');
+  const uDir = gl.getUniformLocation(progBlur,'u_dir');
+  for (let i = 0; i < 2; i++){
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboB.fbo);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboA.tex);
+    gl.uniform1i(uSrc, 0); gl.uniform2f(uDir, S.grad/BW, 0);
+    blit(progBlur);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboA.fbo);
+    gl.bindTexture(gl.TEXTURE_2D, fboB.tex);
+    gl.uniform2f(uDir, 0, S.grad/BH);
+    blit(progBlur);
+  }
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0,0,W,H);
+  gl.useProgram(progComp);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, fboScene.tex);
+  gl.uniform1i(gl.getUniformLocation(progComp,'u_scene'), 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, fboA.tex);
+  gl.uniform1i(gl.getUniformLocation(progComp,'u_bloom'), 1);
+  gl.uniform2f(gl.getUniformLocation(progComp,'u_res'), W, H);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_bloomAmt'), S.glow);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_defocus'), S.defocus * DPR());
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_scan'), S.scan);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_pitch'), S.pitch * DPR());
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_grain'), S.grain);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_dropAmt'), S.dropamt);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_dropAng'), S.dropang * Math.PI/180);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_dropPos'), S.droppos);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_dropSoft'), S.dropsoft);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_time'), now * 0.06);
+  const dact = (burning || burnedOut) ? dis : 0;
+  gl.uniform1i(gl.getUniformLocation(progComp,'u_mode'), S.mode|0);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_dis'), dact);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_burn'), S.mode === 1 ? dact : 0);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_burnSpeed'), 2.4);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_burnEdge'), S.bedge);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_burnNoise'), S.bnoise);
+  gl.uniform1f(gl.getUniformLocation(progComp,'u_ember'), S.ember);
+  gl.uniform1i(gl.getUniformLocation(progComp,'u_nSeeds'), nSeeds);
+  gl.uniform3fv(gl.getUniformLocation(progComp,'u_seeds'), seedArr);
+  blit(progComp);
+
+  terminalFrameRaf = requestAnimationFrame(frame);
+}
+
+if (gl){
+  initGL();
+  resize();
+  addEventListener('resize', resize, { passive:true });
+  buildInstances(seed);
+  loadFromHash();
+  refreshCfg();
+  wallReady = true;
+  makeSeeds();
+  makeWheel('lightang'); makeWheel('dropang');
+  sphTravel = makeSphere('sphT', 1, [[1, 0, 0]], null, 1,
+                         () => planeNormal('camera'));
+  sphArc    = makeSphere('sphR', 2, [[0.6, 0.25, -0.76], lookVec()], null, 1,
+                         () => planeNormal('world'));
+  if (EMBED_MODE) applyState({
+    version:1, seed:20230220, speed:10, scale:8, spread:0.85, tintmix:1,
+    jitter:0.2, depth:0.7, emboss:0.46, bevel:0.24, lightang:306,
+    erode:0.12, fray:0.135, bold:0.1, gap:0.18, blink:1.4, curop:1,
+    progress:0, swapdur:1.8, swapw:0.2, closehold:1.6, disdur:3.2,
+    wave:1.1, flash:0, bedge:0.12, bnoise:0.1, ember:0.6, seeds:18,
+    glow:1.95, grad:0.4, defocus:1.1, scan:0.8, pitch:4, grain:0.045,
+    dropamt:0, dropang:270, droppos:0.5, dropsoft:0.04,
+    ry:16, rx:0, fov:70, zoom:1, roll:0, flyspeed:4, looksens:1,
+    lcop:1, shotdist:3.2, shotdur:4, shotlead:0.6, accel:0.45,
+    loadingMode:true, autoBurn:false, mode:0, contentIdle:false,
+    edits:{}, showCursors:false,
+    anim:{ rows:1393.149, running:true, swap:0, swapTarget:0,
+      teardown:false, dis:0, burning:false, burnedOut:false, shot:null },
+    shots:[{ eye:[7.104535710906976,-0.6555000000000003,3.168756609725953],
+      ry:16, rx:0, fov:70 }],
+    travelVec:[1,0,0],
+    arcVecs:[[0.59997,0.24999,-0.75996],[0.27564,0,-0.96126]],
+    arcOn:false,
+    preShot:{ eye:[7.1045,-0.6555,3.1688], ry:16, rx:0, fov:70,
+      progress:0, closing:false },
+    eye:[7.104535710906976,-0.6555000000000003,3.168756609725953],
+    invertY:false,
+    copies:[
+      {dx:32,dy:-19,tint:[0.57,0.51,1],a:0.46,jit:1.1,depth:0},
+      {dx:-11,dy:6,tint:[0.55,1,0.9],a:0.58,jit:0.55,depth:0},
+      {dx:-7,dy:-1,tint:[1,1,1],a:1,jit:0.15,depth:1}
+    ],
+    planes:[
+      {cols:24,rows:60,x:-1.28,y:0,s:1.3,hb:0.62,b:1},
+      {cols:30,rows:70,x:-0.52,y:-0.08,s:0.78,hb:0.34,b:0.8},
+      {cols:22,rows:58,x:0.22,y:0.05,s:1.72,hb:0.62,b:0.96},
+      {cols:26,rows:64,x:0.98,y:-0.03,s:0.95,hb:0.34,b:0.86},
+      {cols:34,rows:72,x:1.66,y:0.02,s:1.2,hb:0.3,b:0.72}
+    ]
+  });
+  renderShots();
+  snapPre(true);
+  placeHandles();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches){
+    running = false; playBtn.textContent = 'Play';
+    playBtn.setAttribute('aria-pressed','false');
+  }
+  terminalFrameRaf = requestAnimationFrame(frame);
+  if (EMBED_MODE) requestAnimationFrame(() => postHost('ready'));
+} else if (EMBED_MODE) {
+  requestAnimationFrame(() => postHost('ready', { fallback:true }));
+}
+</script>
+</body>
+</html>
