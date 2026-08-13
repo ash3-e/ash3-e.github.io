@@ -978,7 +978,7 @@ void main(){
     if (dh < front) discard;
     float flash = smoothstep(front + 0.13, front, dh);
     vec3 ember = mix(vec3(0.80,0.66,1.00), vec3(1.00,0.60,0.24), u_ember);
-    outc += ember * flash * max(u_flash, 0.55);
+    outc += ember * flash * u_flash;
   }
 
   frag = vec4(outc, 1.0);
