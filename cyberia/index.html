@@ -8,7 +8,7 @@
     <style>
       html, body { margin: 0; min-height: 100%; background: #04020c; }
       #root[data-cyberia-booting="true"] {
-        opacity: 0;
+        opacity: var(--cyberia-boot-reveal, 0);
         pointer-events: none;
       }
       #cyberia-boot-wall {
@@ -16,7 +16,7 @@
         inset: 0;
         z-index: 2147483647;
         overflow: hidden;
-        background: #04020c;
+        background: transparent;
         pointer-events: auto;
         isolation: isolate;
         contain: strict;
@@ -27,11 +27,13 @@
         height: 100%;
         border: 0;
         display: block;
-        background: #04020c;
+        background: transparent;
+        opacity: 0;
         pointer-events: none;
       }
+      #cyberia-boot-wall[data-preset-applied="true"] iframe { opacity: 1; }
     </style>
-    <script type="module" crossorigin src="/cyberia/assets/bootstrap-reFZGODN.js"></script>
+    <script type="module" crossorigin src="/cyberia/assets/bootstrap-CbMBg-Z3.js"></script>
   </head>
   <body>
     <div id="root" data-cyberia-booting="true" inert aria-hidden="true"></div>

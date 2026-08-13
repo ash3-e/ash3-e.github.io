@@ -148,7 +148,7 @@
   /* The CYBERIA boot embed is a display surface, never an editor. The parent
      iframe also has pointer-events disabled; these rules make the document
      itself non-focusable and ensure no authored controls can flash on load. */
-  body[data-embed="true"]{ cursor:default; user-select:none; touch-action:none }
+  body[data-embed="true"]{ cursor:default; user-select:none; touch-action:none; background:transparent }
   body[data-embed="true"] .panel,
   body[data-embed="true"] .toggle,
   body[data-embed="true"] .cursors,
@@ -1068,7 +1068,9 @@ void main(){
 
   vec3 col = sc + texture(u_bloom, suv).rgb * u_bloomAmt;
 
-  /* the wallpaper's dark teal ground with a soft central lift */
+  /* the wallpaper's dark teal ground with a soft central lift. Its alpha is
+     driven by the same dissolve clock as the glyphs, so the animation plane is
+     physically replaced by the site instead of exposing a black last frame. */
   vec2 d = (v_uv - vec2(0.44, 0.54)) * vec2(u_res.x/u_res.y, 1.0);
   col += vec3(0.075,0.045,0.165) * exp(-dot(d,d)*1.6) * 0.55 + vec3(0.016,0.008,0.047);
 
@@ -1115,6 +1117,12 @@ void main(){
     /* char it just before it goes */
     col *= mix(0.35, 1.0, smoothstep(0.0, u_burnEdge * 2.6, dist));
   }
+
+  /* Burn seeds can leave a geometric corner fragment at exactly 1. Collapse
+     and crumble already reach zero there. This mode-agnostic terminal-plane
+     fade guarantees the final character/background pixel is gone on the same
+     frame that the parent reaches full opacity. */
+  if (u_dis > 0.0) alpha *= 1.0 - clamp(u_dis, 0.0, 1.0);
 
   frag = vec4(col * alpha, alpha);
 }`;
@@ -1570,7 +1578,10 @@ window.TerminalWall = {
     p = Math.max(0, Math.min(1, +p || 0));
     const el = document.getElementById('progress');
     el.value = p; el._apply();
-    if (loadingMode && autoBurn && p >= 1) beginTeardown();
+    /* In the embedded boot surface the host owns the readiness barrier and is
+       the only authority allowed to begin the exit. Standalone/editor use
+       keeps the authored auto-burn behaviour. */
+    if (loadingMode && autoBurn && !EMBED_MODE && p >= 1) beginTeardown();
     return p;
   },
   get progress(){ return S.progress; },
@@ -1601,6 +1612,7 @@ window.TerminalWall = {
   get element(){ return canvas; },
   applyState,
   getState,
+  complete(){ completeBurn(); },
   destroy(){
     wallDestroyed = true;
     if (terminalFrameRaf) cancelAnimationFrame(terminalFrameRaf);
@@ -1616,11 +1628,12 @@ const postHost = (type, detail = {}) => {
   parent.postMessage({ source:'cyberia-terminal-wall', type, ...detail }, '*');
 };
 
+let hostPresetRevision = null;
+
 if (EMBED_MODE){
   canvas.removeAttribute('tabindex');
   document.querySelectorAll('button,input,textarea,[tabindex]').forEach(el => {
     el.setAttribute('tabindex', '-1');
-    if ('disabled' in el) el.disabled = true;
   });
   // Capture and consume input before the editor/camera listeners below see it.
   ['keydown','keyup','pointerdown','pointermove','pointerup','pointercancel','wheel','contextmenu']
@@ -1632,15 +1645,43 @@ if (EMBED_MODE){
   addEventListener('message', event => {
     if (event.source !== parent || !event.data || event.data.source !== 'cyberia-boot') return;
     switch (event.data.type){
+      case 'probe': postHost('ready'); break;
       case 'set-progress': TerminalWall.setProgress(event.data.progress); break;
-      case 'run-shot': TerminalWall.runShot(); break;
+      case 'run-shot':
+        if (event.data.revision !== hostPresetRevision) break;
+        if (event.data.reducedMotion) TerminalWall.complete();
+        else TerminalWall.runShot();
+        break;
       case 'teardown': TerminalWall.teardown(); break;
       case 'restore': TerminalWall.restore(); break;
       case 'apply-state': TerminalWall.applyState(event.data.state); break;
+      case 'apply-preset': {
+        const revision = typeof event.data.revision === 'string' ? event.data.revision : null;
+        if (!revision) break;
+        try {
+          TerminalWall.applyState(event.data.preset);
+          TerminalWall.restore();
+          TerminalWall.setProgress(0);
+          hostPresetRevision = revision;
+          const exitDurationMs = Math.max(
+            Number(S.shotdur) || 0,
+            (Number(S.shotlead) || 0) + (Number(S.disdur) || 0),
+          ) * 1000;
+          /* Acknowledge only after the accepted preset has painted a frame.
+             The parent keeps this iframe invisible until this exact revision. */
+          postHost('preset-applied', { revision, exitDurationMs });
+        } catch (error) {
+          postHost('preset-error', {
+            revision,
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }
+        break;
+      }
       case 'destroy': TerminalWall.destroy(); break;
     }
   });
-  queueMicrotask(() => TerminalWall.onDone(() => postHost('done')));
+  queueMicrotask(() => TerminalWall.onDone(() => postHost('done', { revision:hostPresetRevision })));
 }
 
 /* ---------------- layer cursors ---------------- */
@@ -2475,10 +2516,19 @@ const doneCbs = [];
 
 function makeSeeds(){
   nSeeds = Math.max(1, Math.min(32, Math.round(S.seeds)));
+  let seeded = (seed >>> 0) || 1;
+  const sample = () => {
+    seeded += 0x6D2B79F5;
+    let value = seeded;
+    value = Math.imul(value ^ value >>> 15, value | 1);
+    value ^= value + Math.imul(value ^ value >>> 7, value | 61);
+    return ((value ^ value >>> 14) >>> 0) / 4294967296;
+  };
   for (let i = 0; i < nSeeds; i++){
-    seedArr[i*3]   = Math.random();
-    seedArr[i*3+1] = Math.random();
-    seedArr[i*3+2] = Math.random() * 0.75;      /* stagger when each opens */
+    const random = EMBED_MODE ? sample : Math.random;
+    seedArr[i*3]   = random();
+    seedArr[i*3+1] = random();
+    seedArr[i*3+2] = random() * 0.75;      /* stagger when each opens */
   }
 }
 let closeTimer = null, swapNow = 0, swapTarget = 0, teardownPending = false;
@@ -2519,6 +2569,15 @@ function startBurn(){
   if (burning) return;
   makeSeeds(); dis = 0; burnStart = performance.now(); burning = true; burnedOut = false;
   canvas.dataset.gone = 'false';
+  postHost('reveal-progress', { revision:hostPresetRevision, progress:0 });
+}
+function completeBurn(){
+  clearTimeout(closeTimer); closeTimer = null;
+  teardownPending = false; shotRun = null;
+  burning = false; burnedOut = true; dis = 1;
+  canvas.dataset.gone = 'true';
+  postHost('reveal-progress', { revision:hostPresetRevision, progress:1 });
+  doneCbs.splice(0).forEach(f => { try { f(); } catch(e){ console.error(e); } });
 }
 function resetBurn(){
   clearTimeout(closeTimer); closeTimer = null;
@@ -2540,9 +2599,14 @@ function frame(now){
   if (burning){
     /* wall clock, not accumulated dt — a hitching page must not slow this down */
     dis = Math.max(0, Math.min(1.25, ((now - burnStart) / 1000) / Math.max(0.2, S.disdur)));
-    if (dis >= 1.05){
+    postHost('reveal-progress', {
+      revision:hostPresetRevision,
+      progress:Math.min(1, dis),
+    });
+    if (dis >= 1){
       burning = false; burnedOut = true;
       canvas.dataset.gone = 'true';
+      postHost('reveal-progress', { revision:hostPresetRevision, progress:1 });
       doneCbs.splice(0).forEach(f => { try { f(); } catch(e){ console.error(e); } });
     }
   }
