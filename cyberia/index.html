@@ -31,9 +31,11 @@
         opacity: 0;
         pointer-events: none;
       }
-      #cyberia-boot-wall[data-preset-applied="true"] iframe { opacity: 1; }
+      #cyberia-boot-wall[data-preset-applied="true"] iframe {
+        opacity: var(--cyberia-terminal-opacity, 1);
+      }
     </style>
-    <script type="module" crossorigin src="/cyberia/assets/bootstrap-C_3N77v2.js"></script>
+    <script type="module" crossorigin src="/cyberia/assets/bootstrap-CbFYui9h.js"></script>
   </head>
   <body>
     <div id="root" data-cyberia-booting="true" inert aria-hidden="true"></div>
