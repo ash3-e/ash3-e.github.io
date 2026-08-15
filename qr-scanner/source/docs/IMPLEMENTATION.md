@@ -288,7 +288,7 @@ const action = await scanner.showDialog({
 if (action === "replace") await hostApi.replace();
 ```
 
-Dialogs never open a full-screen modal or opaque overlay. Their title, body, and text actions occupy the live glass prompt directly beneath the top scanner controls, leaving the camera, dial, and tethered action controls visible.
+Dialogs never open a full-screen modal or opaque overlay. Their title, body, and text actions occupy the live glass prompt directly beneath the top scanner controls, leaving the camera, dial, and tethered action controls visible. A dialog uses the exact same single liquid-glass prompt surface as a one-line notification and simply grows vertically to fit its content; its inner layout wrapper stays transparent, so it never adds a second opaque panel, rim, shadow, or blur.
 
 - With two actions, the cancel/back/ignore-style action is white and is tethered to the lower-left circular **X**. The confirm/continue/acknowledge/overwrite/reassign-style action is green and is tethered to the upper-right circular **checkmark**. Semantic tone and familiar action labels win over input order, so reversed host arrays are still latched sensibly.
 - Clicking a text action in the prompt and clicking its tethered circle are the same operation.

@@ -939,30 +939,23 @@
   max-width: 34rem;
   max-height: calc(100% - var(--qr-top-offset) - var(--qr-top-control-size) - 0.8rem - var(--qr-dial-size) - 5.7rem);
   margin-inline: auto;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
   pointer-events: none;
   overflow: hidden;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 .zombie-warning__dialog {
   display: grid;
   grid-template-rows: auto minmax(0, auto) auto;
   width: 100%;
   max-height: inherit;
-  padding: 1.15rem 1.2rem;
+  padding: 0;
   color: var(--ink);
-  background: var(--glass-noise), rgba(10, 6, 24, .9);
-  border: 1px solid rgba(198, 168, 255, .4);
-  border-radius: 16px;
-  box-shadow: 0 24px 70px rgba(0,0,0,.62), var(--glass-glow);
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
   pointer-events: auto;
-  -webkit-backdrop-filter: var(--qr-glass-lens);
-  backdrop-filter: var(--qr-glass-lens);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .zombie-warning__title { margin: 0 0 .65rem; color: var(--accent-bright); font: 800 .76rem/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .zombie-warning__title:empty { display: none; }
@@ -975,7 +968,8 @@
 .zombie-warning__actions button[data-tone="delete"] { color: var(--danger); }
 .zombie-warning__actions button:disabled { opacity: .55; cursor: wait; }
 @media (max-height: 760px) {
-  .zombie-warning__dialog { padding: .65rem .9rem; }
+  .zombie-warning { padding: .65rem .9rem; }
+  .zombie-warning__dialog { padding: 0; }
   .zombie-warning__title { margin-bottom: .35rem; font-size: .68rem; }
   .zombie-warning__message { font-size: .78rem; line-height: 1.35; }
   .zombie-warning__actions { margin-top: .4rem; }

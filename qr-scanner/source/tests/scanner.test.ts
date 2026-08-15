@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { createQrScanner } from "../src";
 
-const scannerCss = readFileSync("src/ui/scanner.css", "utf8");
+const scannerCss = readFileSync("src/ui/scanner.css", "utf8").replace(/\r\n/g, "\n");
 
 afterEach(() => document.body.replaceChildren());
 
@@ -19,6 +19,13 @@ describe("QrScanner", () => {
     expect(scannerCss).toContain("--qr-top-control-size: clamp(56px, 9vw, 88px)");
     expect(scannerCss).toContain("--qr-action-size: clamp(64px, 13vw, 96px)");
     expect(scannerCss).toContain("--qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem)");
+  });
+
+  it("uses the notification pill as the dialog's only liquid-glass surface", () => {
+    expect(scannerCss).not.toContain("background: var(--glass-noise), rgba(10, 6, 24, .9)");
+    expect(scannerCss).toContain(".zombie-warning__dialog {\n  display: grid;");
+    expect(scannerCss).toContain("background: transparent;\n  border: 0;\n  border-radius: inherit;\n  box-shadow: none;");
+    expect(scannerCss).toContain("-webkit-backdrop-filter: none;\n  backdrop-filter: none;");
   });
 
   it("mounts reuses reparents and destroys one scanner subtree", () => {
