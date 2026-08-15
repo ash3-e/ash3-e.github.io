@@ -1,0 +1,932 @@
+.qrs-root {
+  --bg: var(--qrs-bg, #04020c);
+  --ink: #f0f3ff;
+  --ink-dim: rgba(218, 227, 246, 0.66);
+  --accent: var(--qrs-accent, #c6a8ff);
+  --accent-bright: #f0e9ff;
+  --accent-dim: #7657b8;
+  --overlay-blue-purple: #9182ff;
+  --ok: var(--qrs-success, #7fe3d4);
+  --danger: #ff6e86;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --glass-noise: radial-gradient(rgba(255,255,255,.045) .55px, transparent .7px);
+  --glass-shadow: 0 14px 38px rgba(0, 0, 0, .42);
+  --glass-glow: 0 0 0 1px rgba(198, 168, 255, .08) inset;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  min-width: 0;
+  min-height: 18rem;
+  isolation: isolate;
+  outline: none;
+  contain: layout paint style;
+  font-family: var(--sans);
+}
+.qrs-root[hidden], .qrs-root [hidden] { display: none !important; }
+.qrs-root *, .qrs-root *::before, .qrs-root *::after { box-sizing: border-box; }
+.qrs-root button { min-width: 44px; min-height: 44px; font: inherit; }
+.qrs-root[aria-disabled="true"] .qr-scanner__camera { cursor: not-allowed; }
+.qrs-software-zoom { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: transform; }
+.qrs-video { display: block; background: radial-gradient(circle at 45% 40%, #2c2544 0%, #0c0916 48%, #020204 100%); }
+.qrs-feed-shade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 48%, transparent 18%, rgba(0,0,0,.08) 55%, rgba(0,0,0,.52)); }
+.qrs-zone { height: auto; }
+.qrs-focus { left: 50%; top: 50%; }
+.qrs-status[data-tone="found"], .qrs-status[data-tone="success"] { color: var(--ok); }
+.qrs-status[data-tone="unmatched"], .qrs-status[data-tone="warning"] { color: #ffd572; }
+.qrs-status[data-tone="error"] { color: var(--danger); }
+.qrs-status[data-tone="pending"] { color: var(--accent-bright); }
+.qrs-result { top: calc(var(--qr-top-offset) + 48px + .8rem); }
+.qrs-dial__value { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
+
+.qr-scanner {
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--ink);
+  background: #000;
+}
+.qr-scanner__camera {
+  /* 笏笏 QR scanner colour schema 窶・map-view glass 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
+     Every colour the scanner paints is a token in this block, so the whole
+     schema swaps by overriding the block alone; structure, sizing, and layout
+     below are theme-independent. The preserved white/violet variant lives in
+     src/themes/qr-scanner-light-glass.css.
+
+     Values follow the map card / jobs panel / map control language: violet-
+     black fills, lavender hairline borders, blur + saturate, fractal-noise
+     grain, and the blue-purple overlay pair for the travelled zoom arc.
+
+     The material is still a thin tinted lens rather than an opaque chip 窶・
+     legibility over a blown-out white feed comes from the backdrop being
+     darkened in place by brightness() inside the lens filter, and every edge
+     is a graded hairline rim, never a drawn outline. */
+
+  /* Surfaces */
+  --qr-optical-violet: rgba(10, 6, 24, 0.4);
+  --qr-optical-violet-deep: rgba(8, 4, 20, 0.78);
+  --qr-glass-lens: blur(24px) saturate(180%) brightness(0.74);
+  /* The dial band carries no glyphs of its own, so it stays lighter than the
+     controls 窶・enough to seat the gauge, not enough to read as a tube. */
+  --qr-glass-lens-band: blur(20px) saturate(170%) brightness(0.84);
+  --qr-glass-sheen:
+    linear-gradient(135deg, rgba(198, 168, 255, 0.1) 0%, transparent 50%, rgba(198, 168, 255, 0.04) 100%);
+  --qr-optical-surface:
+    var(--glass-noise),
+    var(--qr-glass-sheen),
+    var(--qr-optical-violet);
+  --qr-surface-hover:
+    var(--glass-noise),
+    linear-gradient(135deg, rgba(198, 168, 255, 0.18) 0%, transparent 52%, rgba(198, 168, 255, 0.06) 100%),
+    var(--qr-optical-violet);
+  --qr-band-surface: var(--qr-glass-sheen), rgba(10, 6, 24, 0.28);
+  /* Engaged controls (torch on, camera menu open). */
+  --qr-surface-active:
+    var(--glass-noise),
+    linear-gradient(135deg, rgba(198, 168, 255, 0.24) 0%, transparent 52%, rgba(198, 168, 255, 0.09) 100%),
+    var(--qr-optical-violet-deep);
+
+  /* Edges 窶・lavender hairlines, as on the cards. Graded, but never below a
+     floor: a rim that vanishes on the shaded side leaves the arc's lower half
+     with no edge at all. */
+  --qr-optical-edge: 1px solid transparent;   /* layout placeholder only */
+  --qr-glass-rim:
+    linear-gradient(168deg,
+      rgba(226, 214, 255, 0.82),
+      rgba(198, 168, 255, 0.3) 34%,
+      rgba(198, 168, 255, 0.22) 58%,
+      rgba(198, 168, 255, 0.5));
+  --qr-glass-rim-lit:
+    linear-gradient(168deg,
+      rgba(240, 233, 255, 0.96),
+      rgba(214, 185, 255, 0.6) 42%,
+      rgba(198, 168, 255, 0.78));
+  --qr-optical-shadow: var(--glass-shadow);
+
+  /* Ink */
+  --qr-lens-white: rgba(240, 243, 255, 0.96);
+  --qr-ink-muted: rgba(218, 227, 246, 0.66);
+  --qr-ink-shadow: rgba(4, 2, 12, 0.62);
+
+  /* Accent + focus */
+  --qr-accent-glow: rgba(198, 168, 255, 0.52);
+  --qr-accent-soft: rgba(198, 168, 255, 0.22);
+  --qr-focus-ring: var(--accent-bright);
+
+  /* Gauge */
+  --qr-scale-track-lit: rgba(198, 168, 255, 0.12);
+  --qr-scale-track: rgba(8, 4, 20, 0.3);
+  /* The map's overlay pair kept in its own roles: the lighter stroke tone rims
+     the travelled arc, the blue-purple fill tone fills it. */
+  --qr-scale-fill-rim: rgba(145, 130, 255, 0.6);
+  --qr-scale-fill-from: var(--overlay-blue-purple);
+  --qr-scale-fill-to: #17114a;
+  --qr-scale-label: rgba(240, 243, 255, 0.92);
+  /* Same rgb as --qr-glass-rim's brightest stop, so the needle's edge reads as
+     the dial band's own rim continuing onto the pointer, not a separate white
+     material. */
+  --qr-needle-light: rgb(226, 214, 255);
+  --qr-needle-core: #0a041a;
+  --qr-pivot-rim: rgba(226, 214, 255, 0.78);
+  --qr-refracted-purple: var(--accent);
+  /* Reticle halved from min(62vw, 24rem); the default decode ROI follows it. */
+  --qr-tap-indicator-size: 3.3rem;
+  --qr-scan-indicator-size: var(--qrs-zone-size, calc(var(--qr-tap-indicator-size) * 1.5));
+  --qr-reticle-size: var(--qr-scan-indicator-size);
+  --qr-reticle-half: calc(var(--qr-reticle-size) / 2);
+  /* Rotary zoom dial: top-left quadrant of a circle centered on the corner. */
+  --qr-dial-size: clamp(13.5rem, 63vmin, 19.5rem);
+  /* Glass band the gauge is cut into, as radii from that corner. The scale arc
+     rides its outer half; the min/max numerals sit in the channel inside it, so
+     both read against glass instead of floating on the raw feed. */
+  --qr-dial-band-outer: calc(var(--qr-dial-size) * 0.925);
+  --qr-dial-band-inner: calc(var(--qr-dial-size) * 0.815);
+  /* Top assembly displacement 窶・roughly the old zoom indicator's height. */
+  --qr-top-offset: calc(env(safe-area-inset-top, 0px) + 1.7rem);
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--bg);
+  cursor: crosshair;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+.qr-scanner__camera video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: center;
+  transition: transform 40ms linear;
+  pointer-events: none;
+}
+.qr-scanner__frozen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.45) brightness(0.72);
+}
+.qr-scanner__camera.is-paused video { filter: saturate(0.45) brightness(0.72); }
+/* Held scan zone: appears under the finger while pressing, follows a drag, and
+   keeps the green focus animation looping for the whole hold. No center reticle. */
+.qr-scanner__hold-zone {
+  position: absolute;
+  z-index: 3;
+  width: var(--qr-reticle-size);
+  aspect-ratio: 1;
+  border: 2px solid var(--ok);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.16),
+    0 0 14px color-mix(in srgb, var(--ok) 55%, transparent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: qr-hold-pulse 1.05s ease-in-out infinite;
+}
+@keyframes qr-hold-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 9999px rgba(0, 0, 0, 0.16),
+      0 0 10px color-mix(in srgb, var(--ok) 40%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 9999px rgba(0, 0, 0, 0.16),
+      0 0 24px color-mix(in srgb, var(--ok) 82%, transparent);
+  }
+}
+/* Top assembly: flash toggle ﾂｷ code pill ﾂｷ close 窶・one row, equal heights,
+   displaced from the top edge by the old zoom indicator's height. */
+.qr-scanner__topbar {
+  position: absolute;
+  top: var(--qr-top-offset);
+  right: max(0.8rem, env(safe-area-inset-right));
+  left: max(0.8rem, env(safe-area-inset-left));
+  z-index: 6;
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.qr-scanner__topbar > * { pointer-events: auto; }
+/* Rotary zoom dial: the top-left quadrant of a circle centered just off the
+   bottom-right corner of the screen. Swiping across the quadrant maps the
+   thumb's angle 1:1 onto the zoom level. */
+.qr-scanner__dial {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  width: var(--qr-dial-size);
+  height: var(--qr-dial-size);
+  overflow: visible;
+  /* The quadrant itself is only a hit target for the zoom gesture; the visible
+     instrument is the glass band (::before/::after rims + __dial-glass) plus
+     the SVG gauge internals drawn over it. */
+  background: transparent;
+  border: 0;
+  border-top-left-radius: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+/* Outer and inner rim of the band. Drawn on the dial rather than on the band
+   element because that one is masked, and a mask would clip its own rims. */
+.qr-scanner__dial::before,
+.qr-scanner__dial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Above the gauge, so the channel keeps crisp edges across the filled part
+     rather than having the fill paint over them. */
+  z-index: 3;
+  background: var(--qr-glass-rim);
+  pointer-events: none;
+}
+/* Written out per rim rather than shared through a custom property: a var()
+   holding the gradient would be substituted where it is declared, so the
+   per-rim radius would already be invalid by the time it got here. */
+.qr-scanner__dial::before {
+  -webkit-mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-outer) - 1px),
+      #000 calc(var(--qr-dial-band-outer) - 0.1px),
+      #000 calc(var(--qr-dial-band-outer) + 0.6px),
+      transparent calc(var(--qr-dial-band-outer) + 1.5px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-outer) - 1px),
+      #000 calc(var(--qr-dial-band-outer) - 0.1px),
+      #000 calc(var(--qr-dial-band-outer) + 0.6px),
+      transparent calc(var(--qr-dial-band-outer) + 1.5px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  mask-composite: intersect;
+}
+.qr-scanner__dial::after {
+  opacity: 0.5;
+  -webkit-mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-inner) - 1.5px),
+      #000 calc(var(--qr-dial-band-inner) - 0.6px),
+      #000 calc(var(--qr-dial-band-inner) + 0.1px),
+      transparent calc(var(--qr-dial-band-inner) + 1px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-inner) - 1.5px),
+      #000 calc(var(--qr-dial-band-inner) - 0.6px),
+      #000 calc(var(--qr-dial-band-inner) + 0.1px),
+      transparent calc(var(--qr-dial-band-inner) + 1px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  mask-composite: intersect;
+}
+/* Refracting channel: a quarter-annulus of lens cut out of the feed. */
+.qr-scanner__dial-glass {
+  position: absolute;
+  inset: 0;
+  background: var(--qr-band-surface);
+  -webkit-backdrop-filter: var(--qr-glass-lens-band);
+  backdrop-filter: var(--qr-glass-lens-band);
+  /* Annulus 竏ｩ quadrant. The conic layer feathers the last few degrees at each
+     end so the strip dissolves into the feed instead of stopping on a cut. */
+  -webkit-mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-inner) - 0.5px),
+      #000 calc(var(--qr-dial-band-inner) + 0.5px),
+      #000 calc(var(--qr-dial-band-outer) - 0.5px),
+      transparent calc(var(--qr-dial-band-outer) + 0.5px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at 100% 100%,
+      transparent calc(var(--qr-dial-band-inner) - 0.5px),
+      #000 calc(var(--qr-dial-band-inner) + 0.5px),
+      #000 calc(var(--qr-dial-band-outer) - 0.5px),
+      transparent calc(var(--qr-dial-band-outer) + 0.5px)),
+    conic-gradient(from 270deg at 100% 100%,
+      transparent 0deg, #000 6deg, #000 84deg, transparent 90deg);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+.qr-scanner__camera > .qr-scanner__dial {
+  right: max(2.25rem, env(safe-area-inset-right));
+  bottom: max(2.25rem, env(safe-area-inset-bottom));
+}
+.qr-scanner__dial:focus-visible {
+  outline: none;
+}
+.qr-scanner__dial:focus-visible .qr-scanner__dial-progress-border {
+  filter: drop-shadow(0 0 5px var(--qr-focus-ring));
+}
+.qr-scanner__dial-face {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.qr-scanner__dial-track-border,
+.qr-scanner__dial-track,
+.qr-scanner__dial-progress-border,
+.qr-scanner__dial-progress,
+.qr-scanner__dial-needle-edge,
+.qr-scanner__dial-needle {
+  fill: none;
+  stroke-linecap: round;
+}
+/* Scale strokes end flush instead of rounding past the band's faded ends. */
+.qr-scanner__dial-track-border,
+.qr-scanner__dial-track,
+.qr-scanner__dial-progress-border,
+.qr-scanner__dial-progress {
+  stroke-linecap: butt;
+}
+/* Unfilled scale: a faint lit edge over a slightly darker core, both sitting
+   inside the glass band. No white casing stroke 窶・the band's own rims are the
+   only hard edges the gauge gets. */
+/* The scale strokes span the band's full width 窶・the glass channel IS the
+   track, rather than a second tube drawn inside it. */
+.qr-scanner__dial-track-border {
+  stroke: var(--qr-scale-track-lit);
+  stroke-width: 11;
+}
+.qr-scanner__dial-track {
+  stroke: var(--qr-scale-track);
+  stroke-width: 10.6;
+}
+/* Travelled portion: dark-purple liquid held by a hairline of light, ~0.4 units
+   either side of the fill, which is a sub-pixel edge at any dial size. */
+.qr-scanner__dial-progress-border {
+  stroke: var(--qr-scale-fill-rim);
+  stroke-width: 11;
+  filter: drop-shadow(0 0 3px var(--qr-accent-glow));
+}
+/* Gauge gradient stops are coloured here, not in the markup, so the whole
+   schema stays swappable from the token block. */
+.qr-scanner__dial-fill-from { stop-color: var(--qr-scale-fill-from); }
+.qr-scanner__dial-fill-to { stop-color: var(--qr-scale-fill-to); }
+.qr-scanner__dial-needle-light { stop-color: var(--qr-needle-light); }
+.qr-scanner__dial-needle-core { stop-color: var(--qr-needle-core); }
+.qr-scanner__dial-progress {
+  stroke: url("#qr-dial-progress-gradient");
+  stroke-width: 10.4;
+}
+/* Endpoint numerals ride the channel itself, so they need no outline. */
+.qr-scanner__dial-label {
+  fill: var(--qr-scale-label);
+  font: 600 5px var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  filter: drop-shadow(0 0.5px 1px var(--qr-ink-shadow));
+}
+/* Needle and pivot: one hairline of light with a soft violet core, lifted off
+   the feed by shadow rather than by a heavy casing. The needle fades out
+   toward the pivot so it reads as a pointer resolving on the scale rather
+   than a clock hand swept across the frame; it now runs the full length that
+   used to be split between the needle and a separate connector to the (now
+   removed) value pill, so its on-screen reach is unchanged. */
+.qr-scanner__dial-needle-edge {
+  stroke: url("#qr-dial-needle-gradient");
+  stroke-width: 1.9;
+  filter: drop-shadow(0 1px 2px var(--qr-ink-shadow));
+}
+.qr-scanner__dial-needle {
+  stroke: url("#qr-dial-needle-core-gradient");
+  stroke-width: 0.9;
+}
+.qr-scanner__dial-pivot-edge {
+  fill: var(--qr-pivot-rim);
+  filter: drop-shadow(0 1px 2px var(--qr-ink-shadow));
+}
+.qr-scanner__dial-pivot { fill: var(--qr-refracted-purple); }
+.qr-scanner__focus-pulse {
+  position: absolute;
+  z-index: 3;
+  width: var(--qr-tap-indicator-size);
+  aspect-ratio: 1;
+  border: 2px solid var(--ok);
+  border-radius: 10px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: qr-focus-pulse 520ms ease-out both;
+}
+@keyframes qr-focus-pulse {
+  0% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) scale(0.64);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 42%, transparent);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7);
+    box-shadow: 0 0 0 0.9rem color-mix(in srgb, var(--ok) 0%, transparent);
+  }
+}
+/* Flash + close share one circular glass treatment; the code pill sits between
+   them at the same 48px height. */
+.qr-scanner__close,
+.qr-scanner__torch,
+.qr-scanner__camera-button {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  color: var(--qr-lens-white);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 50%;
+  box-shadow: var(--qr-optical-shadow);
+  cursor: pointer;
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+/* The shared rim. One graded hairline ring, masked to the element's own radius,
+   standing in for every border the controls used to draw. */
+.qr-scanner__camera :where(
+  .qr-scanner__close,
+  .qr-scanner__torch,
+  .qr-scanner__camera-button,
+  .qr-scanner__code,
+  .qr-scanner__accept,
+  .qr-scanner__cancel,
+  .qr-scanner__jump,
+  .qr-scanner__prompt,
+  .qr-scanner__camera-menu
+)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--qr-glass-rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+/* Icon and numeral glyphs keep their own micro-shadow so they survive the
+   moment the lens is over pure white. */
+.qr-scanner__camera :where(
+  .qr-scanner__torch-icon,
+  .qr-scanner__camera-icon,
+  .qr-scanner__jump-icon,
+  .qr-scanner__code-icon
+) {
+  filter: drop-shadow(0 1px 1.5px var(--qr-ink-shadow));
+}
+.qr-scanner__close {
+  padding-bottom: 0.2rem;
+  font: 300 1.9rem/1 var(--sans);
+  text-shadow: 0 1px 2px var(--qr-ink-shadow);
+}
+.qr-scanner__torch {
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+.qr-scanner__camera-picker { position: relative; flex: none; }
+.qr-scanner__camera-button { cursor: pointer; }
+/* Engaged states brighten the rim itself instead of adding a ring around it. */
+.qr-scanner__camera-button.is-open {
+  --qr-glass-rim: var(--qr-glass-rim-lit);
+  color: var(--qr-lens-white);
+  background: var(--qr-surface-active);
+  box-shadow: var(--qr-optical-shadow), 0 0 16px -3px var(--qr-accent-glow);
+}
+.qr-scanner__camera-icon {
+  width: 27px;
+  height: 27px;
+  background: currentColor;
+  -webkit-mask: url("../assets/camera_icon.svg") center / contain no-repeat;
+  mask: url("../assets/camera_icon.svg") center / contain no-repeat;
+}
+.qr-scanner__camera-menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  display: grid;
+  width: min(18rem, calc(100vw - 1.6rem));
+  max-height: min(45vh, 18rem);
+  padding: 0.4rem;
+  overflow-y: auto;
+  color: var(--qr-lens-white);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 14px;
+  box-shadow: var(--qr-optical-shadow);
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+}
+.qr-scanner__camera-menu button,
+.qr-scanner__camera-menu span {
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  font: 700 0.8rem/1.25 var(--mono);
+  text-align: left;
+}
+.qr-scanner__camera-menu button { cursor: pointer; }
+.qr-scanner__camera-menu button:hover,
+.qr-scanner__camera-menu button.is-active {
+  color: var(--qr-lens-white);
+  background: var(--qr-glass-sheen), var(--qr-accent-soft);
+  box-shadow: var(--glass-glow);
+}
+.qr-scanner__camera-menu button:focus-visible {
+  color: var(--qr-lens-white);
+  background: var(--qr-accent-soft);
+}
+.qr-scanner__torch:disabled { opacity: 0.52; filter: saturate(0.55); cursor: default; }
+.qr-scanner__torch-icon {
+  width: 26px;
+  height: 26px;
+  background: currentColor;
+  -webkit-mask: url("../assets/lightbulb.svg") center / contain no-repeat;
+  mask: url("../assets/lightbulb.svg") center / contain no-repeat;
+}
+.qr-scanner__torch.is-on {
+  --qr-glass-rim: var(--qr-glass-rim-lit);
+  color: var(--qr-focus-ring);
+  background: var(--qr-surface-active);
+  box-shadow: var(--qr-optical-shadow), 0 0 18px -2px var(--qr-accent-glow);
+}
+/* Scan-result / warning element under the top assembly ("Rewrite窶ｦ",
+   "Overwrite窶ｦ", QRQT conflicts, camera status). Kept off the viewport edges. */
+.qr-scanner__prompt {
+  position: absolute;
+  top: calc(var(--qr-top-offset) + 48px + 0.8rem);
+  right: max(0.9rem, env(safe-area-inset-right));
+  left: max(0.9rem, env(safe-area-inset-left));
+  z-index: 6;
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: 0.65rem 0.95rem;
+  color: var(--qr-lens-white);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 14px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  text-align: center;
+  box-shadow: var(--qr-optical-shadow);
+  text-shadow: 0 1px 2px var(--qr-ink-shadow);
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+}
+.qr-scanner__prompt-note { color: var(--accent-bright); }
+/* Code preview pill: the address editor's QR glyph + live 6-digit code. */
+.qr-scanner__code {
+  position: relative;
+  display: inline-flex;
+  gap: 0.6rem;
+  align-items: center;
+  height: 48px;
+  min-width: 11ch;
+  padding: 0 1.1rem;
+  color: var(--qr-ink-muted);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 999px;
+  font: 600 1.18rem/1 var(--mono);
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+  box-shadow: var(--qr-optical-shadow);
+  text-shadow: 0 1px 2px var(--qr-ink-shadow);
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+.qr-scanner__code-icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+.qr-scanner__code.is-known { color: var(--ok); }
+.qr-scanner__code.is-unknown { color: var(--danger); }
+/* Live, uncommitted preview while a zone is held 窶・pulses to read as "scanning". */
+.qr-scanner__code.is-preview {
+  color: var(--qr-ink-muted);
+  animation: qr-code-preview 1.05s ease-in-out infinite;
+}
+@keyframes qr-code-preview {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.92; }
+}
+/* Assign/accept checkmark: populates just off the dial's max-zoom edge so the
+   thumb moves straight from zooming to accepting. */
+.qr-scanner__accept,
+.qr-scanner__cancel {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: clamp(56px, 13vw, 72px);
+  height: clamp(56px, 13vw, 72px);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 50%;
+  box-shadow: var(--qr-optical-shadow);
+  font-size: clamp(1.7rem, 6vw, 2.6rem);
+  text-shadow: 0 1px 3px var(--qr-ink-shadow);
+  cursor: pointer;
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+.qr-scanner__accept {
+  right: max(0.9rem, env(safe-area-inset-right));
+  bottom: calc(var(--qr-dial-size) + 1.1rem);
+  color: var(--ok);
+}
+.qr-scanner__accept-check { display: block; }
+.qr-scanner__accept .job-delete-glyph { display: none; }
+.qr-scanner__accept.is-delete {
+  color: var(--danger);
+}
+.qr-scanner__accept.is-delete .qr-scanner__accept-check { display: none; }
+.qr-scanner__accept.is-delete .job-delete-glyph { display: inline-block; }
+.job-delete-glyph {
+  position: relative;
+  width: 0.88em;
+  height: 1em;
+  flex: 0 0 0.88em;
+  color: currentColor;
+  pointer-events: none;
+}
+.job-delete-glyph__lid,
+.job-delete-glyph__bin,
+.job-delete-glyph__morsel {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+}
+.job-delete-glyph__lid {
+  z-index: 2;
+  top: 0.16em;
+  left: 0.05em;
+  width: 0.78em;
+  height: 0.12em;
+  border-radius: 0.08em;
+  background: currentColor;
+  transform-origin: 0.14em 50%;
+  transition: transform 160ms ease;
+}
+.job-delete-glyph__handle {
+  position: absolute;
+  left: 0.27em;
+  bottom: 0.08em;
+  width: 0.25em;
+  height: 0.12em;
+  border: 0.08em solid currentColor;
+  border-bottom: 0;
+  border-radius: 0.1em 0.1em 0 0;
+}
+.job-delete-glyph__bin {
+  left: 0.13em;
+  bottom: 0.05em;
+  width: 0.62em;
+  height: 0.62em;
+  overflow: hidden;
+  border: 0.1em solid currentColor;
+  border-top-width: 0.08em;
+  border-radius: 0.04em 0.04em 0.12em 0.12em;
+  transform-origin: 50% 100%;
+}
+.job-delete-glyph__bin > span {
+  position: absolute;
+  top: 0.1em;
+  bottom: 0.08em;
+  width: 0.06em;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.72;
+}
+.job-delete-glyph__bin > span:nth-child(1) { left: 0.1em; }
+.job-delete-glyph__bin > span:nth-child(2) { left: 0.23em; }
+.job-delete-glyph__bin > span:nth-child(3) { right: 0.1em; }
+.job-delete-glyph__morsel {
+  z-index: 1;
+  top: 0.04em;
+  left: 0.04em;
+  width: 0.13em;
+  height: 0.13em;
+  border-radius: 0.03em;
+  background: currentColor;
+  opacity: 0;
+}
+@media (hover: hover) {
+  .qr-scanner__accept.is-delete:hover .job-delete-glyph__lid { transform: translateX(-0.28em); }
+}
+.qr-scanner__accept.is-deleting .job-delete-glyph__lid {
+  animation: job-delete-lid 900ms cubic-bezier(0.22, 0.72, 0.24, 1) both;
+}
+.qr-scanner__accept.is-deleting .job-delete-glyph__morsel {
+  animation: job-delete-morsel 900ms cubic-bezier(0.3, 0.65, 0.3, 1) both;
+}
+.qr-scanner__accept.is-deleting .job-delete-glyph__bin {
+  animation: job-delete-bin 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes job-delete-lid {
+  0%, 8% { transform: translateX(0) rotate(0); }
+  24% { transform: translateX(-0.28em) rotate(0); }
+  48% { transform: translate(-0.12em, -0.32em) rotate(-34deg); }
+  72% { transform: translateX(-0.28em) rotate(0); }
+  100% { transform: translateX(0) rotate(0); }
+}
+@keyframes job-delete-morsel {
+  0%, 22% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  30% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  58% { opacity: 1; transform: translate(0.39em, 0.46em) rotate(135deg); }
+  66%, 100% { opacity: 0; transform: translate(0.42em, 0.58em) rotate(160deg); }
+}
+@keyframes job-delete-bin {
+  0%, 54%, 100% { transform: scale(1); }
+  64% { transform: scaleX(1.08) scaleY(0.88); }
+  76% { transform: scaleX(0.96) scaleY(1.05); }
+  88% { transform: scale(1); }
+}
+.qr-scanner__cancel {
+  right: calc(max(0.9rem, env(safe-area-inset-right)) + 1.8rem);
+  bottom: calc(var(--qr-dial-size) - 3.8rem);
+  width: clamp(48px, 11vw, 62px);
+  height: clamp(48px, 11vw, 62px);
+  color: var(--qr-lens-white);
+  font: 400 clamp(1.8rem, 6vw, 2.5rem)/1 var(--sans);
+}
+.qr-scanner__cancel:active { transform: none; }
+/* Jump-to-address button: mirrors the checkmark off the dial's min-zoom edge. */
+.qr-scanner__jump {
+  position: absolute;
+  right: calc(var(--qr-dial-size) + 1.1rem);
+  bottom: max(0.9rem, env(safe-area-inset-bottom));
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: clamp(56px, 13vw, 72px);
+  height: clamp(56px, 13vw, 72px);
+  color: var(--qr-lens-white);
+  background: var(--qr-optical-surface);
+  border: var(--qr-optical-edge);
+  border-radius: 50%;
+  box-shadow: var(--qr-optical-shadow);
+  cursor: pointer;
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+  transition: color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+.qr-scanner__jump:active { transform: none; }
+.qr-scanner__jump-icon {
+  width: clamp(1.7rem, 6vw, 2.4rem);
+  height: clamp(1.7rem, 6vw, 2.4rem);
+  background: currentColor;
+  -webkit-mask: url("../assets/jumpicon.svg") center / contain no-repeat;
+  mask: url("../assets/jumpicon.svg") center / contain no-repeat;
+}
+@media (hover: hover) {
+  .qr-scanner__camera :where(
+    .qr-scanner__close,
+    .qr-scanner__torch,
+    .qr-scanner__camera-button,
+    .qr-scanner__code,
+    .qr-scanner__accept,
+    .qr-scanner__cancel,
+    .qr-scanner__jump
+  ):hover:not(:disabled) {
+    background: var(--qr-surface-hover);
+  }
+}
+.qr-scanner__camera :where(
+  .qr-scanner__close,
+  .qr-scanner__torch,
+  .qr-scanner__camera-button,
+  .qr-scanner__code,
+  .qr-scanner__accept,
+  .qr-scanner__cancel,
+  .qr-scanner__jump
+):active:not(:disabled) {
+  background: var(--qr-optical-violet-deep);
+}
+.qr-scanner__camera button:focus-visible {
+  outline: 2px solid var(--qr-focus-ring);
+  outline-offset: 3px;
+  box-shadow: var(--qr-optical-shadow), 0 0 18px -3px var(--qr-accent-glow);
+}
+.qr-scanner__camera :where(button:disabled) {
+  opacity: 0.52;
+  filter: saturate(0.55);
+  cursor: default;
+}
+.qr-scanner__accept:disabled,
+.qr-scanner__cancel:disabled,
+.qr-scanner__code:disabled { opacity: 0.52; filter: saturate(0.55); cursor: default; }
+.qr-assign {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  font-family: var(--mono);
+  text-align: center;
+}
+.qr-assign small { color: var(--danger); }
+@media (max-width: 360px) {
+  .qr-scanner__topbar {
+    right: max(0.45rem, env(safe-area-inset-right));
+    left: max(0.45rem, env(safe-area-inset-left));
+    gap: 0.35rem;
+  }
+  .qr-scanner__code {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100vw - 10.55rem - env(safe-area-inset-left) - env(safe-area-inset-right));
+    padding-inline: 0.65rem;
+    gap: 0.45rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+  }
+  .qr-scanner__code-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.zombie-warning {
+  position: absolute;
+  top: calc(var(--qr-top-offset) + 48px + 0.8rem);
+  right: max(0.9rem, env(safe-area-inset-right));
+  bottom: auto;
+  left: max(0.9rem, env(safe-area-inset-left));
+  z-index: 7;
+  display: block;
+  width: auto;
+  max-width: 34rem;
+  max-height: calc(100% - var(--qr-top-offset) - 48px - 0.8rem - var(--qr-dial-size) - 5.7rem);
+  margin-inline: auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.zombie-warning__dialog {
+  display: grid;
+  grid-template-rows: auto minmax(0, auto) auto;
+  width: 100%;
+  max-height: inherit;
+  padding: 1.15rem 1.2rem;
+  color: var(--ink);
+  background: var(--glass-noise), rgba(10, 6, 24, .9);
+  border: 1px solid rgba(198, 168, 255, .4);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.62), var(--glass-glow);
+  pointer-events: auto;
+  -webkit-backdrop-filter: var(--qr-glass-lens);
+  backdrop-filter: var(--qr-glass-lens);
+}
+.zombie-warning__title { margin: 0 0 .65rem; color: var(--accent-bright); font: 800 .76rem/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.zombie-warning__title:empty { display: none; }
+.zombie-warning__message { margin: 0; color: var(--ink); font: 600 .9rem/1.55 var(--mono); white-space: pre-wrap; }
+.zombie-warning__message { overflow: auto; overscroll-behavior: contain; }
+.zombie-warning__actions { display: flex; align-items: center; justify-content: center; gap: .55rem; margin-top: 1rem; color: var(--ink-dim); }
+.zombie-warning__actions button { min-height: 44px; padding: .55rem .8rem; color: var(--qr-lens-white); background: transparent; border: 0; border-radius: 9px; cursor: pointer; font: 800 .78rem/1 var(--mono); }
+.zombie-warning__actions button:hover, .zombie-warning__actions button:focus-visible { background: rgba(198,168,255,.16); outline: none; }
+.zombie-warning__actions button[data-dialog-slot="right"] { color: var(--ok); }
+.zombie-warning__actions button[data-tone="delete"] { color: var(--danger); }
+.zombie-warning__actions button:disabled { opacity: .55; cursor: wait; }
+@media (max-height: 760px) {
+  .zombie-warning__dialog { padding: .65rem .9rem; }
+  .zombie-warning__title { margin-bottom: .35rem; font-size: .68rem; }
+  .zombie-warning__message { font-size: .78rem; line-height: 1.35; }
+  .zombie-warning__actions { margin-top: .4rem; }
+  .zombie-warning__actions button { min-height: 36px; padding: .35rem .65rem; font-size: .72rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qrs-root *, .qrs-root *::before, .qrs-root *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

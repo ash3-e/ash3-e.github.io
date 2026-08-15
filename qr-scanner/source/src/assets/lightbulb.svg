@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Bulb: rounded head with a short neck down to the base. -->
+  <path d="M9.7 15.1c-1.7-.9-2.7-2.5-2.7-4.3a5 5 0 1 1 10 0c0 1.8-1 3.4-2.7 4.3l-.3 1.9H10z" />
+  <path d="M10 19.6h4" />
+  <path d="M10.8 21.8h2.4" />
+  <!-- Halo: four short rays forming an arc over the top of the bulb. -->
+  <path d="M6.5 8.1 4.4 6.9" />
+  <path d="M9.9 5.3 8.9 3" />
+  <path d="M14.1 5.3l1-2.3" />
+  <path d="M17.5 8.1l2.1-1.2" />
+</svg>
