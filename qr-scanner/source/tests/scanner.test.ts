@@ -1,6 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import { createQrScanner } from "../src";
+
+const scannerCss = readFileSync("src/ui/scanner.css", "utf8");
 
 afterEach(() => document.body.replaceChildren());
 
@@ -10,6 +13,14 @@ const offlineOptions = {
 } as const;
 
 describe("QrScanner", () => {
+  it("defines a coarse-pointer control scale for foldable touch layouts", () => {
+    expect(scannerCss).toContain("@media (pointer: coarse), (max-width: 480px)");
+    expect(scannerCss).toContain("@media (pointer: coarse), (max-width: 480px) {\n  .qr-scanner__camera {");
+    expect(scannerCss).toContain("--qr-top-control-size: clamp(56px, 9vw, 88px)");
+    expect(scannerCss).toContain("--qr-action-size: clamp(64px, 13vw, 96px)");
+    expect(scannerCss).toContain("--qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem)");
+  });
+
   it("mounts reuses reparents and destroys one scanner subtree", () => {
     const first = document.createElement("div");
     const second = document.createElement("div");

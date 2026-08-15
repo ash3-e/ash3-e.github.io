@@ -37,7 +37,7 @@
 .qrs-status[data-tone="unmatched"], .qrs-status[data-tone="warning"] { color: #ffd572; }
 .qrs-status[data-tone="error"] { color: var(--danger); }
 .qrs-status[data-tone="pending"] { color: var(--accent-bright); }
-.qrs-result { top: calc(var(--qr-top-offset) + 48px + .8rem); }
+.qrs-result { top: calc(var(--qr-top-offset) + var(--qr-top-control-size) + .8rem); }
 .qrs-dial__value { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); }
 
 .qr-scanner {
@@ -137,6 +137,12 @@
   --qr-scan-indicator-size: var(--qrs-zone-size, calc(var(--qr-tap-indicator-size) * 1.5));
   --qr-reticle-size: var(--qr-scan-indicator-size);
   --qr-reticle-half: calc(var(--qr-reticle-size) / 2);
+  /* Control geometry is tokenized so touch hardware can retain finger-sized
+     controls even when a foldable browser reports a tablet/desktop viewport. */
+  --qr-top-control-size: 48px;
+  --qr-action-size: clamp(56px, 13vw, 72px);
+  --qr-cancel-size: clamp(48px, 11vw, 62px);
+  --qr-action-glyph-size: clamp(1.7rem, 6vw, 2.6rem);
   /* Rotary zoom dial: top-left quadrant of a circle centered on the corner. */
   --qr-dial-size: clamp(13.5rem, 63vmin, 19.5rem);
   /* Glass band the gauge is cut into, as radii from that corner. The scale arc
@@ -448,8 +454,8 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: var(--qr-top-control-size);
+  height: var(--qr-top-control-size);
   padding: 0;
   color: var(--qr-lens-white);
   background: var(--qr-optical-surface);
@@ -578,7 +584,7 @@
    "Overwrite窶ｦ", QRQT conflicts, camera status). Kept off the viewport edges. */
 .qr-scanner__prompt {
   position: absolute;
-  top: calc(var(--qr-top-offset) + 48px + 0.8rem);
+  top: calc(var(--qr-top-offset) + var(--qr-top-control-size) + 0.8rem);
   right: max(0.9rem, env(safe-area-inset-right));
   left: max(0.9rem, env(safe-area-inset-left));
   z-index: 6;
@@ -604,7 +610,7 @@
   display: inline-flex;
   gap: 0.6rem;
   align-items: center;
-  height: 48px;
+  height: var(--qr-top-control-size);
   min-width: 11ch;
   padding: 0 1.1rem;
   color: var(--qr-ink-muted);
@@ -644,13 +650,13 @@
   z-index: 6;
   display: grid;
   place-items: center;
-  width: clamp(56px, 13vw, 72px);
-  height: clamp(56px, 13vw, 72px);
+  width: var(--qr-action-size);
+  height: var(--qr-action-size);
   background: var(--qr-optical-surface);
   border: var(--qr-optical-edge);
   border-radius: 50%;
   box-shadow: var(--qr-optical-shadow);
-  font-size: clamp(1.7rem, 6vw, 2.6rem);
+  font-size: var(--qr-action-glyph-size);
   text-shadow: 0 1px 3px var(--qr-ink-shadow);
   cursor: pointer;
   -webkit-backdrop-filter: var(--qr-glass-lens);
@@ -772,8 +778,8 @@
 .qr-scanner__cancel {
   right: calc(max(0.9rem, env(safe-area-inset-right)) + 1.8rem);
   bottom: calc(var(--qr-dial-size) - 3.8rem);
-  width: clamp(48px, 11vw, 62px);
-  height: clamp(48px, 11vw, 62px);
+  width: var(--qr-cancel-size);
+  height: var(--qr-cancel-size);
   color: var(--qr-lens-white);
   font: 400 clamp(1.8rem, 6vw, 2.5rem)/1 var(--sans);
 }
@@ -786,8 +792,8 @@
   z-index: 6;
   display: grid;
   place-items: center;
-  width: clamp(56px, 13vw, 72px);
-  height: clamp(56px, 13vw, 72px);
+  width: var(--qr-action-size);
+  height: var(--qr-action-size);
   color: var(--qr-lens-white);
   background: var(--qr-optical-surface);
   border: var(--qr-optical-edge);
@@ -873,9 +879,57 @@
   }
 }
 
+/* Foldables can expose a tablet-like or desktop-like CSS viewport while still
+   being operated at phone distance. Pointer capability is the reliable signal
+   for preserving physical touch size across cover, inner, and desktop-site
+   modes; mouse/trackpad layouts keep the compact reference geometry above. */
+@media (pointer: coarse), (max-width: 480px) {
+  .qr-scanner__camera {
+    --qr-top-control-size: clamp(56px, 9vw, 88px);
+    --qr-action-size: clamp(64px, 13vw, 96px);
+    --qr-cancel-size: clamp(56px, 11vw, 84px);
+    --qr-action-glyph-size: clamp(2rem, 6vw, 3rem);
+    --qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem);
+  }
+  .qr-scanner__close { font-size: clamp(2.05rem, 5vw, 2.8rem); }
+  .qr-scanner__camera-icon,
+  .qr-scanner__torch-icon {
+    width: clamp(29px, 4.8vw, 42px);
+    height: clamp(29px, 4.8vw, 42px);
+  }
+  .qr-scanner__code {
+    min-width: 12ch;
+    padding-inline: clamp(0.85rem, 2vw, 1.4rem);
+    font-size: clamp(1.18rem, 2.4vw, 1.5rem);
+  }
+  .qr-scanner__code-icon {
+    width: clamp(24px, 3.8vw, 34px);
+    height: clamp(24px, 3.8vw, 34px);
+  }
+  .qr-scanner__prompt {
+    padding: clamp(0.75rem, 1.8vw, 1.05rem) clamp(1rem, 2.2vw, 1.4rem);
+    font-size: clamp(0.9rem, 2vw, 1.08rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .qr-scanner__camera {
+    --qr-top-control-size: 52px;
+    --qr-action-size: 64px;
+    --qr-cancel-size: 56px;
+    --qr-dial-size: clamp(14.5rem, 67vmin, 16.5rem);
+  }
+  .qr-scanner__code {
+    min-width: 0;
+    max-width: calc(100vw - 11.3rem - env(safe-area-inset-left) - env(safe-area-inset-right));
+    padding-inline: 0.55rem;
+    font-size: 1rem;
+  }
+}
+
 .zombie-warning {
   position: absolute;
-  top: calc(var(--qr-top-offset) + 48px + 0.8rem);
+  top: calc(var(--qr-top-offset) + var(--qr-top-control-size) + 0.8rem);
   right: max(0.9rem, env(safe-area-inset-right));
   bottom: auto;
   left: max(0.9rem, env(safe-area-inset-left));
@@ -883,7 +937,7 @@
   display: block;
   width: auto;
   max-width: 34rem;
-  max-height: calc(100% - var(--qr-top-offset) - 48px - 0.8rem - var(--qr-dial-size) - 5.7rem);
+  max-height: calc(100% - var(--qr-top-offset) - var(--qr-top-control-size) - 0.8rem - var(--qr-dial-size) - 5.7rem);
   margin-inline: auto;
   padding: 0;
   background: transparent;

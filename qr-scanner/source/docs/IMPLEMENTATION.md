@@ -383,6 +383,8 @@ The host owns mount geometry. The scanner fills its host.
 
 The module uses safe-area insets, `touch-action: none` only on scanner-owned gesture surfaces, 44-pixel minimum targets, and scoped scroll prevention. It observes host resizing and preserves the instance through orientation changes and reparenting. The host must assign an intentional stacking context if scanner and application dialogs overlap.
 
+On coarse-pointer hardware—or in any viewport no wider than 480 CSS pixels—the top controls, code pill, dialog copy, action controls, and radial dial use a larger touch scale. The capability branch is intentional: foldables such as the Galaxy Z Fold can report a tablet-sized or desktop-style CSS viewport even while the interface is operated at phone distance, so a width-only phone breakpoint can make fixed controls physically tiny. Do not replace this rule with user-agent detection or restrict it to only a narrow-width media query. Ordinary mouse and trackpad layouts retain the compact reference scale; narrow windows receive the accessible scale, and very narrow touch viewports receive a fit-preserving override so the complete top row remains visible.
+
 Primary coarse-pointer breakpoints match the source application:
 
 - phone: `pointer: coarse` and `max-width: 767px`;
