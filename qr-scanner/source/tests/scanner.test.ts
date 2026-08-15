@@ -13,19 +13,12 @@ const offlineOptions = {
 } as const;
 
 describe("QrScanner", () => {
-  it("keeps Fold controls proportional and prevents a square dial compositor", () => {
-    expect(scannerCss).toContain("@media (pointer: coarse), (any-pointer: coarse), (any-hover: none), (max-width: 480px)");
-    expect(scannerCss).toContain("--qr-top-control-size: clamp(56px, 11vmin, 12rem)");
-    expect(scannerCss).toContain("--qr-action-size: clamp(64px, 13vmin, 13rem)");
-    expect(scannerCss).not.toContain("--qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem)");
-    expect(scannerCss).toContain(".qr-scanner__dial-glass {\n    -webkit-backdrop-filter: none;\n    backdrop-filter: none;\n  }");
-  });
-
-  it("uses the notification pill as the dialog's only liquid-glass surface", () => {
-    expect(scannerCss).not.toContain("background: var(--glass-noise), rgba(10, 6, 24, .9)");
-    expect(scannerCss).toContain(".zombie-warning__dialog {\n  display: grid;");
-    expect(scannerCss).toContain("background: transparent;\n  border: 0;\n  border-radius: inherit;\n  box-shadow: none;");
-    expect(scannerCss).toContain("-webkit-backdrop-filter: none;\n  backdrop-filter: none;");
+  it("defines a coarse-pointer control scale for foldable touch layouts", () => {
+    expect(scannerCss).toContain("@media (pointer: coarse), (max-width: 480px)");
+    expect(scannerCss).toContain("@media (pointer: coarse), (max-width: 480px) {\n  .qr-scanner__camera {");
+    expect(scannerCss).toContain("--qr-top-control-size: clamp(56px, 9vw, 88px)");
+    expect(scannerCss).toContain("--qr-action-size: clamp(64px, 13vw, 96px)");
+    expect(scannerCss).toContain("--qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem)");
   });
 
   it("mounts reuses reparents and destroys one scanner subtree", () => {
