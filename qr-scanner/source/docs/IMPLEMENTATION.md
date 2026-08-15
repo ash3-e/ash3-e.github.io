@@ -288,7 +288,7 @@ const action = await scanner.showDialog({
 if (action === "replace") await hostApi.replace();
 ```
 
-Dialogs never open a full-screen modal or opaque overlay. Their title, body, and text actions occupy the live glass prompt directly beneath the top scanner controls, leaving the camera, dial, and tethered action controls visible.
+Dialogs never open a full-screen modal or opaque overlay. Their title, body, and text actions occupy the live glass prompt directly beneath the top scanner controls, leaving the camera, dial, and tethered action controls visible. A dialog uses the exact same single liquid-glass prompt surface as a one-line notification and simply grows vertically to fit its content; its inner layout wrapper stays transparent, so it never adds a second opaque panel, rim, shadow, or blur.
 
 - With two actions, the cancel/back/ignore-style action is white and is tethered to the lower-left circular **X**. The confirm/continue/acknowledge/overwrite/reassign-style action is green and is tethered to the upper-right circular **checkmark**. Semantic tone and familiar action labels win over input order, so reversed host arrays are still latched sensibly.
 - Clicking a text action in the prompt and clicking its tethered circle are the same operation.
@@ -383,7 +383,9 @@ The host owns mount geometry. The scanner fills its host.
 
 The module uses safe-area insets, `touch-action: none` only on scanner-owned gesture surfaces, 44-pixel minimum targets, and scoped scroll prevention. It observes host resizing and preserves the instance through orientation changes and reparenting. The host must assign an intentional stacking context if scanner and application dialogs overlap.
 
-On coarse-pointer hardware—or in any viewport no wider than 480 CSS pixels—the top controls, code pill, dialog copy, action controls, and radial dial use a larger touch scale. The capability branch is intentional: foldables such as the Galaxy Z Fold can report a tablet-sized or desktop-style CSS viewport even while the interface is operated at phone distance, so a width-only phone breakpoint can make fixed controls physically tiny. Do not replace this rule with user-agent detection or restrict it to only a narrow-width media query. Ordinary mouse and trackpad layouts retain the compact reference scale; narrow windows receive the accessible scale, and very narrow touch viewports receive a fit-preserving override so the complete top row remains visible.
+On hardware reporting a coarse pointer, any coarse pointer, no hover capability, or a viewport no wider than 480 CSS pixels, the top controls, code pill, dialog copy, and action controls use a larger touch scale. The capability branches are intentional: foldables such as the Galaxy Z Fold can report a 1,000-plus-pixel desktop-style CSS viewport while displaying it on the narrow cover screen. The touch tokens therefore grow from the shorter viewport edge and retain generous upper bounds rather than stopping at an ordinary phone-sized fixed maximum. Do not replace this rule with user-agent detection or restrict it to only a narrow-width media query. Ordinary mouse and trackpad layouts retain the compact reference scale; very narrow viewports receive a fit-preserving override so the complete top row remains visible.
+
+The radial dial retains the accepted reference footprint on touch layouts. Its masked tint and rims remain, but its `backdrop-filter` is disabled for the touch/narrow capability branch because Android Chrome can composite that filter as the dial's full rectangular layer before applying the complex annular mask, exposing an opaque-looking square behind the arc. Do not re-enable that filtered compositor on the touch branch without checking a physical Android foldable against a dark camera feed.
 
 Primary coarse-pointer breakpoints match the source application:
 

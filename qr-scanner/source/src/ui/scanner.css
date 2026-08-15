@@ -880,35 +880,42 @@
 }
 
 /* Foldables can expose a tablet-like or desktop-like CSS viewport while still
-   being operated at phone distance. Pointer capability is the reliable signal
-   for preserving physical touch size across cover, inner, and desktop-site
-   modes; mouse/trackpad layouts keep the compact reference geometry above. */
-@media (pointer: coarse), (max-width: 480px) {
+   being operated at phone distance. Use every touch-capability signal and let
+   controls grow with the shorter viewport edge: a small fixed maximum becomes
+   physically tiny when Android scales a desktop-width layout onto its cover
+   screen. Mouse/trackpad layouts keep the compact reference geometry above. */
+@media (pointer: coarse), (any-pointer: coarse), (any-hover: none), (max-width: 480px) {
   .qr-scanner__camera {
-    --qr-top-control-size: clamp(56px, 9vw, 88px);
-    --qr-action-size: clamp(64px, 13vw, 96px);
-    --qr-cancel-size: clamp(56px, 11vw, 84px);
-    --qr-action-glyph-size: clamp(2rem, 6vw, 3rem);
-    --qr-dial-size: clamp(15.5rem, 63vmin, 23.5rem);
+    --qr-top-control-size: clamp(56px, 11vmin, 12rem);
+    --qr-action-size: clamp(64px, 13vmin, 13rem);
+    --qr-cancel-size: clamp(56px, 11vmin, 12rem);
+    --qr-action-glyph-size: clamp(2rem, 5vmin, 5rem);
   }
-  .qr-scanner__close { font-size: clamp(2.05rem, 5vw, 2.8rem); }
+  .qr-scanner__close { font-size: clamp(2.05rem, 5vmin, 5rem); }
   .qr-scanner__camera-icon,
   .qr-scanner__torch-icon {
-    width: clamp(29px, 4.8vw, 42px);
-    height: clamp(29px, 4.8vw, 42px);
+    width: clamp(29px, 5.2vmin, 5.5rem);
+    height: clamp(29px, 5.2vmin, 5.5rem);
   }
   .qr-scanner__code {
     min-width: 12ch;
-    padding-inline: clamp(0.85rem, 2vw, 1.4rem);
-    font-size: clamp(1.18rem, 2.4vw, 1.5rem);
+    padding-inline: clamp(0.85rem, 2.2vmin, 3rem);
+    font-size: clamp(1.18rem, 2.8vmin, 3.5rem);
   }
   .qr-scanner__code-icon {
-    width: clamp(24px, 3.8vw, 34px);
-    height: clamp(24px, 3.8vw, 34px);
+    width: clamp(24px, 4vmin, 4rem);
+    height: clamp(24px, 4vmin, 4rem);
   }
   .qr-scanner__prompt {
-    padding: clamp(0.75rem, 1.8vw, 1.05rem) clamp(1rem, 2.2vw, 1.4rem);
-    font-size: clamp(0.9rem, 2vw, 1.08rem);
+    padding: clamp(0.75rem, 1.8vmin, 2rem) clamp(1rem, 2.2vmin, 2.5rem);
+    font-size: clamp(0.9rem, 2vmin, 3rem);
+  }
+  /* Android Chrome may composite a backdrop-filter before applying a complex
+     mask, exposing the dial's square layer. The masked tint and rims preserve
+     the glass band without that compositor surface on touch layouts. */
+  .qr-scanner__dial-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
@@ -917,7 +924,6 @@
     --qr-top-control-size: 52px;
     --qr-action-size: 64px;
     --qr-cancel-size: 56px;
-    --qr-dial-size: clamp(14.5rem, 67vmin, 16.5rem);
   }
   .qr-scanner__code {
     min-width: 0;
@@ -939,30 +945,23 @@
   max-width: 34rem;
   max-height: calc(100% - var(--qr-top-offset) - var(--qr-top-control-size) - 0.8rem - var(--qr-dial-size) - 5.7rem);
   margin-inline: auto;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
   pointer-events: none;
   overflow: hidden;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 .zombie-warning__dialog {
   display: grid;
   grid-template-rows: auto minmax(0, auto) auto;
   width: 100%;
   max-height: inherit;
-  padding: 1.15rem 1.2rem;
+  padding: 0;
   color: var(--ink);
-  background: var(--glass-noise), rgba(10, 6, 24, .9);
-  border: 1px solid rgba(198, 168, 255, .4);
-  border-radius: 16px;
-  box-shadow: 0 24px 70px rgba(0,0,0,.62), var(--glass-glow);
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  box-shadow: none;
   pointer-events: auto;
-  -webkit-backdrop-filter: var(--qr-glass-lens);
-  backdrop-filter: var(--qr-glass-lens);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .zombie-warning__title { margin: 0 0 .65rem; color: var(--accent-bright); font: 800 .76rem/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .zombie-warning__title:empty { display: none; }
@@ -975,7 +974,8 @@
 .zombie-warning__actions button[data-tone="delete"] { color: var(--danger); }
 .zombie-warning__actions button:disabled { opacity: .55; cursor: wait; }
 @media (max-height: 760px) {
-  .zombie-warning__dialog { padding: .65rem .9rem; }
+  .zombie-warning { padding: .65rem .9rem; }
+  .zombie-warning__dialog { padding: 0; }
   .zombie-warning__title { margin-bottom: .35rem; font-size: .68rem; }
   .zombie-warning__message { font-size: .78rem; line-height: 1.35; }
   .zombie-warning__actions { margin-top: .4rem; }
