@@ -1,0 +1,570 @@
+const e=`# QR Scan Core Implementation Guide\r
+\r
+> **Documentation maintenance contract — update this guide in the same change.**\r
+>\r
+> This file is the canonical, editable integration guide for QR Scan Core. Iterate on it whenever a change affects scanner behavior, public APIs, lifecycle or cleanup, result delivery, browser or camera support, gestures, styling variables, build or deployment steps, or instructions for current or possible future integrations. A feature or integration change that makes any instruction incomplete, misleading, or obsolete is not complete until this guide is updated. The debugging harness's **Save Guide** button downloads this exact Markdown file; do not maintain a separate generated guide.
+>
+> **Two-implementation parity contract:** every functional or UI change must be carried into both the initial implementation and the side-by-side Svelte implementation in the same change. Update their skeletons, emulators, tests, and this guide together. Neither implementation is a temporary branch or a replacement for the other; both live on \`main\`.
+\r
+This module contains the physical QR scanning feature, its camera and decode implementation, the complete accepted source scanner UI, its radial zoom control, and its gesture controls. It contains no QRQT, Z1Q, inventory, address, BPN, Supabase, assignment, or application-specific logic. By default, a successful scan stores and displays the decoded payload and performs no other action.\r
+\r
+## Side-by-side implementation methodology
+\r
+This repository deliberately ships two scanner implementations, each with a functional skeleton and an integration emulator. The implementations must not be collapsed or allowed to drift:
+
+- **Initial implementation:** \`src/core/qr-scanner.ts\`, \`skeleton/\`, and \`harness/\`. It owns an imperative DOM surface and its controller lifecycle.
+- **Svelte implementation:** \`svelte/src/QrScanner.svelte\`, \`svelte/src/runtime/\`, \`svelte/skeleton/\`, and \`svelte/harness/\`. Svelte owns its scanner markup and reactive surface projection; its runtime preserves the same public behavior and camera lifecycle.
+- **Shared neutral modules:** \`src/camera/\`, \`src/core/geometry.ts\`, \`src/core/result-pipeline.ts\`, \`src/core/dialog-actions.ts\`, \`src/core/handedness.ts\`, \`src/decoder/\`, \`src/ui/scanner.css\`, \`src/assets/\`, and \`examples/scanner-examples.ts\`. Sharing these modules reduces drift but does not remove the requirement to verify both rendered implementations.
+
+Within each implementation, the two pages serve different roles:
+\r
+1. **Bare-bones functional skeleton — \`/skeleton/\`.** This is the one-to-one scanner surface without the emulator control wall. It owns a real camera feed, ROI gestures, ZXing QR decoding, the live code pill, statuses, dialogs, and tethered face controls. A successful physical scan displays and delivers the decoded payload exactly as the reusable feature does. It contains no QRQT, Z1Q, database, network, inventory, assignment, navigation, or application-data persistence behavior. The only browser-persisted value is the user-interface handedness preference. Host-looking actions resolve through named no-op hooks so integrators can replace them without reverse-engineering the UI.
+2. **Integration emulator — \`/emulator/\`.** This is the dedicated controls pane and preview device. It can select every neutral example status, dialog, lifecycle, camera, gesture, result, device, orientation, and theme state. It is an inspection and development tool, not the starting shell for a product integration. The development build also retains \`/\` as a compatibility entry, but published links should use the explicit \`/emulator/\` route.\r
+\r
+The initial pages are \`/skeleton/\` and \`/emulator/\`. Their Svelte equivalents are \`/svelte/skeleton/\` and \`/svelte/emulator/\`. All four import the same accepted styles, icons, camera/decode primitives, and inert example catalog. An emulator may expose more controls, but it must never own a scanner state or example definition that its skeleton cannot import and reference.
+\r
+### Required implementation sequence\r
+\r
+Use this sequence for every future scanner feature or integration:\r
+\r
+1. Add or change neutral primitives in the shared modules under \`src/\`; do not add host policy there.
+2. Implement the behavior in the initial imperative controller and its owned markup.
+3. Implement the same behavior in the Svelte runtime and Svelte-owned component markup.
+4. Keep reusable example dialogs, statuses, and actions in \`examples/scanner-examples.ts\`, with callbacks inert until a host supplies behavior.
+5. Prove the capability in both \`/skeleton/\` and \`/svelte/skeleton/\` with real camera and result delivery, keeping application hooks null/no-op.
+6. Expose and inspect the capability through both \`/emulator/\` and \`/svelte/emulator/\`.
+7. Run the initial tests, Svelte tests, Svelte accessibility/type checks, production build, and browser parity states before considering the change complete.
+8. Only after both implementations agree should a future host attach QRQT, Z1Q, database, routing, assignment, or network behavior outside this repository.
+9. Update this guide in the same change whenever an API, example, asset, control mapping, test route, or integration instruction changes.
+\r
+An implementation is incomplete if it exists only in one framework, one emulator, one skeleton, or a host application. The development loop is **shared neutral primitives -> initial surface -> Svelte surface -> both skeletons -> both emulators -> host integration**.
+\r
+## Scope and ownership\r
+\r
+QR Scan Core owns:\r
+\r
+- camera stream acquisition, selection, switching, and teardown;\r
+- QR-only frame decoding and ROI preprocessing;\r
+- camera-frame scheduling and hard/rotated decode fallbacks;\r
+- scan-region geometry and video-coordinate conversion;\r
+- feed pointer, touch, pinch, wheel, keyboard, and radial-dial controls;\r
+- best-effort focus, exposure, torch, hardware zoom, and software zoom;\r
+- top-row controls, status primitives, inline dialogs, targeting state, and result display;\r
+- the source camera picker, torch, QR-code pill, close control, held scan region, focus pulse, glass radial dial, jump/accept/cancel controls, inline confirmation prompt, and stale-warning surface;\r
+- dialog-to-control tethering and the two-press animated trash confirmation state machine; the host still owns every operation those controls request;\r
+- result callbacks, events, Promise waiters, handler values, and in-memory history.\r
+\r
+The host owns:\r
+\r
+- where and when the scanner is mounted or opened;\r
+- routes, modal shells, stacking order, mount dimensions, and surrounding layout;\r
+- authentication, network requests, database reads and writes, navigation, and storage;\r
+- interpretation, validation, lookup, assignment, replacement, and conflict policy;\r
+- application-specific status and dialog copy;
+- persistence or serialization of results and all storage other than the scanner's local handedness preference.
+\r
+The core never calls the network and never parses payloads as inventory identifiers.\r
+\r
+## Install\r
+\r
+From a source checkout:\r
+\r
+\`\`\`sh\r
+npm install\r
+npm run build\r
+\`\`\`\r
+\r
+The library build emits:\r
+\r
+\`\`\`text\r
+dist/qr-scan-core.js\r
+dist/qr-scan-core.css\r
+dist/index.d.ts\r
+\`\`\`\r
+\r
+The initial pages are emitted at \`dist/harness/emulator/index.html\` and \`dist/harness/skeleton/index.html\`. The Svelte pages are emitted at \`dist/harness/svelte/emulator/index.html\` and \`dist/harness/svelte/skeleton/index.html\`. A compatibility copy of the initial emulator remains at \`dist/harness/index.html\`. Every URL is relative so the complete directory can be hosted at a project subpath.
+\r
+## Static ESM use\r
+\r
+\`\`\`html\r
+<link rel="stylesheet" href="./vendor/qr-scan-core.css">\r
+<div id="scanner-slot"></div>\r
+<script type="module">\r
+  import { createQrScanner } from "./vendor/qr-scan-core.js";\r
+\r
+  const scanner = createQrScanner();\r
+  scanner.mount(document.querySelector("#scanner-slot")).open();\r
+<\/script>\r
+\`\`\`\r
+\r
+The mount node must have a usable width and height. The host determines whether that node is full viewport, a bounded container, or part of a dialog.\r
+\r
+## Bare-bones functional skeleton\r
+\r
+Run \`npm run dev\` and open \`/skeleton/\` to use the scanner without the emulator wall. This interface mounts the accepted scanner full-viewport, requests the environment-facing camera, decodes physical QR codes through the real ROI/ZXing path, displays the payload, and emits the same result events as the library. The top camera control retries permission or camera acquisition when no stream is active.\r
+\r
+The page intentionally exposes its neutral extension surface as \`window.qrScanSkeleton\` for local development:\r
+\r
+\`\`\`ts\r
+window.qrScanSkeleton.scanner.addEventListener("scanresult", onScan);\r
+window.qrScanSkeleton.runExample("assign");\r
+await window.qrScanSkeleton.showDialog("destructive");\r
+\`\`\`\r
+\r
+These calls drive scanner UI only. They do not assign, overwrite, delete, notify, navigate, persist, or call a network. A future integration should import \`mountSkeleton()\` from \`skeleton/app.ts\` and pass optional \`onScan\`, \`onAction\`, and \`onDialogAction\` hooks instead of editing scanner internals.\r
+\r
+For linkable visual states without adding an emulator pane, use \`?example=<name>\` or \`?dialog=<name>\`. For example, \`/skeleton/?example=assign\` shows the assignment prompt and \`/skeleton/?dialog=destructive\` shows the two-press delete dialogue. The definitions come from \`examples/scanner-examples.ts\`, the same catalog used by the emulator.\r
+\r
+## Lifecycle\r
+\r
+\`\`\`ts\r
+const scanner = createQrScanner({
+  handedness: "right",
+  camera: {
+    autoStart: true,\r
+    facingMode: "environment",\r
+    allowSwitching: true,\r
+  },\r
+});\r
+\r
+scanner.mount(hostElement); // appends one scanner subtree\r
+scanner.open();             // visible and camera-enabled\r
+await scanner.startCamera();// explicitly start/retry the default camera\r
+scanner.stopCamera();       // stop tracks while keeping the scanner open\r
+scanner.pause();            // keeps stream ownership; stops scan work\r
+scanner.resume();
+scanner.setHandedness("left"); // mirrors dial/action placement without mirroring labels or icons
+scanner.close();            // stops tracks; instance can reopen
+scanner.reparent(otherHost);// moves the same instance\r
+scanner.destroy();          // final cleanup; do not reuse\r
+\`\`\`\r
+\r
+Lifecycle calls are idempotent. \`close()\` stops decoding, animation/video-frame callbacks, and media tracks. \`destroy()\` additionally removes DOM and listeners, disconnects resize observation, destroys the decoder, and rejects pending \`nextResult()\` Promises with \`LifecycleError\` code \`scanner_destroyed\`.
+
+Handedness is the scanner's one persistent UI preference. A pivot toggle or \`setHandedness()\` call writes \`left\` or \`right\` to the \`qr-scan-core:handedness\` browser-storage key. A newly constructed scanner restores that saved value, so the choice survives page refreshes and scanner destruction/recreation; closing and reopening the same instance also preserves its current state. An explicit \`handedness\` constructor option remains authoritative for that instance. Storage access is best-effort and never prevents scanning when browser storage is blocked or unavailable.
+\r
+### Route teardown\r
+\r
+\`\`\`ts\r
+const scanner = createQrScanner().mount(routeOutlet).open();\r
+\r
+router.onBeforeLeave(() => {\r
+  scanner.destroy();\r
+});\r
+\`\`\`\r
+\r
+Use \`close()\` when the same scanner instance will reopen. Use \`destroy()\` when the owning route or feature is permanently unmounted.\r
+\r
+\`startCamera(deviceId?)\` and \`stopCamera()\` provide feed-only control for embedded previews and development simulators. \`startCamera()\` requests the configured environment-facing camera when no device ID is supplied. \`stopCamera()\` releases every media track, clears the video element, and leaves the scanner UI and synthetic result path available. Use \`open()\` and \`close()\` when visibility and camera ownership should change together.\r
+\r
+## How scanning behaves\r
+\r
+This is intentionally not an always-decoding scanner.\r
+\r
+- A feed press positions the scan region and requests focus/exposure.\r
+- Holding or dragging owns a scan session and decodes inside the live ROI.\r
+- Dragging moves the ROI.\r
+- Two registered pointers latch opposing corners, resize the square ROI, and recenter it.\r
+- When a pinch becomes one pointer, the remaining pointer continues dragging with a stored offset; the ROI does not jump.\r
+- Releasing the final registered pointer commits the most recent live decoded payload.\r
+- Pointer cancellation stops without committing.\r
+- Pressing or dragging anywhere in the radial dial quadrant changes zoom without starting a scan session. The protected no-start region is the full quarter-circle area bounded by the arc's outer edge and the adjacent bottom and vertical viewport edges, not only the visible glass band.
+- A feed-owned scan gesture may continue across the protected dial quadrant and move the already-active ROI there; entering the region never cancels or steals that existing gesture.
+- Tapping the dial pivot toggles right- and left-handed modes. Left-handed mode mirrors the dial geometry and moves dial-adjacent jump, confirm, cancel, and delete controls to the left edge, while counter-mirroring the \`1x\`/maximum-zoom labels so all text and icons remain readable. The selection is saved locally and restored by replacement scanner instances and page refreshes. Hosts may set an explicit mode for an instance with \`handedness\` or change it through \`setHandedness()\`; otherwise a saved preference is used before the \`right\` fallback.
+- Wheel and \`+\`/\`-\` adjust zoom; arrow keys move the ROI; Enter performs a keyboard scan commit.
+- There is no left-edge vertical zoom slider.\r
+\r
+The frame loop targets approximately 30 decode attempts per second. Every third attempt enables ZXing \`TRY_HARDER\` and the inverted retry. After repeated misses, the scanner periodically tries one rotated hard decode. The working ROI is capped at 384 pixels on its longest edge for ordinary attempts.\r
+\r
+## Results\r
+\r
+### Callback\r
+\r
+\`\`\`ts\r
+const scanner = createQrScanner({\r
+  onResult(result) {\r
+    console.log(result.payload, result.value, result.context);\r
+  },\r
+});\r
+\`\`\`\r
+\r
+### Event\r
+\r
+\`\`\`ts\r
+scanner.addEventListener("scanresult", (event) => {\r
+  const result = (event as CustomEvent).detail;\r
+  console.log(result);\r
+});\r
+\`\`\`\r
+\r
+### Await the next scan\r
+\r
+\`\`\`ts\r
+const next = await scanner.nextResult();\r
+\`\`\`\r
+\r
+Every waiter pending at emission time resolves with the same result record.\r
+\r
+### Last result and history\r
+\r
+\`\`\`ts\r
+scanner.getLastResult(); // ScanResult | null\r
+scanner.getHistory();    // readonly ScanResult[]\r
+\`\`\`\r
+\r
+The latest result remains available even when \`historyLimit\` is \`0\`. History defaults to 20 records and remains in memory only.\r
+\r
+### Result record\r
+\r
+\`\`\`ts\r
+interface ScanResult<TValue> {\r
+  id: string;\r
+  payload: string;           // decoder output, unchanged\r
+  normalizedPayload: string; // injected normalizer output\r
+  value: TValue;             // resolved handler return value\r
+  context: Readonly<ScanContext>;\r
+  timestamp: number;\r
+}\r
+\`\`\`\r
+\r
+Camera and synthetic scans use the same pipeline. Synthetic scans are useful for tests and offline integration work:\r
+\r
+\`\`\`ts\r
+await scanner.emitSynthetic("example payload", { fixture: "empty-network" });\r
+\`\`\`\r
+\r
+## Normalizers and handler values\r
+\r
+Both defaults are identity operations. No trimming, uppercasing, URL extraction, address parsing, or code validation occurs unless the host injects it.\r
+\r
+\`\`\`ts\r
+const scanner = createQrScanner({\r
+  normalizePayload: (raw) => raw.normalize("NFC"),\r
+  handler: async (normalized, context) => {\r
+    return hostApi.validate(normalized, context);\r
+  },\r
+});\r
+\`\`\`\r
+\r
+The handler may return any JavaScript value: the original payload, transformed text, an object, a function, or a Promise. Promises are awaited and the resolved value is stored as \`result.value\`. Values remain live in memory and are not serialized by the core.\r
+\r
+If the host treats the handler as validation, return a validation result and separately drive status or dialog UI. Do not import host validation into this package.\r
+\r
+## Status, targeting, input, and dialogs\r
+\r
+\`\`\`ts\r
+scanner.setStatus({ tone: "pending", text: "Checking with host…" });\r
+scanner.setStatus({ tone: "success", text: "Host accepted result" });\r
+scanner.setStatus(null);\r
+\r
+scanner.setTargeting(true);\r
+scanner.setInputLocked(true);\r
+scanner.pause();\r
+\`\`\`\r
+\r
+Status tones are \`neutral\`, \`pending\`, \`found\`, \`unmatched\`, \`success\`, \`warning\`, and \`error\`. They are visual semantics only.\r
+\r
+Use the source confirmation layout without giving the core any assignment policy:\r
+\r
+\`\`\`ts\r
+scanner.setStatus({\r
+  tone: "warning",\r
+  layout: "confirmation",\r
+  text: "Overwrite the current host value?",\r
+  detail: "Use the checkmark to confirm or × to cancel.",\r
+  note: "Optional host-owned conflict detail.",\r
+});\r
+\r
+scanner.setCodePresentation({ code: "204811", state: "known" });\r
+scanner.setCodePresentation({ code: null, state: "preview" });\r
+\r
+scanner.setActionControls({\r
+  jump: { id: "jump", label: "Open the matched host record" },\r
+  accept: { id: "accept", label: "Confirm host action" },\r
+  cancel: { id: "cancel", label: "Cancel host action" },\r
+});\r
+\r
+scanner.addEventListener("action", (event) => {\r
+  const { id, kind } = (event as CustomEvent).detail;\r
+  hostActions.run(id, kind);\r
+});\r
+\`\`\`\r
+\r
+\`setCodePresentation()\` exposes the accepted \`idle\`, \`preview\`, \`known\`, and \`unknown\` visual states for host-driven lookup flows. \`setActionControls()\` only configures visibility, accessibility labels, disabled state, and emitted action identifiers. It never navigates, assigns, rewrites, overwrites, or mutates host data.\r
+\r
+\`\`\`ts\r
+const action = await scanner.showDialog({\r
+  title: "Replace existing value?",\r
+  body: "This copy and policy came from the host.",\r
+  actions: [\r
+    { id: "cancel", label: "Cancel" },\r
+    { id: "replace", label: "Replace", tone: "primary" },\r
+  ],\r
+});\r
+\r
+if (action === "replace") await hostApi.replace();\r
+\`\`\`\r
+\r
+Dialogs never open a full-screen modal or opaque overlay. Their title, body, and text actions occupy the live glass prompt directly beneath the top scanner controls, leaving the camera, dial, and tethered action controls visible. A dialog uses the exact same single liquid-glass prompt surface as a one-line notification and simply grows vertically to fit its content; its inner layout wrapper stays transparent, so it never adds a second opaque panel, rim, shadow, or blur.
+
+When the camera picker is open at the same time as a dialog, status, or scan-result prompt, its options remain horizontally anchored beneath the camera button but are vertically placed one shared prompt gap below the visible prompt's measured bottom edge. Prompt height is authoritative: wrapped copy and destructive-confirmation text can grow without overlapping the camera options. When no prompt is visible, the options return to the normal one-gap position beneath the top-row camera button.
+\r
+- With two actions, the cancel/back/ignore-style action is white and is tethered to the lower-left circular **X**. The confirm/continue/acknowledge/overwrite/reassign-style action is green and is tethered to the upper-right circular **checkmark**. Semantic tone and familiar action labels win over input order, so reversed host arrays are still latched sensibly.\r
+- Clicking a text action in the prompt and clicking its tethered circle are the same operation.\r
+- While a dialog is active, the top toolbar **X** also invokes the left/cancel action instead of closing the scanner.\r
+- A single neutral dismiss/close/cancel-style action is treated as white cancellation and uses only the **X**. A single \`primary\`, \`danger\`, Continue, Acknowledge, Confirm, Overwrite, or Reassign-style action is treated as green confirmation and uses only the checkmark.\r
+- Keep dialogs to one or two actions so every visible action has a physical control tether.\r
+\r
+Use the explicit \`delete\` tone only for irreversible deletion:\r
+\r
+\`\`\`ts\r
+const action = await scanner.showDialog({\r
+  title: "Delete this record?",\r
+  body: "This cannot be undone.",\r
+  actions: [\r
+    { id: "cancel", label: "Cancel" },\r
+    { id: "delete", label: "Delete", tone: "delete" },\r
+  ],\r
+});\r
+\r
+if (action === "delete") await hostApi.deleteRecord();\r
+\`\`\`\r
+\r
+The delete action replaces the checkmark with the Job Editor trash glyph. It requires two separate presses. Each press runs the complete 900 ms lid/morsel/bin animation; after the first finishes, the prompt explicitly asks for the second press, and the Promise resolves only after the second animation finishes. Cancel remains available between presses. Reduced-motion preferences compress the decorative timing without removing the two confirmation steps.\r
+\r
+The scanner resolves an action identifier and emits \`dialogaction\`. It performs no associated operation, including deletion.\r
+\r
+## Camera permissions and secure contexts\r
+\r
+Real camera acquisition requires HTTPS or a browser-recognized localhost origin. An insecure remote HTTP page can run the synthetic harness but cannot obtain \`getUserMedia\`.\r
+\r
+Ask for camera permission from a visible user-initiated flow when possible. Permission may be denied permanently, blocked by iframe policy, unavailable because another app owns the camera, or interrupted after acquisition. Listen for \`cameraerror\` and show host-appropriate recovery copy.\r
+\r
+\`\`\`ts\r
+scanner.addEventListener("cameraerror", (event) => {\r
+  console.error((event as CustomEvent).detail.message);\r
+});\r
+\`\`\`\r
+\r
+Camera labels may be empty until permission is granted. \`enumerateCameras()\` therefore returns raw browser devices without inventing stable identity.\r
+\r
+For an interactive integration, provide a visible Start/Retry control even when \`camera.autoStart\` is enabled. It gives users a recovery path after a denied, dismissed, interrupted, or browser-blocked permission request:\r
+\r
+\`\`\`ts\r
+startButton.addEventListener("click", async () => {\r
+  await scanner.startCamera(selectedDeviceId || undefined);\r
+});\r
+\r
+stopButton.addEventListener("click", () => {\r
+  scanner.stopCamera();\r
+});\r
+\`\`\`\r
+\r
+The scanner's \`<video>\` is the real preview surface. Once a stream is active, press and hold over a visible QR code to position the ROI and decode live frames; release to commit the most recently decoded payload through the normal result pipeline.\r
+\r
+## iOS Safari\r
+\r
+- Use HTTPS and a direct user gesture for the first camera open.\r
+- Keep the \`<video>\` inline; the module sets \`playsinline\` and \`muted\`.\r
+- Expect torch and hardware zoom capabilities to be absent even when the physical device supports them.\r
+- Safari may provide one logical rear camera rather than separate lens device IDs.\r
+- Viewport size changes as browser chrome expands or collapses. Give the host container a modern \`dvh\`/\`svh\` strategy.\r
+- Do not depend on user-agent model detection for camera behavior.\r
+\r
+The scanner uses runtime capabilities as truth and falls back to software zoom. Missing torch, focus, exposure, or multi-camera control degrades independently and never disables raw QR decoding.\r
+\r
+## Zoom and camera switching\r
+\r
+The radial dial exposes a logical zoom range. Runtime camera profiles become contiguous segments:\r
+\r
+- a hardware segment applies \`MediaTrackConstraints.zoom\`;\r
+- a software segment scales the preview and adjusts ROI-to-video mapping;\r
+- crossing into a segment backed by another device opens that camera and resumes the owned scan session.\r
+\r
+The module does not infer an ultrawide or telephoto camera solely from a label. Runtime capabilities drive the model. \`allowSwitching: false\` confines the range to one active camera.\r
+\r
+## Layout, touch, and orientation\r
+\r
+The host owns mount geometry. The scanner fills its host.\r
+\r
+\`\`\`css\r
+.scanner-route {\r
+  position: fixed;\r
+  inset: 0;\r
+  min-height: 100dvh;\r
+}\r
+\r
+.scanner-card {\r
+  width: min(100%, 42rem);\r
+  height: min(80dvh, 56rem);\r
+}\r
+\`\`\`\r
+\r
+The module uses safe-area insets, \`touch-action: none\` only on scanner-owned gesture surfaces, 44-pixel minimum targets, and scoped scroll prevention. It observes host resizing and preserves the instance through orientation changes and reparenting. The host must assign an intentional stacking context if scanner and application dialogs overlap.\r
+\r
+On coarse-pointer hardware—or in any viewport no wider than 480 CSS pixels—the top controls, code pill, dialog copy, action controls, and radial dial use a larger touch scale. The capability branch is intentional: foldables such as the Galaxy Z Fold can report a tablet-sized or desktop-style CSS viewport even while the interface is operated at phone distance, so a width-only phone breakpoint can make fixed controls physically tiny. Do not replace this rule with user-agent detection or restrict it to only a narrow-width media query. Ordinary mouse and trackpad layouts retain the compact reference scale; narrow windows receive the accessible scale, and very narrow touch viewports receive a fit-preserving override so the complete top row remains visible.\r
+\r
+Primary coarse-pointer breakpoints match the source application:\r
+\r
+- phone: \`pointer: coarse\` and \`max-width: 767px\`;\r
+- tablet: \`pointer: coarse\` and \`768px–1199px\`;\r
+- desktop: fallback and debugging compatibility.\r
+\r
+Reduced-motion preferences shorten decorative animation without disabling controls.
+
+## Svelte functional skeleton and component use
+
+Run \`npm run dev\` and open \`/svelte/skeleton/\` for the Svelte-owned scanner surface. It exposes \`window.qrScanSvelteSkeleton\` with the same neutral development operations as the initial skeleton: scanner access, inert examples, and inert dialogs. Query-string visual states use the same \`?example=<name>\` and \`?dialog=<name>\` catalog.
+
+Use \`svelte/src/QrScanner.svelte\` when a Svelte host owns rendering. Supply a runtime when the host needs controller access, or let the component create and destroy its own runtime:
+
+\`\`\`svelte
+<script lang="ts">
+  import QrScanner from "./svelte/src/QrScanner.svelte";
+  import { createSvelteScannerRuntime } from "./svelte/src/runtime/scanner-runtime";
+
+  const scanner = createSvelteScannerRuntime({
+    onResult(result) {
+      console.log(result.payload);
+    },
+  });
+<\/script>
+
+<QrScanner runtime={scanner} />
+\`\`\`
+
+An externally supplied runtime remains host-owned and is detached, not destroyed, when the component unmounts. An internally created runtime is destroyed on unmount, including media tracks, frame callbacks, pending result waiters, and the decoder. Handedness uses the same \`qr-scan-core:handedness\` key in both implementations, so the preference survives switching pages and scanner recreation. Blocked storage access is best-effort and never blocks scanning.
+\r
+## Theming\r
+\r
+Set variables on the scanner host or \`.qrs-root\`:\r
+\r
+\`\`\`css\r
+.my-scanner {\r
+  --qrs-bg: #04020c;\r
+  --qrs-accent: #c6a8ff;\r
+  --qrs-success: #7fe3d4;\r
+  --qrs-zone-size: 4.95rem;\r
+}\r
+\`\`\`\r
+\r
+The stylesheet preserves the accepted \`.qr-scanner\` and \`.qr-scanner__*\` class anatomy and also keeps \`qrs-\` hooks where either implementation needs stable references. The source camera, lightbulb, and jump SVG assets are shipped in \`src/assets\`. Do not replace the accepted chrome with a newly designed shell. If the scanner UI changes, port the changed markup, assets, accessible names, states, SVG identifiers, and relevant style rules to both renderers; update both harness state galleries and this guide in the same change.
+\r
+The stylesheet is scoped beneath \`.qrs-root\`/\`.qr-scanner\` and does not target the host's \`body\` or unrelated controls. The harness's violet terminal-wall styling is separate and can be deleted without affecting the scanner.\r
+\r
+## Events\r
+\r
+The controller is an \`EventTarget\` and emits:\r
+\r
+| Event | Detail |\r
+| --- | --- |\r
+| \`statechange\` | complete public state snapshot |\r
+| \`scanstart\` | none |\r
+| \`scanpreview\` | latest live payload found during an owned gesture |\r
+| \`scanend\` | \`{ committed, payload }\` |\r
+| \`scanresult\` | final \`ScanResult\` |\r
+| \`roichange\` | normalized scanner ROI in stage pixels |\r
+| \`dialogaction\` | \`{ actionId }\` |\r
+| \`action\` | \`{ id, kind }\` from a configured jump, accept, or cancel control |\r
+| \`cameraerror\` | \`{ error, message }\` |\r
+| \`close\` | none; emitted by the top close control |\r
+\r
+## Replacing the decoder\r
+\r
+Inject an object implementing \`QrDecoder\`:\r
+\r
+\`\`\`ts\r
+const scanner = createQrScanner({\r
+  decoder: {\r
+    async decode({ video, roi, tryHarder, rotation }) {\r
+      return myDecoder.read(video, roi, { tryHarder, rotation });\r
+    },\r
+    destroy() {\r
+      myDecoder.release();\r
+    },\r
+  },\r
+});\r
+\`\`\`\r
+\r
+The decoder receives source-video pixel coordinates after object-fit, software-zoom, ROI padding, resize, and orientation transforms have been applied.\r
+\r
+## React adapter\r
+\r
+React is not a runtime dependency. A small integration example lives in \`examples/react/QrScannerView.tsx\`:\r
+\r
+\`\`\`tsx\r
+function QrScannerView({ open, onScan }) {\r
+  const host = useRef<HTMLDivElement>(null);\r
+\r
+  useEffect(() => {\r
+    if (!host.current) return;\r
+    const scanner = createQrScanner({ onResult: onScan }).mount(host.current);\r
+    if (open) scanner.open();\r
+    return () => scanner.destroy();\r
+  }, []);\r
+\r
+  return <div ref={host} className="scanner-route" />;\r
+}\r
+\`\`\`\r
+\r
+In a real adapter, keep the scanner in a ref and use a second effect to call \`open()\` or \`close()\` when the prop changes.\r
+\r
+## Debugging harness\r
+\r
+\`\`\`sh\r
+npm run dev\r
+\`\`\`\r
+\r
+The Vite server exposes all development surfaces at the same origin:
+\r
+- \`/skeleton/\` — bare-bones functional scanner;
+- \`/emulator/\` — integration emulator and controls wall;
+- \`/svelte/skeleton/\` — Svelte functional scanner;
+- \`/svelte/emulator/\` — Svelte integration emulator and controls wall;
+- \`/\` — compatibility entry for the emulator.
+\r
+The harness defaults to a 440 × 956 logical phone preview. Its **Accepted reference UI states** group previews every source state: idle camera, held/live scanning, known and unknown QR results, jump and accept affordances, assign/rewrite/overwrite confirmations, QRQT conflict presentation, stale/retired/permanently-tombstoned warnings, and camera errors. These are inert UI skeletons backed by \`setCodePresentation()\`, \`setActionControls()\`, \`setStatus()\`, and \`showDialog()\`; they do not carry database behavior into the core.\r
+\r
+The harness requests the real environment-facing camera on startup and renders that stream directly inside the preview device. Its **Start / retry camera** and **Stop camera** controls manage the feed without destroying or hiding the scanner. Hold over a QR code in the device preview to decode live frames and release to commit the result. The harness also exercises the synthetic result path, handler values, result history, lifecycle, device/orientation sizing, safe areas, targeting, camera failure states, ROI changes, event logs, and theme variables when a camera is unavailable.\r
+\r
+The fixed controls panel never changes position when preview mode changes. Phone and tablet modes resize the existing host and scanner. The scanner instance is recreated only by the explicit **Destroy + recreate** command.\r
+\r
+The **Save Guide** control uses an inline SVG so the canonical Markdown download remains visually complete when the emulator is built or hosted at a nested project path.\r
+\r
+## Deployment\r
+\r
+Build with relative asset URLs:\r
+\r
+\`\`\`sh\r
+npm run build\r
+\`\`\`\r
+\r
+The accepted GitHub Pages deployment maps the built pages as follows:
+
+| Implementation | Built page | Live URL |
+| --- | --- | --- |
+| Initial scanner | \`dist/harness/skeleton/index.html\` | \`https://ash3-e.github.io/seek-qr/scanner/\` |
+| Initial emulator | \`dist/harness/emulator/index.html\` | \`https://ash3-e.github.io/seek-qr/emulator/\` |
+| Svelte scanner | \`dist/harness/svelte/skeleton/index.html\` | \`https://ash3-e.github.io/seek-qr-svelte/scanner/\` |
+| Svelte emulator | \`dist/harness/svelte/emulator/index.html\` | \`https://ash3-e.github.io/seek-qr-svelte/emulator/\` |
+
+Deploy each implementation with its generated shared \`assets/\` directory and preserve the relative module paths. The Svelte HTML moves one directory shallower than its build-tree location, so its generated \`../../assets/\` references must become \`../assets/\` in the Pages copy. Preserve HTTPS for camera access. The old \`/qr-scanner/skeleton/\` and \`/qr-scanner/emulator/\` locations should contain redirects to the corresponding \`/seek-qr/\` pages rather than stale builds.
+\r
+For source consumption, publish or mirror the whole repository. Do not replace an existing website repository's source history merely to deploy the harness; copy the harness build into an isolated subdirectory instead.\r
+\r
+## Future integration checklist\r
+\r
+When adding a new host integration:\r
+\r
+1. Keep host parsing and policy outside \`src/\`.\r
+2. Pass payload interpretation through \`normalizePayload\`, \`handler\`, or external listeners.\r
+3. Drive code presentation, action controls, statuses, dialogs, targeting, and locks explicitly from the host.\r
+4. Destroy the scanner when its owner is removed.\r
+5. Exercise the integration with synthetic payloads before requesting camera permission.\r
+6. Add its neutral scenario to \`examples/scanner-examples.ts\`, prove it in both skeletons, and expose it through both emulator controls.
+7. Confirm the skeleton still contains no QRQT, Z1Q, database, network, assignment, routing, or persistence implementation.\r
+8. Update this guide in the same change whenever instructions, contracts, compatibility, or future integration guidance changed.\r
+9. If the accepted source UI changes, port its complete markup, visible copy structure, icons/assets, states, styling, accessibility semantics, and responsive behavior to both the initial and Svelte implementations; do not substitute a simplified or newly invented scanner shell.
+10. Run \`npm test\`, \`npm run test:svelte\`, \`npm run check\`, and \`npm run build\`, then compare the same browser states in all affected routes.
+`;export{e as g};
+//# sourceMappingURL=IMPLEMENTATION-D94CShOY.js.map
