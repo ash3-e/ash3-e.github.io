@@ -541,16 +541,16 @@ npm run build\r
 \r
 The accepted GitHub Pages deployment maps the built pages as follows:
 
-| Implementation | Built page | Live URL |
+| Implementation | Built page | Published path |
 | --- | --- | --- |
-| Initial scanner | \`dist/harness/skeleton/index.html\` | \`https://ash3-e.github.io/seek-qr/scanner/\` |
-| Initial emulator | \`dist/harness/emulator/index.html\` | \`https://ash3-e.github.io/seek-qr/emulator/\` |
-| Svelte scanner | \`dist/harness/svelte/skeleton/index.html\` | \`https://ash3-e.github.io/seek-qr-svelte/scanner/\` |
-| Svelte emulator | \`dist/harness/svelte/emulator/index.html\` | \`https://ash3-e.github.io/seek-qr-svelte/emulator/\` |
+| Initial scanner | \`dist/harness/skeleton/index.html\` | \`/seek-qr/scanner/\` |
+| Initial emulator | \`dist/harness/emulator/index.html\` | \`/seek-qr/emulator/\` |
+| Svelte scanner | \`dist/harness/svelte/skeleton/index.html\` | \`/seek-qr-svelte/scanner/\` |
+| Svelte emulator | \`dist/harness/svelte/emulator/index.html\` | \`/seek-qr-svelte/emulator/\` |
 
 Deploy each implementation with its generated shared \`assets/\` directory and preserve the relative module paths. The Svelte HTML moves one directory shallower than its build-tree location, so its generated \`../../assets/\` references must become \`../assets/\` in the Pages copy. Preserve HTTPS for camera access. The old \`/qr-scanner/skeleton/\` and \`/qr-scanner/emulator/\` locations should contain redirects to the corresponding \`/seek-qr/\` pages rather than stale builds.
 
-After Pages propagation, run \`npm run verify:live\`. The verifier loads all four accepted public URLs in headless Chromium, requires the scanner dialog and radial dial to render without console/page errors, and clicks the protected dial arc in every scanner/emulator. Any \`scanstart\` caused by that click fails the deployment gate.
+After deployment propagation, run \`npm run verify:live -- <https-origin>\`. The verifier loads all four accepted published paths in headless Chromium, requires the scanner dialog and radial dial to render without console/page errors, and clicks the protected dial arc in every scanner/emulator. Any \`scanstart\` caused by that click fails the deployment gate.
 \r
 For source consumption, publish or mirror the whole repository. Do not replace an existing website repository's source history merely to deploy the harness; copy the harness build into an isolated subdirectory instead.\r
 \r
@@ -569,4 +569,4 @@ When adding a new host integration:\r
 9. If the accepted source UI changes, port its complete markup, visible copy structure, icons/assets, states, styling, accessibility semantics, and responsive behavior to both the initial and Svelte implementations; do not substitute a simplified or newly invented scanner shell.
 10. Run \`npm test\`, \`npm run test:svelte\`, \`npm run check\`, and \`npm run build\`, then compare the same browser states in all affected routes.
 `;export{e as g};
-//# sourceMappingURL=IMPLEMENTATION-ByehHc1q.js.map
+//# sourceMappingURL=IMPLEMENTATION-B8xnVLZS.js.map
