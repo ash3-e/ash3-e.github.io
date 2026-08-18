@@ -331,7 +331,9 @@ scanner.addEventListener("action", (event) => {\r
 });\r
 \`\`\`\r
 \r
-\`setCodePresentation()\` exposes the accepted \`idle\`, \`preview\`, \`known\`, and \`unknown\` visual states for host-driven lookup flows. \`setActionControls()\` configures visibility, accessible labels, optional shorter \`promptLabel\` copy, semantic tone, disabled state, presentation policy, and emitted action identifiers. It never navigates, assigns, rewrites, overwrites, or mutates host data.\r
+\`setCodePresentation()\` exposes the accepted \`idle\`, \`preview\`, \`known\`, and \`unknown\` visual states for host-driven lookup flows. A non-empty \`known\` or \`unknown\` value makes the complete top QR pill a copy control: pointer activation anywhere inside the pill, plus Enter or Space, writes the exact displayed payload through the Clipboard API. Idle placeholders and live, uncommitted \`preview\` values stay disabled. Successful copies briefly pulse the existing success accent and expose an accessible confirmation without replacing the visible code; a missing or rejected Clipboard API leaves scanner, status, result, and dialog state unchanged. Production hosts therefore need a secure context, as they do for camera access.
+
+\`setActionControls()\` configures visibility, accessible labels, optional shorter \`promptLabel\` copy, semantic tone, disabled state, presentation policy, and emitted action identifiers. It never navigates, assigns, rewrites, overwrites, or mutates host data.
 \r
 \`\`\`ts\r
 const action = await scanner.showDialog({\r
@@ -616,4 +618,4 @@ When adding a new host integration:\r
 9. If the accepted source UI changes, port its complete markup, visible copy structure, icons/assets, states, styling, accessibility semantics, and responsive behavior to both the initial and Svelte implementations; do not substitute a simplified or newly invented scanner shell.\r
 10. Run \`npm test\`, \`npm run test:svelte\`, \`npm run check\`, and \`npm run build\`, then compare the same browser states in all affected routes.\r
 `;export{e as g};
-//# sourceMappingURL=IMPLEMENTATION-bXpxaef2.js.map
+//# sourceMappingURL=IMPLEMENTATION-B9U0q2Pl.js.map
