@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#04020c" />
     <title>QR Scan Core / Integration Lab</title>
-    <script type="module" crossorigin src="../assets/emulator-C1QPcHbs.js"></script>
-    <link rel="modulepreload" crossorigin href="../assets/scanner-examples-B-d5uI0z.js">
-    <link rel="modulepreload" crossorigin href="../assets/IMPLEMENTATION-CTYTmM2n.js">
-    <link rel="modulepreload" crossorigin href="../assets/qr-scanner-CzdIf0u2.js">
-    <link rel="stylesheet" crossorigin href="../assets/scanner-examples-DE7-55S1.css">
-    <link rel="stylesheet" crossorigin href="../assets/IMPLEMENTATION-DbVcu13u.css">
+    <script type="module" crossorigin src="../assets/emulator-B78nAy-J.js"></script>
+    <link rel="modulepreload" crossorigin href="../assets/scanner-examples-BrmCGPxK.js">
+    <link rel="modulepreload" crossorigin href="../assets/emulator-fullscreen-CwfWE-37.js">
+    <link rel="modulepreload" crossorigin href="../assets/qr-scanner-CsqS75Rx.js">
+    <link rel="stylesheet" crossorigin href="../assets/scanner-examples-CenQ86Ah.css">
+    <link rel="stylesheet" crossorigin href="../assets/emulator-fullscreen-B3GKzmLY.css">
   </head>
   <body>
-    <main id="lab" class="lab" data-device="phone" data-orientation="portrait">
+    <main id="lab" class="lab" data-device="phone" data-orientation="portrait" data-preview-fullscreen="false">
       <div class="terminal-wall" aria-hidden="true">
         <div class="terminal-wall__ghost terminal-wall__ghost--one">QR_SCAN_CORE :: CAMERA_FEED :: UNTETHERED_MODULE</div>
         <div class="terminal-wall__ghost terminal-wall__ghost--two">ROI / FOCUS / EXPOSURE / ZOOM / DECODE</div>
@@ -23,6 +23,17 @@
         <header class="preview-head">
           <div><b>QR_SCAN_CORE</b><span>PHYSICAL SCANNER EXTRACTION / INTEGRATION LAB</span></div>
           <output id="runtime-badge">INSTANCE / NEW</output>
+          <button
+            id="preview-fullscreen-toggle"
+            class="preview-fullscreen-toggle"
+            type="button"
+            aria-label="Match current device fullscreen"
+            aria-pressed="false"
+            title="Double tap (or click, depending on what mode) to return to control wall."
+          >
+            <svg data-fullscreen-icon="enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10V5h5v2H7v3H5Zm9-5h5v5h-2V7h-3V5Zm3 9h2v5h-5v-2h3v-3ZM5 14h2v3h3v2H5v-5Z" /></svg>
+            <svg data-fullscreen-icon="exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h2v7H3V8h5V3Zm6 0h2v5h5v2h-7V3Zm0 11h7v2h-5v5h-2v-7ZM3 14h7v7H8v-5H3v-2Z" /></svg>
+          </button>
         </header>
         <div id="device-shell" class="device-shell">
           <div class="device-shell__sensor" aria-hidden="true"></div>
@@ -148,7 +159,7 @@
 
         <footer class="guide-footer">
           <p><b>Canonical source:</b> <code>docs/IMPLEMENTATION.md</code></p>
-          <a class="surface-link" href="../scanner/">Open functional skeleton</a>
+          <a class="surface-link" href="../skeleton/">Open functional skeleton</a>
           <button id="save-guide" class="save-guide">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 3h13l3 3v15H4z M7 3v6h9V3 M7 14h10v7H7z" />
