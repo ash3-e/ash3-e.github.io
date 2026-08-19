@@ -331,9 +331,9 @@ scanner.addEventListener("action", (event) => {\r
 });\r
 \`\`\`\r
 \r
-\`setCodePresentation()\` exposes the accepted \`idle\`, \`preview\`, \`known\`, and \`unknown\` visual states for host-driven lookup flows. A non-empty \`known\` or \`unknown\` value makes the complete top QR pill a copy control: pointer activation anywhere inside the pill, plus Enter or Space, writes the exact displayed payload through the Clipboard API. Idle placeholders and live, uncommitted \`preview\` values stay disabled. Successful copies briefly pulse the existing success accent and expose an accessible confirmation without replacing the visible code; a missing or rejected Clipboard API leaves scanner, status, result, and dialog state unchanged. Production hosts therefore need a secure context, as they do for camera access.
-
-\`setActionControls()\` configures visibility, accessible labels, optional shorter \`promptLabel\` copy, semantic tone, disabled state, presentation policy, and emitted action identifiers. It never navigates, assigns, rewrites, overwrites, or mutates host data.
+\`setCodePresentation()\` exposes the accepted \`idle\`, \`preview\`, \`known\`, and \`unknown\` visual states for host-driven lookup flows. A non-empty \`known\` or \`unknown\` value makes the complete top QR pill a copy control: pointer activation anywhere inside the pill, plus Enter or Space, writes the exact displayed payload through the Clipboard API. Idle placeholders and live, uncommitted \`preview\` values stay disabled. Successful copies briefly pulse the existing success accent and expose an accessible confirmation without replacing the visible code; a missing or rejected Clipboard API leaves scanner, status, result, and dialog state unchanged. Production hosts therefore need a secure context, as they do for camera access.\r
+\r
+\`setActionControls()\` configures visibility, accessible labels, optional shorter \`promptLabel\` copy, semantic tone, disabled state, presentation policy, and emitted action identifiers. It never navigates, assigns, rewrites, overwrites, or mutates host data.\r
 \r
 \`\`\`ts\r
 const action = await scanner.showDialog({\r
@@ -377,7 +377,17 @@ const action = await scanner.showDialog({\r
 if (action === "delete") await hostApi.deleteRecord();\r
 \`\`\`\r
 \r
-The delete action replaces the checkmark with the Job Editor trash glyph. It requires two separate presses. Each press runs the complete 900 ms lid/morsel/bin animation; after the first finishes, the prompt explicitly asks for the second press, and the Promise resolves only after the second animation finishes. Cancel remains available between presses. Reduced-motion preferences compress the decorative timing without removing the two confirmation steps.\r
+### Stage-relative radial cluster\r
+\r
+Radial geometry is resolved from the rendered camera stage's shorter edge, not the browser viewport. Confirm is tethered beside the maximum-zoom label; Cancel is diagonally down-left in right-handed mode and down-right in left-handed mode; Jump occupies Cancel's exact slot. The same computed values size the visible controls and their hit regions.\r
+\r
+### QR pill assets\r
+\r
+Idle and provisional preview states use \`src/assets/qr.svg\`. Committed copyable \`known\` and \`unknown\` states use \`src/assets/copyqr.svg\`; only its lower-right modules and chain receive the subtle inherited-color 4.5-second glow. The full pill copies the payload, and provisional values remain non-copyable.\r
+\r
+### Destructive confirmation\r
+\r
+Popup and radial Delete controls share \`idle -> armed -> confirming\`. The first activation from either surface opens and holds the lid and changes the action to \`Confirm Delete\`; the second activation from either surface plays the final animation and resolves once. Cancel, dismissal, close, detach, supersession, and destroy reset the closed idle state.\r
 \r
 The scanner resolves an action identifier and emits \`dialogaction\`. It performs no associated operation, including deletion. Dialog popup and radial buttons route through the same dialog activation record and resolve the same Promise exactly once.\r
 \r
@@ -618,4 +628,4 @@ When adding a new host integration:\r
 9. If the accepted source UI changes, port its complete markup, visible copy structure, icons/assets, states, styling, accessibility semantics, and responsive behavior to both the initial and Svelte implementations; do not substitute a simplified or newly invented scanner shell.\r
 10. Run \`npm test\`, \`npm run test:svelte\`, \`npm run check\`, and \`npm run build\`, then compare the same browser states in all affected routes.\r
 `;export{e as g};
-//# sourceMappingURL=IMPLEMENTATION-B9U0q2Pl.js.map
+//# sourceMappingURL=IMPLEMENTATION-CTYTmM2n.js.map
