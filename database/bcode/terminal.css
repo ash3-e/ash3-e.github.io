@@ -1,0 +1,27 @@
+:root {
+  color-scheme: dark;
+  --glass-bg-code: rgba(15, 5, 33, .25);
+  --glass-border: rgba(198, 168, 255, .32);
+  --glass-blur-heavy: 18px;
+  --glass-saturate: 150%;
+  --a1: #c6a8ff;
+  --border: var(--glass-border);
+  --dt-fs: 12px;
+  --dt-rh: 18px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+#doc-terminal-overlay { position: absolute; inset: 0; }
+#doc-terminal-panel {
+  position: absolute !important; inset: 0 !important; width: 100% !important;
+  height: 100% !important; max-height: none !important; transform: none !important;
+  opacity: 1 !important; visibility: visible !important; border: 0 !important;
+  border-radius: 0 !important; transition: none !important;
+}
+#dt-toggle-btn, #dt-close-btn { display: none !important; }
+.dt-pane, .dt-pane-body { min-width: 0; }
+.dt-pane-body { overflow: auto; }
+@media (max-width: 540px) {
+  :root { --dt-fs: 10px; --dt-rh: 16px; }
+  .dt-state-key { flex-basis: 12ch; }
+}
