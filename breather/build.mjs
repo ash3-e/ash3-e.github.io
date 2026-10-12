@@ -1,0 +1,11 @@
+import { build } from 'esbuild';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+process.chdir(fileURLToPath(new URL('.', import.meta.url)));
+await mkdir('assets', { recursive: true });
+await build({ entryPoints: ['src/main.js'], bundle: true, minify: true, format: 'esm', target: ['es2020'], outfile: 'assets/breather.js', legalComments: 'linked' });
+await build({ entryPoints: ['src/styles.css'], minify: true, outfile: 'assets/breather.css' });
+const hash = createHash('sha256').update(await readFile('assets/breather.js')).update(await readFile('assets/breather.css')).digest('hex').slice(0, 10);
+await writeFile('index.html', (await readFile('src/index.html', 'utf8')).replaceAll('__BUILD__', hash));
+console.log(`Built /breather/ (${hash}) — all runtime assets are local.`);

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1014">
+  <meta name="description" content="An interactive WebGL breather: sculptural sine–Gordon surfaces, smooth boomerang time, live modulation, gradients, and vectors.">
+  <title>Breather — a sine–Gordon surface in motion</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230e1014'/%3E%3Cpath d='M20 4C5 15 35 17 20 22S6 29 20 36C34 24 6 21 20 16S34 11 20 4' fill='%235ece98'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/breather.css?v=655ef2b66c">
+</head>
+<body>
+  <main id="app">
+    <section id="stage" aria-label="Interactive breather simulation">
+      <div id="viewport"><canvas id="scene" aria-label="3D breather. Drag to orbit, scroll or pinch to zoom. Use the controls to adjust the simulation."></canvas></div>
+      <header class="heading">
+        <div class="title-row"><h1>Breather</h1><p>A sine–Gordon surface in motion.</p></div>
+        <nav class="view-tabs" aria-label="Visualization">
+          <button type="button" data-view="surface" aria-pressed="true">Surface</button>
+          <button type="button" data-view="field" aria-pressed="false">Space–time</button>
+        </nav>
+      </header>
+      <div class="top-actions">
+        <button type="button" id="about-open" class="quiet" aria-label="About">About</button>
+        <button type="button" id="panel-toggle" class="quiet" aria-expanded="false" aria-controls="config">Controls</button>
+      </div>
+      <aside id="config" aria-label="Simulation controls">
+        <div class="panel-heading"><h2>Live parameters</h2><button type="button" id="reset-parameters" class="text-button" title="Reset all parameters">Reset</button></div>
+        <div class="parameter"><label for="shape">Shape <output id="shape-value" for="shape" aria-hidden="true">0.45</output></label><input id="shape" type="range" min="0.15" max="0.88" step="0.01" value="0.45"></div>
+        <div class="parameter"><label for="span">Time span <output id="span-value" for="span" aria-hidden="true">18.0</output></label><input id="span" type="range" min="6" max="48" step="0.5" value="18"></div>
+        <div class="parameter"><label for="speed">Playback speed <output id="speed-value" for="speed" aria-hidden="true">1.00×</output></label><input id="speed" type="range" min="0.1" max="3" step="0.05" value="1"></div>
+        <div class="parameter"><label for="variation">Variation <output id="variation-value" for="variation" aria-hidden="true">0.20</output></label><input id="variation" type="range" min="0" max="1" step="0.01" value="0.2" aria-describedby="variation-help"></div>
+        <div class="preset-section"><span class="control-label">Presets</span><div class="preset-buttons" aria-label="Breather presets"><button type="button" data-preset="classic" aria-pressed="true">Classic</button><button type="button" data-preset="petals" aria-pressed="false">Petals</button><button type="button" data-preset="pulse" aria-pressed="false">Pulse</button></div></div>
+        <div class="appearance"><h2>Appearance</h2><label for="palette" class="control-label">Colormap</label><select id="palette"><option value="0">Viridis</option><option value="1">Lagoon</option><option value="2">Spectral</option><option value="3">Pearl</option></select>
+          <label class="toggle-row" for="vectors"><span>Vectors</span><input id="vectors" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+          <div id="vector-options" hidden><label for="vector-type" class="sr-only">Vector type</label><select id="vector-type"><option value="normal">Surface normals</option><option value="tangent">Time tangents</option></select><p id="vector-description">Unit normals · blue arrows</p></div>
+          <label class="toggle-row" for="wireframe"><span>Wireframe</span><input id="wireframe" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+          <label class="toggle-row" for="orbit"><span>Auto orbit</span><input id="orbit" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+        </div>
+        <p class="panel-note" id="variation-help">Changes flow into the running simulation.</p>
+      </aside>
+      <div id="legend"><div class="legend-title"><span id="color-label">Surface height</span><span class="legend-ends">− <span>+</span></span></div><div id="gradient" aria-hidden="true"></div><p id="gesture-hint">Drag to orbit · scroll to zoom</p></div>
+      <div id="axis-labels" aria-hidden="true"><span data-axis="0">x</span><span data-axis="1">y</span><span data-axis="2">z</span></div>
+      <div id="loading" role="status">Preparing the surface…</div>
+      <div id="error" role="alert" hidden><h2>WebGL is unavailable</h2><p>Try enabling hardware acceleration or opening this page in a current browser.</p><button type="button" id="reload">Try again</button></div>
+    </section>
+    <footer id="transport" aria-label="Playback controls">
+      <button type="button" id="play" class="play-button" aria-label="Pause animation" title="Pause / play (Space)"><svg id="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14" stroke="currentColor" stroke-width="4"/></svg><svg id="play-icon" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="m7 4 13 8-13 8Z" fill="currentColor"/></svg></button>
+      <div class="loop-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h10a5 5 0 0 1 0 10H5m0 0 4-4m-4 4 4 4M5 7l4-4M5 7l4 4"/></svg><span>Boomerang</span></div>
+      <div class="timeline"><label for="timeline" class="sr-only">Simulation time</label><input id="timeline" type="range" min="-9" max="9" step="0.001" value="0"><div class="timeline-labels"><span id="time-min">−9</span><span id="time-max">+9</span></div></div>
+      <output id="time-value" for="timeline">t = +0.00</output><span id="direction">Forward <span>→</span></span>
+      <div class="transport-actions"><button type="button" id="reset-view" title="Reset view (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><path d="M12 2v5m0 10v5M2 12h5m10 0h5"/></svg><span>Reset view</span></button><button type="button" id="fullscreen" aria-label="Enter full screen" title="Full screen (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg></button></div>
+    </footer>
+  </main>
+  <dialog id="about"><div class="dialog-top"><h2>Inside the breather</h2><button type="button" id="about-close" aria-label="Close about">×</button></div><p>A localized wave that oscillates without dispersing. This explorer connects the sine–Gordon breather to its folded, pseudospherical surface.</p><div class="formula">φ(x, t) = 4 atan [ a sin(ωt) / (ω cosh(ax)) ]<br><small>ω = √(1 − a²) &nbsp; · &nbsp; φ<sub>tt</sub> − φ<sub>xx</sub> + sin φ = 0</small></div><p><b>Surface</b> follows a moving window along the surface’s time parameter. <b>Space–time</b> plots the field; the bright cross-section marks the current time.</p><p><b>Boomerang</b> eases forward and backward through a finite time interval. <b>Variation</b> smoothly modulates the shape parameter. Set it to zero for a fixed exact breather; changing it explores a family of solutions, rather than solving a driven wave equation.</p><p><b>Vectors</b> show normalized surface normals or time tangents. In space–time, displacement arrows show φ and velocity arrows show its partial derivative ∂φ/∂t with shape held fixed; their display lengths are scaled.</p><p class="shortcuts">Space · play/pause &nbsp; R · reset view &nbsp; V · vectors &nbsp; H · controls &nbsp; F · full screen<br>Touch · drag to orbit, pinch to zoom, two fingers to pan.</p><p class="sources">Geometry: <a href="https://virtualmathmuseum.org/Surface/breather/breather.html" target="_blank" rel="noopener noreferrer">Virtual Math Museum</a> · <a href="https://www.tu-chemnitz.de/physik/KSND/abb/breather.html" target="_blank" rel="noopener noreferrer">Sine–Gordon breather</a><br>Interface inspired by <a href="../isospin/">Isospin &amp; Flavor</a>.</p></dialog>
+  <noscript><div class="noscript">Enable JavaScript to run the interactive WebGL simulation.</div></noscript>
+  <script type="module" src="./assets/breather.js?v=655ef2b66c"></script>
+</body>
+</html>
