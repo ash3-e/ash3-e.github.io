@@ -1,0 +1,190 @@
+{
+  "sourceHash": "b0bd0251be81e6df0e62218d497752290bfab6994beb77d7da6162b57b3999cd",
+  "builtAt": "2026-10-19T23:33:35.452Z",
+  "files": [
+    {
+      "path": "assets/MapEditorSessionHost-DkD60XGi.js",
+      "sha256": "4e798163b8235825744de563e8226bb589642287c8c49e6862208622fc3fbf3a"
+    },
+    {
+      "path": "assets/MapEditorSessionHost-hAI7hQe9.css",
+      "sha256": "b7fdccf1562fffbeb8d7fa604543828edc7c869c16abff3667b8758f15256d6d"
+    },
+    {
+      "path": "assets/QR-C6opWkiT.svg",
+      "sha256": "66b9c28a404b1261189fb49507dec52dc95e33fd4904734b7e483c6ada2cceb1"
+    },
+    {
+      "path": "assets/camera_icon-Cp_r0vZh.svg",
+      "sha256": "1ee9ccf5dd2fbdd42ed84459b6d5fe5b1f3a0cf81db57aee93be07717dbbf77c"
+    },
+    {
+      "path": "assets/camera_icon-DP_I_1yB.svg",
+      "sha256": "ad8c9582d654599d2fe65cf077edb2763b85812fb8a4d4cc60f6de44c22f066b"
+    },
+    {
+      "path": "assets/databaseBackup-BFknCTAp.js",
+      "sha256": "9fded8d5e7d861fd11008c8421b3d2044c40c4793446d88ac002818792b1b0d9"
+    },
+    {
+      "path": "assets/exportArchive-DQ6mUKVz.js",
+      "sha256": "584e96090435a54271f99627157d7e985654fe40aea9c7a70152212055ebbaae"
+    },
+    {
+      "path": "assets/index-BJCB1Ej7.js",
+      "sha256": "1b8fdf5888d3c4cd5a91de41fb56dd79ef80deaf16d24818407504a8399726d9"
+    },
+    {
+      "path": "assets/index-Ce1uxiwN.css",
+      "sha256": "ee8fe163ed76b0a580306d88c6b704f0ed9f2b820e82158eb67d6b2ba222847a"
+    },
+    {
+      "path": "assets/lavalamp-CMT4ICqt.js",
+      "sha256": "cafe7e5a765f575e3db8b774123be5f9ad0cd3649a74d1fba577185602ce1647"
+    },
+    {
+      "path": "assets/normalizationPackage-eRSEsppV.js",
+      "sha256": "db53644abcd2f82b83086907c74fedee1c45ff0ee448983865ffb3a1292d54c7"
+    },
+    {
+      "path": "assets/normalizationService-DVCqS3kf.js",
+      "sha256": "aabd82016902767818cd8893f06cc71430a75959ffbedb4f2a710c1f48a7aecb"
+    },
+    {
+      "path": "assets/pdf-C1gUo6dv.js",
+      "sha256": "e4083b003201c80c080648c78a4ac91e19ad9265ccae7e76084538cd7a9332ca"
+    },
+    {
+      "path": "assets/pdf.worker.min-CHFwMXne.mjs",
+      "sha256": "0613f41490dd6aaceed7a93fbbd38c85e6d6aa60474b6588c6e7709cfbe18cb3"
+    },
+    {
+      "path": "bcode/UPSTREAM.md",
+      "sha256": "df7487cf66f6c10cfd996f109e019dfbb23e61fb1e25d63ae8f870002ab20722"
+    },
+    {
+      "path": "bcode/assets/bcode_lang.js",
+      "sha256": "c7587da8fc0586b7f847bb06723bce0e962db7cc9cac4b1503d7e00457329f0d"
+    },
+    {
+      "path": "bcode/assets/doc-terminal.css",
+      "sha256": "37d62563f74ed314e668f9c5d2711c33ce2c69d39ba30b5c9070d7fac1b13e7c"
+    },
+    {
+      "path": "bcode/assets/doc-terminal.js",
+      "sha256": "fee6a51a30e0db71166e6c882d9b9ff15903d30f9738c992c3229c3d863f0bb0"
+    },
+    {
+      "path": "bcode/assets/highlight.LICENSE",
+      "sha256": "6c081431591d9df696c82dc598fe1423765b8a299b200ed00b281afd0f64c490"
+    },
+    {
+      "path": "bcode/assets/highlight.min.js",
+      "sha256": "837a6fa5b0c736b52bbde2b2b6190f305da3fc9ed41681db5321507057b5c846"
+    },
+    {
+      "path": "bcode/assets/hljs-theme.css",
+      "sha256": "a3aa8934048440d00df2afda4c868df2b6fe5a7a6d35fdea5479103ac9b48853"
+    },
+    {
+      "path": "bcode/assets/terminal.svg",
+      "sha256": "d78d131018b2fc0e951b5d6e3400862149504b5ea1dc8614c1a2d83dc0a1ddf7"
+    },
+    {
+      "path": "bcode/bridge.js",
+      "sha256": "8d9e271cc21ebb569320a21b23f5f573646b9e620c35da51ee79251b18920339"
+    },
+    {
+      "path": "bcode/term/bcode.mjs",
+      "sha256": "1b9588b602f2af8a744e96fc50efb55f52d30e9e5318a023d8d937491faa3ada"
+    },
+    {
+      "path": "bcode/term/bcode_sab.js",
+      "sha256": "de5574d5434a4899f7b770b461b1f5de48d5e1aa4d406570dcb1a04056c2ce1b"
+    },
+    {
+      "path": "bcode/terminal.css",
+      "sha256": "b053fb4f715a8cbb2dbc6d2de4cd5150b48574db7d57706de10a1fef9a31f8b1"
+    },
+    {
+      "path": "bcode/terminal.html",
+      "sha256": "48a3e0d8967d902bf4060e6a2105c6112f9acbc9d70931601be6d35eb41c1ffd"
+    },
+    {
+      "path": "index.html",
+      "sha256": "0e571a5c3c989db02f8b2fc33836187ba1e5c6c390108aebd9faf1436224f2c2"
+    },
+    {
+      "path": "maps/A.png",
+      "sha256": "a75981b5ac78f1010502bd0727c495d776b39e959a49836ab22a3330893309ce"
+    },
+    {
+      "path": "maps/A.svg",
+      "sha256": "e7bb610fb79d3f70019867db59b02b17166b42f25e0a480e46564fe61da9d102"
+    },
+    {
+      "path": "maps/B.png",
+      "sha256": "0a9be6136afbeb4851d12a7db0b629c89d6078e2fb4f877d8dc4e3b372041cd1"
+    },
+    {
+      "path": "maps/B.svg",
+      "sha256": "7df502ff0e583dd13bdf83751a093ca51949db4b733d3e93938b435978d769e6"
+    },
+    {
+      "path": "maps/C1.png",
+      "sha256": "c857aac4cbde5050a7029d29e1b90c88a1245dda5fa2dfc1c3100f7b4627e945"
+    },
+    {
+      "path": "maps/C1.svg",
+      "sha256": "df8207d23d52d3c8aabb2cffcd324a0433508cf2651f3cfb5c44e40406351ea9"
+    },
+    {
+      "path": "maps/C2.png",
+      "sha256": "a220230db952c497e3436bf45d512795c6cbe1f63ec2e2deb6483c6ab1d5563c"
+    },
+    {
+      "path": "maps/C2.svg",
+      "sha256": "344730387c2588534be2518ec965464c4251c5f51b57a53ef0e985325a600039"
+    },
+    {
+      "path": "maps/C3.png",
+      "sha256": "22478a91fc5f04c01b43c6211bc4c11a072fa6de93add510ab83304a666f2e62"
+    },
+    {
+      "path": "maps/C3.svg",
+      "sha256": "b95cc7275493bca1517b7368fc8661f9bd0f6ac582886863098aa41eea423b6d"
+    },
+    {
+      "path": "maps/X.png",
+      "sha256": "e6934b11e9b9c3697797980884f27b6b18c5c312dfd24b99b0e9aee8b7ad8eb4"
+    },
+    {
+      "path": "maps/X.svg",
+      "sha256": "ef1ae228b1a3859f5d6368a9c62d2109336da0f7328c71abd392a82a2f7768cd"
+    },
+    {
+      "path": "maps/drawer_M.png",
+      "sha256": "f30d0a9f603b5fad3f3c342b7f3bd693413e533045bdfe13fb377035e5a125ba"
+    },
+    {
+      "path": "maps/drawer_M.svg",
+      "sha256": "a55f66645d28126953cec00a9ed2137ba0cbee70e410e23ea3123a4b4c9c37e1"
+    },
+    {
+      "path": "maps/lab.png",
+      "sha256": "9eab440890fc74f1f709f53be6ee38ebf477ec0fcaf88edacfd0092f28ca6c67"
+    },
+    {
+      "path": "maps/lab.svg",
+      "sha256": "e9ca04eaf15efbfe36d6d944be88538dac009d745bdee124c33ce2709ed9be6d"
+    },
+    {
+      "path": "maps/shelf_C.png",
+      "sha256": "be02a0283b59d87812658883d71d5a51c21432a2f2219788fc2cd1c27cc3f6fe"
+    },
+    {
+      "path": "maps/shelf_C.svg",
+      "sha256": "a43a965028baba8bb059319f34ae0832623aeb896282f872850bbce7fe7ee4a2"
+    }
+  ]
+}
