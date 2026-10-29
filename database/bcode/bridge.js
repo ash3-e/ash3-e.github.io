@@ -3,7 +3,7 @@ import { setTerminalVisible } from './assets/doc-terminal.js';
 const send = (type, detail) => parent.postMessage({ source: 'inventory-terminal', type, detail }, location.origin);
 let liveState = {};
 window.__bcodeLava = { getState: () => liveState };
-for (const type of ['bcode:lava-params', 'bcode:lava-control', 'inventory:background']) {
+for (const type of ['bcode:lava-params', 'bcode:lava-control', 'inventory:background', 'inventory:idle']) {
   window.addEventListener(type, event => send(type, event.detail));
 }
 window.addEventListener('message', event => {

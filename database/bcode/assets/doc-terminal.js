@@ -30,6 +30,7 @@ const GUIDE_PRIMARY_COMMANDS = [
   { cmd: "r", desc: "reset configurable values" },
   { cmd: "c", desc: "clear all loaded blobs" },
   { cmd: "p", desc: "pause/unpause the simulation" },
+  { cmd: "1i", desc: "enter map idle mode; click the workspace or refocus to wake" },
 ];
 
 const GUIDE_GLASS_COMMANDS = [
@@ -538,6 +539,7 @@ function guideExampleDescription(parsed, raw) {
     case "c": return "-> clear all loaded blobs from the simulation";
     case "p": return parsed.cmd.hasValue && parsed.cmd.value === 0 ? "-> resume the simulation" : "-> pause the simulation";
     case "b": return parsed.cmd.hasValue && parsed.cmd.value < 1 ? "-> disable Easter egg background" : "-> enable Easter egg background";
+    case "i": return "-> enter map idle mode; click the workspace or refocus to wake";
     default: return `-> parse ${raw}`;
   }
 }
@@ -803,7 +805,7 @@ function validateTerminalCommand(parsed) {
   const params = parsed.params || {};
   const paramKeys = Object.keys(params);
 
-  if (!"sqbrcp".includes(cmd)) return RESPONSE_ERROR_CODES.GEN.CMD_UNKNOWN;
+  if (!"sqbrcpi".includes(cmd)) return RESPONSE_ERROR_CODES.GEN.CMD_UNKNOWN;
   if (parsed.cmd.indefinite || parsed.cmd.greaterthan || parsed.cmd.lessthan) {
     return RESPONSE_ERROR_CODES.GEN.PARAM_BADQUAL;
   }
@@ -849,6 +851,13 @@ function validateTerminalCommand(parsed) {
 
   if (cmd === "c") {
     if (paramKeys.length) return RESPONSE_ERROR_CODES.CONTROL.MALFORMED;
+    return null;
+  }
+
+  if (cmd === "i") {
+    if (paramKeys.length || !parsed.cmd.hasValue || parsed.cmd.value !== 1) {
+      return RESPONSE_ERROR_CODES.GEN.PARAM_INVALID;
+    }
     return null;
   }
 
@@ -952,6 +961,9 @@ function generateOutput(raw, parsed) {
     case "c": return applyClear();
     case "p": return applyPause(parsed);
     case "b": return applyGlassMode(parsed);
+    case "i":
+      window.dispatchEvent(new CustomEvent("inventory:idle"));
+      return "1i";
     default:  return raw;
   }
 }
