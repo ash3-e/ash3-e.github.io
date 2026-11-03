@@ -1,0 +1,19 @@
+{
+  "filename": "Lab-Inventory-Full-Source-2026-11-02-Sanitized.zip",
+  "bytes": 59899588,
+  "sha256": "7ee230a529e3d9ce8b7d5f40d05f991b130ac29056146dec16d627a9a50bc504",
+  "releaseCommit": "7ce32103c6d7b35512456a6eb3b5bed067140a86",
+  "sourceHash": "0545f8bcba694d5e5c5eeb270b21f8fab88ec244392e2ea36cdcc02e3bc96cef",
+  "parts": [
+    {
+      "path": "source.zip.part1",
+      "bytes": 30000000,
+      "sha256": "e042aa41bd04a2c9dd14b6e56436fc0993f39c17f91f2edebf7bc19c5a038c0a"
+    },
+    {
+      "path": "source.zip.part2",
+      "bytes": 29899588,
+      "sha256": "8d86b005d6bd677875a17182d90c4d9fd28843ca75726e0d8b6a81d1e4271887"
+    }
+  ]
+}

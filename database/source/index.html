@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab Inventory source download</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#17252d;background:#f6f8fa}
+*{box-sizing:border-box}body{margin:0;padding:48px 20px}main{max-width:680px;margin:auto;background:white;border:1px solid #dce3e7;border-radius:16px;padding:clamp(24px,5vw,44px)}a{color:#176c75}h1{font-size:clamp(26px,5vw,34px);line-height:1.15;letter-spacing:-.04em;margin:16px 0}p{line-height:1.65;color:#485b65}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#53717a}button{border:0;border-radius:9px;background:#176c75;color:white;padding:15px 22px;font:600 16px system-ui;cursor:pointer;margin:10px 0}button:hover{background:#10545c}button:disabled{opacity:.65;cursor:progress}button:focus-visible,a:focus-visible{outline:3px solid #efae45;outline-offset:4px}#status{min-height:26px;font-size:14px}dl{border-top:1px solid #e1e7ea;padding-top:20px;margin-top:20px}dt{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 6px;color:#627782}dd{margin:0;line-height:1.6;font-size:14px}code{overflow-wrap:anywhere;font-size:12px}footer{margin-top:28px;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">Lab Inventory · Source archive</div>
+<h1>Build the version that’s live.</h1>
+<p>The November 2, 2026 source snapshot matches the published database build. It includes 1,344 source files, the LD export workflow, lockfile, vendored packages and restoration notes.</p>
+<button id="download" type="button">Download source ZIP · 59.9 MB</button>
+<p id="status" role="status" aria-live="polite">The download is checked before it is saved.</p>
+<dl>
+<dt>Restore</dt><dd>Extract the ZIP, then read <code>Lab Address DB/_snapshot/RESTORE.txt</code>. Supply your local environment settings and run <code>npm ci</code>.</dd>
+<dt>Source archive SHA-256</dt><dd><code>7ee230a529e3d9ce8b7d5f40d05f991b130ac29056146dec16d627a9a50bc504</code></dd>
+<dt>Verified app release</dt><dd><code>7ce32103c6d7b35512456a6eb3b5bed067140a86</code></dd>
+</dl>
+<footer><a href="/database/">Open Lab Inventory</a> · <a href="/database-source/source.json">Download metadata</a></footer>
+</main>
+<script type="module">
+const button=document.querySelector('#download');
+const status=document.querySelector('#status');
+const expectedSha='7ee230a529e3d9ce8b7d5f40d05f991b130ac29056146dec16d627a9a50bc504';
+const expectedBytes=59899588;
+const digest=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+button.addEventListener('click',async()=>{
+button.disabled=true;
+try{
+ status.textContent='Preparing download…';
+ const metadataResponse=await fetch('/database-source/source.json');
+ if(!metadataResponse.ok)throw Error('Metadata could not be loaded.');
+ const manifest=await metadataResponse.json();
+ if(manifest.sha256!==expectedSha||manifest.bytes!==expectedBytes||manifest.filename!=='Lab-Inventory-Full-Source-2026-11-02-Sanitized.zip'||!Array.isArray(manifest.parts)||manifest.parts.length!==2)throw Error('Download metadata did not match this source snapshot.');
+ const chunks=[];
+ for(const [index,part] of manifest.parts.entries()){
+   if(part.path!=='source.zip.part'+(index+1)||!Number.isInteger(part.bytes)||part.bytes<1||part.bytes>32000000)throw Error('Invalid download part.');
+   status.textContent='Downloading source… '+Math.round(index/manifest.parts.length*100)+'%';
+   const response=await fetch('/database-source/'+part.path);
+   if(!response.ok)throw Error('The source download is temporarily unavailable.');
+   const bytes=await response.arrayBuffer();
+   if(bytes.byteLength!==part.bytes||await digest(bytes)!==part.sha256)throw Error('A download check failed. Please try again.');
+   chunks.push(new Uint8Array(bytes));
+ }
+ status.textContent='Verifying source ZIP…';
+ const joined=new Uint8Array(chunks.reduce((size,part)=>size+part.length,0));
+ let offset=0;for(const part of chunks){joined.set(part,offset);offset+=part.length;}
+ if(joined.length!==expectedBytes||await digest(joined)!==expectedSha)throw Error('The source ZIP checksum did not match.');
+ const url=URL.createObjectURL(new Blob([joined],{type:'application/zip'}));
+ const link=document.createElement('a');link.href=url;link.download=manifest.filename;
+ document.body.appendChild(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),60000);
+ status.textContent='Verified. Your source ZIP download has started.';
+}catch(error){status.textContent=error instanceof Error?error.message:'The download failed. Please try again.';}
+finally{button.disabled=false;}
+});
+</script>
+</body>
+</html>
