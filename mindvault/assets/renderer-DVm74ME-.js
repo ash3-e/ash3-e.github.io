@@ -1,4 +1,4 @@
-import{Sampler as e,TRANSITION_END as t,TRANSITION_START as n,Universe as r}from"./core-BxFqxKic.js";import{n as i,t as a}from"./index-QlUs2k3c.js";var o=`#version 300 es
+import{Sampler as e,TRANSITION_END as t,TRANSITION_START as n,Universe as r}from"./core-BxFqxKic.js";import{n as i,t as a}from"./index-BplE9UBu.js";var o=`#version 300 es
 precision highp float;
 uniform vec4 camera;
 uniform vec4 rawCamera;
