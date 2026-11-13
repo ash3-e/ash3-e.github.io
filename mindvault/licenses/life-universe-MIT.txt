@@ -1,9 +1,11 @@
 Life Universe by saharan — https://oimo.io/works/life/
 Source: https://github.com/saharan/works/tree/main/life
 
-Mindvault adapts the procedural rainbow palette and zoom-rate calculation.
-Its lightweight cellular background renderer is an original interpretation;
-the reference site's runtime, controls and lookup images are not distributed.
+Mindvault ports the original recursive OTCA metapixel simulation and WebGL shader,
+including losslessly decoded numeric lookup data, from commit
+f34a4951a95ba178bfc9964d08dc898795ea4736. Life runs at 0.025x; camera zoom traverses
+one 2048-fold recursion every eight active seconds. The reference website's
+controls, icons, input controller and bundled Haxe runtime are not included.
 
 MIT License
 

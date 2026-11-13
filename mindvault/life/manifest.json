@@ -1,0 +1,31 @@
+{
+  "source": "https://github.com/saharan/works/tree/f34a4951a95ba178bfc9964d08dc898795ea4736/life",
+  "license": "MIT, Copyright (c) 2023 saharan",
+  "format": "gzip of uint32 little-endian 0xAARRGGBB",
+  "tables": {
+    "graph": {
+      "width": 1645,
+      "height": 1645,
+      "bytes": 10824100,
+      "sha256": "19e9123e17a6cecc6e003721c311748d2d67afef029612dc5a00af5bc111568c",
+      "png_sha256": "c08c2417d5e81decbdcea419f9d4d735712ba2df00dceee19235d8b0ff5bf171",
+      "compressed_bytes": 4053629
+    },
+    "anim": {
+      "width": 2048,
+      "height": 1096,
+      "bytes": 8978432,
+      "sha256": "9e38ac6e60f97a444780de96652bdedbd3dde403837dca1f9825e1c1a91e3f52",
+      "png_sha256": "e1cab25575ced103ed6e801472c19b40f7ec2391e38693c75b09babdda0615a8",
+      "compressed_bytes": 2176618
+    },
+    "loc": {
+      "width": 128,
+      "height": 65,
+      "bytes": 33280,
+      "sha256": "78b0114cb12b784056da79e96bdd64d0835b2b0b45338aef3cd745a361804aca",
+      "png_sha256": "95ea35b37e76aa7678c3374ba2f2e66ece13749b5467d598dc60fc8060e420ad",
+      "compressed_bytes": 25572
+    }
+  }
+}
