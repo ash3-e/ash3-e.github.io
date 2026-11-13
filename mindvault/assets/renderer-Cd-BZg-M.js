@@ -1,4 +1,4 @@
-import{Sampler as e,TRANSITION_END as t,TRANSITION_START as n,Universe as r}from"./core-BxFqxKic.js";import{n as i,t as a}from"./index-CKDHKhCo.js";var o=`#version 300 es
+import{Sampler as e,TRANSITION_END as t,TRANSITION_START as n,Universe as r}from"./core-C7pqblJN.js";import{n as i,t as a}from"./index-KUmhK82V.js";var o=`#version 300 es
 precision highp float;
 uniform vec4 camera;
 uniform vec4 rawCamera;
@@ -20,7 +20,6 @@ const ivec2 TILES_TEX_LOG_SIZE = ivec2(7, 7);
 const ivec2 GRAPH_TEX_SIZE = ivec2(1024, 2048);
 const ivec2 TILES_TEX_SIZE = ivec2(128, 128);
 const int OFFSET_FOR_EACH_LEVEL[10] = int[10](0, 0, 0, 0, 43566, 102445, 191663, 326396, 581726, 1009870);
-struct Node { ivec4 children; int pop; };
 uniform vec2 resolution;
 uniform highp usampler2D graph;
 uniform highp usampler2D tiles;
@@ -35,30 +34,26 @@ in vec2 vPosition;
 in vec2 vRawPosition;
 out vec4 oColor;
 
-uvec4 fetchPixelIndex(usampler2D tex, ivec2 size, ivec2 logSize, int index) {
+highp uvec4 fetchPixelIndex(highp usampler2D tex, ivec2 size, ivec2 logSize, int index) {
   return texelFetch(tex, ivec2(index & (size.x - 1), index >> logSize.x), 0);
 }
-Node parseNode(uvec4 pixel) {
-  uint popLow = pixel.r >> 24;
-  uint popHigh = pixel.g >> 24;
-  return Node(ivec4(int(pixel.r & 0xffffffu), int(pixel.g & 0xffffffu), int(pixel.b), int(pixel.a)), int(popLow | (popHigh << 8)));
-}
-Node getNode(int level, int index) {
+highp uvec4 getNode(int level, int index) {
   int pixelIndex = index + OFFSET_FOR_EACH_LEVEL[level];
-  return parseNode(fetchPixelIndex(graph, GRAPH_TEX_SIZE, GRAPH_TEX_LOG_SIZE, pixelIndex));
+  return fetchPixelIndex(graph, GRAPH_TEX_SIZE, GRAPH_TEX_LOG_SIZE, pixelIndex);
 }
 int sampleBitLevel9(int index, ivec2 pos) {
   int level = 9;
   for (int iter = 0; iter < 7; iter++) {
     int size = 1 << (level - 1);
-    Node node = getNode(level, index);
+    highp uvec4 node = getNode(level, index);
+    highp ivec4 children = ivec4(int(node.r & 0xffffffu), int(node.g & 0xffffffu), int(node.b), int(node.a));
     if (pos.y < size) {
-      if (pos.x < size) index = node.children[0];
-      else { index = node.children[1]; pos.x -= size; }
+      if (pos.x < size) index = children[0];
+      else { index = children[1]; pos.x -= size; }
     } else {
       pos.y -= size;
-      if (pos.x < size) index = node.children[2];
-      else { index = node.children[3]; pos.x -= size; }
+      if (pos.x < size) index = children[2];
+      else { index = children[3]; pos.x -= size; }
     }
     level--;
   }
@@ -93,8 +88,10 @@ float sampleBitLevel9(int index, ivec2 pos, float res, float cellState) {
   float pixelSize = 1.0;
   for (int iter = 0; iter < 7; iter++) {
     int size = 1 << (level - 1);
-    Node node = getNode(level, index);
-    float density = float(node.pop) * invArea;
+    highp uvec4 node = getNode(level, index);
+    highp ivec4 children = ivec4(int(node.r & 0xffffffu), int(node.g & 0xffffffu), int(node.b), int(node.a));
+    highp uint population = (node.r >> 24) | ((node.g >> 24) << 8);
+    float density = float(population) * invArea;
     float value = correctDensity(density, level, cellState);
     if (iter == 0) prevValue = value;
     if (res <= pixelSize) {
@@ -103,12 +100,12 @@ float sampleBitLevel9(int index, ivec2 pos, float res, float cellState) {
     }
     prevValue = value;
     if (pos.y < size) {
-      if (pos.x < size) index = node.children[0];
-      else { index = node.children[1]; pos.x -= size; }
+      if (pos.x < size) index = children[0];
+      else { index = children[1]; pos.x -= size; }
     } else {
       pos.y -= size;
-      if (pos.x < size) index = node.children[2];
-      else { index = node.children[3]; pos.x -= size; }
+      if (pos.x < size) index = children[2];
+      else { index = children[3]; pos.x -= size; }
     }
     level--;
     res *= 0.5;
