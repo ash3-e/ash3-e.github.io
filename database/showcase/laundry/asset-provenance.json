@@ -1,0 +1,24 @@
+{
+  "sourceArchive": "output/laundry-20261021/Laundry-Map-Return-2026-10-21.zip",
+  "sourceEntry": "results/0001.png",
+  "sourceSha256": "53e0a91cd9956a8bc73492fb6563803643601d8d1197b898927a789723497ad2",
+  "sourceBytes": 3661375,
+  "sourceDimensions": [
+    1086,
+    1448
+  ],
+  "geometrySource": "output/laundry-20261021/room-traces-user-edit.json",
+  "displayFile": "laundry-completed.webp",
+  "displaySha256": "3fcc279ba2c3130f916b36e355fd050f59d7633958e3a60984baa350f3c0e29b",
+  "displayBytes": 327550,
+  "displayDimensions": [
+    1086,
+    1448
+  ],
+  "encoding": "WebP quality90; metadata stripped; no resize, crop, retouch, or generation",
+  "objectCount": 16,
+  "boundDisplayAddressCount": 3,
+  "referenceOnlyCount": 2,
+  "identityPolicy": "Fresh demo-laundry-root identifiers; only room-local display root codes A, B, 1; no production UUIDs, encoded view IDs, URLs, sessions or credentials",
+  "provenanceLimit": "Archived completed return with matching contours, not verified as the current live database revision"
+}
