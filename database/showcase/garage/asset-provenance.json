@@ -80,6 +80,17 @@
       "bytes": 167144,
       "sourcePngSha256": "e59f3c19ca8046de5b3a4da30038b4c94700116aec199806fe1df0b35ad97762",
       "sha256": "3d2f2b27a8e9d78ed9b6f1906ad60bdffaed12587610cc82c0f023216b430e2b"
+    },
+    "root-live": {
+      "file": "root-live.webp",
+      "width": 900,
+      "height": 1198,
+      "sourceWidth": 1087,
+      "sourceHeight": 1447,
+      "sourcePngSha256": "c497c30a60e736091dc6787af04cc9f16080bbf39a27f4227dceb99652ef5307",
+      "bytes": 166656,
+      "sha256": "cc28e02dea54081946f1de34e7cc4191ff6795745aa1b71db7b146d9156342c9"
     }
-  }
+  },
+  "finishedRootSnapshot": "Garage View 1, live revision 114, exported 2026-11-19. Display labels verified in the signed-in map. The opening uses the 3D Printer Closet revision 4 vectors supplied as the drawing reference."
 }
