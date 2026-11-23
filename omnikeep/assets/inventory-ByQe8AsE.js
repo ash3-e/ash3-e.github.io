@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/main-DHfgOryZ.js","assets/index-DjB5-EPc.js","assets/preload-helper-jPPQmdIk.js","assets/main-Fe-pw71X.css","assets/main-BfzShSvE.js","assets/index-sw0RhRq8.js","assets/main-Ducu5i1D.css"])))=>i.map(i=>d[i]);
+import{_ as o}from"./preload-helper-jPPQmdIk.js";new URLSearchParams(window.location.search).get("showcase")==="1"?o(()=>import("./main-DHfgOryZ.js").then(_=>_.ai),__vite__mapDeps([0,1,2,3])):o(()=>import("./main-BfzShSvE.js"),__vite__mapDeps([4,1,5,2,6]));

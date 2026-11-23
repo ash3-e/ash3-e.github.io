@@ -1,0 +1,96 @@
+{
+  "description": "Local archived showcase rasters; no production data connections.",
+  "conversion": "Metadata-stripped WebP q88, root max900px wide and nested max800px; no cropping or generated content. Native sources remain in local archives.",
+  "rootSnapshot": "2026-10-20 revision107 reviewed return candidate; current live revision unverified.",
+  "nestedSnapshot": "2026-10-13 archived reviewed rasters and original captures.",
+  "images": {
+    "root-reviewed": {
+      "file": "root-reviewed.webp",
+      "width": 900,
+      "height": 1198,
+      "sourceWidth": 1087,
+      "sourceHeight": 1447,
+      "sourcePngBytes": 2420868,
+      "bytes": 187142,
+      "sourcePngSha256": "36f6636b8ee3024edb456bfd265e0cfa2a3e7afffa15e350441538a51405c305",
+      "sha256": "17c293e9d2456c04e5dddaf804ee008b0d031c7503a4731884e8f9bc027e109b"
+    },
+    "wireframe-i-reviewed": {
+      "file": "wireframe-i-reviewed.webp",
+      "width": 800,
+      "height": 1067,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourcePngBytes": 3186729,
+      "bytes": 261228,
+      "sourcePngSha256": "b2cb047cbfc73dad219622a8fba09814d5406bf39b26e8365f27ec4e2e5c49ee",
+      "sha256": "b6bc1900457f0def2a510f975d1741ab929608fc85a1be8983bdf1d17e646c63"
+    },
+    "wireframe-i-original": {
+      "file": "wireframe-i-original.webp",
+      "width": 800,
+      "height": 1067,
+      "sourceWidth": 1732,
+      "sourceHeight": 2309,
+      "sourcePngBytes": 9470310,
+      "bytes": 195894,
+      "sourcePngSha256": "ab13c68579dc4ec2dd256f4a162fd88b31fb23ef8fdb8b12f5f75523f4604906",
+      "sha256": "9afdf918524ad917d02e426d8ea81df69192801a1e5c9178eb1e53eb98b863f8"
+    },
+    "top-drawer-reviewed": {
+      "file": "top-drawer-reviewed.webp",
+      "width": 800,
+      "height": 1067,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourcePngBytes": 2960978,
+      "bytes": 215568,
+      "sourcePngSha256": "c1c678da977c584930fc3b1a9ecfc087a8cf40632c1815c82cbf38ad4001216f",
+      "sha256": "bdcb06f81fe7813577f279ac081e0b37774e01accdd36aa1a7e402eeafd92b71"
+    },
+    "top-drawer-original": {
+      "file": "top-drawer-original.webp",
+      "width": 800,
+      "height": 1066,
+      "sourceWidth": 958,
+      "sourceHeight": 1277,
+      "sourcePngBytes": 2580508,
+      "bytes": 174544,
+      "sourcePngSha256": "f1569761ce96508ce7a049efb70e6ddf48c40e6f68788d46cbfeefe501737240",
+      "sha256": "d1feee381ac3a32baa8bd8ce97550e4bf62515ba15bfd58b213461de7791b40f"
+    },
+    "bottom-drawer-reviewed": {
+      "file": "bottom-drawer-reviewed.webp",
+      "width": 800,
+      "height": 1067,
+      "sourceWidth": 1086,
+      "sourceHeight": 1448,
+      "sourcePngBytes": 2880204,
+      "bytes": 193088,
+      "sourcePngSha256": "3599bae4a0216774c84c68d3a66e41cb9f282f46b0ba99254c914a139cc5daa0",
+      "sha256": "b1ae1302d2594769b5e61cbea1bf69d01a16b6f9f8d087a68919508007167d1b"
+    },
+    "bottom-drawer-original": {
+      "file": "bottom-drawer-original.webp",
+      "width": 800,
+      "height": 1066,
+      "sourceWidth": 958,
+      "sourceHeight": 1277,
+      "sourcePngBytes": 2575848,
+      "bytes": 167144,
+      "sourcePngSha256": "e59f3c19ca8046de5b3a4da30038b4c94700116aec199806fe1df0b35ad97762",
+      "sha256": "3d2f2b27a8e9d78ed9b6f1906ad60bdffaed12587610cc82c0f023216b430e2b"
+    },
+    "root-live": {
+      "file": "root-live.webp",
+      "width": 900,
+      "height": 1198,
+      "sourceWidth": 1087,
+      "sourceHeight": 1447,
+      "sourcePngSha256": "c497c30a60e736091dc6787af04cc9f16080bbf39a27f4227dceb99652ef5307",
+      "bytes": 166656,
+      "sha256": "cc28e02dea54081946f1de34e7cc4191ff6795745aa1b71db7b146d9156342c9"
+    }
+  },
+  "finishedRootSnapshot": "Garage View 1, live revision 114, exported 2026-11-19. Display labels verified in the signed-in map. The opening uses the 3D Printer Closet revision 4 vectors supplied as the drawing reference."
+}

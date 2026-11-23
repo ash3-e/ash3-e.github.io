@@ -1,0 +1,1 @@
+import{b as s,d as e}from"./main-DHfgOryZ.js";function t(n,d){var i;if(d.deleted||!s(n,d.gridDefinitionId)||!d.addressBinding)return null;try{const r=e(d.addressBinding.canonicalAddress).segments.at(-1);return(r==null?void 0:r.kind)!=="coordinate"?null:{...r,...(i=n.gridAddressCoordinates)==null?void 0:i[d.addressBinding.canonicalAddress]}}catch{return null}}export{t as g};

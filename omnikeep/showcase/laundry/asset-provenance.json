@@ -1,0 +1,74 @@
+{
+  "snapshotDate": "2026-11-17",
+  "roomRevision": 41,
+  "source": "Read-only live Laundry root and Cabinet A subtree, using exact-checksum cached source photos",
+  "encoding": "Lossless WebP; original dimensions and pixels; live photo transforms applied in presentation",
+  "identityPolicy": "Fresh local IDs and display addresses; no production UUIDs, URLs, credentials or user identities",
+  "views": [
+    {
+      "view": "laundry",
+      "sourceSha256": "794b60ac74ab76060aa56a01937df74d330564f0fab39a8667b9e09197ef1dd3",
+      "sourceBytes": 3088295,
+      "displayFile": "laundry-completed.webp",
+      "displaySha256": "f42d87b203bd2292779b66cc738eaa400afc171c10962449051848bee02c2c85",
+      "displayBytes": 1642370,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "objectCount": 3
+    },
+    {
+      "view": "laundry-cabinet-a",
+      "sourceSha256": "5b0d0fb8da9aa094d5d9125deb53e46cfc1a284cf2d46608f6c379fc4726cac9",
+      "sourceBytes": 3529225,
+      "displayFile": "laundry-cabinet-a.webp",
+      "displaySha256": "3b21c38088fdedb766a46f363c79a0d0e5a24a96001555e04e55d86c8b7866e5",
+      "displayBytes": 1864464,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "objectCount": 3
+    },
+    {
+      "view": "laundry-a-m",
+      "sourceSha256": "ac1058267f5327df764432accbf6df5c45bd074241ce501456ca2167ad993718",
+      "sourceBytes": 3357982,
+      "displayFile": "laundry-a-m.webp",
+      "displaySha256": "b8a2110612e10b007894a166c481fb61c27a8a69e01e897825c53f60470e4c9a",
+      "displayBytes": 1726346,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "objectCount": 34
+    },
+    {
+      "view": "laundry-a-l",
+      "sourceSha256": "b782dddd947edf3c2af80c1ee8af50b6043409901f4b685cf8394bae3b66a556",
+      "sourceBytes": 3493754,
+      "displayFile": "laundry-a-l.webp",
+      "displaySha256": "78bd9be939cd510264fbd04277948f026feb2536c474f03c2df2a3c2af1064e4",
+      "displayBytes": 1837096,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "objectCount": 64
+    },
+    {
+      "view": "laundry-a-r",
+      "sourceSha256": "938b2b64f80264595d06f1219f35a1aa308eacaadece8cc6b971c4a7484e2851",
+      "sourceBytes": 3210016,
+      "displayFile": "laundry-a-r.webp",
+      "displaySha256": "55a0d3e93789337e5d9a239e12a6fdeb9f8746e045e1674d6ea50dfddf135a16",
+      "displayBytes": 1630380,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "objectCount": 64
+    }
+  ]
+}
