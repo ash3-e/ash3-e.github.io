@@ -128,7 +128,22 @@
   font-weight: 400;
   src: url(/mindvault/assets/spline-sans-mono-latin-400-normal-mUpA6Mve.woff2) format('woff2'), url(/mindvault/assets/spline-sans-mono-latin-400-normal-739QRW1l.woff) format('woff');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-}/* Liquid-glass material is referenced read-only from the database prototype:
+}.vault-account {display:grid;gap:14px;padding:4px 2px}
+.vault-account dl {margin:0;display:grid;gap:12px}
+.vault-account dl>div {display:grid;gap:3px}
+.vault-account dt,.vault-account label,.vault-account small {font-size:.8rem;color:#c7c9d1}
+.vault-account dd {margin:0;overflow-wrap:anywhere}
+.vault-account form,.vault-account section {display:grid;gap:8px;border-top:1px solid #ffffff29;padding-top:14px}
+.vault-account h3,.vault-account p {margin:0}
+.vault-account h3 {font-size:1rem}
+.vault-account p {font-size:.9rem;line-height:1.4}
+.vault-account .account-field {display:flex;gap:8px}
+.vault-account input,.vault-account textarea,.invite-field {min-width:0;width:100%;color:white;background:#14151bcc;border:1px solid #ffffff48;border-radius:7px;padding:10px}
+.vault-account textarea {resize:none;font-family:'Spline Sans Mono',monospace;font-size:.82rem;overflow-wrap:anywhere}
+.vault-account button {display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:42px;border:1px solid #ffffff38;border-radius:7px;background:#ffffff0e;padding:6px 12px;color:#fff}
+.vault-account button:disabled {opacity:.55}
+.invite-entry {display:flex;justify-content:center;margin:14px auto 0}
+/* Liquid-glass material is referenced read-only from the database prototype:
    src/components/easterEgg/easterEgg.css:5 and src/uiSurfaces.css:19-20,47-61.
    Panel/header/field fills and 20px/150% filtering retain that material; the
    source styles.css:28-31 shadows/inset highlights use the requested white UI.
