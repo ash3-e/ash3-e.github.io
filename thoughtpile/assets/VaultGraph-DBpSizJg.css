@@ -1272,12 +1272,11 @@ button.gm-hit:focus-visible {
 
 @media(prefers-reduced-motion:no-preference){
   .vault-reader {animation:vault-reader-in 250ms cubic-bezier(.4,0,.2,1) both}
-  .vault-reader > .vault-window-body,
-  .vault-reader > .vault-titlebar > * {transition:opacity var(--reader-fade) ease-in-out}
+  .vault-reader > .vault-window-body {transition:opacity var(--reader-fade) ease-in-out}
   .vault-reader[data-closing] {animation:vault-reader-out 250ms cubic-bezier(.4,0,.2,1) both;pointer-events:none}
 }
-.vault-reader[data-switching] > .vault-window-body,
-.vault-reader[data-switching] > .vault-titlebar > * {opacity:0}
+.vault-reader[data-switching] > .vault-window-body {opacity:0}
+.vault-reader[data-switching] .detail-save:not([data-state=clean]) {opacity:1}
 @keyframes vault-reader-in {from{transform:translateX(calc(100% + 16px));opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes vault-reader-out {from{transform:translateX(0);opacity:1}to{transform:translateX(calc(100% + 16px));opacity:0}}
 @media (max-width: 520px) {
