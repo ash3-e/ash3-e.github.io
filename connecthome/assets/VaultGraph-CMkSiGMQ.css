@@ -202,32 +202,40 @@ button.gm-hit:focus-visible {
   --rail-padding-top: 12px;
   padding: var(--rail-padding-top) 15px 12px;
 }
-.gm-rail[hidden] {
-  display: flex;
+.vault-graph-root [data-pane-side] {
+  --pane-progress: 1;
+  --pane-crop: calc((100% - 42px) * (1 - var(--pane-progress)));
+  --pane-radius: calc(12px + 4px * var(--pane-progress));
+  --pane-duration: 250ms;
+  --pane-easing: cubic-bezier(.4, 0, .2, 1);
+  opacity: var(--pane-progress);
+  clip-path: inset(0 var(--pane-crop) 0 0 round var(--pane-radius));
+  transition: clip-path var(--pane-duration) var(--pane-easing),
+    opacity var(--pane-duration) var(--pane-easing), visibility 0s;
+}
+.vault-graph-root [data-pane-side="right"] {
+  clip-path: inset(0 0 0 var(--pane-crop) round var(--pane-radius));
+}
+.vault-graph-root [data-pane-side][inert] {
+  --pane-progress: 0;
   visibility: hidden;
   pointer-events: none;
+  transition-delay: 0s, 0s, var(--pane-duration);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .gm-rail {
-    will-change: clip-path, opacity;
-    contain:layout style;
-    clip-path: inset(0 round 16px);
-    transition:
-      opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
-      clip-path 250ms cubic-bezier(0.4, 0, 0.2, 1),
-      visibility 0s linear;
-  }
-  .gm-rail[hidden] {
-    opacity: 0;
-    transition-delay:0s,0s,250ms;
-    clip-path: inset(0 calc(100% - 42px) 0 0 round 12px);
-  }
-  @starting-style {
-    .gm-rail:not([hidden]) {
-      opacity: 0;
-      clip-path: inset(0 calc(100% - 42px) 0 0 round 12px);
-    }
-  }
+.vault-graph-root [data-pane-side][data-scrubbing] {
+  visibility: visible;
+  transition: none;
+  user-select: none;
+}
+[data-pane-side], [data-pane-side] :is(.gm-rail-body,.vault-window-body,textarea),
+.vault-graph-root .gm-launch {
+  touch-action: pan-y pinch-zoom;
+}
+@starting-style {
+  .vault-graph-root [data-pane-side]:not([inert]) { --pane-progress: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vault-graph-root [data-pane-side] { transition: none; }
 }
 @media (min-width: 701px) {
   .gm-workspace .gm-launch {
@@ -822,7 +830,8 @@ button.gm-hit:focus-visible {
     --gm-right-inset: 0px;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 700px), (hover: none) and (pointer: coarse) {
+  .gm-workspace .gm-launch { flex-direction:row; }
   .gm-workspace {
     --gm-gap: 10px;
     --gm-top: max(66px, calc(env(safe-area-inset-top) + 62px));
@@ -832,8 +841,9 @@ button.gm-hit:focus-visible {
     top: max(8px, env(safe-area-inset-top));
   }
   .gm-map-area,
-  .gm-rail-open .gm-map-area {
+  .gm-rail-open .gm-map-area, .gm-selected .gm-map-area {
     --gm-left-inset: 0px;
+    --gm-right-inset: 0px;
   }
   .gm-rail {
     width: min(296px, calc(100% - 20px));
@@ -922,6 +932,7 @@ button.gm-hit:focus-visible {
 .gm-focused-tag button { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 8px; }
 .gm-focused-tag button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gm-focused-tag button svg { flex-shrink: 0; }
+.gm-focused-tag > span { align-self:center;padding:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 /* Keep text neutral and legible even for custom swatches near black or white. */
 .tag-tint {
   --tag-edge: color-mix(in srgb, var(--tag-color) 70%, #e9e3ee);
@@ -1060,7 +1071,7 @@ button.gm-hit:focus-visible {
   .vault-resize-width {inset:14px 0 14px auto;width:5px;cursor:ew-resize}
   .vault-resize-height {inset:auto 14px 0;height:5px;cursor:ns-resize}
 }
-@media(max-width:700px) {
+@media(max-width:700px),(hover:none) and (pointer:coarse) {
   .vault-window.gm-glass {--window-top:max(66px,calc(env(safe-area-inset-top) + 62px));--window-gap:max(12px,env(safe-area-inset-bottom),var(--gm-camera-clearance,0px));right:10px}
   .vault-window .vault-window-body :is(input,textarea,select) {font-size:16px}
 }
@@ -1103,7 +1114,7 @@ button.gm-hit:focus-visible {
   .vault-window .vault-options .vault-exports button {min-height:44px}
   .vault-window .vault-options .vault-collection select {font-size:16px}
 }
-@media(max-width:700px) {
+@media(max-width:700px),(hover:none) and (pointer:coarse) {
   .vault-graph-root:has(.vault-options) :is(.gm-rail,.gm-launch) {
     visibility:hidden;
     pointer-events:none;
@@ -1271,29 +1282,33 @@ button.gm-hit:focus-visible {
 .vault-review h4 { margin:0; font-size:1rem; text-transform:capitalize }.vault-review p {margin:0}.vault-review span,.vault-review small {color:#e0dbe4}.vault-review button {justify-self:start;margin-top:4px}
 
 @media(prefers-reduced-motion:no-preference){
-  .vault-reader {animation:vault-reader-in 250ms cubic-bezier(.4,0,.2,1) both}
   .vault-reader > .vault-window-body {transition:opacity var(--reader-fade) ease-in-out}
-  .vault-reader[data-closing] {animation:vault-reader-out 250ms cubic-bezier(.4,0,.2,1) both;pointer-events:none}
 }
 .vault-reader[data-switching] > .vault-window-body {opacity:0}
 .vault-reader[data-switching] .detail-save:not([data-state=clean]) {opacity:1}
-@keyframes vault-reader-in {from{transform:translateX(calc(100% + 16px));opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes vault-reader-out {from{transform:translateX(0);opacity:1}to{transform:translateX(calc(100% + 16px));opacity:0}}
+.vault-graph-root .vault-reader-launch {
+  position:fixed;z-index:25;left:auto;right:16px;top:max(78px,calc(env(safe-area-inset-top) + 72px));
+}
+@media(max-width:700px),(hover:none) and (pointer:coarse) {
+  .vault-graph-root .vault-reader-launch {right:10px;top:max(66px,calc(env(safe-area-inset-top) + 62px))}
+  .vault-graph-root:has(.vault-reader) .gm-rail {width:min(296px,calc(100% - 72px))}
+}
+@media (max-height:460px) {.vault-graph-root .vault-reader-launch {top:58px}}
 @media (max-width: 520px) {
   /* The reader occupies the lower toolbar row. Keep its map controls beside
      the wordmark icon in the unobstructed top row. */
-  .vault-graph-root:has(.vault-reader) .gm-launch {
+  .vault-graph-root:has(.vault-reader:not([inert])) .gm-workspace .gm-launch {
     top: max(8px, env(safe-area-inset-top));
     left: calc(var(--gm-gap) + 48px);
     z-index: 6;
   }
-  .vault-graph-root:has(.vault-reader) .gm-actions .brand span {display:none}
-  .vault-graph-root:has(.vault-reader) .vault-tool-actions button {
+  .vault-graph-root:has(.vault-reader:not([inert])) .gm-actions .brand span {display:none}
+  .vault-graph-root:has(.vault-reader:not([inert])) .vault-tool-actions button {
     width:44px;min-width:44px;padding-inline:0;
   }
 }
 @media (max-width: 350px) {
-  .vault-graph-root:has(.vault-reader):has([aria-label="Exit revealed view"]) .gm-launch {left:var(--gm-gap);top:var(--gm-top)}
+  .vault-graph-root:has(.vault-reader:not([inert])):has([aria-label="Exit revealed view"]) .gm-workspace .gm-launch {left:var(--gm-gap);top:var(--gm-top)}
   .vault-graph-root:has([aria-label="Exit revealed view"]) .vault-reader {--window-top:max(118px,calc(env(safe-area-inset-top) + 114px))}
 }
 /* The mirror gives the native title field the same wrapping and intrinsic height as the heading. */
