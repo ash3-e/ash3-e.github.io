@@ -1032,7 +1032,8 @@ button.gm-hit:focus-visible {
 .vault-titlebar {
   cursor:move; touch-action:none; user-select:none;
 }
-.vault-titlebar:focus-visible {outline:2px solid #eee8f9;outline-offset:-3px}
+.vault-titlebar:focus {outline:none}
+.vault-titlebar:focus-visible h2 {text-decoration:underline;text-underline-offset:2px}
 .vault-window-body {flex:1 1 auto;min-height:0;min-width:0;max-width:100%;padding:var(--window-inset);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;overflow-wrap:anywhere;scrollbar-width:thin;scrollbar-color:#c0a2dba8 transparent;font:var(--window-ui)}
 .vault-window-body::-webkit-scrollbar-corner {background:transparent}
 .vault-window .vault-window-body :where(input:not([type=checkbox]):not([type=radio]),textarea,select) {border:1px solid var(--window-edge);border-radius:8px;background:var(--window-field);color:#fff;font-family:var(--mono);backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -1271,8 +1272,12 @@ button.gm-hit:focus-visible {
 
 @media(prefers-reduced-motion:no-preference){
   .vault-reader {animation:vault-reader-in 250ms cubic-bezier(.4,0,.2,1) both}
+  .vault-reader > .vault-window-body,
+  .vault-reader > .vault-titlebar > * {transition:opacity var(--reader-fade) ease-in-out}
   .vault-reader[data-closing] {animation:vault-reader-out 250ms cubic-bezier(.4,0,.2,1) both;pointer-events:none}
 }
+.vault-reader[data-switching] > .vault-window-body,
+.vault-reader[data-switching] > .vault-titlebar > * {opacity:0}
 @keyframes vault-reader-in {from{transform:translateX(calc(100% + 16px));opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes vault-reader-out {from{transform:translateX(0);opacity:1}to{transform:translateX(calc(100% + 16px));opacity:0}}
 @media (max-width: 520px) {
