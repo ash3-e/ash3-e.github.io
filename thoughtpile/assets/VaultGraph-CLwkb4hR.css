@@ -1333,6 +1333,16 @@ button.gm-hit:focus-visible {
 .detail-title-editor textarea:focus {outline:1px solid var(--border);outline-offset:3px}
 .detail-title-editor textarea:focus-visible {outline:2px solid var(--bright)}
 .detail-title-editor textarea::placeholder {color:var(--window-muted,var(--ink));opacity:.7}
+:is(.dialog-body,.vault-window-body) textarea.detail-summary {
+  display:block;
+  field-sizing:content;
+  min-height:3lh;
+  max-height:14lh;
+  padding:8px 10px;
+  margin:8px 0;
+  font:inherit;
+  line-height:1.5;
+}
 .dialog-header:has(.detail-save) h2 {flex:1}
 :is(.vault-titlebar,.dialog-header) button.icon-button.detail-save {
   position:relative;
