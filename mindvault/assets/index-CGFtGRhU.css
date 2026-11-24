@@ -128,20 +128,23 @@
   font-weight: 400;
   src: url(/mindvault/assets/spline-sans-mono-latin-400-normal-mUpA6Mve.woff2) format('woff2'), url(/mindvault/assets/spline-sans-mono-latin-400-normal-739QRW1l.woff) format('woff');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
-}.vault-account {display:grid;gap:14px;padding:4px 2px}
-.vault-account dl {margin:0;display:grid;gap:12px}
-.vault-account dl>div {display:grid;gap:3px}
-.vault-account dt,.vault-account label,.vault-account small {font-size:.8rem;color:#c7c9d1}
-.vault-account dd {margin:0;overflow-wrap:anywhere}
-.vault-account form,.vault-account section {display:grid;gap:8px;border-top:1px solid #ffffff29;padding-top:14px}
+}.vault-account {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 8px}
+.vault-account > :is(dl,form,section,p) {grid-column:1 / -1}
+.vault-account dl {margin:0;display:grid;gap:10px}
+.vault-account dl>div {display:grid;gap:4px}
+.vault-account dt,.vault-account form>label {font-size:.7rem;color:var(--window-muted);text-transform:uppercase;letter-spacing:.065em}
+.vault-account dd {margin:0;overflow-wrap:anywhere;font:600 .85rem/1.4 var(--mono)}
+.vault-account form,.vault-account section {display:grid;gap:6px}
+.vault-account section {padding-block:9px;border-block:1px solid #e2ccfc38}
 .vault-account h3,.vault-account p {margin:0}
-.vault-account h3 {font-size:1rem}
-.vault-account p {font-size:.9rem;line-height:1.4}
-.vault-account .account-field {display:flex;gap:8px}
-.vault-account input,.vault-account textarea,.invite-field {min-width:0;width:100%;color:white;background:#14151bcc;border:1px solid #ffffff48;border-radius:7px;padding:10px}
-.vault-account textarea {resize:none;font-family:'Spline Sans Mono',monospace;font-size:.82rem;overflow-wrap:anywhere}
-.vault-account button {display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:42px;border:1px solid #ffffff38;border-radius:7px;background:#ffffff0e;padding:6px 12px;color:#fff}
-.vault-account button:disabled {opacity:.55}
+.vault-account .vault-window-body h3,.vault-window-body .vault-account h3 {margin:0;font-size:.9rem}
+.vault-account :is(p,small) {font-size:.78rem;line-height:1.4;color:var(--window-muted)}
+.vault-account .account-field {display:flex;gap:6px}
+.vault-account input,.vault-account textarea,.invite-field {min-width:0;width:100%;color:white;background:#14151bcc;border:1px solid #ffffff48;border-radius:7px;padding:8px}
+.vault-account textarea {resize:none;font-family:var(--mono);font-size:.82rem;overflow-wrap:anywhere}
+.vault-account button {display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:32px;padding:4px 7px;font:600 .75rem/1.25 var(--mono)}
+.vault-account section>button {justify-self:start}
+@media(pointer:coarse) {.vault-account button,.vault-tag-row button.tag {min-height:44px}}
 .invite-entry {display:flex;justify-content:center;margin:14px auto 0}
 /* Liquid-glass material is referenced read-only from the database prototype:
    src/components/easterEgg/easterEgg.css:5 and src/uiSurfaces.css:19-20,47-61.
