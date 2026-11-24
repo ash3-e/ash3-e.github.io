@@ -1028,7 +1028,7 @@ button.gm-hit:focus-visible {
   display: flex; flex-direction: column; overflow: hidden; resize: none;
   isolation: isolate;
 }
-.vault-window.vault-reader {height:calc(var(--visible-height, 100dvh) - var(--window-top) - var(--window-gap))}
+.vault-window.vault-reader {height:calc(var(--visible-height, 100dvh) - var(--window-top) - var(--window-gap));overflow:clip}
 .vault-titlebar {
   cursor:move; touch-action:none; user-select:none;
 }
