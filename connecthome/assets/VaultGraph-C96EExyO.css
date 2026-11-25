@@ -1294,22 +1294,21 @@ button.gm-hit:focus-visible {
   .vault-graph-root:has(.vault-reader) .gm-rail {width:min(296px,calc(100% - 72px))}
 }
 @media (max-height:460px) {.vault-graph-root .vault-reader-launch {top:58px}}
-@media (max-width: 520px) {
-  /* The reader occupies the lower toolbar row. Keep its map controls beside
-     the wordmark icon in the unobstructed top row. */
-  .vault-graph-root:has(.vault-reader:not([inert])) .gm-workspace .gm-launch {
-    top: max(8px, env(safe-area-inset-top));
-    left: calc(var(--gm-gap) + 48px);
-    z-index: 6;
-  }
-  .vault-graph-root:has(.vault-reader:not([inert])) .gm-actions .brand span {display:none}
-  .vault-graph-root:has(.vault-reader:not([inert])) .vault-tool-actions button {
-    width:44px;min-width:44px;padding-inline:0;
+@media (max-width: 600px) {
+  .vault-tool-actions .vault-header-button {
+    width:44px;height:44px;padding:0;flex:none;
   }
 }
-@media (max-width: 350px) {
-  .vault-graph-root:has(.vault-reader:not([inert])):has([aria-label="Exit revealed view"]) .gm-workspace .gm-launch {left:var(--gm-gap);top:var(--gm-top)}
-  .vault-graph-root:has([aria-label="Exit revealed view"]) .vault-reader {--window-top:max(118px,calc(env(safe-area-inset-top) + 114px))}
+@media (max-width: 416px) {
+  /* Where the docked reader and launcher cannot fit side by side, give
+     the reader its own row below the launcher. */
+  .vault-window.vault-reader {--window-top:max(122px,calc(env(safe-area-inset-top) + 118px))}
+}
+@media (max-width: 360px) {
+  .gm-actions [aria-label="Exit revealed view"] {
+    position:absolute;left:104px;top:calc(var(--gm-top) - max(8px,env(safe-area-inset-top)));
+    width:44px;height:44px;padding:0;
+  }
 }
 /* The mirror gives the native title field the same wrapping and intrinsic height as the heading. */
 .detail-title-editor { display:grid; min-width:0; }
