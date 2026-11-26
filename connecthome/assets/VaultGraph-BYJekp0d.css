@@ -316,8 +316,6 @@ button.gm-hit:focus-visible {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: #746c80 transparent;
   padding: 0 15px;
 }
 .gm-rail-overview {
@@ -1162,7 +1160,7 @@ button.gm-hit:focus-visible {
 .vault-titlebar:focus {outline:none}
 .vault-titlebar:focus-visible h2 {text-decoration:underline;text-underline-offset:2px}
 .vault-window-body {flex:1 1 auto;min-height:0;min-width:0;max-width:100%;padding:var(--window-inset);overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;overflow-wrap:anywhere;scrollbar-width:thin;scrollbar-color:#c0a2dba8 transparent;font:var(--window-ui)}
-.vault-window-body::-webkit-scrollbar-corner {background:transparent}
+.vault-window:not(.vault-reader) > .vault-window-body::-webkit-scrollbar-corner {background:transparent}
 .vault-window .vault-window-body :where(input:not([type=checkbox]):not([type=radio]),textarea,select) {border:1px solid var(--window-edge);border-radius:8px;background:var(--window-field);color:#fff;font-family:var(--mono);backdrop-filter:none;-webkit-backdrop-filter:none}
 .vault-window .vault-window-body textarea {resize:none}
 .vault-window-body :is(form > label,dt) {color:var(--window-muted);font-size:.71rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase}
