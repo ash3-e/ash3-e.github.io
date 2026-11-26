@@ -154,11 +154,128 @@
 .vault-account button {display:inline-flex;align-items:center;justify-content:center;min-width:0}
 .vault-account section>button {justify-self:start}
 .invite-entry {display:flex;justify-content:center;margin:14px auto 0}
+/*
+ * Pearl is a transparent image placed above the surface's original backing.
+ * Ordinary controls retain their native background-color and interaction states.
+ * When a parent needs apertures, its compositor consumes the same full shorthand.
+ */
+[data-pearl-glass] {
+  --pearl-optics: none;
+  --pearl-native-image: none;
+  --pearl-backing: var(--control);
+  --pearl-surface-fill: var(--pearl-optics) center / 100% 100% no-repeat, var(--pearl-backing);
+}
+
+[data-pearl-glass]:not([data-glass-cutout-host]) {
+  /* Later graph and form hover rules use the background shorthand. Keep their
+     colors while preserving the image channel as long as this surface is active. */
+  background-image: var(--pearl-optics), var(--pearl-native-image) !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+}
+
+:where(.glass)[data-pearl-glass] { --pearl-backing: var(--glass-surface-fill, var(--panel)); }
+:is(.gm-glass, .dialog.glass.dialog-wide)[data-pearl-glass] {
+  --pearl-native-image: var(--map-glass-fill, var(--glass-plum-gradient));
+  --pearl-backing: var(--glass-surface-fill);
+}
+:is(.topbar,.detail-loading,.dialog-header)[data-pearl-glass] { --pearl-backing: var(--header); }
+.dialog-wide > .dialog-header[data-pearl-glass] { --pearl-backing: rgb(255 255 255 / .045); }
+:is(.message,.secret-banner,.search-reveal-panel)[data-pearl-glass] { --pearl-backing: var(--panel); }
+.action-menu[data-pearl-glass] { --pearl-backing: rgb(15 5 33 / .94); }
+:is(.pairing-code,.search-field,input,select,textarea)[data-pearl-glass] { --pearl-backing: var(--field); }
+.viewport-glass[data-pearl-glass] { --pearl-backing: rgb(15 5 33 / .0975); }
+.gm-search[data-pearl-glass] { --pearl-backing: rgb(0 0 0 / .22); }
+.gm-switch[data-pearl-glass] { --pearl-backing: rgb(0 0 0 / .24); }
+.vault-notice[data-pearl-glass] { --pearl-backing: #191a22f5; }
+.image-label[data-pearl-glass] { --pearl-backing: #0f0521dc; }
+.source-link[data-pearl-glass] { --pearl-backing: rgb(255 255 255 / .065); }
+.source-link[data-pearl-glass]:hover { --pearl-backing: rgb(255 255 255 / .12); }
+:is(.detail-save,.related-tag-icon-face)[data-pearl-glass] { --pearl-backing: rgb(15 5 33 / .2925); }
+:is(.vault-panel-header,.gm-rail-footer,.vault-exports > div)[data-pearl-glass] { --pearl-backing: rgb(255 255 255 / .045); }
+.vault-review[data-pearl-glass] { --pearl-backing: #ffffff08; }
+.vault-video .video-consent[data-pearl-glass] { --pearl-backing: #160e1e65; }
+.gm-switch button[aria-pressed="true"][data-pearl-glass] { --pearl-backing: rgb(255 255 255 / .13); }
+:is(.gm-toggle-mark,.gm-check input[type="checkbox"],.gm-inactive input[type="checkbox"])[data-pearl-glass] {
+  --pearl-native-image: linear-gradient(155deg, rgb(255 255 255 / .09), rgb(255 255 255 / .025));
+  --pearl-backing: var(--pearl-native-image);
+}
+:is(.gm-source-toggle[aria-pressed="true"] .gm-toggle-mark,.gm-check input[type="checkbox"]:checked)[data-pearl-glass] {
+  --pearl-native-image: linear-gradient(150deg, rgb(255 255 255 / .25), rgb(209 196 230 / .09));
+}
+
+@media (max-width: 700px) {
+  .vault-tool-actions .vault-header-button[data-pearl-glass] {
+    --pearl-native-image: linear-gradient(145deg, #201829e8, #100c19e0);
+    --pearl-backing: var(--pearl-native-image), var(--panel);
+  }
+}
+@media (width > 700px) {
+  /* Desktop toolbar buttons switch to the translucent control backing on hover. */
+  .vault-tool-actions .vault-header-button[data-pearl-glass]:hover {
+    --pearl-native-image: none;
+    --pearl-backing: rgb(255 255 255 / .13);
+  }
+}
+/* The top-layer scrim spans the viewport independently of the dialog box. */
+.dialog[data-pearl-backdrop]::backdrop {
+  background-image: var(--pearl-backdrop-optics, none);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  :is(.gm-glass,.dialog.glass.dialog-wide)[data-pearl-glass] { --pearl-native-image: none; }
+  .topbar[data-pearl-glass] { --pearl-backing: #21103e; }
+  .viewport-glass[data-pearl-glass] { --pearl-backing: rgb(15 5 33 / .24); }
+}
+@media (forced-colors: active) {
+  [data-pearl-glass]:not([data-glass-cutout-host]), .dialog[data-pearl-backdrop]::backdrop { background-image: none !important; }
+  [data-pearl-glass] { --pearl-surface-fill: Canvas; }
+}
+
+.tag-panel-fill { display:none }
+[data-glass-defs] {
+  position:absolute !important; width:0 !important; height:0 !important;
+  pointer-events:none; forced-color-adjust:none;
+}
+[data-glass-relative] { position:relative }
+[data-glass-cutout-host] {
+  isolation:isolate;
+  background-color:transparent !important;
+  background-image:none !important;
+}
+[data-glass-cutout-host] > .tag-panel-fill {
+  display:block; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  margin:0; padding:0; border:0; border-radius:inherit;
+  background:var(--pearl-surface-fill,var(--glass-surface-fill,var(--panel)));
+}
+.tag-tint[data-glass-cutout-host] > .tag-panel-fill {
+  background:var(--tag-optical-material,var(--tag-gradient),var(--tag-fill));
+}
+[data-glass-nested] {
+  --tag-backdrop-filter:none;
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+}
+.viewport-glass[data-glass-behind-modal] {visibility:hidden}
+.dialog::backdrop {
+  -webkit-mask-image:var(--glass-backdrop-mask,none);
+  mask-image:var(--glass-backdrop-mask,none);
+}
+/* Keep the opening sealed while the label and swatch give press feedback. */
+[data-glass-nested]:is(button.tag-tint):enabled:active {transform:none}
+[data-glass-nested]:is(button.tag-tint):enabled:active > :not(.tag-panel-fill) {translate:0 1px}
 /* Liquid-glass material is referenced read-only from the database prototype:
    src/components/easterEgg/easterEgg.css:5 and src/uiSurfaces.css:19-20,47-61.
    Panel/header/field fills and 20px/150% filtering retain that material; the
    source styles.css:28-31 shadows/inset highlights use the requested white UI.
    The viewport pane blurs the completed dot matrix under a half-strength tint. */
+:root {
+  --glass-plum-gradient: linear-gradient(148deg, rgb(29 19 41 / .78), rgb(15 10 24 / .65));
+}
 :root{font-family:Archivo,system-ui,sans-serif;color:#fff;background:#000;font-synthesis:none;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;--ink:#fff;--muted:#fff;--accent:#ffffff;--bright:#fff;--panel:rgb(15 5 33 / .195);--header:rgb(15 5 33 / .4328125);--control:rgb(255 255 255 / .12);--field:rgb(15 5 33 / .34125);--border:rgb(255 255 255 / .28);--radius:14px;--mono:'Spline Sans Mono',monospace;--glass-filter:blur(20px) saturate(150%);--control-filter:blur(10px) saturate(150%);--glass-shadow:0 8px 32px rgb(0 0 0 / .48),0 2px 8px rgb(0 0 0 / .28);--glass-shadow-elevated:0 16px 48px rgb(0 0 0 / .56),0 4px 12px rgb(0 0 0 / .32);--glass-glow:inset 0 0 0 1px rgb(255 255 255 / .08),inset 0 1px 0 rgb(255 255 255 / .14);--glass-glow-hover:inset 0 0 0 1px rgb(255 255 255 / .16),inset 0 1px 0 rgb(255 255 255 / .26)}
 *{box-sizing:border-box}html,body{touch-action:pan-x pan-y}body{margin:0;min-width:320px;min-height:100vh;background:#000}
 .app-frame{isolation:isolate;min-height:100vh;min-height:100dvh}.app-background{--viewport-filter:blur(20px) saturate(150%);position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#000}.life-canvas{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}.viewport-glass{position:absolute;inset:0;z-index:1;pointer-events:none;background:rgb(15 5 33 / .0975);-webkit-backdrop-filter:var(--viewport-filter);backdrop-filter:var(--viewport-filter);border:0;outline:0;border-radius:0;box-shadow:none}.app-foreground{position:relative;z-index:1;min-height:100vh;min-height:100dvh}
@@ -203,4 +320,4 @@ button,input,textarea,select{font:inherit;color:inherit}button,a,input,textarea,
   .message.error{align-items:flex-start;flex-wrap:wrap}.message.error>span{flex:1 1 180px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{background:rgb(34 14 59 / .94)}.topbar{background:#21103e}.dialog{background:#291443}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{--glass-surface-fill:rgb(34 14 59 / .94);background:var(--glass-surface-fill)}.topbar{background:#21103e}.dialog{--glass-surface-fill:#291443;background:var(--glass-surface-fill)}}
