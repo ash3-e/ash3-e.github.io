@@ -625,8 +625,31 @@ button.gm-hit:focus-visible {
   color: #cdc5d5;
   transition: transform 0.14s;
 }
-.gm-section[open] summary svg {
+.gm-section[open] > summary svg {
   transform: rotate(180deg);
+}
+.gm-pixel-section,
+.gm-pixel-section .gm-section-body,
+.gm-pixel-section .gm-field,
+.gm-pixel-section .gm-slider {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.gm-pixel-section .gm-section-body { grid-template-columns: minmax(0, 1fr); }
+.gm-section .gm-pixel-section {
+  border-inline-start: 1px solid rgb(255 255 255 / .14);
+  padding-inline-start: 8px;
+}
+.gm-pixel-section > summary svg,
+.gm-pixel-section output { flex-shrink: 0; }
+.gm-pixel-section .gm-slider output { white-space: nowrap; }
+.gm-pixel-section input[type='range'] { min-width: 0; }
+.gm-pixel-section select { text-overflow: ellipsis; }
+@media (pointer: coarse) {
+  .gm-pixel-section > summary,
+  .gm-pixel-section .gm-field select,
+  .gm-pixel-section .gm-check label { min-height: 44px; }
+  .gm-pixel-section input[type='range'] { min-height: 32px; }
 }
 .gm-section summary:focus-visible {
   outline: 2px solid white;
