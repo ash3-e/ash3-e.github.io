@@ -149,6 +149,8 @@
   .tag-row button:focus-visible { outline-color: Highlight; }
 }
 .gm-presets {
+  /* Keep the absolutely positioned screen-reader hint inside this scroller. */
+  position: relative;
   display: grid;
   gap: 4px;
   max-height: min(50dvh, 22rem);
@@ -393,7 +395,8 @@ button.gm-hit:focus-visible {
   bottom: var(--gm-dock-bottom);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Focus and scrollIntoView must only scroll the body between header and footer. */
+  overflow: clip;
 }
 .gm-rail-body {
   flex: 1;
